@@ -192,3 +192,52 @@ export function getOutcomeLabel(eyeCount) {
   if (eyeCount > 0)    return 'Schneider (verloren)';
   return 'Schwarz (verloren)';
 }
+
+// ─── Seeger-Fabian Tournament Scoring ───
+//
+// The Seeger-Fabian system (Otto Seeger 1936, expanded by Johannes Fabian 1962)
+// adds tournament bonuses on top of the standard game value:
+//
+//   Solo player (declarer):
+//     Won:  game value + 50
+//     Lost: game value − 50 (game value is already negative)
+//
+//   Opponents (when solo player loses, 3-player table):
+//     Each opponent receives +40 bonus points
+//
+//   At a 4-player table the bonus would be +30 each (incl. dealer),
+//   but this app currently supports 3-player tables only.
+
+/**
+ * Calculates Seeger-Fabian tournament scores for all players in a round.
+ * @param {object} params
+ * @param {string}   params.declarer   – name of the solo player
+ * @param {string[]} params.allPlayers – all player names
+ * @param {number}   params.gameValue  – standard game value (already signed)
+ * @param {boolean}  params.won        – did the declarer win?
+ * @returns {object} { [playerName]: seegerPoints }
+ */
+export function calculateSeegerFabian({ declarer, allPlayers, gameValue, won }) {
+  const scores = {};
+  allPlayers.forEach(p => { scores[p] = 0; });
+
+  const playerCount = allPlayers.length;
+  const opponentBonus = playerCount <= 3 ? 40 : 30;
+
+  if (won) {
+    // Declarer gets game value + 50
+    scores[declarer] = gameValue + 50;
+    // Opponents get nothing extra
+  } else {
+    // Declarer gets game value (negative) − 50
+    scores[declarer] = gameValue - 50;
+    // Each opponent gets bonus
+    allPlayers.forEach(p => {
+      if (p !== declarer) {
+        scores[p] = opponentBonus;
+      }
+    });
+  }
+
+  return scores;
+}
