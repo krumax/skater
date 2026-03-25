@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Sunny Ledger - Player Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#4CAF50",
+              "secondary": "#0284c7", // sky-600
+              "tertiary": "#f59e0b", // amber-500
+              "surface": "#ffffff",
+              "background": "#f8fafc", // slate-50
+              "surface-container": "#f1f5f9", // slate-100
+              "surface-container-high": "#e2e8f0", // slate-200
+              "on-surface": "#0f172a", // slate-900
+              "on-surface-variant": "#64748b", // slate-500
+              "outline": "#cbd5e1", // slate-300
+              "error": "#ef4444",
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.5rem",
+              "lg": "0.75rem",
+              "xl": "1rem",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      .glass-effect { backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body antialiased">
+<!-- TopNavBar from COMPONENTS_9 -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-100">
+<div class="flex justify-between items-center px-6 py-3 max-w-full mx-auto">
+<div class="text-xl font-bold text-emerald-800 tracking-tighter">Sunny Ledger</div>
+<div class="hidden md:flex gap-8 items-center font-plus-jakarta text-sm font-semibold tracking-tight">
+<a class="text-slate-500 hover:text-emerald-600 transition-colors" href="#">Dashboard</a>
+<a class="text-slate-500 hover:text-emerald-600 transition-colors" href="#">History</a>
+<a class="text-slate-500 hover:text-emerald-600 transition-colors" href="#">Statistics</a>
+<a class="text-slate-500 hover:text-emerald-600 transition-colors" href="#">Rules</a>
+<a class="text-emerald-700 border-b-2 border-emerald-600 pb-1" href="#">Players</a>
+</div>
+<div class="flex items-center gap-2">
+<button class="material-symbols-outlined p-2 text-slate-500 hover:bg-slate-50 rounded-md transition-all active:scale-95 duration-200" data-icon="account_circle">account_circle</button>
+<button class="material-symbols-outlined p-2 text-slate-500 hover:bg-slate-50 rounded-md transition-all active:scale-95 duration-200" data-icon="settings">settings</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="pt-24 pb-12 px-8 max-w-[1600px] mx-auto">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+<div class="w-full md:w-1/2">
+<span class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">Player Performance Analytics</span>
+<h1 class="text-6xl font-extrabold text-on-surface tracking-tighter leading-none mb-4">Lukas V. Schmidt</h1>
+<div class="flex gap-4 items-center text-sm font-medium">
+<span class="flex items-center gap-1 bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-sm" data-icon="military_tech">military_tech</span> Grandmaster Rank
+                </span>
+<span class="text-on-surface-variant">Member since Oct 2022</span>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+<div class="flex items-center bg-white border border-outline px-4 py-2 rounded-lg">
+<span class="material-symbols-outlined text-on-surface-variant text-lg mr-2" data-icon="calendar_month">calendar_month</span>
+<select class="bg-transparent border-none p-0 text-sm font-semibold focus:ring-0 cursor-pointer text-on-surface">
+<option>Last 30 Days</option>
+<option>Current Season</option>
+<option>Last 12 Months</option>
+<option>All Time</option>
+</select>
+</div>
+<div class="flex items-center bg-white border border-outline px-4 py-2 rounded-lg">
+<span class="material-symbols-outlined text-on-surface-variant text-lg mr-2" data-icon="filter_list">filter_list</span>
+<select class="bg-transparent border-none p-0 text-sm font-semibold focus:ring-0 cursor-pointer text-on-surface">
+<option>All Session Types</option>
+<option>Tournament</option>
+<option>Casual</option>
+<option>High-Stakes</option>
+</select>
+</div>
+</div>
+</header>
+<!-- Bento Grid Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
+<!-- Hero Stat: Win Rate Trend -->
+<div class="md:col-span-8 bg-white rounded-lg p-8 shadow-sm border border-slate-100">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h3 class="font-bold text-xl text-on-surface">Win Rate Consistency</h3>
+<p class="text-sm text-on-surface-variant">Average monthly winning percentage over time</p>
+</div>
+<div class="text-right">
+<div class="text-3xl font-black text-emerald-600">68.4%</div>
+<div class="text-xs font-bold text-emerald-600 flex items-center justify-end">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span> +2.1%
+                    </div>
+</div>
+</div>
+<!-- Data-rich Bar Chart -->
+<div class="h-64 flex items-end justify-between gap-2 w-full relative">
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+<div class="border-b border-slate-100 w-full h-0"></div>
+<div class="border-b border-slate-100 w-full h-0"></div>
+<div class="border-b border-slate-100 w-full h-0"></div>
+<div class="border-b border-slate-100 w-full h-0"></div>
+</div>
+<div class="w-full flex items-end justify-between h-full pt-4 px-2 z-10">
+<div class="group relative flex flex-col items-center flex-1">
+<div class="bg-emerald-100 hover:bg-emerald-200 w-12 rounded-t-lg transition-all duration-300 h-[60%]"></div>
+<span class="text-[10px] mt-2 font-bold uppercase tracking-widest text-on-surface-variant">Jan</span>
+</div>
+<div class="group relative flex flex-col items-center flex-1">
+<div class="bg-emerald-100 hover:bg-emerald-200 w-12 rounded-t-lg transition-all duration-300 h-[65%]"></div>
+<span class="text-[10px] mt-2 font-bold uppercase tracking-widest text-on-surface-variant">Feb</span>
+</div>
+<div class="group relative flex flex-col items-center flex-1">
+<div class="bg-emerald-100 hover:bg-emerald-200 w-12 rounded-t-lg transition-all duration-300 h-[55%]"></div>
+<span class="text-[10px] mt-2 font-bold uppercase tracking-widest text-on-surface-variant">Mar</span>
+</div>
+<div class="group relative flex flex-col items-center flex-1">
+<div class="bg-emerald-500 w-12 rounded-t-lg h-[72%] shadow-lg shadow-emerald-500/20"></div>
+<span class="text-[10px] mt-2 font-bold uppercase tracking-widest text-emerald-600 font-extrabold">Apr</span>
+</div>
+<div class="group relative flex flex-col items-center flex-1">
+<div class="bg-emerald-100 hover:bg-emerald-200 w-12 rounded-t-lg transition-all duration-300 h-[68%]"></div>
+<span class="text-[10px] mt-2 font-bold uppercase tracking-widest text-on-surface-variant">May</span>
+</div>
+<div class="group relative flex flex-col items-center flex-1">
+<div class="bg-emerald-100 hover:bg-emerald-200 w-12 rounded-t-lg transition-all duration-300 h-[75%]"></div>
+<span class="text-[10px] mt-2 font-bold uppercase tracking-widest text-on-surface-variant">Jun</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Side Card: Game Type Distribution -->
+<div class="md:col-span-4 bg-emerald-600 text-white rounded-lg p-8 flex flex-col justify-between shadow-lg">
+<div>
+<h3 class="font-bold text-xl mb-6">Game Type Distribution</h3>
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between text-sm font-semibold">
+<span>Grand</span>
+<span>42%</span>
+</div>
+<div class="h-2 bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-amber-400 w-[42%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm font-semibold">
+<span>Suits</span>
+<span>48%</span>
+</div>
+<div class="h-2 bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-sky-300 w-[48%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm font-semibold">
+<span>Null</span>
+<span>10%</span>
+</div>
+<div class="h-2 bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-white w-[10%]"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-white/10">
+<p class="text-xs text-white/80 italic leading-relaxed">
+                    "Player favors high-value 'Grand' declarations with an aggressive bidding style."
+                </p>
+</div>
+</div>
+<!-- Row 2: Secondary Analytics -->
+<div class="md:col-span-4 bg-sky-50 rounded-lg p-6 border border-sky-100">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-lg bg-sky-500 flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="avg_time">avg_time</span>
+</div>
+<div>
+<h4 class="text-xs font-bold text-sky-700 uppercase tracking-wider">Avg. Points / Game</h4>
+<div class="text-2xl font-black text-on-surface">24.8</div>
+</div>
+</div>
+<div class="p-4 bg-white rounded-lg border border-sky-100 space-y-3">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-on-surface-variant">Declaration Wins</span>
+<span class="text-on-surface">78%</span>
+</div>
+<div class="flex justify-between text-xs font-medium">
+<span class="text-on-surface-variant">Opponent Blunders</span>
+<span class="text-on-surface">12.4%</span>
+</div>
+</div>
+</div>
+<div class="md:col-span-8 bg-white rounded-lg p-6 border border-slate-100 shadow-sm">
+<h4 class="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-6">Game Type &amp; Suit Performance Breakdown</h4>
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"><div class="bg-slate-50 p-4 rounded-lg text-center border border-slate-100">
+<span class="material-symbols-outlined text-slate-800 mb-2" style="font-variation-settings: 'FILL' 1;">playing_cards</span>
+<div class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Pik / Grün</div>
+<div class="text-xl font-black text-on-surface">72%</div>
+</div>
+<div class="bg-slate-50 p-4 rounded-lg text-center border border-slate-100">
+<span class="material-symbols-outlined text-red-500 mb-2" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<div class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Herz / Rot</div>
+<div class="text-xl font-black text-on-surface">64%</div>
+</div>
+<div class="bg-slate-50 p-4 rounded-lg text-center border border-slate-100">
+<span class="material-symbols-outlined text-amber-500 mb-2" style="font-variation-settings: 'FILL' 1;">diamond</span>
+<div class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Karo / Schellen</div>
+<div class="text-xl font-black text-on-surface">51%</div>
+</div>
+<div class="bg-emerald-50 p-4 rounded-lg text-center border border-emerald-200">
+<span class="material-symbols-outlined text-emerald-600 mb-2" style="font-variation-settings: 'FILL' 1;">card_membership</span>
+<div class="text-[10px] font-bold text-emerald-700 uppercase tracking-tighter">Kreuz / Eichel</div>
+<div class="text-xl font-black text-emerald-700">88%</div>
+</div>
+<div class="bg-amber-50 p-4 rounded-lg text-center border border-amber-100">
+<span class="material-symbols-outlined text-amber-600 mb-2">stars</span>
+<div class="text-[10px] font-bold text-amber-700 uppercase tracking-tighter">Grand (G)</div>
+<div class="text-xl font-black text-on-surface">62%</div>
+</div>
+<div class="bg-sky-50 p-4 rounded-lg text-center border border-sky-100">
+<span class="material-symbols-outlined text-sky-600 mb-2">block</span>
+<div class="text-[10px] font-bold text-sky-700 uppercase tracking-tighter">Null (N)</div>
+<div class="text-xl font-black text-on-surface">91%</div>
+</div></div>
+</div>
+</div>
+<!-- Strategy & Summary Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+<div class="lg:col-span-2 space-y-6">
+<div class="flex items-center gap-4 mb-2">
+<h2 class="text-2xl font-bold text-on-surface">Analytical Summary</h2>
+<div class="h-px bg-slate-200 flex-grow"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Core Strengths -->
+<div class="bg-emerald-50/50 border border-emerald-100 px-6 py-8 rounded-lg relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+<div class="flex items-center gap-2 mb-4 text-emerald-700 font-bold">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span class="uppercase tracking-widest text-xs">Core Strengths</span>
+</div>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-emerald-600 text-sm mt-0.5" data-icon="check_circle">check_circle</span>
+<p class="text-sm leading-relaxed text-slate-700"><span class="font-bold text-on-surface">End-game Calculation:</span> Consistently recovers points in the final three tricks.</p>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-emerald-600 text-sm mt-0.5" data-icon="check_circle">check_circle</span>
+<p class="text-sm leading-relaxed text-slate-700"><span class="font-bold text-on-surface">Bidding Precision:</span> Rare instances of overbidding based on probability models.</p>
+</li>
+</ul>
+</div>
+<!-- Strategic Blindspots -->
+<div class="bg-amber-50/50 border border-amber-100 px-6 py-8 rounded-lg relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+<div class="flex items-center gap-2 mb-4 text-amber-700 font-bold">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+<span class="uppercase tracking-widest text-xs">Strategic Blindspots</span>
+</div>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-amber-600 text-sm mt-0.5" data-icon="error">error</span>
+<p class="text-sm leading-relaxed text-slate-700"><span class="font-bold text-on-surface">Karo Vulnerability:</span> Defensive play during Karo suit games drops win rate by 14%.</p>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-amber-600 text-sm mt-0.5" data-icon="error">error</span>
+<p class="text-sm leading-relaxed text-slate-700"><span class="font-bold text-on-surface">Passive Defense:</span> Player tends to hold trump too long in middle position.</p>
+</li>
+</ul>
+</div><div class="bg-sky-50/50 border border-sky-100 px-6 py-8 rounded-lg relative overflow-hidden group md:col-span-2">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-sky-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+<div class="flex items-center gap-2 mb-4 text-sky-700 font-bold">
+<span class="material-symbols-outlined" data-icon="military_tech">military_tech</span>
+<span class="uppercase tracking-widest text-xs">Specialized Performance</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+<div>
+<div class="text-[10px] font-bold text-sky-700 uppercase mb-1">Hand Games</div>
+<div class="text-2xl font-black text-on-surface">142 <span class="text-xs font-normal text-on-surface-variant">Played</span></div>
+<div class="text-[10px] text-emerald-600 font-bold">82% Win Rate</div>
+</div>
+<div>
+<div class="text-[10px] font-bold text-sky-700 uppercase mb-1">Schneider Wins</div>
+<div class="text-2xl font-black text-on-surface">38%</div>
+<div class="text-[10px] text-on-surface-variant font-medium">Above Average</div>
+</div>
+<div>
+<div class="text-[10px] font-bold text-sky-700 uppercase mb-1">Schwarz Victories</div>
+<div class="text-2xl font-black text-on-surface">12</div>
+<div class="text-[10px] text-amber-600 font-bold">Rare Achievement</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Achievements -->
+<div class="bg-white p-6 rounded-lg border border-slate-100 shadow-sm">
+<h3 class="font-bold text-lg mb-6 flex justify-between items-center text-on-surface">
+                Recent Honors
+                <span class="material-symbols-outlined text-amber-500" data-icon="workspace_premium" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-3 bg-slate-50 rounded-lg border border-slate-100 hover:border-emerald-200 transition-all cursor-default">
+<div class="text-2xl">🏆</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Grandmaster's Run</div>
+<div class="text-[10px] text-on-surface-variant uppercase font-bold tracking-tight">10 Consecutive Grand Wins</div>
+</div>
+</div>
+<div class="flex items-center gap-4 p-3 bg-slate-50 rounded-lg border border-slate-100 hover:border-emerald-200 transition-all cursor-default">
+<div class="text-2xl">🃏</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Skat Whisperer</div>
+<div class="text-[10px] text-on-surface-variant uppercase font-bold tracking-tight">Perfect Discard (100 Games)</div>
+</div>
+</div>
+<div class="flex items-center gap-4 p-3 bg-slate-50 rounded-lg border border-slate-100 hover:border-emerald-200 transition-all cursor-default">
+<div class="text-2xl">⏱️</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Blitz Calculator</div>
+<div class="text-[10px] text-on-surface-variant uppercase font-bold tracking-tight">Avg. Turn Time &lt; 4s</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-3 bg-emerald-50 text-emerald-700 font-bold text-xs uppercase tracking-widest hover:bg-emerald-100 transition-colors rounded-lg">
+                View Complete Trophy Room
+            </button>
+</div>
+</div>
+<!-- Historical Game Feed -->
+<section class="mt-16">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-bold text-on-surface">Analytical Game Log</h2>
+<button class="text-emerald-700 text-sm font-bold flex items-center gap-1 hover:underline">
+                Download CSV <span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+</button>
+</div>
+<div class="space-y-2">
+<!-- Table Header -->
+<div class="grid grid-cols-6 px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+<div class="col-span-2">Session / Date</div>
+<div class="text-center">Game Type</div>
+<div class="text-center">Points</div>
+<div class="text-center">Result</div>
+<div class="text-right">Replay</div>
+</div>
+<!-- Rows -->
+<div class="grid grid-cols-6 items-center px-6 py-5 bg-white border border-slate-100 hover:bg-slate-50 transition-colors rounded-lg">
+<div class="col-span-2 flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">TH</div>
+<div>
+<div class="text-sm font-bold text-on-surface">The Herzog Classic</div>
+<div class="text-[10px] text-on-surface-variant font-medium">24 Apr 2024 • 21:40</div>
+</div>
+</div>
+<div class="flex justify-center">
+<span class="px-3 py-1 rounded-full bg-amber-100 text-[10px] font-bold text-amber-800 uppercase">Grand</span>
+</div>
+<div class="text-center font-bold text-emerald-600">+124</div>
+<div class="flex justify-center">
+<span class="flex items-center gap-1 text-[10px] font-bold text-emerald-600 uppercase"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Victory</span>
+</div>
+<div class="text-right">
+<button class="material-symbols-outlined text-slate-400 hover:text-emerald-600 transition-colors" data-icon="play_circle">play_circle</button>
+</div>
+</div>
+<div class="grid grid-cols-6 items-center px-6 py-5 bg-white border border-slate-100 hover:bg-slate-50 transition-colors rounded-lg">
+<div class="col-span-2 flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 font-bold text-xs">CL</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Casual Ladder #42</div>
+<div class="text-[10px] text-on-surface-variant font-medium">23 Apr 2024 • 14:15</div>
+</div>
+</div>
+<div class="flex justify-center">
+<span class="px-3 py-1 rounded-full bg-slate-100 text-[10px] font-bold text-on-surface-variant uppercase">Herz (Suit)</span>
+</div>
+<div class="text-center font-bold text-red-500">-48</div>
+<div class="flex justify-center">
+<span class="flex items-center gap-1 text-[10px] font-bold text-red-500 uppercase"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Loss</span>
+</div>
+<div class="text-right">
+<button class="material-symbols-outlined text-slate-400 hover:text-emerald-600 transition-colors" data-icon="play_circle">play_circle</button>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-[0.2em] border-2 border-dashed border-slate-200 hover:border-emerald-400 hover:text-emerald-700 transition-all rounded-lg bg-white/50">
+            Load 25 More Rounds
+        </button>
+</section>
+</main>
+<!-- Contextual Profile Summary -->
+<div class="fixed bottom-8 right-8 hidden xl:block">
+<div class="bg-white/80 border border-emerald-100 shadow-2xl rounded-xl p-6 w-72 glass-effect">
+<div class="flex items-center gap-4 mb-4">
+<div class="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-500 p-0.5">
+<img alt="Lukas Schmidt" class="w-full h-full object-cover rounded-full" data-alt="portrait of a focused middle-aged man with short hair and glasses, professional studio lighting, serious and intelligent expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfsJ-vqzpNKLt713dllPOiD2e7Ol495n-xpOIMkbKIQLNQx2ghRikoRp4vrrR9HNZ2xxdpqsQzvCEDO-g_AjtW3GNyAUQ-TDG_Sb63tL8UKVzaIkM6ixxlhHUzyCj2K1WexMtZ4_a-XjA1s7npbt80GsUlmPOWXwLN5GCLQ4wDXf-jE7Pr0rk8XP8eKYSmDZIrhD9tTT9vHxKollW3-NZuxID_qJJGpbpB9gwB-a4UDJlM_Ny-XQ4aKAaQ8-J2Ig3SSNyqe6nk3I4"/>
+</div>
+<div>
+<div class="text-sm font-black text-on-surface">Lukas Schmidt</div>
+<div class="text-[10px] uppercase tracking-widest text-emerald-600 font-bold">ELO: 2,840</div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-xs font-medium">
+<span class="text-on-surface-variant">Total Games</span>
+<span class="text-on-surface font-bold">14,208</span>
+</div>
+<div class="flex justify-between items-center text-xs font-medium">
+<span class="text-on-surface-variant">Region Rank</span>
+<span class="text-on-surface font-bold">#14 Bavaria</span>
+</div>
+<div class="h-1.5 bg-slate-100 rounded-full mt-4 overflow-hidden">
+<div class="h-full bg-emerald-500 w-3/4"></div>
+</div>
+<div class="text-[10px] text-center text-on-surface-variant font-bold mt-2">75% to 'Legend' Status</div>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sunny Ledger - Skat Score List</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#4CAF50",
+              "on-primary": "#ffffff",
+              "surface": "#ffffff",
+              "background": "#f8fafc", // slate-50
+              "on-background": "#0f172a", // slate-900
+              "surface-variant": "#f1f5f9", // slate-100
+              "outline": "#e2e8f0", // slate-200
+              "positive": "#15803d", // emerald-700
+              "negative": "#dc2626", // red-600
+              "accent-gold": "#eab308" // yellow-500
+            },
+            fontFamily: {
+              "plus-jakarta": ["Plus Jakarta Sans", "sans-serif"],
+              "headline": ["Plus Jakarta Sans", "sans-serif"],
+              "body": ["Plus Jakarta Sans", "sans-serif"],
+              "label": ["Plus Jakarta Sans", "sans-serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.5rem", // ROUND_EIGHT
+              "lg": "0.5rem",
+              "xl": "1rem",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .suit-spade { color: #1e293b; }
+        .suit-heart { color: #ef4444; }
+        .suit-diamond { color: #f97316; }
+        .suit-club { color: #059669; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-background font-body text-on-background">
+<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-100">
+<div class="flex justify-between items-center px-6 py-3 max-w-full mx-auto">
+<div class="text-xl font-bold text-emerald-800 tracking-tighter uppercase">
+            Sunny Ledger
+        </div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-semibold tracking-tight text-slate-500 hover:text-emerald-600 transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-semibold tracking-tight text-emerald-700 border-b-2 border-emerald-600 pb-1" href="#">Live Score</a>
+<a class="text-sm font-semibold tracking-tight text-slate-500 hover:text-emerald-600 transition-colors" href="#">History</a>
+<a class="text-sm font-semibold tracking-tight text-slate-500 hover:text-emerald-600 transition-colors" href="#">Statistics</a>
+<a class="text-sm font-semibold tracking-tight text-slate-500 hover:text-emerald-600 transition-colors" href="#">Rules</a>
+</nav>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-600 hover:bg-slate-50 rounded-md transition-all active:scale-95">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+<button class="p-2 text-slate-600 hover:bg-slate-50 rounded-md transition-all active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<aside class="fixed left-0 top-0 bottom-0 pt-20 flex flex-col w-64 bg-slate-50 border-r border-slate-200 hidden lg:flex">
+<div class="px-6 mb-8">
+<h2 class="text-lg font-black text-emerald-700">Veranda Table</h2>
+<p class="text-xs font-medium text-slate-500 uppercase tracking-widest">Round 12 of 36</p>
+</div>
+<nav class="flex-grow flex flex-col space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-medium bg-sky-100 text-sky-800 rounded-lg mx-2 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">playing_cards</span>
+            Current Game
+        </a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-200/50 mx-2 rounded-lg transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+            Score Ledger
+        </a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-200/50 mx-2 rounded-lg transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+            Player Stats
+        </a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-200/50 mx-2 rounded-lg transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">settings_applications</span>
+            Table Settings
+        </a>
+</nav>
+<div class="p-4 space-y-2">
+<button class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold text-sm hover:bg-emerald-700 transition-all active:opacity-80">
+            New Round
+        </button>
+<button class="w-full bg-white border border-slate-200 text-slate-600 py-3 rounded-lg font-bold text-sm hover:bg-slate-50 transition-all active:opacity-80 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">exit_to_app</span>
+            End Session
+        </button>
+</div>
+</aside>
+<button class="fixed bottom-8 right-8 z-[60] bg-emerald-600 text-white w-16 h-16 flex items-center justify-center rounded-full shadow-2xl shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95 group">
+<span class="material-symbols-outlined text-3xl">add</span>
+<span class="absolute right-full mr-4 bg-slate-900 text-white text-xs font-bold uppercase tracking-widest px-3 py-2 rounded pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">New Game Entry</span>
+</button>
+<main class="lg:ml-64 pt-20 px-8 pb-12 min-h-screen">
+<div class="max-w-6xl mx-auto flex flex-col h-[calc(100vh-6rem)]">
+<div class="flex flex-col mb-4 gap-2 pt-4">
+<span class="text-xs font-bold tracking-[0.2em] text-emerald-600 uppercase block">Live Ledger</span>
+<h1 class="text-4xl font-extrabold text-slate-900 tracking-tighter leading-none">Skatliste Session #842</h1>
+</div>
+<div class="flex flex-row gap-4 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+<div class="bg-white px-4 py-3 rounded-lg border border-slate-200 shadow-sm flex items-center gap-4 min-w-[240px] flex-shrink-0">
+<div class="w-10 h-10 rounded-full ring-2 ring-emerald-100 flex items-center justify-center overflow-hidden">
+<img alt="racker1960" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXhe9pxxYFpaN9VevFtmmpuEFg7Xl1LQPR78mOn_oKZ81WBfmrB_zURWVx7XVMfn7nkmkBB_1hvtC9IpNgylF9fdaZAX_aSCe83VqxQLSngijBTAZ4_ABl5_KxJA_2PwWPQ6OvFBAN56ETnrPjsFsgveMjYohkJq9E9tQlRzWN8I9I2VI6FtKtKy8YJnjTKFA893mm5XcNrWyR9T4Vm2yJL7NwsCqwyQNo-xVVW9_vDI4uKBNBp5Wyc7ZbKvIrr_MMG_onOaGu7Oo"/>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-sm text-slate-900">racker1960</p>
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Pos: 1 / Streak: +2</p>
+</div>
+<span class="text-2xl font-black text-emerald-600 tracking-tighter">428</span>
+</div>
+<div class="bg-white px-4 py-3 rounded-lg border border-slate-200 shadow-sm flex items-center gap-4 min-w-[240px] flex-shrink-0">
+<div class="w-10 h-10 rounded-full ring-2 ring-red-100 flex items-center justify-center overflow-hidden">
+<img alt="fjodor" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5_b1P9anEzcsiGYZtGQXwgiKkUVMkoWeWK-T10VCnG5OhREwY74FqH90mVAvq4tGZ_AdXJncAL7O3z7W9UkPvf1P-7oc4CsokVRHtWtxIS5UYN99kzrpebJ1TMe69cUQcGKDE-Fxq3TRMvXk283fOyy1nj37gnNb7USPYjM7lyyN3aJVZe99X1B1Onsf2VpEC-4Z0m6m5R_u70lkMc94VHFBmyQzN9E8UpnCWpSsKg0TDVVtTG6Cq648lEM_WYnNYM7EtkxaRXAU"/>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-sm text-slate-900">fjodor</p>
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Pos: 3 / Limit Reached</p>
+</div>
+<span class="text-2xl font-black text-red-500 tracking-tighter">-112</span>
+</div>
+<div class="bg-white px-4 py-3 rounded-lg border border-slate-200 shadow-sm flex items-center gap-4 min-w-[240px] flex-shrink-0">
+<div class="w-10 h-10 rounded-full ring-2 ring-slate-100 flex items-center justify-center overflow-hidden">
+<img alt="arielle" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYTzofZQEL2L83A_cPmpCt3nsV3J0vvn4kYjWnrzzcGu2wsxxf3frkNd0v0piTvxYdKbXQz_-5iVmzZz5QwQDgOKKVBiZ5InWE5mYtzSF3DT-XDHC30yrGwsVVJUwyfAns3ln1UhjibzhQiJqn86DxSanSKU7NOcqEKCD_iDNi08czAhyugbd4FcG_XEhv2ayvxRbCyRXqjIBLZawjYuIXlnATj9Q74fAdmZeT8kKRbByqRz_xSa9Q6XxNNK6gAZjtfXgKiT2gFl0"/>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-sm text-slate-900">arielle</p>
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Pos: 2 / Steady</p>
+</div>
+<span class="text-2xl font-black text-emerald-600 tracking-tighter">256</span>
+</div>
+</div>
+<div class="flex-grow flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+<div class="bg-slate-50 border-b border-slate-200 px-8 py-3 flex items-center justify-between flex-shrink-0">
+<h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-700">Game History Ledger</h3>
+<div class="flex gap-4 text-slate-500">
+<span class="material-symbols-outlined cursor-pointer hover:text-emerald-600 text-lg" data-icon="filter_list">filter_list</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-emerald-600 text-lg" data-icon="download">download</span>
+</div>
+</div>
+<div class="overflow-auto flex-grow">
+<table class="w-full border-collapse">
+<thead class="sticky top-0 bg-slate-50 z-10">
+<tr class="text-left border-b border-slate-100">
+<th class="px-8 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">#</th>
+<th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Type</th>
+<th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Spitzen</th>
+<th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Level</th>
+<th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Winner</th>
+<th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400 text-right">Points</th>
+<th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400 text-center">racker1960</th>
+<th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400 text-center">fjodor</th>
+<th class="px-8 py-3 text-xs font-bold uppercase tracking-wider text-slate-400 text-center">arielle</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="hover:bg-emerald-50/30 transition-colors">
+<td class="px-8 py-4 font-bold text-slate-900">12</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined suit-spade text-lg">playing_cards</span>
+<span class="text-sm font-bold">G</span>
+</div>
+</td>
+<td class="px-4 py-4 text-sm font-medium text-slate-600">Mit 4</td>
+<td class="px-4 py-4"><span class="text-[10px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded">S</span></td>
+<td class="px-4 py-4"><span class="text-sm font-bold text-emerald-700">racker1960</span></td>
+<td class="px-4 py-4 text-right font-black text-emerald-600">+120</td>
+<td class="px-4 py-4 text-center font-bold text-slate-900">428</td>
+<td class="px-4 py-4 text-center text-slate-400">-112</td>
+<td class="px-8 py-4 text-center text-slate-400">256</td>
+</tr>
+<tr class="hover:bg-red-50/30 transition-colors">
+<td class="px-8 py-4 font-bold text-slate-900">11</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined suit-heart text-lg">favorite</span>
+<span class="text-sm font-bold">H</span>
+</div>
+</td>
+<td class="px-4 py-4 text-sm font-medium text-slate-600">Ohne 2</td>
+<td class="px-4 py-4">
+<div class="flex gap-1">
+<span class="text-[10px] font-bold px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded">Hand</span>
+<span class="text-[10px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded">S</span>
+</div>
+</td>
+<td class="px-4 py-4"><span class="text-sm font-bold text-red-600">fjodor</span></td>
+<td class="px-4 py-4 text-right font-black text-red-500">-60</td>
+<td class="px-4 py-4 text-center font-bold text-slate-900">308</td>
+<td class="px-4 py-4 text-center text-red-500">-112</td>
+<td class="px-8 py-4 text-center text-slate-400">256</td>
+</tr>
+<tr class="hover:bg-emerald-50/30 transition-colors">
+<td class="px-8 py-4 font-bold text-slate-900">10</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined suit-club text-lg">clover_spark</span>
+<span class="text-sm font-bold">C</span>
+</div>
+</td>
+<td class="px-4 py-4 text-sm font-medium text-slate-600">Mit 1</td>
+<td class="px-4 py-4"><span class="text-[10px] font-bold px-1.5 py-0.5 bg-slate-800 text-white rounded">SZ</span></td>
+<td class="px-4 py-4"><span class="text-sm font-bold text-emerald-700">arielle</span></td>
+<td class="px-4 py-4 text-right font-black text-emerald-600">+48</td>
+<td class="px-4 py-4 text-center font-bold text-slate-900">308</td>
+<td class="px-4 py-4 text-center text-slate-400">-52</td>
+<td class="px-8 py-4 text-center font-bold text-slate-900">256</td>
+</tr>
+<tr class="hover:bg-emerald-50/30 transition-colors">
+<td class="px-8 py-4 font-bold text-slate-900">09</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-lg">block</span>
+<span class="text-sm font-bold text-slate-500">N</span>
+</div>
+</td>
+<td class="px-4 py-4 text-sm font-medium text-slate-600">-</td>
+<td class="px-4 py-4"><span class="text-[10px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-400 rounded">-</span></td>
+<td class="px-4 py-4"><span class="text-sm font-bold text-emerald-700">racker1960</span></td>
+<td class="px-4 py-4 text-right font-black text-emerald-600">+35</td>
+<td class="px-4 py-4 text-center font-bold text-slate-900">308</td>
+<td class="px-4 py-4 text-center text-slate-400">-52</td>
+<td class="px-8 py-4 text-center text-slate-400">208</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="flex flex-col gap-6 flex-shrink-0">
+<div class="bg-white p-6 rounded-xl border border-slate-200">
+<h4 class="text-lg font-bold text-slate-900 mb-4">Zwischenergebnis</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="flex justify-between items-center border-b md:border-b-0 md:border-r border-slate-100 pb-2 md:pb-0 md:pr-6">
+<span class="text-sm font-medium text-slate-500">Total Hand Games</span>
+<span class="font-bold text-slate-900">36</span>
+</div>
+<div class="flex justify-between items-center border-b md:border-b-0 md:border-r border-slate-100 pb-2 md:pb-0 md:pr-6">
+<span class="text-sm font-medium text-slate-500">Grand / Null Ratio</span>
+<span class="font-bold text-slate-900">14% / 8%</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-sm font-medium text-slate-500">Tournament Bonus</span>
+<span class="font-bold text-emerald-600">+150</span>
+</div>
+</div>
+</div>
+<div class="bg-emerald-800 text-white p-6 rounded-xl shadow-lg">
+<div class="flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="w-full md:w-auto">
+<h4 class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-emerald-200/60 mb-4 text-center md:text-left">Endergebnis (Final Score)</h4>
+<div class="flex justify-around md:justify-start gap-8">
+<div class="text-center">
+<p class="text-[0.65rem] uppercase tracking-tighter text-emerald-200/50 mb-1">racker1960</p>
+<p class="text-2xl font-black">428</p>
+</div>
+<div class="text-center">
+<p class="text-[0.65rem] uppercase tracking-tighter text-emerald-200/50 mb-1">fjodor</p>
+<p class="text-2xl font-black text-red-300">-112</p>
+</div>
+<div class="text-center">
+<p class="text-[0.65rem] uppercase tracking-tighter text-emerald-200/50 mb-1">arielle</p>
+<p class="text-2xl font-black">256</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center md:items-end border-t md:border-t-0 md:border-l border-emerald-700/50 pt-4 md:pt-0 md:pl-8 w-full md:w-auto">
+<span class="text-xs font-medium text-emerald-100/70 mb-1">Session Winner</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-yellow-400 text-2xl" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="font-bold text-xl">racker1960</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<nav class="md:hidden fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around items-center py-4 px-4 z-50">
+<button class="flex flex-col items-center text-slate-400">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] uppercase font-bold mt-1">Dash</span>
+</button>
+<button class="flex flex-col items-center text-emerald-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">scoreboard</span>
+<span class="text-[10px] uppercase font-bold mt-1">Live</span>
+</button>
+<button class="flex flex-col items-center text-slate-400">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[10px] uppercase font-bold mt-1">Logs</span>
+</button>
+<button class="flex flex-col items-center text-slate-400">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-[10px] uppercase font-bold mt-1">Players</span>
+</button>
+</nav>
+
+</body></html>
