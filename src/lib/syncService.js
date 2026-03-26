@@ -128,3 +128,28 @@ export async function updateSeating(sessionId, seating) {
     .single();
   return { data, error };
 }
+
+/**
+ * Lists all sessions ordered by creation date (newest first).
+ * @returns {{ data: session[], error }}
+ */
+export async function listSessions() {
+  const { data, error } = await supabase
+    .from('sessions')
+    .select('id, seating, geber_index, current_round, created_at')
+    .order('created_at', { ascending: false });
+  return { data, error };
+}
+
+/**
+ * Deletes a session and all its rounds (ON DELETE CASCADE) from Supabase.
+ * @param {string} sessionId
+ * @returns {{ error }}
+ */
+export async function deleteSession(sessionId) {
+  const { error } = await supabase
+    .from('sessions')
+    .delete()
+    .eq('id', sessionId);
+  return { error };
+}

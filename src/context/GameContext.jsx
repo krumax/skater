@@ -331,6 +331,38 @@ export function GameProvider({ children }) {
     setSyncError(null);
   }, []);
 
+  // Switch to an existing session by ID
+  const switchSession = useCallback(async (sessionId) => {
+    setSyncStatus('syncing');
+    const { data, error } = await syncService.loadSession(sessionId);
+    if (error || !data) {
+      console.error('switchSession fehlgeschlagen:', error);
+      setSyncStatus('error');
+      setSyncError(error?.message ?? 'Fehler beim Laden der Session');
+      return;
+    }
+    localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
+    dispatch({ type: 'LOAD_SESSION', payload: data });
+    setSyncStatus('synced');
+    setSyncError(null);
+  }, []);
+
+  // Create a brand-new session with a given seating and switch to it
+  const createNewTable = useCallback(async (seating) => {
+    setSyncStatus('syncing');
+    const { data: newSession, error } = await syncService.createSession(seating);
+    if (error || !newSession) {
+      console.error('createNewTable fehlgeschlagen:', error);
+      setSyncStatus('error');
+      setSyncError(error?.message ?? 'Fehler beim Erstellen des Tisches');
+      return;
+    }
+    localStorage.setItem(SESSION_STORAGE_KEY, newSession.id);
+    dispatch({ type: 'LOAD_SESSION', payload: { session: newSession, rounds: [] } });
+    setSyncStatus('synced');
+    setSyncError(null);
+  }, []);
+
   // ── Standard totals ──
   const getPlayerTotals = useCallback(() => {
     const totals = {};
@@ -414,6 +446,8 @@ export function GameProvider({ children }) {
       reorderSeating,
       setGeberIndex,
       refreshFromDB,
+      switchSession,
+      createNewTable,
       // Derived
       getPlayerTotals,
       getSeegerTotals,

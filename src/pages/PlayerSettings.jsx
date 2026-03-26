@@ -1,81 +1,49 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
-
-// Position 0 = Geber, 1 = Hören, 2 = Sagen, 3 = Aussetzt (4-player only)
-const ROLE_LABELS = ['Geben', 'Hören', 'Sagen', 'Aussetzt'];
-const ROLE_ICONS  = ['style', 'hearing', 'record_voice_over', 'pause_circle'];
-
-// Single accent color per role — kept minimal
-const ROLE_COLORS = [
-  'var(--primary)',   // Geben
-  'var(--tertiary)',  // Hören
-  '#e67e22',         // Sagen
-  'var(--outline)',   // Aussetzt
-];
+import * as syncService from '../lib/syncService';
+// ── Role helpers ─────────────────────────────────────────────────────────────
+const ROLE_LABELS  = ['Geben', 'Hören', 'Sagen', 'Aussetzt'];
+const ROLE_ICONS   = ['style', 'hearing', 'record_voice_over', 'pause_circle'];
+const ROLE_COLORS  = ['var(--primary)', 'var(--tertiary)', '#e67e22', 'var(--outline)'];
 
 function roleIndex(position, totalPlayers) {
-  // With 4 players: seat 0 = Aussetzt, seat 1 = Geben, seat 2 = Hören, seat 3 = Sagen
-  // With 3 players: seat 0 = Geben,    seat 1 = Hören,  seat 2 = Sagen
-  if (totalPlayers === 4) {
-    return [3, 0, 1, 2][position]; // maps list position → role index
-  }
-  return position; // 0→Geben, 1→Hören, 2→Sagen
+  return totalPlayers === 4 ? [3, 0, 1, 2][position] : position;
 }
 
 // ── Read-only round table SVG ────────────────────────────────────────────────
 function RoundTable({ seating }) {
   const n = seating.length;
-  const cx = 140, cy = 140, r = 95;
-
+  const cx = 130, cy = 130, r = 88;
   function pos(i) {
-    const angle = (2 * Math.PI * i) / n - Math.PI / 2;
-    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+    const a = (2 * Math.PI * i) / n - Math.PI / 2;
+    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
   }
-
   return (
-    <svg viewBox="0 0 280 280" width="280" height="280" style={{ display: 'block', margin: '0 auto' }}>
-      {/* Table */}
-      <circle cx={cx} cy={cy} r={58} fill="var(--surface-high)" stroke="var(--outline-variant)" strokeWidth="1.5" />
+    <svg viewBox="0 0 260 260" width="260" height="260" style={{ display: 'block', margin: '0 auto' }}>
+      <circle cx={cx} cy={cy} r={52} fill="var(--surface-high)" stroke="var(--outline-variant)" strokeWidth="1.5" />
       <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle"
-        fontSize="10" fill="var(--outline)" fontFamily="inherit" fontWeight="700" letterSpacing="0.1em">
-        TISCH
-      </text>
-
-      {/* Spokes */}
+        fontSize="9" fill="var(--outline)" fontFamily="inherit" fontWeight="700" letterSpacing="0.1em">TISCH</text>
       {seating.map((_, i) => {
-        const p = pos(i);
-        const angle = (2 * Math.PI * i) / n - Math.PI / 2;
-        return (
-          <line key={i}
-            x1={cx + 60 * Math.cos(angle)} y1={cy + 60 * Math.sin(angle)}
-            x2={p.x} y2={p.y}
-            stroke="var(--outline-variant)" strokeWidth="1" strokeDasharray="3 3"
-          />
-        );
+        const p = pos(i), a = (2 * Math.PI * i) / n - Math.PI / 2;
+        return <line key={i} x1={cx + 54 * Math.cos(a)} y1={cy + 54 * Math.sin(a)} x2={p.x} y2={p.y}
+          stroke="var(--outline-variant)" strokeWidth="1" strokeDasharray="3 3" />;
       })}
-
-      {/* Seats */}
       {seating.map((name, i) => {
-        const p = pos(i);
-        const ri = roleIndex(i, n);
-        const color = ROLE_COLORS[ri];
-        const label = ROLE_LABELS[ri];
+        const p = pos(i), ri = roleIndex(i, n), color = ROLE_COLORS[ri];
         return (
           <g key={name}>
-            <circle cx={p.x} cy={p.y} r={26} fill="var(--surface-low)" stroke={color} strokeWidth="2" />
-            <text x={p.x} y={p.y - 5} textAnchor="middle" dominantBaseline="middle"
-              fontSize="14" fontWeight="800" fill={color} fontFamily="inherit">
+            <circle cx={p.x} cy={p.y} r={24} fill="var(--surface-low)" stroke={color} strokeWidth="2" />
+            <text x={p.x} y={p.y - 4} textAnchor="middle" dominantBaseline="middle"
+              fontSize="13" fontWeight="800" fill={color} fontFamily="inherit">
               {name.charAt(0).toUpperCase()}
             </text>
-            <text x={p.x} y={p.y + 9} textAnchor="middle"
-              fontSize="8.5" fontWeight="600" fill={color} fontFamily="inherit">
+            <text x={p.x} y={p.y + 9} textAnchor="middle" fontSize="8" fontWeight="600" fill={color} fontFamily="inherit">
               {name.length > 7 ? name.slice(0, 6) + '…' : name}
             </text>
-            {/* Role pill below seat */}
-            <rect x={p.x - 18} y={p.y + 28} width={36} height={13} rx={6.5} fill={color} opacity="0.85" />
-            <text x={p.x} y={p.y + 34.5} textAnchor="middle" dominantBaseline="middle"
-              fontSize="7.5" fontWeight="800" fill="white" fontFamily="inherit" letterSpacing="0.04em">
-              {label.toUpperCase()}
+            <rect x={p.x - 16} y={p.y + 26} width={32} height={12} rx={6} fill={color} opacity="0.85" />
+            <text x={p.x} y={p.y + 32} textAnchor="middle" dominantBaseline="middle"
+              fontSize="7" fontWeight="800" fill="white" fontFamily="inherit" letterSpacing="0.04em">
+              {ROLE_LABELS[ri].toUpperCase()}
             </text>
           </g>
         );
@@ -84,28 +52,117 @@ function RoundTable({ seating }) {
   );
 }
 
+// ── New table wizard ─────────────────────────────────────────────────────────
+function NewTableWizard({ onConfirm, onCancel }) {
+  const [seats, setSeats] = useState(['', '', '']);
+  const [error, setError] = useState('');
+
+  const addSeat = () => { if (seats.length < 4) setSeats([...seats, '']); };
+  const removeSeat = (i) => { if (seats.length > 3) setSeats(seats.filter((_, idx) => idx !== i)); };
+  const updateSeat = (i, val) => setSeats(seats.map((s, idx) => idx === i ? val : s));
+
+  const handleConfirm = () => {
+    const filled = seats.map(s => s.trim()).filter(Boolean);
+    if (filled.length < 3) { setError('Mindestens 3 Spielernamen eingeben.'); return; }
+    if (new Set(filled).size !== filled.length) { setError('Spielernamen müssen eindeutig sein.'); return; }
+    onConfirm(filled);
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+    }}>
+      <div style={{
+        backgroundColor: 'var(--surface)', borderRadius: '1rem', padding: '2rem',
+        width: '100%', maxWidth: '420px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+      }}>
+        <h2 style={{ fontSize: '1.375rem', fontWeight: 800, marginBottom: '0.5rem' }}>Neuer Tisch</h2>
+        <p style={{ fontSize: '0.875rem', color: 'var(--outline)', marginBottom: '1.5rem' }}>
+          3–4 Spieler festlegen. Position 1 ist der erste Geber.
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', marginBottom: '1.25rem' }}>
+          {seats.map((seat, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span style={{
+                width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+                backgroundColor: ROLE_COLORS[roleIndex(i, seats.length)],
+                color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.8rem', fontWeight: 800,
+              }}>{i + 1}</span>
+              <input
+                type="text" value={seat} placeholder={`Spieler ${i + 1}${i === 0 ? ' (Geber)' : ''}`}
+                onChange={e => updateSeat(i, e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleConfirm()}
+                style={{ flex: 1, backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '0.75rem 1rem', fontFamily: 'inherit', fontSize: '0.9375rem', color: 'var(--on-surface)' }}
+              />
+              {seats.length > 3 && (
+                <button onClick={() => removeSeat(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--secondary)', padding: '0.25rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>remove_circle</span>
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {seats.length < 4 && (
+          <button onClick={addSeat} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: '1px dashed var(--outline-variant)', borderRadius: '0.5rem', padding: '0.625rem 1rem', color: 'var(--outline)', cursor: 'pointer', fontSize: '0.875rem', width: '100%', justifyContent: 'center', marginBottom: '1.25rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>add</span>
+            4. Spieler hinzufügen
+          </button>
+        )}
+
+        {error && <p style={{ color: 'var(--secondary)', fontSize: '0.875rem', marginBottom: '1rem' }}>{error}</p>}
+
+        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+          <button onClick={onCancel} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', background: 'none', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9375rem' }}>
+            Abbrechen
+          </button>
+          <button onClick={handleConfirm} className="btn-primary" style={{ padding: '0.75rem 1.75rem' }}>
+            Tisch erstellen
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main page ────────────────────────────────────────────────────────────────
 export default function PlayerSettings() {
-  const { players, addPlayer, removePlayer, renamePlayer, reorderSeating, rounds } = useGame();
+  const {
+    players, geberIndex, sessionId,
+    addPlayer, removePlayer, renamePlayer, reorderSeating,
+    rounds, switchSession, createNewTable,
+  } = useGame();
 
-  const [newName, setNewName]         = useState('');
+  const [newName, setNewName]             = useState('');
   const [editingPlayer, setEditingPlayer] = useState(null);
-  const [editName, setEditName]       = useState('');
+  const [editName, setEditName]           = useState('');
+  const [showWizard, setShowWizard]       = useState(false);
+  const [allSessions, setAllSessions]     = useState([]);
+  const [loadingSessions, setLoadingSessions] = useState(true);
 
-  // Drag state
   const dragIndex = useRef(null);
   const [dragOver, setDragOver] = useState(null);
+
+  // Load all sessions for the switcher
+  useEffect(() => {
+    setLoadingSessions(true);
+    syncService.listSessions().then(({ data }) => {
+      setAllSessions(data ?? []);
+      setLoadingSessions(false);
+    });
+  }, [sessionId]); // refresh when active session changes
 
   // ── Drag handlers ──
   const onDragStart = (i) => { dragIndex.current = i; };
   const onDragEnter = (i) => { if (i !== dragIndex.current) setDragOver(i); };
   const onDragEnd   = ()  => { setDragOver(null); dragIndex.current = null; };
   const onDrop      = (i) => {
-    if (dragIndex.current !== null && dragIndex.current !== i) {
+    if (dragIndex.current !== null && dragIndex.current !== i)
       reorderSeating(dragIndex.current, i);
-    }
-    setDragOver(null);
-    dragIndex.current = null;
+    setDragOver(null); dragIndex.current = null;
   };
 
   // ── Player actions ──
@@ -113,28 +170,96 @@ export default function PlayerSettings() {
     const t = newName.trim();
     if (t && !players.includes(t)) { addPlayer(t); setNewName(''); }
   };
-
   const handleRename = (oldName) => {
     const t = editName.trim();
     if (t && t !== oldName && !players.includes(t)) renamePlayer(oldName, t);
     setEditingPlayer(null); setEditName('');
   };
-
   const handleRemove = (name) => {
-    if (rounds.some(r => r.player === name)) {
+    if (rounds.some(r => r.player === name))
       if (!window.confirm(`„${name}" hat bereits Runden gespielt. Fortfahren?`)) return;
-    }
     removePlayer(name);
+  };
+
+  const handleCreateTable = async (seating) => {
+    setShowWizard(false);
+    await createNewTable(seating);
+  };
+
+  const handleDeleteSession = async (id, label) => {
+    if (!window.confirm(`Tisch „${label}" und alle zugehörigen Runden löschen?`)) return;
+    await syncService.deleteSession(id);
+    setAllSessions(prev => prev.filter(s => s.id !== id));
   };
 
   const n = players.length;
 
   return (
     <div>
-      <header className="page-header">
-        <h1 className="page-title">Tischeinstellungen</h1>
-        <p className="page-subtitle">Reihenfolge per Drag &amp; Drop festlegen — Position 1 ist immer Geber.</p>
+      <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1 className="page-title">Tischeinstellungen</h1>
+          <p className="page-subtitle">Reihenfolge per Drag &amp; Drop — Position 1 ist immer Geber.</p>
+        </div>
+        <button className="btn-primary" onClick={() => setShowWizard(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1.5rem', flexShrink: 0 }}>
+          <span className="material-symbols-outlined">add_circle</span>
+          Neuer Tisch
+        </button>
       </header>
+
+      {/* ── Table switcher ── */}
+      {!loadingSessions && allSessions.length > 1 && (
+        <section style={{ marginBottom: '2.5rem' }}>
+          <label className="section-label" style={{ display: 'block', marginBottom: '0.875rem' }}>Tische wechseln</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            {allSessions.map(s => {
+              const isActive = s.id === sessionId;
+              const label = Array.isArray(s.seating) ? s.seating.join(', ') : s.id.slice(0, 8);
+              const date = new Date(s.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
+              return (
+                <div key={s.id} style={{ position: 'relative', display: 'inline-flex' }}>
+                  <button onClick={() => !isActive && switchSession(s.id)}
+                    style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                      padding: '0.875rem 1.25rem', paddingRight: isActive ? '1.25rem' : '2.75rem',
+                      borderRadius: '0.75rem', cursor: isActive ? 'default' : 'pointer',
+                      border: `2px solid ${isActive ? 'var(--primary)' : 'var(--outline-variant)'}`,
+                      backgroundColor: isActive ? 'var(--primary-container)' : 'var(--surface-low)',
+                      color: 'var(--on-surface)', fontFamily: 'inherit', textAlign: 'left',
+                      minWidth: '160px', transition: 'all 0.15s',
+                    }}>
+                    <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: isActive ? 'var(--primary)' : 'var(--on-surface)' }}>
+                      {label}
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.2rem' }}>
+                      {date} · {s.current_round - 1} Runden
+                    </span>
+                    {isActive && (
+                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--primary)', marginTop: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        Aktiv
+                      </span>
+                    )}
+                  </button>
+                  {!isActive && (
+                    <button
+                      onClick={() => handleDeleteSession(s.id, label)}
+                      title="Tisch löschen"
+                      style={{
+                        position: 'absolute', top: '0.5rem', right: '0.5rem',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'var(--outline)', padding: '0.2rem', borderRadius: '0.25rem',
+                        lineHeight: 1,
+                      }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>delete</span>
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '3rem', alignItems: 'start' }}>
 
@@ -143,15 +268,11 @@ export default function PlayerSettings() {
 
           {/* Add player */}
           <section className="form-section">
-            <label className="section-label">Neuen Spieler hinzufügen</label>
+            <label className="section-label">Spieler hinzufügen</label>
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <input
-                type="text" value={newName}
-                onChange={e => setNewName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                placeholder="Spielername…"
-                style={{ flex: 1, backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '1rem 1.25rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)' }}
-              />
+              <input type="text" value={newName} onChange={e => setNewName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAdd()} placeholder="Spielername…"
+                style={{ flex: 1, backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '1rem 1.25rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)' }} />
               <button className="btn-primary" onClick={handleAdd} style={{ padding: '1rem 1.75rem' }}>
                 <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', marginRight: '0.4rem' }}>person_add</span>
                 Hinzufügen
@@ -159,94 +280,49 @@ export default function PlayerSettings() {
             </div>
           </section>
 
-          {/* Drag-and-drop list */}
+          {/* Drag list */}
           <section className="form-section" style={{ marginTop: '2rem' }}>
             <label className="section-label">Sitzreihenfolge ({n} Spieler)</label>
             <p style={{ fontSize: '0.8125rem', color: 'var(--outline)', marginBottom: '1rem', lineHeight: 1.5 }}>
-              Ziehe die Spieler in die gewünschte Reihenfolge.
-              {n === 4 && ' Bei 4 Spielern setzt Position 1 aus.'}
+              Ziehe die Spieler in die gewünschte Reihenfolge.{n === 4 && ' Bei 4 Spielern setzt Position 1 aus.'}
             </p>
-
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {players.map((name, i) => {
-                const ri    = roleIndex(i, n);
-                const color = ROLE_COLORS[ri];
-                const label = ROLE_LABELS[ri];
-                const icon  = ROLE_ICONS[ri];
-                const isOver = dragOver === i;
-
+                const ri = roleIndex(i, n), color = ROLE_COLORS[ri], isOver = dragOver === i;
                 return (
-                  <div
-                    key={name}
-                    draggable
-                    onDragStart={() => onDragStart(i)}
-                    onDragEnter={() => onDragEnter(i)}
-                    onDragOver={e => e.preventDefault()}
-                    onDrop={() => onDrop(i)}
-                    onDragEnd={onDragEnd}
+                  <div key={name} draggable
+                    onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)}
+                    onDragOver={e => e.preventDefault()} onDrop={() => onDrop(i)} onDragEnd={onDragEnd}
                     style={{
                       display: 'flex', alignItems: 'center', gap: '0.875rem',
                       padding: '0.875rem 1.125rem',
                       backgroundColor: isOver ? 'var(--primary-container)' : 'var(--surface-low)',
                       borderRadius: '0.75rem',
                       border: `1.5px solid ${isOver ? 'var(--primary)' : 'transparent'}`,
-                      cursor: 'grab',
-                      transition: 'background 0.15s, border-color 0.15s',
-                      userSelect: 'none',
-                    }}
-                  >
-                    {/* Drag handle */}
-                    <span className="material-symbols-outlined"
-                      style={{ fontSize: '1.25rem', color: 'var(--outline)', flexShrink: 0 }}>
-                      drag_indicator
-                    </span>
-
-                    {/* Position number */}
-                    <span style={{
-                      width: '26px', height: '26px', borderRadius: '50%', flexShrink: 0,
-                      backgroundColor: color, color: 'white',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '0.8125rem', fontWeight: 800,
+                      cursor: 'grab', userSelect: 'none', transition: 'background 0.15s, border-color 0.15s',
                     }}>
-                      {i + 1}
-                    </span>
-
-                    {/* Name / edit */}
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--outline)', flexShrink: 0 }}>drag_indicator</span>
+                    <span style={{ width: '26px', height: '26px', borderRadius: '50%', flexShrink: 0, backgroundColor: color, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8125rem', fontWeight: 800 }}>{i + 1}</span>
                     <div style={{ flex: 1 }}>
                       {editingPlayer === name ? (
-                        <input type="text" value={editName}
-                          onChange={e => setEditName(e.target.value)}
+                        <input type="text" value={editName} onChange={e => setEditName(e.target.value)}
                           onKeyDown={e => { if (e.key === 'Enter') handleRename(name); if (e.key === 'Escape') { setEditingPlayer(null); setEditName(''); } }}
-                          onBlur={() => handleRename(name)} autoFocus
-                          onClick={e => e.stopPropagation()}
-                          style={{ backgroundColor: 'var(--surface-highest)', border: '1px solid var(--primary)', borderRadius: '0.375rem', padding: '0.4rem 0.75rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)', width: '160px' }}
-                        />
+                          onBlur={() => handleRename(name)} autoFocus onClick={e => e.stopPropagation()}
+                          style={{ backgroundColor: 'var(--surface-highest)', border: '1px solid var(--primary)', borderRadius: '0.375rem', padding: '0.4rem 0.75rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)', width: '160px' }} />
                       ) : (
                         <span style={{ fontWeight: 600, fontSize: '1rem' }}>{name}</span>
                       )}
                     </div>
-
-                    {/* Role badge */}
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
-                      fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em',
-                      padding: '0.25rem 0.625rem', borderRadius: '999px',
-                      color, backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`,
-                      textTransform: 'uppercase', flexShrink: 0,
-                    }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>{icon}</span>
-                      {label}
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', padding: '0.25rem 0.625rem', borderRadius: '999px', color, backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`, textTransform: 'uppercase', flexShrink: 0 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>{ROLE_ICONS[ri]}</span>
+                      {ROLE_LABELS[ri]}
                     </span>
-
-                    {/* Actions */}
                     <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
-                      <button onClick={e => { e.stopPropagation(); setEditingPlayer(name); setEditName(name); }}
-                        title="Umbenennen"
+                      <button onClick={e => { e.stopPropagation(); setEditingPlayer(name); setEditName(name); }} title="Umbenennen"
                         style={{ padding: '0.4rem', borderRadius: '0.375rem', color: 'var(--outline)', background: 'none', border: 'none', cursor: 'pointer' }}>
                         <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>edit</span>
                       </button>
-                      <button onClick={e => { e.stopPropagation(); handleRemove(name); }}
-                        title="Entfernen" disabled={n <= 3}
+                      <button onClick={e => { e.stopPropagation(); handleRemove(name); }} title="Entfernen" disabled={n <= 3}
                         style={{ padding: '0.4rem', borderRadius: '0.375rem', color: n <= 3 ? 'var(--outline-variant)' : 'var(--secondary)', background: 'none', border: 'none', cursor: n <= 3 ? 'not-allowed' : 'pointer' }}>
                         <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>person_remove</span>
                       </button>
@@ -255,30 +331,20 @@ export default function PlayerSettings() {
                 );
               })}
             </div>
-
             <p style={{ marginTop: '0.875rem', fontSize: '0.8125rem', color: 'var(--outline)' }}>
               {n <= 3 ? 'Mindestens 3 Spieler erforderlich.' : 'Maximal 4 Spieler erlaubt.'}
             </p>
           </section>
         </div>
 
-        {/* ── Right: read-only table visualization ── */}
-        <div style={{ position: 'sticky', top: '2rem', width: '300px' }}>
+        {/* ── Right: read-only table ── */}
+        <div style={{ position: 'sticky', top: '2rem', width: '280px' }}>
           <label className="section-label" style={{ display: 'block', marginBottom: '1rem' }}>Tischansicht</label>
           <div style={{ backgroundColor: 'var(--surface-low)', borderRadius: '1rem', padding: '1.25rem 1rem 1rem' }}>
             <RoundTable seating={players} />
-
-            {/* Legend */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '1.25rem', justifyContent: 'center' }}>
               {ROLE_LABELS.slice(0, n === 4 ? 4 : 3).map((label, ri) => (
-                <span key={label} style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
-                  fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em',
-                  padding: '0.2rem 0.6rem', borderRadius: '999px',
-                  color: ROLE_COLORS[ri],
-                  backgroundColor: `color-mix(in srgb, ${ROLE_COLORS[ri]} 15%, transparent)`,
-                  textTransform: 'uppercase',
-                }}>
+                <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', padding: '0.2rem 0.6rem', borderRadius: '999px', color: ROLE_COLORS[ri], backgroundColor: `color-mix(in srgb, ${ROLE_COLORS[ri]} 15%, transparent)`, textTransform: 'uppercase' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '0.8rem' }}>{ROLE_ICONS[ri]}</span>
                   {label}
                 </span>
@@ -289,8 +355,11 @@ export default function PlayerSettings() {
             </p>
           </div>
         </div>
-
       </div>
+
+      {showWizard && (
+        <NewTableWizard onConfirm={handleCreateTable} onCancel={() => setShowWizard(false)} />
+      )}
     </div>
   );
 }
