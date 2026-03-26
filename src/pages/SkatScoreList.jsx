@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS } from '../lib/skatScoring';
@@ -11,6 +11,26 @@ const SkatScoreList = () => {
   const seegerTotals = getSeegerTotals();
   const standardRank = getPlayerRank(false);
   const seegerRank = getPlayerRank(true);
+
+  const VISIBLE_TAIL = 5;
+  const [expanded, setExpanded] = useState(false);
+
+  // Precompute running totals for every round index once
+  const runningStd = [];
+  const runningSF  = [];
+  rounds.forEach((r, idx) => {
+    const std = idx === 0 ? {} : { ...runningStd[idx - 1] };
+    const sf  = idx === 0 ? {} : { ...runningSF[idx - 1] };
+    players.forEach(p => { if (std[p] === undefined) std[p] = 0; if (sf[p] === undefined) sf[p] = 0; });
+    std[r.player] = (std[r.player] || 0) + r.gameValue;
+    if (r.seegerScores) players.forEach(p => { sf[p] = (sf[p] || 0) + (r.seegerScores[p] || 0); });
+    runningStd.push(std);
+    runningSF.push(sf);
+  });
+
+  const splitAt = Math.max(0, rounds.length - VISIBLE_TAIL);
+  const olderRounds = rounds.slice(0, splitAt);
+  const recentRounds = rounds.slice(splitAt);
 
   return (
     <div>
@@ -119,65 +139,38 @@ const SkatScoreList = () => {
               </tr>
             </thead>
             <tbody style={{ fontFamily: 'Work Sans, sans-serif' }}>
-              {rounds.map((r, idx) => {
-                // Standard laufende Summen
-                const stdRunning = {};
-                players.forEach(p => { stdRunning[p] = 0; });
-                rounds.slice(0, idx + 1).forEach(round => {
-                  stdRunning[round.player] = (stdRunning[round.player] || 0) + round.gameValue;
-                });
-
-                // Seeger laufende Summen
-                const sfRunning = {};
-                players.forEach(p => { sfRunning[p] = 0; });
-                rounds.slice(0, idx + 1).forEach(round => {
-                  if (round.seegerScores) {
-                    players.forEach(p => {
-                      sfRunning[p] = (sfRunning[p] || 0) + (round.seegerScores[p] || 0);
-                    });
-                  }
-                });
-
-                return (
-                  <tr
-                    key={r.id}
-                    style={{
-                      borderBottom: '1px solid var(--surface-high)',
-                      backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)',
-                    }}
-                  >
-                    <td style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
-                    <td style={{ ...tdStyle, fontWeight: 600 }}>{r.player}</td>
-                    <td style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
-                      {r.typeLabel}
+              {/* ── Older rounds (collapsible) ── */}
+              {olderRounds.length > 0 && (
+                <>
+                  {expanded && olderRounds.map((r, idx) => (
+                    <RoundRow key={r.id} r={r} idx={idx} players={players}
+                      std={runningStd[idx]} sf={runningSF[idx]} />
+                  ))}
+                  {/* Toggle row */}
+                  <tr style={{ backgroundColor: 'var(--surface-high)' }}>
+                    <td colSpan={4 + players.length * 2 + 2}
+                      style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>
+                      <button
+                        onClick={() => setExpanded(e => !e)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--outline)', fontFamily: 'inherit', padding: '0.25rem 0.75rem' }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
+                          {expanded ? 'expand_less' : 'expand_more'}
+                        </span>
+                        {expanded
+                          ? `${olderRounds.length} ältere Runden ausblenden`
+                          : `${olderRounds.length} ältere Runden einblenden`}
+                      </button>
                     </td>
-                    <td style={{
-                      ...tdStyle, fontWeight: 800, textAlign: 'right',
-                      color: r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)',
-                    }}>
-                      {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
-                    </td>
-                    <td style={tdDivider}></td>
-                    {players.map(p => (
-                      <td key={`std-${p}`} style={{
-                        ...tdStyle, textAlign: 'right', fontWeight: 600,
-                        opacity: r.player === p ? 1 : 0.4,
-                        color: stdRunning[p] >= 0 ? 'var(--on-surface)' : 'var(--secondary)',
-                      }}>
-                        {stdRunning[p]}
-                      </td>
-                    ))}
-                    <td style={tdDivider}></td>
-                    {players.map(p => (
-                      <td key={`sf-${p}`} style={{
-                        ...tdStyle, textAlign: 'right', fontWeight: 600,
-                        opacity: (r.seegerScores?.[p] || 0) !== 0 ? 1 : 0.4,
-                        color: sfRunning[p] >= 0 ? 'var(--on-surface)' : 'var(--secondary)',
-                      }}>
-                        {sfRunning[p]}
-                      </td>
-                    ))}
                   </tr>
+                </>
+              )}
+              {/* ── Last 5 rounds (always visible) ── */}
+              {recentRounds.map((r, i) => {
+                const idx = splitAt + i;
+                return (
+                  <RoundRow key={r.id} r={r} idx={idx} players={players}
+                    std={runningStd[idx]} sf={runningSF[idx]} />
                 );
               })}
             </tbody>
@@ -204,8 +197,31 @@ const SkatScoreList = () => {
   );
 };
 
-const thStyle = {
-  padding: '0.75rem 1rem',
+// ── Reusable row component ───────────────────────────────────────────────────
+const RoundRow = ({ r, idx, players, std, sf }) => (
+  <tr style={{ borderBottom: '1px solid var(--surface-high)', backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)' }}>
+    <td style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
+    <td style={{ ...tdStyle, fontWeight: 600 }}>{r.player}</td>
+    <td style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>{r.typeLabel}</td>
+    <td style={{ ...tdStyle, fontWeight: 800, textAlign: 'right', color: r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
+      {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
+    </td>
+    <td style={tdDivider}></td>
+    {players.map(p => (
+      <td key={`std-${p}`} style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: r.player === p ? 1 : 0.4, color: (std[p] ?? 0) >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
+        {std[p] ?? 0}
+      </td>
+    ))}
+    <td style={tdDivider}></td>
+    {players.map(p => (
+      <td key={`sf-${p}`} style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: (r.seegerScores?.[p] || 0) !== 0 ? 1 : 0.4, color: (sf[p] ?? 0) >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
+        {sf[p] ?? 0}
+      </td>
+    ))}
+  </tr>
+);
+
+const thStyle = {  padding: '0.75rem 1rem',
   textTransform: 'uppercase',
   fontSize: '0.7rem',
   color: 'var(--outline)',

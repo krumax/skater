@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 
 const ROLE_LABELS = {
@@ -16,8 +16,7 @@ const SYNC_ICON = {
 };
 
 const Sidebar = () => {
-  const navigate = useNavigate();
-  const { currentRound, currentRoles, seating, resetSession, syncStatus, refreshFromDB } = useGame();
+  const { currentRound, currentRoles, seating, syncStatus, refreshFromDB } = useGame();
   const syncIcon = SYNC_ICON[syncStatus] ?? SYNC_ICON.idle;
 
   return (
@@ -72,20 +71,7 @@ const Sidebar = () => {
       </nav>
 
       <div className="sidebar-footer">
-        <button className="btn-new-round" onClick={() => navigate('/')}>
-          <span className="material-symbols-outlined">add</span>
-          Neue Runde
-        </button>
-        <button className="btn-end-session" onClick={() => {
-          if (window.confirm('Sitzung beenden und alle Ergebnisse zurücksetzen?')) {
-            resetSession();
-            navigate('/');
-          }
-        }}>
-          <span className="material-symbols-outlined">exit_to_app</span>
-          Sitzung beenden
-        </button>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span
             className="material-symbols-outlined"
             title={syncIcon.title}
