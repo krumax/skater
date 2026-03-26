@@ -160,6 +160,12 @@ function gameReducer(state, action) {
       };
     }
 
+    case 'SET_GEBER_INDEX':
+      return {
+        ...state,
+        geberIndex: action.payload % state.seating.length,
+      };
+
     default:
       return state;
   }
@@ -300,6 +306,14 @@ export function GameProvider({ children }) {
     if (error) console.error('updateSeating (reorderSeating) fehlgeschlagen:', error);
   }, [state.seating]);
 
+  const setGeberIndex = useCallback(async (index) => {
+    dispatch({ type: 'SET_GEBER_INDEX', payload: index });
+    const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionId) return;
+    const { error } = await syncService.updateSession(sessionId, { geber_index: index });
+    if (error) console.error('updateSession (setGeberIndex) fehlgeschlagen:', error);
+  }, []);
+
   // Task 4.8: refreshFromDB
   const refreshFromDB = useCallback(async () => {
     const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
@@ -398,6 +412,7 @@ export function GameProvider({ children }) {
       removePlayer,
       renamePlayer,
       reorderSeating,
+      setGeberIndex,
       refreshFromDB,
       // Derived
       getPlayerTotals,
