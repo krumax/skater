@@ -464,10 +464,62 @@ export function GameProvider({ children }) {
       return sum + (r.seegerScores?.[playerName] || 0);
     }, 0);
 
+    // ── Brot / Baguette detection ──
+    // A "Brot" is a full Geberrunde (3 consecutive rounds) where the player
+    // was never Alleinspieler (i.e. scored 0 standard points in those 3 rounds).
+    // A "Baguette" is 6 consecutive such rounds (two Brote in a row).
+    // We scan all rounds and count consecutive non-scoring rounds in blocks of 3.
+    let consecutiveNonPlaying = 0; // rounds in a row where player was not Alleinspieler
+    let brote = 0;
+    let baguettes = 0;
+    let currentBrotStreak = 0; // how many consecutive Brote (for Baguette detection)
+
+    // ── Longest win streak ──
+    // Streak is broken by ANY round where another player wins,
+    // or where this player loses. Only uninterrupted wins by this player count.
+    let longestWinStreak = 0;
+    let currentWinStreak = 0;
+
+    state.rounds.forEach(r => {
+      if (r.player === playerName && r.won) {
+        // This player won — extend streak
+        currentWinStreak += 1;
+        if (currentWinStreak > longestWinStreak) longestWinStreak = currentWinStreak;
+      } else {
+        // Either this player lost, or another player was Alleinspieler (won or lost)
+        // Any of these breaks the streak
+        currentWinStreak = 0;
+      }
+    });
+
+    state.rounds.forEach(r => {
+      if (r.player === playerName) {
+        // Player was Alleinspieler — reset non-playing streak
+        consecutiveNonPlaying = 0;
+        currentBrotStreak = 0;
+      } else {
+        consecutiveNonPlaying += 1;
+        if (consecutiveNonPlaying % 3 === 0) {
+          // Completed another full Geberrunde without playing
+          brote += 1;
+          currentBrotStreak += 1;
+          if (currentBrotStreak === 2) {
+            // Two consecutive Brote = one Baguette
+            baguettes += 1;
+            currentBrotStreak = 0; // reset so next pair can form another Baguette
+          }
+        }
+      }
+    });
+
+    // Current active streak (incomplete Geberrunde in progress)
+    const currentStreak = consecutiveNonPlaying;
+
     return {
       totalGames, wins, losses, winRate,
       totalPoints, avgPoints, seegerTotal,
       typeDistribution, rounds: playerRounds,
+      brote, baguettes, currentStreak, longestWinStreak,
     };
   }, [state.rounds]);
 

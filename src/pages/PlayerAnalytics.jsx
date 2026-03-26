@@ -54,6 +54,37 @@ const PlayerAnalytics = () => {
             </div>
           </div>
 
+          {/* ── Brot / Baguette ── */}
+          <section>
+            <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Brot &amp; Baguette</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={statLabel}>🍞 Brote</p>
+                <p style={{ ...statValue, color: stats.brote > 0 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.brote}</p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.25rem' }}>3 Runden ohne Spiel</p>
+              </div>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={statLabel}>🥖 Baguettes</p>
+                <p style={{ ...statValue, color: stats.baguettes > 0 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.baguettes}</p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.25rem' }}>6 Runden ohne Spiel</p>
+              </div>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={statLabel}>🏆 Längste Siegesserie</p>
+                <p style={{ ...statValue, color: stats.longestWinStreak >= 3 ? 'var(--primary)' : 'var(--on-surface)' }}>{stats.longestWinStreak}</p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.25rem' }}>Siege als Alleinspieler in Folge</p>
+              </div>
+            </div>
+            <div className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', backgroundColor: 'var(--surface-low)' }}>
+              <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>🍞</span>
+              <div>
+                <h4 style={{ fontWeight: 700, marginBottom: '0.25rem', fontSize: '0.9375rem' }}>Was ist ein Brot?</h4>
+                <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.875rem', lineHeight: 1.5 }}>
+                  Ein Brot entsteht, wenn ein Spieler eine vollständige Geberrunde (Geben → Hören → Sagen) durchläuft, ohne ein einziges Mal Alleinspieler gewesen zu sein. Eine Baguette sind zwei Brote hintereinander (6 Runden ohne Spiel).
+                </p>
+              </div>
+            </div>
+          </section>
+
           <section>
             <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Analyse</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
