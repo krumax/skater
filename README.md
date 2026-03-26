@@ -72,7 +72,25 @@ CREATE POLICY "Anon read/write sessions" ON sessions FOR ALL TO anon USING (true
 CREATE POLICY "Anon read/write rounds" ON rounds FOR ALL TO anon USING (true) WITH CHECK (true);
 ```
 
-#### 2.3 Set environment variables
+#### 2.3 Import historical data (optional)
+
+If you want to load the existing game history (352 rounds for Konrad, Max and Oma), run the second migration in the Supabase SQL editor after the schema migration:
+
+```
+supabase/migrations/002_historical_import.sql
+```
+
+This creates a dedicated session with a fixed ID (`a0000000-0000-0000-0000-000000000001`) and inserts all historical rounds. To connect the app to that session, set the following key in your browser's `localStorage` after opening the app:
+
+```js
+localStorage.setItem('skatSessionId', 'a0000000-0000-0000-0000-000000000001')
+```
+
+Then hit the refresh button in the sidebar to load the data.
+
+> Note: historical rounds have `game_type = 'unknown'` since only scores were available — no game type details. All future rounds recorded through the app will have full detail.
+
+#### 2.4 Set environment variables
 
 Copy the example file and fill in your credentials:
 

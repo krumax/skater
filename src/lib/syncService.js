@@ -28,13 +28,37 @@ export async function loadSession(sessionId) {
 
   if (sessionError) return { data: null, error: sessionError };
 
-  const { data: rounds, error: roundsError } = await supabase
+  const { data: rawRounds, error: roundsError } = await supabase
     .from('rounds')
     .select('*')
     .eq('session_id', sessionId)
     .order('round_number', { ascending: true });
 
   if (roundsError) return { data: null, error: roundsError };
+
+  // Map snake_case DB columns → camelCase fields expected by the UI
+  const rounds = rawRounds.map(r => ({
+    id:           r.round_number,
+    player:       r.player,
+    gameType:     r.game_type,
+    typeLabel:    r.type_label,
+    gameValue:    r.game_value,
+    baseValue:    r.base_value,
+    multiplier:   r.multiplier,
+    won:          r.won,
+    eyeCount:     r.eye_count,
+    spitzen:      r.spitzen,
+    hand:         r.hand,
+    schneider:    r.schneider,
+    schwarz:      r.schwarz,
+    ouvert:       r.ouvert,
+    roles:        r.roles,
+    seegerScores: r.seeger_scores,
+    timestamp:    r.timestamp,
+    // keep the DB id available if needed
+    _dbId:        r.id,
+    session_id:   r.session_id,
+  }));
 
   return { data: { session, rounds }, error: null };
 }
