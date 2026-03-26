@@ -166,6 +166,20 @@ function gameReducer(state, action) {
         geberIndex: action.payload % state.seating.length,
       };
 
+    case 'DELETE_ROUND': {
+      const roundId = action.payload; // local round id (r.id)
+      const newRounds = state.rounds.filter(r => r.id !== roundId);
+      // Recalculate currentRound and geberIndex from remaining rounds
+      const newCurrentRound = newRounds.length + 1;
+      const newGeberIndex = newRounds.length % state.seating.length;
+      return {
+        ...state,
+        rounds: newRounds,
+        currentRound: newCurrentRound,
+        geberIndex: newGeberIndex,
+      };
+    }
+
     default:
       return state;
   }
@@ -321,6 +335,32 @@ export function GameProvider({ children }) {
     if (error) console.error('updateSession (setGeberIndex) fehlgeschlagen:', error);
   }, []);
 
+  const deleteRound = useCallback(async (round) => {
+    // Optimistic local removal
+    dispatch({ type: 'DELETE_ROUND', payload: round.id });
+    const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionId) return;
+    setSyncStatus('syncing');
+    // Delete from DB using the stored DB UUID
+    const dbId = round._dbId ?? round.id;
+    const { error } = await syncService.deleteRound(dbId);
+    if (error) {
+      console.error('deleteRound fehlgeschlagen:', error);
+      setSyncStatus('error');
+      setSyncError(error.message);
+      return;
+    }
+    // Update session counters to match new state
+    const newRoundCount = state.rounds.length - 1; // after removal
+    const newGeberIndex = newRoundCount % state.seating.length;
+    await syncService.updateSession(sessionId, {
+      current_round: newRoundCount + 1,
+      geber_index: newGeberIndex,
+    });
+    setSyncStatus('synced');
+    setSyncError(null);
+  }, [state.rounds.length, state.seating.length]);
+
   // Task 4.8: refreshFromDB
   const refreshFromDB = useCallback(async () => {
     const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
@@ -452,6 +492,7 @@ export function GameProvider({ children }) {
       renamePlayer,
       reorderSeating,
       setGeberIndex,
+      deleteRound,
       refreshFromDB,
       switchSession,
       createNewTable,

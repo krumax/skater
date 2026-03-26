@@ -142,6 +142,19 @@ export async function listSessions() {
 }
 
 /**
+ * Deletes a single round by its DB UUID.
+ * @param {string} roundDbId - The UUID of the round row (r._dbId)
+ * @returns {{ error }}
+ */
+export async function deleteRound(roundDbId) {
+  const { error } = await supabase
+    .from('rounds')
+    .delete()
+    .eq('id', roundDbId);
+  return { error };
+}
+
+/**
  * Deletes a session and all its rounds (ON DELETE CASCADE) from Supabase.
  * @param {string} sessionId
  * @returns {{ error }}

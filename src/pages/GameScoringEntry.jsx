@@ -10,7 +10,7 @@ import {
 
 const GameScoringEntry = () => {
   const navigate = useNavigate();
-  const { players, seating, addRound, currentRound, rounds, getPlayerRank, currentRoles } = useGame();
+  const { players, seating, addRound, currentRound, rounds, getPlayerRank, currentRoles, deleteRound } = useGame();
 
   // Rollen-Label für Spieler
   const getRoleTag = (name) => {
@@ -375,9 +375,21 @@ const GameScoringEntry = () => {
                     </span>
                   </div>
                 </div>
-                <span className={`ledger-score ${r.gameValue >= 0 ? 'score-positive' : 'score-negative'}`}>
-                  {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span className={`ledger-score ${r.gameValue >= 0 ? 'score-positive' : 'score-negative'}`}>
+                    {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
+                  </span>
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Runde #${r.id} (${r.player}, ${r.gameValue >= 0 ? '+' : ''}${r.gameValue}) löschen?`))
+                        deleteRound(r);
+                    }}
+                    title="Ergebnis löschen"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--outline)', padding: '0.25rem', borderRadius: '0.375rem', lineHeight: 1 }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>delete</span>
+                  </button>
+                </div>
               </div>
             ))}
           </div>

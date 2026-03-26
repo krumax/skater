@@ -23,7 +23,7 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <h2>Verandatisch</h2>
+        <h2>Tisch</h2>
         <p>Runde {currentRound}</p>
       </div>
 
