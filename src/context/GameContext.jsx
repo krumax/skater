@@ -296,14 +296,21 @@ export function GameProvider({ children }) {
   }, [state.seating]);
 
   const reorderSeating = useCallback(async (fromIndex, toIndex) => {
-    dispatch({ type: 'REORDER_SEATING', payload: { fromIndex, toIndex } });
-    const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
-    if (!sessionId) return;
+    // Compute new seating from current state before dispatch (closure is fresh here)
     const newSeating = [...state.seating];
     const [moved] = newSeating.splice(fromIndex, 1);
     newSeating.splice(toIndex, 0, moved);
+
+    dispatch({ type: 'REORDER_SEATING', payload: { fromIndex, toIndex } });
+
+    const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionId) return;
+
+    // Persist both the new seating order and the reset geber_index (reducer sets it to 0)
     const { error } = await syncService.updateSeating(sessionId, newSeating);
     if (error) console.error('updateSeating (reorderSeating) fehlgeschlagen:', error);
+    const { error: geberError } = await syncService.updateSession(sessionId, { geber_index: 0 });
+    if (geberError) console.error('updateSession (reorderSeating geber_index) fehlgeschlagen:', geberError);
   }, [state.seating]);
 
   const setGeberIndex = useCallback(async (index) => {
