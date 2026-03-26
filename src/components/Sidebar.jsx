@@ -8,9 +8,17 @@ const ROLE_LABELS = {
   sagen: { label: 'Sagen', icon: 'record_voice_over', desc: 'Mittelhand' },
 };
 
+const SYNC_ICON = {
+  idle:    { icon: 'cloud_done', color: '#4caf50', title: 'Synchronisiert' },
+  synced:  { icon: 'cloud_done', color: '#4caf50', title: 'Synchronisiert' },
+  syncing: { icon: 'sync',       color: '#9e9e9e', title: 'Synchronisiert…', spin: true },
+  error:   { icon: 'cloud_off',  color: '#f44336', title: 'Synchronisierungsfehler' },
+};
+
 const Sidebar = () => {
   const navigate = useNavigate();
-  const { currentRound, currentRoles, seating, resetSession } = useGame();
+  const { currentRound, currentRoles, seating, resetSession, syncStatus, refreshFromDB } = useGame();
+  const syncIcon = SYNC_ICON[syncStatus] ?? SYNC_ICON.idle;
 
   return (
     <aside className="sidebar">
@@ -77,6 +85,38 @@ const Sidebar = () => {
           <span className="material-symbols-outlined">exit_to_app</span>
           Sitzung beenden
         </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+          <span
+            className="material-symbols-outlined"
+            title={syncIcon.title}
+            style={{
+              fontSize: '1.25rem',
+              color: syncIcon.color,
+              animation: syncIcon.spin ? 'spin 1.2s linear infinite' : 'none',
+            }}
+          >
+            {syncIcon.icon}
+          </span>
+          <button
+            onClick={refreshFromDB}
+            disabled={syncStatus === 'syncing'}
+            title="Daten aus Datenbank laden"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: syncStatus === 'syncing' ? 'not-allowed' : 'pointer',
+              color: syncStatus === 'syncing' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.7)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              fontSize: '0.8125rem',
+              padding: '0.25rem 0.5rem',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>refresh</span>
+            Aktualisieren
+          </button>
+        </div>
       </div>
     </aside>
   );

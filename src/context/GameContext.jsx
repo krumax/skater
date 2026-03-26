@@ -1,5 +1,8 @@
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useState, useEffect } from 'react';
 import { calculateSeegerFabian } from '../lib/skatScoring';
+import * as syncService from '../lib/syncService';
+
+const SESSION_STORAGE_KEY = 'skatSessionId';
 
 const GameContext = createContext();
 
@@ -72,6 +75,18 @@ function gameReducer(state, action) {
         currentRound: state.currentRound + 1,
         // Rotate Geber to the left
         geberIndex: (state.geberIndex + 1) % state.seating.length,
+      };
+    }
+
+    case 'LOAD_SESSION': {
+      const { session, rounds } = action.payload;
+      return {
+        ...state,
+        seating: session.seating,
+        geberIndex: session.geber_index,
+        currentRound: session.current_round,
+        rounds: rounds,
+        sessionId: session.id,
       };
     }
 
@@ -152,31 +167,154 @@ function gameReducer(state, action) {
 
 export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
+  const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'syncing' | 'synced' | 'error'
+  const [syncError, setSyncError] = useState(null);
+
+  // Task 4.2: Initialization — load or create session on mount
+  useEffect(() => {
+    async function initSession() {
+      setSyncStatus('syncing');
+      const storedId = localStorage.getItem(SESSION_STORAGE_KEY);
+      if (storedId) {
+        const { data, error } = await syncService.loadSession(storedId);
+        if (error || !data) {
+          // Invalid/missing session — create a new one
+          const { data: newSession, error: createError } = await syncService.createSession(initialState.seating);
+          if (createError || !newSession) {
+            setSyncStatus('error');
+            setSyncError(createError?.message ?? 'Fehler beim Erstellen der Session');
+            return;
+          }
+          localStorage.setItem(SESSION_STORAGE_KEY, newSession.id);
+          dispatch({ type: 'LOAD_SESSION', payload: { session: newSession, rounds: [] } });
+        } else {
+          dispatch({ type: 'LOAD_SESSION', payload: data });
+        }
+      } else {
+        const { data: newSession, error: createError } = await syncService.createSession(initialState.seating);
+        if (createError || !newSession) {
+          setSyncStatus('error');
+          setSyncError(createError?.message ?? 'Fehler beim Erstellen der Session');
+          return;
+        }
+        localStorage.setItem(SESSION_STORAGE_KEY, newSession.id);
+        dispatch({ type: 'LOAD_SESSION', payload: { session: newSession, rounds: [] } });
+      }
+      setSyncStatus('synced');
+    }
+    initSession();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const currentRoles = getRoles(state.seating, state.geberIndex);
 
-  const addRound = useCallback((roundData) => {
+  // Task 4.4: addRound with sync (optimistic update first)
+  const addRound = useCallback(async (roundData) => {
     dispatch({ type: 'ADD_ROUND', payload: roundData });
-  }, []);
+    const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionId) return;
+    setSyncStatus('syncing');
+    // Build the round object as the reducer would (id = rounds.length + 1 before dispatch)
+    // We pass roundData; insertRound uses round.id which will be set by the reducer.
+    // To get the correct id we read state after dispatch — but since dispatch is async in React,
+    // we compute it here the same way the reducer does.
+    const roundWithId = {
+      id: state.rounds.length + 1,
+      ...roundData,
+      timestamp: new Date().toISOString(),
+    };
+    const { error: insertError } = await syncService.insertRound(roundWithId, sessionId);
+    if (insertError) {
+      console.error('insertRound fehlgeschlagen:', insertError);
+      setSyncStatus('error');
+      setSyncError(insertError.message);
+      return;
+    }
+    const newGeberIndex = (state.geberIndex + 1) % state.seating.length;
+    const newCurrentRound = state.currentRound + 1;
+    const { error: updateError } = await syncService.updateSession(sessionId, {
+      geber_index: newGeberIndex,
+      current_round: newCurrentRound,
+    });
+    if (updateError) {
+      console.error('updateSession fehlgeschlagen:', updateError);
+      // Don't block — round was saved
+    }
+    setSyncStatus('synced');
+    setSyncError(null);
+  }, [state.rounds.length, state.geberIndex, state.seating.length, state.currentRound]);
 
-  const resetSession = useCallback(() => {
+  // Task 4.6: resetSession with sync
+  const resetSession = useCallback(async () => {
     dispatch({ type: 'RESET_SESSION' });
-  }, []);
+    setSyncStatus('syncing');
+    const { data: newSession, error } = await syncService.createSession(state.seating);
+    if (error || !newSession) {
+      console.error('createSession fehlgeschlagen:', error);
+      setSyncStatus('error');
+      setSyncError(error?.message ?? 'Fehler beim Erstellen der Session');
+      return;
+    }
+    localStorage.setItem(SESSION_STORAGE_KEY, newSession.id);
+    setSyncStatus('synced');
+    setSyncError(null);
+  }, [state.seating]);
 
-  const addPlayer = useCallback((name) => {
+  // Task 4.7: player actions with seating sync
+  const addPlayer = useCallback(async (name) => {
     dispatch({ type: 'ADD_PLAYER', payload: name });
-  }, []);
+    const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionId) return;
+    const newSeating = state.seating.includes(name) || state.seating.length >= 4
+      ? state.seating
+      : [...state.seating, name];
+    const { error } = await syncService.updateSeating(sessionId, newSeating);
+    if (error) console.error('updateSeating (addPlayer) fehlgeschlagen:', error);
+  }, [state.seating]);
 
-  const removePlayer = useCallback((name) => {
+  const removePlayer = useCallback(async (name) => {
     dispatch({ type: 'REMOVE_PLAYER', payload: name });
-  }, []);
+    const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionId || state.seating.length <= 3) return;
+    const newSeating = state.seating.filter(p => p !== name);
+    const { error } = await syncService.updateSeating(sessionId, newSeating);
+    if (error) console.error('updateSeating (removePlayer) fehlgeschlagen:', error);
+  }, [state.seating]);
 
-  const renamePlayer = useCallback((oldName, newName) => {
+  const renamePlayer = useCallback(async (oldName, newName) => {
     dispatch({ type: 'RENAME_PLAYER', payload: { oldName, newName } });
-  }, []);
+    const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionId) return;
+    const newSeating = state.seating.map(p => p === oldName ? newName : p);
+    const { error } = await syncService.updateSeating(sessionId, newSeating);
+    if (error) console.error('updateSeating (renamePlayer) fehlgeschlagen:', error);
+  }, [state.seating]);
 
-  const reorderSeating = useCallback((fromIndex, toIndex) => {
+  const reorderSeating = useCallback(async (fromIndex, toIndex) => {
     dispatch({ type: 'REORDER_SEATING', payload: { fromIndex, toIndex } });
+    const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionId) return;
+    const newSeating = [...state.seating];
+    const [moved] = newSeating.splice(fromIndex, 1);
+    newSeating.splice(toIndex, 0, moved);
+    const { error } = await syncService.updateSeating(sessionId, newSeating);
+    if (error) console.error('updateSeating (reorderSeating) fehlgeschlagen:', error);
+  }, [state.seating]);
+
+  // Task 4.8: refreshFromDB
+  const refreshFromDB = useCallback(async () => {
+    const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionId) return;
+    setSyncStatus('syncing');
+    const { data, error } = await syncService.loadSession(sessionId);
+    if (error || !data) {
+      console.error('loadSession fehlgeschlagen:', error);
+      setSyncStatus('error');
+      setSyncError(error?.message ?? 'Fehler beim Laden der Session');
+      return;
+    }
+    dispatch({ type: 'LOAD_SESSION', payload: data });
+    setSyncStatus('synced');
+    setSyncError(null);
   }, []);
 
   // ── Standard totals ──
@@ -250,6 +388,9 @@ export function GameProvider({ children }) {
       sessionId: state.sessionId,
       geberIndex: state.geberIndex,
       currentRoles,
+      // Sync
+      syncStatus,
+      syncError,
       // Actions
       addRound,
       resetSession,
@@ -257,6 +398,7 @@ export function GameProvider({ children }) {
       removePlayer,
       renamePlayer,
       reorderSeating,
+      refreshFromDB,
       // Derived
       getPlayerTotals,
       getSeegerTotals,
