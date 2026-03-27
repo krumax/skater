@@ -107,7 +107,24 @@ const SkatScoreList = () => {
       </div>
 
       {/* ── Spielverlauf ── */}
-      <h3 className="headline" style={{ fontSize: '1.75rem', marginBottom: '1.5rem' }}>Spielverlauf</h3>
+      <h3 className="headline" style={{ fontSize: '1.75rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        Spielverlauf
+        {(() => {
+          const importCount = rounds.filter(r => !r.gameType || !['club','spade','heart','diamond','grand','null'].includes(r.gameType)).length;
+          return importCount > 0 ? (
+            <span title={`${importCount} Spiele noch ohne Spieltyp`} style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+              fontSize: '0.8rem', fontWeight: 700,
+              backgroundColor: 'var(--secondary-container, #f97316)',
+              color: 'var(--on-secondary-container, #fff)',
+              padding: '0.2rem 0.6rem', borderRadius: '999px',
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>pending</span>
+              {importCount} Import
+            </span>
+          ) : null;
+        })()}
+      </h3>
 
       {rounds.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--outline)' }}>
@@ -208,13 +225,61 @@ const SkatScoreList = () => {
   );
 };
 
-// ── Reusable row component ───────────────────────────────────────────────────
+// ── Game type icon/badge ─────────────────────────────────────────────────────
+const GAME_TYPE_DISPLAY = {
+  club:    { symbol: '♣', label: 'Kreuz' },
+  spade:   { symbol: '♠', label: 'Pik' },
+  heart:   { symbol: '♥', label: 'Herz' },
+  diamond: { symbol: '♦', label: 'Karo' },
+  grand:   { symbol: '👑', label: 'Grand' },
+  null:    { symbol: 'N', label: 'Null' },
+};
+
+function GameTypeIcon({ round }) {
+  const gt = round.gameType;
+  const display = GAME_TYPE_DISPLAY[gt];
+
+  if (!display) {
+    // Unknown / Import
+    return (
+      <span title={round.typeLabel} style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        width: '1.6rem', height: '1.6rem', borderRadius: '0.3rem',
+        fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.02em',
+        backgroundColor: 'var(--surface-high)', color: 'var(--outline)',
+        verticalAlign: 'middle',
+      }}>
+        ?
+      </span>
+    );
+  }
+
+  const suffixes = [];
+  if (round.hand)   suffixes.push('H');
+  if (round.ouvert) suffixes.push('O');
+
+  return (
+    <span title={round.typeLabel} style={{
+      display: 'inline-flex', alignItems: 'center', gap: '0.15rem',
+      verticalAlign: 'middle',
+    }}>
+      <span style={{ fontSize: gt === 'grand' ? '1rem' : '1.1rem', lineHeight: 1 }}>
+        {display.symbol}
+      </span>
+      {suffixes.length > 0 && (
+        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--outline)', lineHeight: 1 }}>
+          {suffixes.join('')}
+        </span>
+      )}
+    </span>
+  );
+}
 const RoundRow = ({ r, idx, players, std, sf, onEdit }) => (
   <tr style={{ borderBottom: '1px solid var(--surface-high)', backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)' }}>
     <td style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
     <td style={{ ...tdStyle, fontWeight: 600 }}>{r.player}</td>
     <td style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
-      {r.typeLabel}
+      <GameTypeIcon round={r} />
       <button
         aria-label={`Runde ${r.id} bearbeiten`}
         onClick={() => onEdit(r)}
