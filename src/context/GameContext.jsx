@@ -200,27 +200,25 @@ export function GameProvider({ children }) {
   const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'syncing' | 'synced' | 'error'
   const [syncError, setSyncError] = useState(null);
 
-  // Task 4.2: Initialization — load or create session on mount
+  // Initialization — load session on mount, never auto-create
   useEffect(() => {
     async function initSession() {
       setSyncStatus('syncing');
       const storedId = localStorage.getItem(SESSION_STORAGE_KEY);
       if (storedId) {
         const { data, error } = await syncService.loadSession(storedId);
-        if (error || !data) {
-          // Invalid/missing session — create a new one
-          const { data: newSession, error: createError } = await syncService.createSession(initialState.seating);
-          if (createError || !newSession) {
-            setSyncStatus('error');
-            setSyncError(createError?.message ?? 'Fehler beim Erstellen der Session');
-            return;
-          }
-          localStorage.setItem(SESSION_STORAGE_KEY, newSession.id);
-          dispatch({ type: 'LOAD_SESSION', payload: { session: newSession, rounds: [] } });
-        } else {
+        if (!error && data) {
           dispatch({ type: 'LOAD_SESSION', payload: data });
+          setSyncStatus('synced');
+          return;
         }
-      } else {
+        // Stored session no longer exists — fall through to load latest
+        localStorage.removeItem(SESSION_STORAGE_KEY);
+      }
+      // No stored session or it was invalid — load the most recent session from DB
+      const { data: sessions, error: listError } = await syncService.listSessions();
+      if (listError || !sessions?.length) {
+        // No sessions at all — only now create one
         const { data: newSession, error: createError } = await syncService.createSession(initialState.seating);
         if (createError || !newSession) {
           setSyncStatus('error');
@@ -229,6 +227,17 @@ export function GameProvider({ children }) {
         }
         localStorage.setItem(SESSION_STORAGE_KEY, newSession.id);
         dispatch({ type: 'LOAD_SESSION', payload: { session: newSession, rounds: [] } });
+      } else {
+        // Load the most recent existing session
+        const latest = sessions[0];
+        const { data, error } = await syncService.loadSession(latest.id);
+        if (error || !data) {
+          setSyncStatus('error');
+          setSyncError(error?.message ?? 'Fehler beim Laden der Session');
+          return;
+        }
+        localStorage.setItem(SESSION_STORAGE_KEY, latest.id);
+        dispatch({ type: 'LOAD_SESSION', payload: data });
       }
       setSyncStatus('synced');
     }
