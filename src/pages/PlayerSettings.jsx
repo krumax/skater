@@ -228,14 +228,14 @@ export default function PlayerSettings() {
                       color: 'var(--on-surface)', fontFamily: 'inherit', textAlign: 'left',
                       minWidth: '160px', transition: 'all 0.15s',
                     }}>
-                    <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: isActive ? 'var(--primary)' : 'var(--on-surface)' }}>
+                    <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: isActive ? '#ffffff' : 'var(--on-surface)' }}>
                       {label}
                     </span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.2rem' }}>
+                    <span style={{ fontSize: '0.7rem', color: isActive ? 'rgba(255,255,255,0.75)' : 'var(--outline)', marginTop: '0.2rem' }}>
                       {date} · {s.current_round - 1} Runden
                     </span>
                     {isActive && (
-                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--primary)', marginTop: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.9)', marginTop: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                         Aktiv
                       </span>
                     )}
