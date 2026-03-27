@@ -132,9 +132,9 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
         style={dialogStyle}
         onClick={e => e.stopPropagation()}
       >
-        <h2 style={{ margin: '0 0 1.5rem', fontSize: '1.25rem' }}>
+        <h2 style={{ margin: '0 0 1.5rem', fontSize: '1.25rem', color: '#1a1a2e' }}>
           Spieltyp bearbeiten
-          <span style={{ color: 'var(--text-secondary)', fontWeight: 400, fontSize: '0.9rem', marginLeft: '0.5rem' }}>
+          <span style={{ color: '#555577', fontWeight: 400, fontSize: '0.9rem', marginLeft: '0.5rem' }}>
             Runde {round?.roundNumber ?? round?.id}
           </span>
         </h2>
@@ -223,7 +223,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
 
 function CheckboxField({ label, checked, onChange }) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', userSelect: 'none' }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', userSelect: 'none', color: '#1a1a2e' }}>
       <input
         type="checkbox"
         checked={checked}
@@ -248,13 +248,13 @@ const overlayStyle = {
 };
 
 const dialogStyle = {
-  background: 'var(--surface, #1e1e2e)',
-  color: 'var(--text-primary, #cdd6f4)',
+  background: '#ffffff',
+  color: '#1a1a2e',
   borderRadius: '0.75rem',
   padding: '1.75rem',
   width: '100%',
   maxWidth: '420px',
-  boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
 };
 
 const labelStyle = {
@@ -262,7 +262,7 @@ const labelStyle = {
   fontSize: '0.85rem',
   fontWeight: 600,
   marginBottom: '0.4rem',
-  color: 'var(--text-secondary, #a6adc8)',
+  color: '#555577',
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
 };
@@ -270,18 +270,18 @@ const labelStyle = {
 const chipStyle = {
   padding: '0.35rem 0.85rem',
   borderRadius: '999px',
-  border: '1px solid var(--border, #45475a)',
+  border: '1.5px solid #c0c0d0',
   background: 'transparent',
-  color: 'var(--text-primary, #cdd6f4)',
+  color: '#1a1a2e',
   cursor: 'pointer',
   fontSize: '0.9rem',
   transition: 'background 0.15s, border-color 0.15s',
 };
 
 const chipActiveStyle = {
-  background: 'var(--accent, #cba6f7)',
-  borderColor: 'var(--accent, #cba6f7)',
-  color: '#1e1e2e',
+  background: '#7c3aed',
+  borderColor: '#7c3aed',
+  color: '#ffffff',
   fontWeight: 600,
 };
 
@@ -289,19 +289,19 @@ const inputStyle = {
   width: '100%',
   padding: '0.5rem 0.75rem',
   borderRadius: '0.4rem',
-  border: '1px solid var(--border, #45475a)',
-  background: 'var(--surface-low, #181825)',
-  color: 'var(--text-primary, #cdd6f4)',
+  border: '1.5px solid #c0c0d0',
+  background: '#f5f5fa',
+  color: '#1a1a2e',
   fontSize: '1rem',
   boxSizing: 'border-box',
 };
 
 const inputErrorStyle = {
-  borderColor: 'var(--error, #f38ba8)',
+  borderColor: '#dc2626',
 };
 
 const errorTextStyle = {
-  color: 'var(--error, #f38ba8)',
+  color: '#dc2626',
   fontSize: '0.8rem',
   margin: '0.25rem 0 0',
 };
@@ -309,9 +309,9 @@ const errorTextStyle = {
 const cancelBtnStyle = {
   padding: '0.5rem 1.25rem',
   borderRadius: '0.4rem',
-  border: '1px solid var(--border, #45475a)',
+  border: '1.5px solid #c0c0d0',
   background: 'transparent',
-  color: 'var(--text-primary, #cdd6f4)',
+  color: '#1a1a2e',
   cursor: 'pointer',
   fontSize: '0.95rem',
 };
@@ -320,8 +320,8 @@ const saveBtnStyle = {
   padding: '0.5rem 1.25rem',
   borderRadius: '0.4rem',
   border: 'none',
-  background: 'var(--accent, #cba6f7)',
-  color: '#1e1e2e',
+  background: '#7c3aed',
+  color: '#ffffff',
   fontWeight: 600,
   cursor: 'pointer',
   fontSize: '0.95rem',
