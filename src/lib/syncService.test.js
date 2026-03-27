@@ -8,6 +8,7 @@ import * as fc from 'fast-check';
 
 let _sessions = {};
 let _rounds = {};
+let _lastUpdatePatch = null;
 
 function makeBuilder(table) {
   const store = table === 'sessions' ? _sessions : _rounds;
@@ -25,6 +26,7 @@ function makeBuilder(table) {
     },
     update(data) {
       _updateData = data;
+      _lastUpdatePatch = data;
       return builder;
     },
     select() {
@@ -96,7 +98,7 @@ vi.mock('./supabaseClient', () => ({
 }));
 
 // ── Import after mock is set up ──────────────────────────────────────────────
-const { createSession, insertRound, loadSession } = await import('./syncService.js');
+const { createSession, insertRound, loadSession, updateRound } = await import('./syncService.js');
 
 // ── Generators ───────────────────────────────────────────────────────────────
 const playerName = fc.constantFrom('Alice', 'Bob', 'Charlie', 'Diana');
@@ -124,6 +126,7 @@ describe('Property 2: Runden-Persistenz-Round-Trip', () => {
   beforeEach(() => {
     _sessions = {};
     _rounds = {};
+    _lastUpdatePatch = null;
   });
 
   it(
@@ -157,15 +160,16 @@ describe('Property 2: Runden-Persistenz-Round-Trip', () => {
             const r = loadedRounds[0];
 
             // 5. Core fields must be identical after the camelCase→snake_case→camelCase trip
-            expect(r.round_number).toBe(round.id);
+            // loadSession maps snake_case DB columns to camelCase fields
+            expect(r.id).toBe(round.id);
             expect(r.player).toBe(round.player);
-            expect(r.game_type).toBe(round.gameType);
-            expect(r.type_label).toBe(round.typeLabel);
-            expect(r.game_value).toBe(round.gameValue);
-            expect(r.base_value).toBe(round.baseValue);
+            expect(r.gameType).toBe(round.gameType);
+            expect(r.typeLabel).toBe(round.typeLabel);
+            expect(r.gameValue).toBe(round.gameValue);
+            expect(r.baseValue).toBe(round.baseValue);
             expect(r.multiplier).toBe(round.multiplier);
             expect(r.won).toBe(round.won);
-            expect(r.eye_count).toBe(round.eyeCount);
+            expect(r.eyeCount).toBe(round.eyeCount);
             expect(r.spitzen).toBe(round.spitzen);
             expect(r.hand).toBe(round.hand);
             expect(r.schneider).toBe(round.schneider);
@@ -178,4 +182,102 @@ describe('Property 2: Runden-Persistenz-Round-Trip', () => {
       );
     }
   );
+});
+
+// ── Unit-Tests: updateRound ──────────────────────────────────────────────────
+describe('updateRound – Anforderungen 3.1, 4.1', () => {
+  const ALLOWED_FIELDS = ['game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schwarz', 'spitzen'];
+
+  beforeEach(() => {
+    _sessions = {};
+    _rounds = {};
+    _lastUpdatePatch = null;
+  });
+
+  it('Patch-Objekt enthält ausschließlich die erlaubten Felder', async () => {
+    // Seed a round so the update finds a row
+    const roundId = crypto.randomUUID();
+    _rounds[roundId] = {
+      id: roundId,
+      game_type: 'club',
+      type_label: 'Kreuz',
+      hand: false,
+      ouvert: false,
+      schneider: false,
+      schwarz: false,
+      spitzen: 2,
+      game_value: 48,
+      player: 'Alice',
+      round_number: 1,
+    };
+
+    // Pass a patch that includes a forbidden field (game_value) alongside allowed fields
+    const patch = {
+      game_type: 'grand',
+      type_label: 'Grand Hand',
+      hand: true,
+      ouvert: false,
+      schneider: false,
+      schwarz: false,
+      spitzen: 3,
+      game_value: 999, // must be stripped
+    };
+
+    await updateRound(roundId, patch);
+
+    expect(_lastUpdatePatch).not.toBeNull();
+    const sentKeys = Object.keys(_lastUpdatePatch);
+
+    // Every sent key must be in the allowed list
+    sentKeys.forEach(key => {
+      expect(ALLOWED_FIELDS).toContain(key);
+    });
+
+    // No forbidden fields present
+    expect(sentKeys).not.toContain('game_value');
+    expect(sentKeys).not.toContain('base_value');
+    expect(sentKeys).not.toContain('multiplier');
+    expect(sentKeys).not.toContain('won');
+    expect(sentKeys).not.toContain('player');
+    expect(sentKeys).not.toContain('round_number');
+    expect(sentKeys).not.toContain('timestamp');
+    expect(sentKeys).not.toContain('session_id');
+  });
+
+  it('game_value wird nicht verändert', async () => {
+    const originalGameValue = 48;
+    const roundId = crypto.randomUUID();
+    _rounds[roundId] = {
+      id: roundId,
+      game_type: 'club',
+      type_label: 'Kreuz',
+      hand: false,
+      ouvert: false,
+      schneider: false,
+      schwarz: false,
+      spitzen: 2,
+      game_value: originalGameValue,
+      player: 'Alice',
+      round_number: 1,
+    };
+
+    const patch = {
+      game_type: 'spade',
+      type_label: 'Pik',
+      hand: false,
+      ouvert: false,
+      schneider: false,
+      schwarz: false,
+      spitzen: 1,
+      game_value: 999, // attempt to overwrite – must be ignored
+    };
+
+    await updateRound(roundId, patch);
+
+    // The stored row must still have the original game_value
+    expect(_rounds[roundId].game_value).toBe(originalGameValue);
+
+    // The patch sent to Supabase must not contain game_value
+    expect(_lastUpdatePatch).not.toHaveProperty('game_value');
+  });
 });

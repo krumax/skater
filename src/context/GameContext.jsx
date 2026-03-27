@@ -166,6 +166,16 @@ function gameReducer(state, action) {
         geberIndex: action.payload % state.seating.length,
       };
 
+    case 'UPDATE_ROUND': {
+      const { id, patch } = action.payload;
+      return {
+        ...state,
+        rounds: state.rounds.map(r =>
+          r.id === id ? { ...r, ...patch } : r
+        ),
+      };
+    }
+
     case 'DELETE_ROUND': {
       const roundId = action.payload; // local round id (r.id)
       const newRounds = state.rounds.filter(r => r.id !== roundId);
@@ -361,6 +371,23 @@ export function GameProvider({ children }) {
     setSyncError(null);
   }, [state.rounds.length, state.seating.length]);
 
+  const updateRound = useCallback(async (round, patch) => {
+    // Convert camelCase patch to snake_case for Supabase
+    const snakePatch = {
+      ...(patch.gameType   !== undefined && { game_type:  patch.gameType }),
+      ...(patch.typeLabel  !== undefined && { type_label: patch.typeLabel }),
+      ...(patch.hand       !== undefined && { hand:       patch.hand }),
+      ...(patch.ouvert     !== undefined && { ouvert:     patch.ouvert }),
+      ...(patch.schneider  !== undefined && { schneider:  patch.schneider }),
+      ...(patch.schwarz    !== undefined && { schwarz:    patch.schwarz }),
+      ...(patch.spitzen    !== undefined && { spitzen:    patch.spitzen }),
+    };
+    const { error } = await syncService.updateRound(round._dbId, snakePatch);
+    if (error) return { error };
+    dispatch({ type: 'UPDATE_ROUND', payload: { id: round.id, patch } });
+    return { error: null };
+  }, []);
+
   // Task 4.8: refreshFromDB
   const refreshFromDB = useCallback(async () => {
     const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
@@ -545,6 +572,7 @@ export function GameProvider({ children }) {
       reorderSeating,
       setGeberIndex,
       deleteRound,
+      updateRound,
       refreshFromDB,
       switchSession,
       createNewTable,

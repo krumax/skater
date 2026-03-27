@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS } from '../lib/skatScoring';
+import GameTypeEditor from '../components/GameTypeEditor';
 
 const SkatScoreList = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const SkatScoreList = () => {
 
   const VISIBLE_TAIL = 5;
   const [expanded, setExpanded] = useState(false);
+  const [editingRound, setEditingRound] = useState(null);
 
   // Precompute running totals for every round index once
   const runningStd = [];
@@ -144,7 +146,7 @@ const SkatScoreList = () => {
                 <>
                   {expanded && olderRounds.map((r, idx) => (
                     <RoundRow key={r.id} r={r} idx={idx} players={players}
-                      std={runningStd[idx]} sf={runningSF[idx]} />
+                      std={runningStd[idx]} sf={runningSF[idx]} onEdit={setEditingRound} />
                   ))}
                   {/* Toggle row */}
                   <tr style={{ backgroundColor: 'var(--surface-high)' }}>
@@ -170,7 +172,7 @@ const SkatScoreList = () => {
                 const idx = splitAt + i;
                 return (
                   <RoundRow key={r.id} r={r} idx={idx} players={players}
-                    std={runningStd[idx]} sf={runningSF[idx]} />
+                    std={runningStd[idx]} sf={runningSF[idx]} onEdit={setEditingRound} />
                 );
               })}
             </tbody>
@@ -193,16 +195,34 @@ const SkatScoreList = () => {
           <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--secondary)' }}>{rounds.filter(r => !r.won).length}</p>
         </div>
       </div>
+
+      {/* ── GameTypeEditor Modal ── */}
+      {editingRound !== null && (
+        <GameTypeEditor
+          round={editingRound}
+          onClose={() => setEditingRound(null)}
+          onSaved={() => setEditingRound(null)}
+        />
+      )}
     </div>
   );
 };
 
 // ── Reusable row component ───────────────────────────────────────────────────
-const RoundRow = ({ r, idx, players, std, sf }) => (
+const RoundRow = ({ r, idx, players, std, sf, onEdit }) => (
   <tr style={{ borderBottom: '1px solid var(--surface-high)', backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)' }}>
     <td style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
     <td style={{ ...tdStyle, fontWeight: 600 }}>{r.player}</td>
-    <td style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>{r.typeLabel}</td>
+    <td style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
+      {r.typeLabel}
+      <button
+        aria-label={`Runde ${r.id} bearbeiten`}
+        onClick={() => onEdit(r)}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 0 0.4rem', verticalAlign: 'middle', color: 'var(--outline)', lineHeight: 1 }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>edit</span>
+      </button>
+    </td>
     <td style={{ ...tdStyle, fontWeight: 800, textAlign: 'right', color: r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
       {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
     </td>

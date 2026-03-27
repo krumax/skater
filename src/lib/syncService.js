@@ -142,6 +142,26 @@ export async function listSessions() {
 }
 
 /**
+ * Updates only the game-type-related fields of a round.
+ * @param {string} roundDbId - The UUID of the round row (r._dbId)
+ * @param {object} patch - { game_type, type_label, hand, ouvert, schneider, schwarz, spitzen }
+ * @returns {{ data, error }}
+ */
+export async function updateRound(roundDbId, patch) {
+  const allowed = ['game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schwarz', 'spitzen'];
+  const safePatch = Object.fromEntries(
+    Object.entries(patch).filter(([k]) => allowed.includes(k))
+  );
+  const { data, error } = await supabase
+    .from('rounds')
+    .update(safePatch)
+    .eq('id', roundDbId)
+    .select()
+    .single();
+  return { data, error };
+}
+
+/**
  * Deletes a single round by its DB UUID.
  * @param {string} roundDbId - The UUID of the round row (r._dbId)
  * @returns {{ error }}
