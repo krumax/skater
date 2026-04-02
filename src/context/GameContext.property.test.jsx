@@ -70,6 +70,37 @@ describe('Property 1: Bock-Verdopplung ist korrekt (Requirements 1.2, 1.4, 2.3, 
   });
 });
 
+// ── Property 2: Kein Bock bedeutet unveränderter Spielwert ───────────────────
+// Feature: bockrunden, Property 2: Kein Bock bedeutet unveränderter Spielwert
+// Validates: Requirements 1.3, 1.5, 2.4
+
+describe('Property 2: Kein Bock bedeutet unveränderter Spielwert (Requirements 1.3, 1.5, 2.4)', () => {
+  it('gespeicherter game_value === calculateGameValue(config).gameValue wenn isBock=false', { timeout: 30000 }, () => {
+    fc.assert(
+      fc.property(
+        arbitraryGameConfig,
+        (config) => {
+          const { gameValue: baseGameValue } = calculateGameValue(config);
+
+          const rounds = addRoundReducer([], {
+            ...config,
+            gameValue: baseGameValue,
+            isBock: false,
+            player: 'TestPlayer',
+            won: baseGameValue > 0,
+          });
+
+          const storedRound = rounds[0];
+
+          // Assert: stored game_value is identical to calculateGameValue result (no doubling)
+          expect(storedRound.gameValue).toBe(baseGameValue);
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
+});
+
 // ── Property 7 helpers ────────────────────────────────────────────────────────
 
 /**

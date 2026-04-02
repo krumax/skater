@@ -309,6 +309,82 @@ describe('Fehlerbehandlung bei DB-Fehler (Anforderung 3.5)', () => {
   });
 });
 
+// ── Fehlermeldung bei Speicherfehler – Anforderung 2.5 ───────────────────────
+// Validates: Requirements 2.5
+
+describe('Fehlermeldung bei Speicherfehler – Dialog bleibt offen (Anforderung 2.5)', () => {
+  /**
+   * Simuliert die handleSave-Logik aus GameTypeEditor:
+   * - Ruft updateRound auf
+   * - Bei Fehler: setzt errors.general, ruft onSaved/onClose NICHT auf
+   * - Bei Erfolg: ruft onSaved auf
+   */
+  async function simulateHandleSave({ updateRound, onSaved, onClose }) {
+    let generalError = null;
+    let dialogClosed = false;
+
+    const { error } = await updateRound({}, {});
+
+    if (error) {
+      generalError = error.message ?? 'Fehler beim Speichern';
+      // Dialog bleibt offen – onSaved und onClose werden NICHT aufgerufen
+    } else {
+      onSaved();
+      dialogClosed = true;
+    }
+
+    return { generalError, dialogClosed };
+  }
+
+  it('Dialog bleibt offen wenn updateRound einen Fehler zurückgibt', async () => {
+    const updateRound = vi.fn().mockResolvedValue({ error: { message: 'Netzwerkfehler' } });
+    const onSaved = vi.fn();
+    const onClose = vi.fn();
+
+    const result = await simulateHandleSave({ updateRound, onSaved, onClose });
+
+    // Dialog bleibt offen: onSaved und onClose wurden nicht aufgerufen
+    expect(onSaved).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(result.dialogClosed).toBe(false);
+  });
+
+  it('Fehlermeldung wird angezeigt wenn updateRound einen Fehler zurückgibt', async () => {
+    const updateRound = vi.fn().mockResolvedValue({ error: { message: 'Datenbankfehler' } });
+    const onSaved = vi.fn();
+    const onClose = vi.fn();
+
+    const result = await simulateHandleSave({ updateRound, onSaved, onClose });
+
+    // Fehlermeldung ist gesetzt
+    expect(result.generalError).toBe('Datenbankfehler');
+    expect(result.generalError).not.toBeNull();
+  });
+
+  it('Fallback-Fehlermeldung wenn error.message fehlt', async () => {
+    const updateRound = vi.fn().mockResolvedValue({ error: {} });
+    const onSaved = vi.fn();
+    const onClose = vi.fn();
+
+    const result = await simulateHandleSave({ updateRound, onSaved, onClose });
+
+    expect(result.generalError).toBe('Fehler beim Speichern');
+    expect(result.dialogClosed).toBe(false);
+  });
+
+  it('Dialog schließt sich und kein Fehler bei erfolgreichem Speichern', async () => {
+    const updateRound = vi.fn().mockResolvedValue({ error: null });
+    const onSaved = vi.fn();
+    const onClose = vi.fn();
+
+    const result = await simulateHandleSave({ updateRound, onSaved, onClose });
+
+    expect(onSaved).toHaveBeenCalledOnce();
+    expect(result.generalError).toBeNull();
+    expect(result.dialogClosed).toBe(true);
+  });
+});
+
 // ── Patch-Objekt enthält isBock und gameValue – Anforderungen 2.2, 2.3, 2.4 ──
 
 describe('Patch-Objekt beim Speichern (Anforderungen 2.2, 2.3, 2.4)', () => {

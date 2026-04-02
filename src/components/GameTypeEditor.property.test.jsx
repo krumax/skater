@@ -27,6 +27,54 @@ const SUIT_LABELS_MAP = {
   grand:   'Grand',
 };
 
+// ── Property 5: GameTypeEditor-Vorbeleg ist korrekt ──────────────────────────
+// Feature: bockrunden, Property 5: GameTypeEditor-Vorbeleg ist korrekt
+// Validates: Requirements 2.1
+
+/**
+ * Minimal round shape for Property 5 — only isBock matters here.
+ * We include the minimum fields required to render the component without errors.
+ */
+const arbitraryRoundWithBock = fc.record({
+  id:          fc.integer({ min: 1, max: 500 }),
+  roundNumber: fc.integer({ min: 1, max: 500 }),
+  gameType:    fc.constantFrom(...GAME_TYPES),
+  hand:        fc.boolean(),
+  ouvert:      fc.boolean(),
+  schneider:   fc.boolean(),
+  schwarz:     fc.boolean(),
+  spitzen:     fc.integer({ min: 1, max: 11 }),
+  isBock:      fc.boolean(),
+  _dbId:       fc.uuid(),
+});
+
+describe('Property 5: GameTypeEditor-Vorbeleg ist korrekt (Requirements 2.1)', () => {
+  beforeEach(() => {
+    cleanup();
+  });
+
+  it('Bockrunde-Checkbox ist vorbelegt mit round.isBock', { timeout: 30000 }, () => {
+    fc.assert(
+      fc.property(arbitraryRoundWithBock, (round) => {
+        cleanup();
+
+        render(
+          <GameTypeEditor
+            round={round}
+            onClose={vi.fn()}
+            onSaved={vi.fn()}
+          />
+        );
+
+        // The "Bockrunde" checkbox must reflect the round's isBock value
+        const bockCheckbox = screen.getByLabelText('Bockrunde');
+        expect(bockCheckbox.checked).toBe(round.isBock);
+      }),
+      { numRuns: 100 }
+    );
+  });
+});
+
 // ── Arbitrary: gültige Runde ──────────────────────────────────────────────────
 
 const arbitraryGameType = fc.constantFrom(...GAME_TYPES);

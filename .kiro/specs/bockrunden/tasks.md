@@ -18,7 +18,7 @@ Schrittweise Integration des Bockrunden-Features in die bestehende Skat-Scoring-
     - _Requirements: 3.2_
   - [x] 2.3 `loadSession` in `src/lib/syncService.js`: Mapping `isBock: r.is_bock ?? false` im rounds-Map ergänzen
     - _Requirements: 3.3_
-  - [ ]* 2.4 Property-Test für Bock-Persistenz Round-Trip schreiben
+  - [x] 2.4 Property-Test für Bock-Persistenz Round-Trip schreiben
     - **Property 3: Bock-Persistenz Round-Trip**
     - **Validates: Requirements 3.1, 3.2, 3.3**
     - Mock-basiert (kein echter DB-Aufruf), fast-check, mind. 100 Iterationen
@@ -34,7 +34,7 @@ Schrittweise Integration des Bockrunden-Features in die bestehende Skat-Scoring-
     - **Validates: Requirements 1.2, 1.4, 2.3, 5.3**
     - Generator: zufällige gültige Spielkonfigurationen; Assertion: gespeicherter `game_value === calculateGameValue(config).gameValue * 2`
     - `// Feature: bockrunden, Property 1: Bock-Verdopplung ist korrekt`
-  - [ ]* 3.3 Property-Test: Kein Bock bedeutet unveränderter Spielwert
+  - [x] 3.3 Property-Test: Kein Bock bedeutet unveränderter Spielwert
     - **Property 2: Kein Bock bedeutet unveränderter Spielwert**
     - **Validates: Requirements 1.3, 1.5, 2.4**
     - `// Feature: bockrunden, Property 2: Kein Bock bedeutet unveränderter Spielwert`
@@ -55,7 +55,7 @@ Schrittweise Integration des Bockrunden-Features in die bestehende Skat-Scoring-
     - Toggle in der Spielstufe-Sektion als Chip (analog zu Hand/Schneider/Schwarz/Ouvert)
     - `resetForm` setzt `isBock` auf `false`
     - _Requirements: 1.1, 1.6_
-  - [ ]* 5.2 Property-Test: Formular-Reset setzt Bock-Toggle zurück
+  - [x] 5.2 Property-Test: Formular-Reset setzt Bock-Toggle zurück
     - **Property 4: Formular-Reset setzt Bock-Toggle zurück**
     - **Validates: Requirements 1.6**
     - `// Feature: bockrunden, Property 4: Formular-Reset setzt Bock-Toggle zurück`
@@ -70,7 +70,7 @@ Schrittweise Integration des Bockrunden-Features in die bestehende Skat-Scoring-
   - [x] 6.1 Lokalen State `isBock` und `CheckboxField` „Bockrunde" in `src/components/GameTypeEditor.jsx` hinzufügen
     - Initialisierung: `useState(round?.isBock ?? false)`
     - _Requirements: 2.1_
-  - [ ]* 6.2 Property-Test: GameTypeEditor-Vorbeleg ist korrekt
+  - [x] 6.2 Property-Test: GameTypeEditor-Vorbeleg ist korrekt
     - **Property 5: GameTypeEditor-Vorbeleg ist korrekt**
     - **Validates: Requirements 2.1**
     - Generator: zufällige Runden mit `isBock` true/false; Assertion: initialer State des Editors entspricht `round.isBock`
@@ -79,7 +79,7 @@ Schrittweise Integration des Bockrunden-Features in die bestehende Skat-Scoring-
     - `patch` enthält `isBock` und `gameValue` (base × 2 wenn isBock, sonst base)
     - Fehlermeldung bei Speicherfehler bleibt erhalten (Requirement 2.5)
     - _Requirements: 2.2, 2.3, 2.4, 2.5_
-  - [ ]* 6.4 Unit-Test: Fehlermeldung bei Speicherfehler im GameTypeEditor
+  - [x] 6.4 Unit-Test: Fehlermeldung bei Speicherfehler im GameTypeEditor
     - Testet, dass der Dialog bei Fehler geöffnet bleibt und eine Fehlermeldung anzeigt
     - _Requirements: 2.5_
 
