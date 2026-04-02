@@ -313,7 +313,7 @@ function GameTypeIcon({ round }) {
 const RoundRow = ({ r, idx, players, std, sf, onEdit }) => (
   <tr style={{ borderBottom: '1px solid var(--surface-high)', backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)' }}>
     <td style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
-    <td style={{ ...tdStyle, fontWeight: 600 }}>{r.player}</td>
+    <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
     <td style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
       <GameTypeIcon round={r} />
       <button
