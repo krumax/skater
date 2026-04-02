@@ -57,7 +57,7 @@ const PlayerAnalytics = () => {
           {/* ── Brot / Baguette ── */}
           <section>
             <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Brot &amp; Baguette</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
                 <p style={statLabel}>🍞 Brote</p>
                 <p style={{ ...statValue, color: stats.brote > 0 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.brote}</p>
@@ -72,6 +72,11 @@ const PlayerAnalytics = () => {
                 <p style={statLabel}>🏆 Längste Siegesserie</p>
                 <p style={{ ...statValue, color: stats.longestWinStreak >= 3 ? 'var(--primary)' : 'var(--on-surface)' }}>{stats.longestWinStreak}</p>
                 <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.25rem' }}>Siege als Alleinspieler in Folge</p>
+              </div>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={statLabel}>💀 Längste Verlustserie</p>
+                <p style={{ ...statValue, color: stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.longestLossStreak}</p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.25rem' }}>Niederlagen als Alleinspieler in Folge</p>
               </div>
             </div>
             <div className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', backgroundColor: 'var(--surface-low)' }}>

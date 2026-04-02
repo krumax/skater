@@ -516,15 +516,26 @@ export function GameProvider({ children }) {
     let longestWinStreak = 0;
     let currentWinStreak = 0;
 
+    // ── Longest loss streak ──
+    // Only counts consecutive losses where this player was Alleinspieler.
+    let longestLossStreak = 0;
+    let currentLossStreak = 0;
+
     state.rounds.forEach(r => {
       if (r.player === playerName && r.won) {
-        // This player won — extend streak
+        // This player won — extend win streak, reset loss streak
         currentWinStreak += 1;
         if (currentWinStreak > longestWinStreak) longestWinStreak = currentWinStreak;
-      } else {
-        // Either this player lost, or another player was Alleinspieler (won or lost)
-        // Any of these breaks the streak
+        currentLossStreak = 0;
+      } else if (r.player === playerName && !r.won) {
+        // This player lost — extend loss streak, reset win streak
+        currentLossStreak += 1;
+        if (currentLossStreak > longestLossStreak) longestLossStreak = currentLossStreak;
         currentWinStreak = 0;
+      } else {
+        // Another player was Alleinspieler — breaks both streaks
+        currentWinStreak = 0;
+        currentLossStreak = 0;
       }
     });
 
@@ -555,7 +566,7 @@ export function GameProvider({ children }) {
       totalGames, wins, losses, winRate,
       totalPoints, avgPoints, seegerTotal,
       typeDistribution, rounds: playerRounds,
-      brote, baguettes, currentStreak, longestWinStreak,
+      brote, baguettes, currentStreak, longestWinStreak, longestLossStreak,
     };
   }, [state.rounds]);
 
