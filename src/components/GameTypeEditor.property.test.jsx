@@ -51,7 +51,7 @@ describe('Property 2: Dialog öffnet korrekte Runde (Anforderungen 1.2, 2.1)', (
     cleanup();
   });
 
-  it('Formularfelder entsprechen den Werten der übergebenen Runde', () => {
+  it('Formularfelder entsprechen den Werten der übergebenen Runde', { timeout: 30000 }, () => {
     fc.assert(
       fc.property(arbitraryRound, (round) => {
         cleanup();

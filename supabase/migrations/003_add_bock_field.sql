@@ -1,0 +1,1 @@
+ALTER TABLE rounds ADD COLUMN IF NOT EXISTS is_bock boolean NOT NULL DEFAULT false;

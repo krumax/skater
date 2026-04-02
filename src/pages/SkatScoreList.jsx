@@ -325,6 +325,21 @@ const RoundRow = ({ r, idx, players, std, sf, onEdit }) => (
       </button>
     </td>
     <td style={{ ...tdStyle, fontWeight: 800, textAlign: 'right', color: r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
+      {r.isBock === true && (
+        <span style={{
+          display: 'inline-block',
+          fontSize: '0.6rem',
+          fontWeight: 800,
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+          backgroundColor: 'var(--tertiary-container)',
+          color: 'var(--on-tertiary-container, #fff)',
+          padding: '0.1rem 0.35rem',
+          borderRadius: '0.25rem',
+          marginRight: '0.4rem',
+          verticalAlign: 'middle',
+        }}>Bock</span>
+      )}
       {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
     </td>
     <td style={tdDivider}></td>

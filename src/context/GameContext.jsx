@@ -46,9 +46,14 @@ function getRoles(seating, geberIndex) {
 function gameReducer(state, action) {
   switch (action.type) {
     case 'ADD_ROUND': {
+      const finalGameValue = action.payload.isBock
+        ? action.payload.gameValue * 2
+        : action.payload.gameValue;
       const round = {
         id: state.rounds.length + 1,
         ...action.payload,
+        gameValue: finalGameValue,
+        isBock: action.payload.isBock ?? false,
         timestamp: new Date().toISOString(),
       };
 
@@ -259,6 +264,8 @@ export function GameProvider({ children }) {
     const roundWithId = {
       id: state.rounds.length + 1,
       ...roundData,
+      gameValue: roundData.isBock ? roundData.gameValue * 2 : roundData.gameValue,
+      isBock: roundData.isBock ?? false,
       timestamp: new Date().toISOString(),
     };
     const { error: insertError } = await syncService.insertRound(roundWithId, sessionId);
@@ -390,6 +397,8 @@ export function GameProvider({ children }) {
       ...(patch.schneider  !== undefined && { schneider:  patch.schneider }),
       ...(patch.schwarz    !== undefined && { schwarz:    patch.schwarz }),
       ...(patch.spitzen    !== undefined && { spitzen:    patch.spitzen }),
+      ...(patch.isBock     !== undefined && { is_bock:    patch.isBock }),
+      ...(patch.gameValue  !== undefined && { game_value: patch.gameValue }),
     };
     const { error } = await syncService.updateRound(round._dbId, snakePatch);
     if (error) return { error };

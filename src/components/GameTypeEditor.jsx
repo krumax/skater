@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { SUIT_LABELS } from '../lib/skatScoring';
+import { SUIT_LABELS, calculateGameValue } from '../lib/skatScoring';
 import { useGame } from '../context/GameContext';
 
 // ─── Spieltyp-Konstanten ───
@@ -56,6 +56,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
   const [schneider, setSchneider]   = useState(round?.schneider ?? false);
   const [schwarz, setSchwarz]       = useState(round?.schwarz ?? false);
   const [spitzen, setSpitzen]       = useState(round?.spitzen ?? 1);
+  const [isBock, setIsBock]         = useState(round?.isBock ?? false);
   const [errors, setErrors]         = useState({});
   const [saving, setSaving]         = useState(false);
 
@@ -97,6 +98,30 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
     setSaving(true);
     setErrors(prev => ({ ...prev, general: undefined }));
 
+    // Recalculate base game value from the round's current fields.
+    // If the round was previously a Bockrunde, the stored gameValue is already doubled,
+    // so we derive the base by dividing by 2.
+    const baseGameValue = (() => {
+      try {
+        const result = calculateGameValue({
+          gameType: round?.gameType,
+          spitzen: round?.spitzen ?? 1,
+          hand: round?.hand ?? false,
+          schneider: round?.schneider ?? false,
+          schwarz: round?.schwarz ?? false,
+          ouvert: round?.ouvert ?? false,
+          eyeCount: round?.eyeCount ?? 0,
+          won: round?.won ?? false,
+        });
+        return result.gameValue;
+      } catch {
+        // Fallback: derive from stored value
+        return round?.isBock ? (round?.gameValue ?? 0) / 2 : (round?.gameValue ?? 0);
+      }
+    })();
+
+    const newGameValue = isBock ? baseGameValue * 2 : baseGameValue;
+
     const patch = {
       gameType,
       typeLabel: buildTypeLabel(gameType, { hand, ouvert }),
@@ -105,6 +130,8 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
       schneider,
       schwarz,
       spitzen: hasSuiteGame ? Number(spitzen) : 0,
+      isBock,
+      gameValue: newGameValue,
     };
 
     const { error } = await updateRound(round, patch);
@@ -167,6 +194,11 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
               <CheckboxField label="Schwarz"   checked={schwarz}   onChange={setSchwarz} />
             </>
           )}
+        </div>
+
+        {/* Bockrunde */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <CheckboxField label="Bockrunde" checked={isBock} onChange={setIsBock} />
         </div>
 
         {/* Spitzen-Eingabe (nur bei Farb-/Grand-Spielen) */}

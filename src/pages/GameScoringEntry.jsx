@@ -30,6 +30,7 @@ const GameScoringEntry = () => {
   const [mitOhne, setMitOhne] = useState('mit');
   const [spitzen, setSpitzen] = useState(1);
   const [eyeCount, setEyeCount] = useState(61);
+  const [isBock, setIsBock] = useState(false);
 
   // ── Automatische Berechnung ──
   const result = useMemo(() => {
@@ -65,6 +66,7 @@ const GameScoringEntry = () => {
     setMitOhne('mit');
     setSpitzen(1);
     setEyeCount(61);
+    setIsBock(false);
   };
 
   // ── Ergebnis speichern ──
@@ -91,6 +93,7 @@ const GameScoringEntry = () => {
       schneider,
       schwarz,
       ouvert,
+      isBock,
     });
 
     resetForm();
@@ -219,6 +222,12 @@ const GameScoringEntry = () => {
                   {mod.label}
                 </button>
               ))}
+              <button
+                onClick={() => setIsBock(!isBock)}
+                className={`chip ${isBock ? 'active' : ''}`}
+              >
+                Bockrunde
+              </button>
             </div>
           </section>
 
@@ -296,7 +305,10 @@ const GameScoringEntry = () => {
                 </span>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem' }}>
                   <span className="result-value" style={{ color: result.won ? 'var(--on-surface)' : 'var(--on-secondary)' }}>
-                    {result.gameValue > 0 ? '+' : ''}{result.gameValue}
+                    {isBock
+                      ? (result.gameValue * 2 > 0 ? '+' : '') + result.gameValue * 2
+                      : (result.gameValue > 0 ? '+' : '') + result.gameValue
+                    }
                   </span>
                   <span style={{ fontWeight: 600, opacity: 0.9 }}>Punkte</span>
                 </div>
@@ -315,9 +327,18 @@ const GameScoringEntry = () => {
                       <span style={{ fontWeight: 800 }}>×2</span>
                     </div>
                   )}
+                  {isBock && (
+                    <div className="breakdown-row">
+                      <span style={{ opacity: 0.8 }}>Bockrunde</span>
+                      <span style={{ fontWeight: 800 }}>×2</span>
+                    </div>
+                  )}
                   <div className="breakdown-row breakdown-total" style={{ gridColumn: '1 / -1', borderTop: '1px solid rgba(27,28,28,0.15)', marginTop: '0.5rem', paddingTop: '0.75rem' }}>
                     <span>Gesamt</span>
-                    <span>{result.gameValue > 0 ? '+' : ''}{result.gameValue}</span>
+                    <span>{isBock
+                      ? (result.gameValue * 2 > 0 ? '+' : '') + result.gameValue * 2
+                      : (result.gameValue > 0 ? '+' : '') + result.gameValue
+                    }</span>
                   </div>
                 </div>
               </div>

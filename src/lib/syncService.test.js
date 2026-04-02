@@ -186,7 +186,8 @@ describe('Property 2: Runden-Persistenz-Round-Trip', () => {
 
 // ── Unit-Tests: updateRound ──────────────────────────────────────────────────
 describe('updateRound – Anforderungen 3.1, 4.1', () => {
-  const ALLOWED_FIELDS = ['game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schwarz', 'spitzen'];
+  // is_bock and game_value were added in Task 2.2 (bockrunden feature)
+  const ALLOWED_FIELDS = ['game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schwarz', 'spitzen', 'is_bock', 'game_value'];
 
   beforeEach(() => {
     _sessions = {};
@@ -207,11 +208,13 @@ describe('updateRound – Anforderungen 3.1, 4.1', () => {
       schwarz: false,
       spitzen: 2,
       game_value: 48,
+      is_bock: false,
       player: 'Alice',
       round_number: 1,
     };
 
-    // Pass a patch that includes a forbidden field (game_value) alongside allowed fields
+    // Pass a patch that includes allowed fields including game_value and is_bock (bockrunden)
+    // and a forbidden field (player) that must be stripped
     const patch = {
       game_type: 'grand',
       type_label: 'Grand Hand',
@@ -220,7 +223,9 @@ describe('updateRound – Anforderungen 3.1, 4.1', () => {
       schneider: false,
       schwarz: false,
       spitzen: 3,
-      game_value: 999, // must be stripped
+      is_bock: true,
+      game_value: 96,  // allowed since bockrunden feature (Task 2.2)
+      player: 'Bob',   // must be stripped — not in allowed list
     };
 
     await updateRound(roundId, patch);
@@ -233,19 +238,24 @@ describe('updateRound – Anforderungen 3.1, 4.1', () => {
       expect(ALLOWED_FIELDS).toContain(key);
     });
 
-    // No forbidden fields present
-    expect(sentKeys).not.toContain('game_value');
+    // Forbidden fields must not be present
+    expect(sentKeys).not.toContain('player');
     expect(sentKeys).not.toContain('base_value');
     expect(sentKeys).not.toContain('multiplier');
     expect(sentKeys).not.toContain('won');
-    expect(sentKeys).not.toContain('player');
     expect(sentKeys).not.toContain('round_number');
     expect(sentKeys).not.toContain('timestamp');
     expect(sentKeys).not.toContain('session_id');
+
+    // Allowed bockrunden fields must be present
+    expect(sentKeys).toContain('game_value');
+    expect(sentKeys).toContain('is_bock');
   });
 
-  it('game_value wird nicht verändert', async () => {
+  it('game_value kann aktualisiert werden (Bockrunden-Feature, Anforderung 3.2)', async () => {
+    // Since Task 2.2 (bockrunden), game_value is in the allowed list so it CAN be updated.
     const originalGameValue = 48;
+    const newGameValue = 96; // doubled for a Bockrunde
     const roundId = crypto.randomUUID();
     _rounds[roundId] = {
       id: roundId,
@@ -257,27 +267,31 @@ describe('updateRound – Anforderungen 3.1, 4.1', () => {
       schwarz: false,
       spitzen: 2,
       game_value: originalGameValue,
+      is_bock: false,
       player: 'Alice',
       round_number: 1,
     };
 
     const patch = {
-      game_type: 'spade',
-      type_label: 'Pik',
+      game_type: 'club',
+      type_label: 'Kreuz',
       hand: false,
       ouvert: false,
       schneider: false,
       schwarz: false,
-      spitzen: 1,
-      game_value: 999, // attempt to overwrite – must be ignored
+      spitzen: 2,
+      is_bock: true,
+      game_value: newGameValue, // allowed since bockrunden feature
     };
 
     await updateRound(roundId, patch);
 
-    // The stored row must still have the original game_value
-    expect(_rounds[roundId].game_value).toBe(originalGameValue);
+    // game_value must be updated to the new value
+    expect(_rounds[roundId].game_value).toBe(newGameValue);
+    expect(_rounds[roundId].is_bock).toBe(true);
 
-    // The patch sent to Supabase must not contain game_value
-    expect(_lastUpdatePatch).not.toHaveProperty('game_value');
+    // The patch sent to Supabase must contain game_value and is_bock
+    expect(_lastUpdatePatch).toHaveProperty('game_value', newGameValue);
+    expect(_lastUpdatePatch).toHaveProperty('is_bock', true);
   });
 });

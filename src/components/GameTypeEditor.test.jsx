@@ -129,6 +129,7 @@ describe('Vorauswahl aus round-Prop (Anforderung 2.1)', () => {
       schneider: round?.schneider ?? false,
       schwarz:   round?.schwarz   ?? false,
       spitzen:   round?.spitzen   ?? 1,
+      isBock:    round?.isBock    ?? false,
     };
   }
 
@@ -161,6 +162,21 @@ describe('Vorauswahl aus round-Prop (Anforderung 2.1)', () => {
     expect(state.gameType).toBe('grand');
     expect(state.hand).toBe(false);
     expect(state.spitzen).toBe(1);
+  });
+
+  it('übernimmt isBock=true aus der übergebenen Runde (Requirement 2.1)', () => {
+    const state = getInitialState({ gameType: 'club', isBock: true });
+    expect(state.isBock).toBe(true);
+  });
+
+  it('übernimmt isBock=false aus der übergebenen Runde (Requirement 2.1)', () => {
+    const state = getInitialState({ gameType: 'club', isBock: false });
+    expect(state.isBock).toBe(false);
+  });
+
+  it('setzt isBock auf false wenn nicht in der Runde vorhanden (Requirement 2.1)', () => {
+    const state = getInitialState({ gameType: 'grand' });
+    expect(state.isBock).toBe(false);
   });
 });
 
@@ -293,11 +309,11 @@ describe('Fehlerbehandlung bei DB-Fehler (Anforderung 3.5)', () => {
   });
 });
 
-// ── Patch-Objekt enthält game_value nicht – Anforderung 3.2 ──────────────────
+// ── Patch-Objekt enthält isBock und gameValue – Anforderungen 2.2, 2.3, 2.4 ──
 
-describe('Patch-Objekt beim Speichern (Anforderung 3.2)', () => {
-  it('enthält game_value nicht im Patch', () => {
-    function buildPatch({ gameType, hand, ouvert, schneider, schwarz, spitzen }) {
+describe('Patch-Objekt beim Speichern (Anforderungen 2.2, 2.3, 2.4)', () => {
+  it('enthält isBock und gameValue im Patch', () => {
+    function buildPatch({ gameType, hand, ouvert, schneider, schwarz, spitzen, isBock, gameValue }) {
       const hasSuiteGame = gameType !== 'null';
       return {
         gameType,
@@ -306,32 +322,38 @@ describe('Patch-Objekt beim Speichern (Anforderung 3.2)', () => {
         ouvert,
         schneider,
         schwarz,
-        spitzen: hasSuiteGame ? Number(spitzen) : null,
+        spitzen: hasSuiteGame ? Number(spitzen) : 0,
+        isBock,
+        gameValue,
       };
     }
 
-    const patch = buildPatch({ gameType: 'club', hand: true, ouvert: false, schneider: false, schwarz: false, spitzen: 3 });
+    const patch = buildPatch({ gameType: 'club', hand: true, ouvert: false, schneider: false, schwarz: false, spitzen: 3, isBock: false, gameValue: 36 });
 
-    expect(patch).not.toHaveProperty('gameValue');
-    expect(patch).not.toHaveProperty('game_value');
+    expect(patch).toHaveProperty('isBock', false);
+    expect(patch).toHaveProperty('gameValue', 36);
     expect(patch.typeLabel).toBe('Kreuz Hand');
     expect(patch.spitzen).toBe(3);
   });
 
-  it('setzt spitzen auf null bei Null-Spieltyp', () => {
-    function buildPatch({ gameType, hand, ouvert, schneider, schwarz, spitzen }) {
+  it('setzt spitzen auf 0 bei Null-Spieltyp', () => {
+    function buildPatch({ gameType, hand, ouvert, schneider, schwarz, spitzen, isBock, gameValue }) {
       const hasSuiteGame = gameType !== 'null';
       return {
         gameType,
         typeLabel: buildTypeLabel(gameType, { hand, ouvert }),
         hand, ouvert, schneider, schwarz,
-        spitzen: hasSuiteGame ? Number(spitzen) : null,
+        spitzen: hasSuiteGame ? Number(spitzen) : 0,
+        isBock,
+        gameValue,
       };
     }
 
-    const patch = buildPatch({ gameType: 'null', hand: true, ouvert: true, schneider: false, schwarz: false, spitzen: 5 });
+    const patch = buildPatch({ gameType: 'null', hand: true, ouvert: true, schneider: false, schwarz: false, spitzen: 5, isBock: true, gameValue: -118 });
 
-    expect(patch.spitzen).toBeNull();
+    expect(patch.spitzen).toBe(0);
     expect(patch.typeLabel).toBe('Null Hand Ouvert');
+    expect(patch.isBock).toBe(true);
+    expect(patch.gameValue).toBe(-118);
   });
 });
