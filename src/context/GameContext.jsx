@@ -487,6 +487,11 @@ export function GameProvider({ children }) {
     const totalPoints = playerRounds.reduce((sum, r) => sum + r.gameValue, 0);
     const avgPoints = totalGames > 0 ? (totalPoints / totalGames).toFixed(1) : 0;
 
+    const wonRounds  = playerRounds.filter(r => r.won);
+    const lostRounds = playerRounds.filter(r => !r.won);
+    const bestWin    = wonRounds.length  > 0 ? Math.max(...wonRounds.map(r => r.gameValue))  : null;
+    const worstLoss  = lostRounds.length > 0 ? Math.min(...lostRounds.map(r => r.gameValue)) : null;
+
     const typeCounts = {};
     playerRounds.forEach(r => {
       const t = r.gameType || 'unknown';
@@ -567,6 +572,7 @@ export function GameProvider({ children }) {
       totalPoints, avgPoints, seegerTotal,
       typeDistribution, rounds: playerRounds,
       brote, baguettes, currentStreak, longestWinStreak, longestLossStreak,
+      bestWin, worstLoss,
     };
   }, [state.rounds]);
 

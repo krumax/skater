@@ -110,6 +110,26 @@ const PlayerAnalytics = () => {
                     <p style={{ color: 'var(--on-surface-variant)' }}>Durchschnittlich {stats.avgPoints} Punkte pro Spiel.</p>
                   </div>
                 </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>emoji_events</span>
+                    <div>
+                      <h4 style={{ fontWeight: 700, marginBottom: '0.25rem' }}>Größter Sieg</h4>
+                      {stats.bestWin !== null
+                        ? <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>+{stats.bestWin}</p>
+                        : <p style={{ color: 'var(--outline)' }}>Noch kein Sieg</p>}
+                    </div>
+                  </div>
+                  <div className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--secondary)' }}>heart_broken</span>
+                    <div>
+                      <h4 style={{ fontWeight: 700, marginBottom: '0.25rem' }}>Höchste Niederlage</h4>
+                      {stats.worstLoss !== null
+                        ? <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--secondary)' }}>{stats.worstLoss}</p>
+                        : <p style={{ color: 'var(--outline)' }}>Noch keine Niederlage</p>}
+                    </div>
+                  </div>
+                </div>
                 {stats.typeDistribution.length > 0 && (
                   <div className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                     <span className="material-symbols-outlined" style={{ color: 'var(--tertiary)' }}>style</span>
