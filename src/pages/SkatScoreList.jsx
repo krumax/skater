@@ -191,6 +191,7 @@ const SkatScoreList = () => {
                     {p}
                   </th>
                 ))}
+                <th style={{ ...thStyle, width: '2.5rem' }}></th>
               </tr>
             </thead>
             <tbody style={{ fontFamily: 'Work Sans, sans-serif' }}>
@@ -203,7 +204,7 @@ const SkatScoreList = () => {
                   ))}
                   {/* Toggle row */}
                   <tr style={{ backgroundColor: 'var(--surface-high)' }}>
-                    <td colSpan={4 + players.length * 2 + 2}
+                    <td colSpan={5 + players.length * 2 + 2}
                       style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>
                       <button
                         onClick={() => setExpanded(e => !e)}
@@ -316,13 +317,6 @@ const RoundRow = ({ r, idx, players, std, sf, onEdit }) => (
     <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
     <td style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
       <GameTypeIcon round={r} />
-      <button
-        aria-label={`Runde ${r.id} bearbeiten`}
-        onClick={() => onEdit(r)}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 0 0.4rem', verticalAlign: 'middle', color: 'var(--outline)', lineHeight: 1 }}
-      >
-        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>edit</span>
-      </button>
     </td>
     <td style={{ ...tdStyle, fontWeight: 800, textAlign: 'right', color: r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
       {r.isBock === true && (
@@ -354,6 +348,15 @@ const RoundRow = ({ r, idx, players, std, sf, onEdit }) => (
         {sf[p] ?? 0}
       </td>
     ))}
+    <td style={{ ...tdStyle, textAlign: 'center', padding: '0.75rem 0.5rem' }}>
+      <button
+        aria-label={`Runde ${r.id} bearbeiten`}
+        onClick={() => onEdit(r)}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', verticalAlign: 'middle', color: 'var(--outline)', lineHeight: 1, borderRadius: '0.25rem' }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>edit</span>
+      </button>
+    </td>
   </tr>
 );
 
