@@ -7,6 +7,7 @@ import GameScoringEntry from './pages/GameScoringEntry';
 import PlayerAnalytics from './pages/PlayerAnalytics';
 import SkatScoreList from './pages/SkatScoreList';
 import PlayerSettings from './pages/PlayerSettings';
+import StatistikenCharts from './pages/StatistikenCharts';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
                 <Route path="/" element={<GameScoringEntry />} />
                 <Route path="/analytics" element={<PlayerAnalytics />} />
                 <Route path="/history" element={<SkatScoreList />} />
+                <Route path="/statistiken" element={<StatistikenCharts />} />
                 <Route path="/players" element={<PlayerSettings />} />
               </Routes>
             </main>
