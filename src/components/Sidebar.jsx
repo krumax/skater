@@ -16,12 +16,15 @@ const SYNC_ICON = {
 };
 
 const Sidebar = () => {
-  const { currentRound, currentRoles, seating, syncStatus, refreshFromDB } = useGame();
+  const { currentRound, currentRoles, seating, syncStatus, refreshFromDB, tableName } = useGame();
   const syncIcon = SYNC_ICON[syncStatus] ?? SYNC_ICON.idle;
 
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
+        {tableName && (
+          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', opacity: 0.6, margin: '0 0 0.2rem' }}>{tableName}</p>
+        )}
         <h2>Tisch</h2>
         <p>Runde {currentRound}</p>
       </div>

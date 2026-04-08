@@ -28,6 +28,7 @@ const initialState = {
   rounds: [],
   currentRound: 1,
   sessionId: Date.now(),
+  tableName: '',
 };
 
 function getRoles(seating, geberIndex) {
@@ -93,6 +94,7 @@ function gameReducer(state, action) {
         currentRound: session.current_round,
         rounds: rounds,
         sessionId: session.id,
+        tableName: session.table_name ?? '',
       };
     }
 
@@ -195,6 +197,9 @@ function gameReducer(state, action) {
         geberIndex: newGeberIndex,
       };
     }
+
+    case 'SET_TABLE_NAME':
+      return { ...state, tableName: action.payload };
 
     default:
       return state;
@@ -444,9 +449,9 @@ export function GameProvider({ children }) {
   }, []);
 
   // Create a brand-new session with a given seating and switch to it
-  const createNewTable = useCallback(async (seating) => {
+  const createNewTable = useCallback(async (seating, tableName = '') => {
     setSyncStatus('syncing');
-    const { data: newSession, error } = await syncService.createSession(seating);
+    const { data: newSession, error } = await syncService.createSession(seating, tableName);
     if (error || !newSession) {
       console.error('createNewTable fehlgeschlagen:', error);
       setSyncStatus('error');
@@ -457,6 +462,14 @@ export function GameProvider({ children }) {
     dispatch({ type: 'LOAD_SESSION', payload: { session: newSession, rounds: [] } });
     setSyncStatus('synced');
     setSyncError(null);
+  }, []);
+
+  const renameTable = useCallback(async (name) => {
+    dispatch({ type: 'SET_TABLE_NAME', payload: name });
+    const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionId) return;
+    const { error } = await syncService.updateSession(sessionId, { table_name: name || null });
+    if (error) console.error('renameTable fehlgeschlagen:', error);
   }, []);
 
   // ── Standard totals ──
@@ -600,6 +613,7 @@ export function GameProvider({ children }) {
       currentRound: state.currentRound,
       sessionId: state.sessionId,
       geberIndex: state.geberIndex,
+      tableName: state.tableName,
       currentRoles,
       // Sync
       syncStatus,
@@ -617,6 +631,7 @@ export function GameProvider({ children }) {
       refreshFromDB,
       switchSession,
       createNewTable,
+      renameTable,
       // Derived
       getPlayerTotals,
       getSeegerTotals,

@@ -54,6 +54,7 @@ function RoundTable({ seating }) {
 
 // ── New table wizard ─────────────────────────────────────────────────────────
 function NewTableWizard({ onConfirm, onCancel }) {
+  const [tableName, setTableName] = useState('');
   const [seats, setSeats] = useState(['', '', '']);
   const [error, setError] = useState('');
 
@@ -65,7 +66,7 @@ function NewTableWizard({ onConfirm, onCancel }) {
     const filled = seats.map(s => s.trim()).filter(Boolean);
     if (filled.length < 3) { setError('Mindestens 3 Spielernamen eingeben.'); return; }
     if (new Set(filled).size !== filled.length) { setError('Spielernamen müssen eindeutig sein.'); return; }
-    onConfirm(filled);
+    onConfirm(filled, tableName.trim());
   };
 
   return (
@@ -81,6 +82,13 @@ function NewTableWizard({ onConfirm, onCancel }) {
         <p style={{ fontSize: '0.875rem', color: 'var(--outline)', marginBottom: '1.5rem' }}>
           3–4 Spieler festlegen. Position 1 ist der erste Geber.
         </p>
+
+        <label className="section-label" style={{ display: 'block', marginBottom: '0.4rem' }}>Tischname (optional)</label>
+        <input
+          type="text" value={tableName} placeholder="z. B. Stammtisch, Freitagsrunde…"
+          onChange={e => setTableName(e.target.value)}
+          style={{ width: '100%', backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '0.75rem 1rem', fontFamily: 'inherit', fontSize: '0.9375rem', color: 'var(--on-surface)', marginBottom: '1.25rem', boxSizing: 'border-box' }}
+        />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', marginBottom: '1.25rem' }}>
           {seats.map((seat, i) => (
@@ -133,7 +141,7 @@ export default function PlayerSettings() {
   const {
     players, geberIndex, sessionId,
     addPlayer, removePlayer, renamePlayer, reorderSeating,
-    rounds, switchSession, createNewTable,
+    rounds, switchSession, createNewTable, tableName, renameTable,
   } = useGame();
 
   const [newName, setNewName]             = useState('');
@@ -142,6 +150,8 @@ export default function PlayerSettings() {
   const [showWizard, setShowWizard]       = useState(false);
   const [allSessions, setAllSessions]     = useState([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
+  const [editingTableName, setEditingTableName] = useState(false);
+  const [tableNameDraft, setTableNameDraft]     = useState('');
 
   const dragIndex = useRef(null);
   const [dragOver, setDragOver] = useState(null);
@@ -181,9 +191,9 @@ export default function PlayerSettings() {
     removePlayer(name);
   };
 
-  const handleCreateTable = async (seating) => {
+  const handleCreateTable = async (seating, name) => {
     setShowWizard(false);
-    await createNewTable(seating);
+    await createNewTable(seating, name);
   };
 
   const handleDeleteSession = async (id, label) => {
@@ -200,6 +210,40 @@ export default function PlayerSettings() {
         <div>
           <h1 className="page-title">Tischeinstellungen</h1>
           <p className="page-subtitle">Reihenfolge per Drag &amp; Drop — Position 1 ist immer Geber.</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
+            {editingTableName ? (
+              <>
+                <input
+                  autoFocus
+                  type="text"
+                  value={tableNameDraft}
+                  onChange={e => setTableNameDraft(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') { renameTable(tableNameDraft); setEditingTableName(false); }
+                    if (e.key === 'Escape') setEditingTableName(false);
+                  }}
+                  placeholder="Tischname…"
+                  style={{ backgroundColor: 'var(--surface-high)', border: '1px solid var(--primary)', borderRadius: '0.5rem', padding: '0.5rem 0.875rem', fontFamily: 'inherit', fontSize: '0.9375rem', color: 'var(--on-surface)', width: '220px' }}
+                />
+                <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+                  onClick={() => { renameTable(tableNameDraft); setEditingTableName(false); }}>
+                  Speichern
+                </button>
+                <button onClick={() => setEditingTableName(false)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--outline)', padding: '0.4rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>close</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => { setTableNameDraft(tableName); setEditingTableName(true); }}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', border: '1px dashed var(--outline-variant)', borderRadius: '0.5rem', padding: '0.4rem 0.875rem', color: tableName ? 'var(--on-surface)' : 'var(--outline)', cursor: 'pointer', fontSize: '0.875rem', fontFamily: 'inherit' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>edit</span>
+                {tableName || 'Tischname vergeben…'}
+              </button>
+            )}
+          </div>
         </div>
         <button className="btn-primary" onClick={() => setShowWizard(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1.5rem', flexShrink: 0 }}>
           <span className="material-symbols-outlined">add_circle</span>
@@ -214,7 +258,8 @@ export default function PlayerSettings() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
             {allSessions.map(s => {
               const isActive = s.id === sessionId;
-              const label = Array.isArray(s.seating) ? s.seating.join(', ') : s.id.slice(0, 8);
+              const label = s.table_name || (Array.isArray(s.seating) ? s.seating.join(', ') : s.id.slice(0, 8));
+              const players = Array.isArray(s.seating) ? s.seating.join(', ') : '';
               const date = new Date(s.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
               return (
                 <div key={s.id} style={{ position: 'relative', display: 'inline-flex' }}>
@@ -231,6 +276,11 @@ export default function PlayerSettings() {
                     <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: isActive ? '#ffffff' : 'var(--on-surface)' }}>
                       {label}
                     </span>
+                    {s.table_name && players && (
+                      <span style={{ fontSize: '0.7rem', color: isActive ? 'rgba(255,255,255,0.8)' : 'var(--on-surface-variant)', marginTop: '0.15rem', fontWeight: 500 }}>
+                        {players}
+                      </span>
+                    )}
                     <span style={{ fontSize: '0.7rem', color: isActive ? 'rgba(255,255,255,0.75)' : 'var(--outline)', marginTop: '0.2rem' }}>
                       {date} · {s.current_round - 1} Runden
                     </span>

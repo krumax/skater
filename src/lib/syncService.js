@@ -5,12 +5,22 @@ import { supabase } from './supabaseClient';
  * @param {string[]} seating - Array of player names in seating order
  * @returns {{ data: session, error }}
  */
-export async function createSession(seating) {
+export async function createSession(seating, tableName = '') {
   const { data, error } = await supabase
     .from('sessions')
-    .insert({ seating, geber_index: 0, current_round: 1 })
+    .insert({ seating, geber_index: 0, current_round: 1, table_name: tableName || null })
     .select()
     .single();
+
+  // Fallback: if table_name column doesn't exist yet, retry without it
+  if (error && error.message?.includes('table_name')) {
+    return await supabase
+      .from('sessions')
+      .insert({ seating, geber_index: 0, current_round: 1 })
+      .select()
+      .single();
+  }
+
   return { data, error };
 }
 
@@ -144,8 +154,18 @@ export async function updateSeating(sessionId, seating) {
 export async function listSessions() {
   const { data, error } = await supabase
     .from('sessions')
-    .select('id, seating, geber_index, current_round, created_at')
+    .select('id, seating, geber_index, current_round, created_at, table_name')
     .order('created_at', { ascending: false });
+
+  // Fallback: if table_name column doesn't exist yet, retry without it
+  if (error && error.message?.includes('table_name')) {
+    const { data: fallback, error: fallbackError } = await supabase
+      .from('sessions')
+      .select('id, seating, geber_index, current_round, created_at')
+      .order('created_at', { ascending: false });
+    return { data: fallback, error: fallbackError };
+  }
+
   return { data, error };
 }
 

@@ -278,10 +278,10 @@ const colSpecs = [
   { id: 'ohne_3', label: '−3', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 3 },
   { id: 'ohne_4', label: '−4', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 4 },
   { id: 'hand', label: 'Hand', isSpecial: true, check: (r) => r.hand },
-  { id: 'schneider', label: 'Schneid', isSpecial: true, check: (r) => r.schneider || r.schneiderAnsagt },
-  { id: 'schneiderAnnounced', label: 'Schneid!', isSpecial: true, check: (r) => r.schneiderAnnounced },
+  { id: 'schneider', label: 'Schneider', isSpecial: true, check: (r) => r.schneider || r.schneiderAnsagt },
+  { id: 'schneiderAnnounced', label: 'Schneider', icon: 'campaign', isSpecial: true, check: (r) => r.schneiderAnnounced },
   { id: 'schwarz', label: 'Schwarz', isSpecial: true, check: (r) => r.schwarz || r.schwarzAnsagt },
-  { id: 'schwarzAnnounced', label: 'Schwarz!', isSpecial: true, check: (r) => r.schwarzAnnounced },
+  { id: 'schwarzAnnounced', label: 'Schwarz', icon: 'campaign', isSpecial: true, check: (r) => r.schwarzAnnounced },
   { id: 'ouvert', label: 'Ouvert', isSpecial: true, check: (r) => r.ouvert },
 ];
 
@@ -361,12 +361,15 @@ const AchievementMatrix = ({ rounds, player }) => {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
             <thead>
               <tr style={{ backgroundColor: 'var(--surface-low)' }}>
-                <th style={{ padding: '0.5rem', borderRight: '1px solid rgba(192,200,195,0.5)' }}>
+                <th style={{ padding: '0.5rem', borderRight: '1px solid rgba(192,200,195,0.5)', minWidth: '90px' }}>
                 </th>
                 {colSpecs.map(col => (
                   <th key={col.id} style={{ padding: '0.5rem 0.25rem', minWidth: '44px', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
-                    <div style={{ fontSize: '0.6rem', fontWeight: 700, color: col.isSpecial ? 'var(--tertiary)' : 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      {col.label}
+                    <div style={{ fontSize: '0.6rem', fontWeight: 700, color: col.isSpecial ? 'var(--tertiary)' : 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.1rem' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
+                        {col.label}
+                        {col.icon && <span className="material-symbols-outlined" style={{ fontSize: '0.85rem' }}>{col.icon}</span>}
+                      </span>
                     </div>
                   </th>
                 ))}
@@ -377,7 +380,7 @@ const AchievementMatrix = ({ rounds, player }) => {
                 <tr key={row.type} style={{ borderTop: '1px solid rgba(192,200,195,0.3)', backgroundColor: row.type === 'grand' ? 'rgba(208, 166, 0, 0.05)' : 'transparent', transition: 'background-color 0.2s', cursor: 'pointer' }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-high)'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = row.type === 'grand' ? 'rgba(208, 166, 0, 0.05)' : 'transparent'}>
-                  <td style={{ padding: '0.5rem 0.75rem', borderRight: '1px solid rgba(192,200,195,0.3)', textAlign: 'left' }}>
+                  <td style={{ padding: '0.5rem 0.75rem', borderRight: '1px solid rgba(192,200,195,0.3)', textAlign: 'left', minWidth: '90px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <div style={{ width: '1.75rem', height: '1.75rem', borderRadius: '0.375rem', backgroundColor: row.color, color: row.textColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         {row.matIcon
@@ -385,7 +388,7 @@ const AchievementMatrix = ({ rounds, player }) => {
                           : <span style={{ fontSize: '1rem', fontWeight: 700, color: row.textColor }}>{row.suit}</span>
                         }
                       </div>
-                      <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem' }}>{row.name}</div>
+                      <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem', whiteSpace: 'normal', wordBreak: 'break-word' }}>{row.name}</div>
                     </div>
                   </td>
 
