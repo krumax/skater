@@ -186,30 +186,35 @@ const GameScoringEntry = () => {
             <label className="section-label">Spielart</label>
             <div className="game-type-grid">
               {[
-                { key: 'club',    icon: '♣', label: 'Kreuz',  activeClass: '' },
-                { key: 'spade',   icon: '♠', label: 'Pik',    activeClass: '' },
-                { key: 'heart',   icon: '♥', label: 'Herz',   activeClass: 'active-suit-heart' },
-                { key: 'diamond', icon: '♦', label: 'Karo',   activeClass: 'active-suit-diamond' },
-                { key: 'grand',   icon: null, label: 'Grand',  activeClass: '', matIcon: 'stars' },
-                { key: 'null',    icon: null, label: 'Null',   activeClass: '', matIcon: 'block' },
-                { key: 'passed',  icon: null, label: 'Passen', activeClass: '', matIcon: 'skip_next' },
-              ].map(suit => (
-                <button
-                  key={suit.key}
-                  onClick={() => {
-                    setGameType(suit.key);
-                    if (suit.key === 'null') { setSpitzen(1); setMitOhne('mit'); }
-                    if (suit.key === 'grand' && spitzen > 4) setSpitzen(4);
-                  }}
-                  className={`game-type-card ${gameType === suit.key ? `active ${suit.activeClass}` : ''}`}
-                >
-                  {suit.icon
-                    ? <span className="game-suit-icon">{suit.icon}</span>
-                    : <span className="material-symbols-outlined game-suit-icon" style={{ fontSize: '2rem' }}>{suit.matIcon}</span>
-                  }
-                  <span className="game-type-label">{suit.label}</span>
-                </button>
-              ))}
+                { key: 'club',    icon: '♣', label: 'Kreuz',  color: '#1b1c1c' },
+                { key: 'spade',   icon: '♠', label: 'Pik',    color: '#3d4040' },
+                { key: 'heart',   icon: '♥', label: 'Herz',   color: '#8b1a1a' },
+                { key: 'diamond', icon: '♦', label: 'Karo',   color: '#b5860d' },
+                { key: 'grand',   icon: null, label: 'Grand',  color: '#1b4332', matIcon: 'stars' },
+                { key: 'null',    icon: null, label: 'Null',   color: '#6b7280', matIcon: 'block' },
+                { key: 'passed',  icon: null, label: 'Passen', color: '#4a4a5a', matIcon: 'skip_next' },
+              ].map(suit => {
+                const isActive = gameType === suit.key;
+                return (
+                  <button
+                    key={suit.key}
+                    onClick={() => {
+                      setGameType(suit.key);
+                      if (suit.key === 'null') { setSpitzen(1); setMitOhne('mit'); setEyeCount(0); }
+                      else { setEyeCount(61); }
+                      if (suit.key === 'grand' && spitzen > 4) setSpitzen(4);
+                    }}
+                    className="game-type-card"
+                    style={isActive ? { backgroundColor: suit.color, color: '#fff', boxShadow: `0 8px 24px ${suit.color}66` } : {}}
+                  >
+                    {suit.icon
+                      ? <span className="game-suit-icon">{suit.icon}</span>
+                      : <span className="material-symbols-outlined game-suit-icon" style={{ fontSize: '2rem' }}>{suit.matIcon}</span>
+                    }
+                    <span className="game-type-label">{suit.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </section>
 
