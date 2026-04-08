@@ -145,6 +145,30 @@ const PlayerAnalytics = () => {
                 <p style={statLabel}>Seeger-Fabian</p>
                 <p style={{ ...statValue, color: stats.seegerTotal >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>{stats.seegerTotal >= 0 ? '+' : ''}{stats.seegerTotal}</p>
               </div>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={{ ...statLabel, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} title="Ein Brot ist eine vollständige Geberrunde ohne Spiel.">
+                  🍞 Brote <span className="material-symbols-outlined" style={{ fontSize: '0.8rem', cursor: 'help' }}>info</span>
+                </p>
+                <p style={{ ...statValue, color: stats.brote > 0 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.brote}</p>
+              </div>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={{ ...statLabel, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} title="Ein Baguette sind zwei vollständige Geberrunden ohne Spiel (6 Runden).">
+                  🥖 Baguettes <span className="material-symbols-outlined" style={{ fontSize: '0.8rem', cursor: 'help' }}>info</span>
+                </p>
+                <p style={{ ...statValue, color: stats.baguettes > 0 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.baguettes}</p>
+              </div>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={{ ...statLabel, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} title="Siege als Alleinspieler in Folge">
+                  🏆 Längste Siegesserie <span className="material-symbols-outlined" style={{ fontSize: '0.8rem', cursor: 'help' }}>info</span>
+                </p>
+                <p style={{ ...statValue, color: stats.longestWinStreak >= 3 ? 'var(--primary)' : 'var(--on-surface)' }}>{stats.longestWinStreak}</p>
+              </div>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={{ ...statLabel, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} title="Niederlagen als Alleinspieler in Folge">
+                  💀 Längste Verlustserie <span className="material-symbols-outlined" style={{ fontSize: '0.8rem', cursor: 'help' }}>info</span>
+                </p>
+                <p style={{ ...statValue, color: stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.longestLossStreak}</p>
+              </div>
             </div>
             <div className="card" style={{ minWidth: '300px' }}>
               <p style={{ ...statLabel, marginBottom: '0.75rem' }}>Spielart-Verteilung</p>
@@ -167,42 +191,6 @@ const PlayerAnalytics = () => {
             </div>
 
             <AchievementMatrix rounds={rounds} player={selectedPlayer} />
-          </section>
-
-          {/* ── Brot / Baguette ── */}
-          <section>
-            <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Brot &amp; Baguette</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-                <p style={statLabel}>🍞 Brote</p>
-                <p style={{ ...statValue, color: stats.brote > 0 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.brote}</p>
-                <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.25rem' }}>3 Runden ohne Spiel</p>
-              </div>
-              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-                <p style={statLabel}>🥖 Baguettes</p>
-                <p style={{ ...statValue, color: stats.baguettes > 0 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.baguettes}</p>
-                <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.25rem' }}>6 Runden ohne Spiel</p>
-              </div>
-              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-                <p style={statLabel}>🏆 Längste Siegesserie</p>
-                <p style={{ ...statValue, color: stats.longestWinStreak >= 3 ? 'var(--primary)' : 'var(--on-surface)' }}>{stats.longestWinStreak}</p>
-                <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.25rem' }}>Siege als Alleinspieler in Folge</p>
-              </div>
-              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-                <p style={statLabel}>💀 Längste Verlustserie</p>
-                <p style={{ ...statValue, color: stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.longestLossStreak}</p>
-                <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.25rem' }}>Niederlagen als Alleinspieler in Folge</p>
-              </div>
-            </div>
-            <div className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', backgroundColor: 'var(--surface-low)' }}>
-              <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>🍞</span>
-              <div>
-                <h4 style={{ fontWeight: 700, marginBottom: '0.25rem', fontSize: '0.9375rem' }}>Was ist ein Brot?</h4>
-                <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.875rem', lineHeight: 1.5 }}>
-                  Ein Brot entsteht, wenn ein Spieler eine vollständige Geberrunde (Geben → Hören → Sagen) durchläuft, ohne ein einziges Mal Alleinspieler gewesen zu sein. Ein Baguette sind zwei Brote hintereinander (6 Runden ohne Spiel).
-                </p>
-              </div>
-            </div>
           </section>
 
           <section>
