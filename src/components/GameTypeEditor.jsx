@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { SUIT_LABELS, calculateGameValue } from '../lib/skatScoring';
 import { useGame } from '../context/GameContext';
 
@@ -96,34 +96,33 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
   const hasErrors    = Object.values(errors).some(Boolean);
   const canSave      = !hasErrors && !saving;
 
+  // ── Live-Berechnung des neuen Spielwerts ──
+  const previewResult = useMemo(() => {
+    try {
+      return calculateGameValue({
+        gameType,
+        spitzen: hasSuiteGame ? Number(spitzen) : 1,
+        hand,
+        schneider,
+        schneiderAnnounced,
+        schwarz,
+        schwarzAnnounced,
+        ouvert,
+        eyeCount: round?.eyeCount ?? (gameType === 'null' ? 0 : 61),
+      });
+    } catch {
+      return null;
+    }
+  }, [gameType, spitzen, hand, schneider, schneiderAnnounced, schwarz, schwarzAnnounced, ouvert, hasSuiteGame, round?.eyeCount]);
+
+  const newGameValue = previewResult
+    ? (isBock ? previewResult.gameValue * 2 : previewResult.gameValue)
+    : null;
+
   async function handleSave() {
-    if (!canSave) return;
+    if (!canSave || newGameValue === null) return;
     setSaving(true);
     setErrors(prev => ({ ...prev, general: undefined }));
-
-    // Recalculate base game value from the round's current fields.
-    // If the round was previously a Bockrunde, the stored gameValue is already doubled,
-    // so we derive the base by dividing by 2.
-    const baseGameValue = (() => {
-      try {
-        const result = calculateGameValue({
-          gameType: round?.gameType,
-          spitzen: round?.spitzen ?? 1,
-          hand: round?.hand ?? false,
-          schneider: round?.schneider ?? false,
-          schwarz: round?.schwarz ?? false,
-          ouvert: round?.ouvert ?? false,
-          eyeCount: round?.eyeCount ?? 0,
-          won: round?.won ?? false,
-        });
-        return result.gameValue;
-      } catch {
-        // Fallback: derive from stored value
-        return round?.isBock ? (round?.gameValue ?? 0) / 2 : (round?.gameValue ?? 0);
-      }
-    })();
-
-    const newGameValue = isBock ? baseGameValue * 2 : baseGameValue;
 
     const patch = {
       gameType,
@@ -138,6 +137,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
       mitOhne: hasSuiteGame ? mitOhne : 'mit',
       isBock,
       gameValue: newGameValue,
+      won: previewResult?.won ?? round?.won,
     };
 
     const { error } = await updateRound(round, patch);
@@ -249,6 +249,28 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
             })}
           </div>
         </div>
+
+        {/* Spielwert-Vorschau */}
+        {previewResult && (
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '0.75rem 1rem', borderRadius: '0.5rem', marginBottom: '1.25rem',
+            backgroundColor: previewResult.won ? '#f0fdf4' : '#fff1f0',
+            border: `1.5px solid ${previewResult.won ? '#86efac' : '#fca5a5'}`,
+          }}>
+            <div>
+              <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: previewResult.won ? '#166534' : '#991b1b', display: 'block', marginBottom: '0.1rem' }}>
+                {previewResult.won ? 'Gewonnen' : 'Verloren'} · Neuer Spielwert
+              </span>
+              <span style={{ fontSize: '0.75rem', color: '#555577' }}>
+                {previewResult.baseValue} × {previewResult.multiplier}{isBock ? ' × 2 (Bock)' : ''}
+              </span>
+            </div>
+            <span style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: previewResult.won ? '#166534' : '#991b1b' }}>
+              {newGameValue > 0 ? '+' : ''}{newGameValue}
+            </span>
+          </div>
+        )}
 
         {/* Allgemeiner Fehler */}
         {errors.general && (

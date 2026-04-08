@@ -408,6 +408,7 @@ export function GameProvider({ children }) {
       ...(patch.isBock     !== undefined && { is_bock:    patch.isBock }),
       ...(patch.gameValue  !== undefined && { game_value: patch.gameValue }),
       ...(patch.mitOhne    !== undefined && { mit_ohne:   patch.mitOhne }),
+      ...(patch.won        !== undefined && { won:        patch.won }),
     };
     const { error } = await syncService.updateRound(round._dbId, snakePatch);
     if (error) return { error };
