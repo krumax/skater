@@ -42,7 +42,7 @@ function GameTypePieChart({ typeDistribution }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-      <svg viewBox="0 0 200 200" width="200" height="200" aria-label="Spielart-Verteilung">
+      <svg viewBox="0 0 200 200" width="280" height="280" aria-label="Spielart-Verteilung">
         {isSingle ? (
           <circle cx={CX} cy={CY} r={R} fill={slices[0].color} />
         ) : (
