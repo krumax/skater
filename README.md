@@ -1,35 +1,55 @@
-# Skat Scorer
+# Skat Zählapp
 
-A minimal React/Vite app for tracking Skat card game scores at the table. Supports multiple players, tracks rounds with full game details (Spitzen, Hand, Schneider, Schwarz, Ouvert), calculates Seeger-Fabian scores, and persists everything to a shared Supabase database so any device can pick up where another left off.
+Eine moderne, minimale React/Vite-Anwendung zum bequemen und fehlerfreien Zählen von Skat-Runden am echten Kartentisch. Die App kümmert sich um die teils komplexe Punkteberechnung, speichert den Verlauf sicher in der Cloud, bietet detaillierte Statistiken und motiviert die Spieler durch visuelle Auszeichnungen (Achievements).
 
-## Features
+## Wozu setzt man die App ein?
+Statt Stift und Papier zu bemühen und am Ende des Abends mühsam Punkte zusammenzurechnen, übernimmt die Skat Zählapp die komplette Verwaltung eines Spieleabends. Sie richtet sich an Skat-Runden, die gerne klassisch oder nach der erweiterten (Seeger-Fabian) Wertung spielen und gleichzeitig detaillierte Statistiken über ihr Spielverhalten (Gewinnrate, Pechsträhnen, gespielte Typen) sammeln möchten.
 
-- Score entry for each round with all relevant game modifiers
-- Automatic Seeger-Fabian point calculation
-- Player management (add, remove, rename, reorder)
-- Persistent storage via Supabase — reload or switch devices without losing data
-- Manual refresh button to sync the latest state from the database
-- Sync status indicator (cloud icon) in the sidebar
+## 🚀 Kernfunktionen (Features)
+
+### 🧮 Intelligente Punkteberechnung
+* **Regelkonform:** Erfassung aller Spieltypen (Kreuz, Pik, Herz, Karo, Grand, Null) inklusive aller gängigen Ansagen und Modifikatoren (Mit/Ohne Spitzen, Hand, Schneider, Schwarz, Ouvert).
+* **Seeger-Fabian-System:** Neben der Reizwert- bzw. Standardwertung wird automatisch das erweiterte Turniersystem nach Seeger-Fabian berechnet (+50 für Gewinner, -50 für Verlierer, +40 für Gegenspieler bei Verlust des Alleinspielers).
+* **Bockrunden:** Unterstützt doppelte Punktwertung bei entsprechenden Runden.
+
+### 👥 Tischlogik & Management
+* **Geben-Hören-Sagen:** Die App berechnet anhand der Sitzordnung automatisch, wer an der Reihe ist zu geben, wer Vorhand (Hören) und wer Mittelhand (Sagen) ist.
+* **Dynamische Runden:** Nahtloses Hinzufügen, Umbenennen oder Verschieben von Spielern. Bei 4 Spielern setzt der Geber z. B. automatisch im Hintergrund aus.
+* **Spielverlauf editieren:** Nachträgliches Ändern oder Löschen von fehlerhaft eingetragenen Spielen.
+
+### 📊 Statistiken & Analytics
+* **Diagramme:** Übersichtliche Auswertung des kumulierten Punktestands über Zeit.
+* **Spieler-KPIs:** Analyse von Gewinnraten, Durchschnittspunkten, höchsten Gewinnen, verheerendsten Verlusten sowie Auswertung von Sieges- und Pechsträhnen.
+* **"Brot & Baguette"-Zähler:** Ein ironisches Feature für Runden, bei denen Spieler über komplette Geberrunden hinweg komplett passiv bleiben.
+
+### 🏆 Achievements (Erfolge)
+* **Erfolgsmatrix:** Wer zum ersten Mal z.B. einen "Grand mit 4" oder einen "Null Ouvert" gewinnt, füllt langsam seine persönliche Skat-Erfolgsmatrix.
+* **Live-Celebration:** Das Freischalten von neuen Kombinationen wird mit einem responsiven Trophäen-Popup inklusive Konfetti-Effekt gefeiert.
+* **Spieler-Level:** Für mehr Motivation gibt es bei ausreichend freigeschalteten Achievements regelmäßige Level-Ups für die Spieler.
+
+### ☁️ Cloud-Synchronisierung
+* Eine Anbindung via Supabase (PostgreSQL) sorgt dafür, dass die gesamte Tisch-Session mitsamt Spielern, Scores und Historie cloudbasiert gesichert wird.
+* Jedes verbundene Gerät kann nahtlos (und synchron) im Browser geöffnet werden, um die Runde fortzuführen.
 
 ---
 
 ## Setup
 
-### 1. Install dependencies
+### 1. Abhängigkeiten installieren
 
 ```bash
 npm install
 ```
 
-### 2. Configure Supabase
+### 2. Supabase konfigurieren
 
-#### 2.1 Create a Supabase project
+#### 2.1 Supabase Projekt anlegen
 
-Go to [supabase.com](https://supabase.com), create a free project, and note your **Project URL** and **anon public key** (found under *Project Settings → API*).
+Gehe auf [supabase.com](https://supabase.com), erstelle ein kostenloses Projekt und notiere dir die **Project URL** sowie den **anon public key** (unter *Project Settings → API*).
 
-#### 2.2 Run the database migration
+#### 2.2 Datenbank-Migration ausführen
 
-Open the **SQL Editor** in your Supabase dashboard and run the following script:
+Öffne den **SQL Editor** im Supabase-Dashboard und führe das folgende Skript aus:
 
 ```sql
 -- sessions
@@ -72,37 +92,26 @@ CREATE POLICY "Anon read/write sessions" ON sessions FOR ALL TO anon USING (true
 CREATE POLICY "Anon read/write rounds" ON rounds FOR ALL TO anon USING (true) WITH CHECK (true);
 ```
 
-#### 2.3 Import historical data (optional)
+#### 2.3 Historische Daten importieren (Optional)
 
-If you want to load the existing game history (352 rounds for Konrad, Max and Oma), run the second migration in the Supabase SQL editor after the schema migration:
+Möchtest du eine vorhandene Historie laden (z.B. Testdaten), führe das zweite Skript aus:
+`supabase/migrations/002_historical_import.sql`
 
-```
-supabase/migrations/002_historical_import.sql
-```
-
-This creates a dedicated session with a fixed ID (`a0000000-0000-0000-0000-000000000001`) and inserts all historical rounds. To connect the app to that session, set the following key in your browser's `localStorage` after opening the app:
-
+Hiermit wird eine feste Session-ID (`a0000000-0000-0000-0000-000000000001`) angelegt. Um diese in der App zu verbinden, setze in der Entwicklerkonsole des Browsers:
 ```js
 localStorage.setItem('skatSessionId', 'a0000000-0000-0000-0000-000000000001')
 ```
+Anschließend die App neu laden.
 
-Then hit the refresh button in the sidebar to load the data.
+#### 2.4 Variablen setzen
 
-> Note: historical rounds have `game_type = 'unknown'` since only scores were available — no game type details. All future rounds recorded through the app will have full detail.
-
-#### 2.4 Set environment variables
-
-Copy the example file and fill in your credentials:
-
+Kopiere die Beispiel-Datei:
 ```bash
 cp .env.local.example .env.local
 ```
+und fülle sie mit deinen Supabase-Zugangsdaten. (Diese Datei wird via `.gitignore` ignoriert).
 
-Then edit `.env.local` with your actual values (see the example file for details).
-
-> `.env.local` is listed in `.gitignore` and will never be committed.
-
-### 3. Run the app
+### 3. App starten
 
 ```bash
 npm run dev
@@ -110,14 +119,12 @@ npm run dev
 
 ---
 
-## Running tests
+## Tests
 
 ```bash
+# Watch-Modus
 npm test
-```
 
-Or for a single non-watch run:
-
-```bash
+# Einmaliger Run
 npx vitest run
 ```
