@@ -60,6 +60,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
   const [spitzen, setSpitzen]       = useState(round?.spitzen ?? 1);
   const [mitOhne, setMitOhne]       = useState(round?.mitOhne ?? 'mit');
   const [isBock, setIsBock]         = useState(round?.isBock ?? false);
+  const [won, setWon]               = useState(round?.won ?? true);
   const [errors, setErrors]         = useState({});
   const [saving, setSaving]         = useState(false);
 
@@ -99,7 +100,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
   // ── Live-Berechnung des neuen Spielwerts ──
   const previewResult = useMemo(() => {
     try {
-      return calculateGameValue({
+      const base = calculateGameValue({
         gameType,
         spitzen: hasSuiteGame ? Number(spitzen) : 1,
         hand,
@@ -108,12 +109,20 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
         schwarz,
         schwarzAnnounced,
         ouvert,
-        eyeCount: round?.eyeCount ?? (gameType === 'null' ? 0 : 61),
+        // eyeCount nur für Grundwert/Multiplikator-Berechnung — won überschreiben wir manuell
+        eyeCount: won ? 61 : 0,
       });
+      // won aus State übernehmen, Spielwert entsprechend anpassen
+      const absValue = Math.abs(base.gameValue);
+      return {
+        ...base,
+        won,
+        gameValue: won ? absValue : -2 * (base.baseValue * base.multiplier),
+      };
     } catch {
       return null;
     }
-  }, [gameType, spitzen, hand, schneider, schneiderAnnounced, schwarz, schwarzAnnounced, ouvert, hasSuiteGame, round?.eyeCount]);
+  }, [gameType, spitzen, hand, schneider, schneiderAnnounced, schwarz, schwarzAnnounced, ouvert, hasSuiteGame, won]);
 
   const newGameValue = previewResult
     ? (isBock ? previewResult.gameValue * 2 : previewResult.gameValue)
@@ -137,7 +146,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
       mitOhne: hasSuiteGame ? mitOhne : 'mit',
       isBock,
       gameValue: newGameValue,
-      won: previewResult?.won ?? round?.won,
+      won: won,
     };
 
     const { error } = await updateRound(round, patch);
@@ -218,6 +227,39 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
         {/* Bockrunde */}
         <div style={{ marginBottom: '1.25rem' }}>
           <CheckboxField label="Bockrunde" checked={isBock} onChange={setIsBock} />
+        </div>
+
+        {/* Ergebnis */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <label style={labelStyle}>Ergebnis</label>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setWon(true)}
+              style={{
+                flex: 1, padding: '0.5rem', borderRadius: '0.4rem', cursor: 'pointer',
+                fontWeight: 700, fontSize: '0.875rem', border: '1.5px solid',
+                borderColor: won ? '#16a34a' : '#c0c0d0',
+                backgroundColor: won ? '#f0fdf4' : 'transparent',
+                color: won ? '#16a34a' : '#1a1a2e',
+              }}
+            >
+              ✓ Gewonnen
+            </button>
+            <button
+              type="button"
+              onClick={() => setWon(false)}
+              style={{
+                flex: 1, padding: '0.5rem', borderRadius: '0.4rem', cursor: 'pointer',
+                fontWeight: 700, fontSize: '0.875rem', border: '1.5px solid',
+                borderColor: !won ? '#dc2626' : '#c0c0d0',
+                backgroundColor: !won ? '#fff1f0' : 'transparent',
+                color: !won ? '#dc2626' : '#1a1a2e',
+              }}
+            >
+              ✗ Verloren
+            </button>
+          </div>
         </div>
 
         {/* Spitzen-Eingabe (immer sichtbar bei Farb-/Grand-Spielen, ausgegraut wenn nicht erlaubt) */}
