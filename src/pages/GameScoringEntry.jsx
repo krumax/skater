@@ -105,7 +105,7 @@ const GameScoringEntry = () => {
   const recentRounds = rounds.slice(-3).reverse();
 
   // ── Max. Spitzen nach Spielart ──
-  const maxSpitzen = gameType === 'grand' ? 4 : ['club', 'spade', 'heart', 'diamond'].includes(gameType) ? 11 : 1;
+  const maxSpitzen = ['club', 'spade', 'heart', 'diamond'].includes(gameType) ? 11 : (gameType === 'grand' ? 4 : 0);
 
   const rankings = getPlayerRank();
 
@@ -149,10 +149,9 @@ const GameScoringEntry = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '3rem' }}>
         <div>
           {/* ── Alleinspieler wählen ── */}
-          {gameType !== 'passed' && (
-            <section className="form-section">
+          <section className="form-section">
             <label className="section-label">Wer ist der Alleinspieler?</label>
-            <div className="player-grid">
+            <div className="player-grid" style={{ opacity: gameType === 'passed' ? 0.4 : 1, pointerEvents: gameType === 'passed' ? 'none' : 'auto' }}>
               {currentRoles.activePlayers.map(name => {
                 const roleTag = getRoleTag(name);
                 return (
@@ -175,7 +174,6 @@ const GameScoringEntry = () => {
               })}
             </div>
           </section>
-          )}
 
           {/* ── Spielart ── */}
           <section className="form-section">
@@ -210,93 +208,97 @@ const GameScoringEntry = () => {
           </section>
 
           {/* ── Spielstufe ── */}
-          {gameType !== 'passed' && (
-            <section className="form-section">
+          <section className="form-section">
             <label className="section-label">Spielstufe</label>
             <div className="chip-grid">
               {[
-                { key: 'hand', label: 'Hand', state: hand, setter: setHand },
-                { key: 'schneider', label: 'Schneider', state: schneider, setter: setSchneider },
-                { key: 'schwarz', label: 'Schwarz', state: schwarz, setter: setSchwarz },
-                { key: 'ouvert', label: 'Ouvert', state: ouvert, setter: setOuvert },
+                { key: 'hand', label: 'Hand', state: hand, setter: setHand, disabled: gameType === 'passed' },
+                { key: 'schneider', label: 'Schneider', state: schneider, setter: setSchneider, disabled: gameType === 'passed' || gameType === 'null' },
+                { key: 'schwarz', label: 'Schwarz', state: schwarz, setter: setSchwarz, disabled: gameType === 'passed' || gameType === 'null' },
+                { key: 'ouvert', label: 'Ouvert', state: ouvert, setter: setOuvert, disabled: gameType === 'passed' },
               ].map(mod => (
                 <button
                   key={mod.key}
+                  disabled={mod.disabled}
                   onClick={() => mod.setter(!mod.state)}
-                  className={`chip ${mod.state ? 'active' : ''}`}
+                  className={`chip ${mod.state && !mod.disabled ? 'active' : ''}`}
+                  style={{ opacity: mod.disabled ? 0.4 : 1, pointerEvents: mod.disabled ? 'none' : 'auto' }}
                 >
                   {mod.label}
                 </button>
               ))}
               <button
+                disabled={gameType === 'passed'}
                 onClick={() => setIsBock(!isBock)}
-                className={`chip ${isBock ? 'active' : ''}`}
+                className={`chip ${isBock && gameType !== 'passed' ? 'active' : ''}`}
+                style={{ opacity: gameType === 'passed' ? 0.4 : 1, pointerEvents: gameType === 'passed' ? 'none' : 'auto' }}
               >
                 Bockrunde
               </button>
             </div>
           </section>
-          )}
 
-          {/* ── Ansage (bei Null ausgeblendet) ── */}
-          {gameType !== 'null' && gameType !== 'passed' && (
-            <section className="form-section">
-              <label className="section-label">Ansage</label>
-              <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button className={`chip ${mitOhne === 'mit' ? 'active' : ''}`} onClick={() => setMitOhne('mit')}>Mit</button>
-                  <button className={`chip ${mitOhne === 'ohne' ? 'active' : ''}`} onClick={() => setMitOhne('ohne')}>Ohne</button>
-                </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {Array.from({ length: maxSpitzen }, (_, i) => i + 1).map(num => (
+          {/* ── Ansage ── */}
+          <section className="form-section">
+            <label className="section-label">Ansage</label>
+            <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', opacity: maxSpitzen === 0 ? 0.4 : 1, pointerEvents: maxSpitzen === 0 ? 'none' : 'auto' }}>
+                <button className={`chip ${mitOhne === 'mit' ? 'active' : ''}`} onClick={() => setMitOhne('mit')}>Mit</button>
+                <button className={`chip ${mitOhne === 'ohne' ? 'active' : ''}`} onClick={() => setMitOhne('ohne')}>Ohne</button>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {Array.from({ length: 11 }, (_, i) => i + 1).map(num => {
+                  const disabled = num > maxSpitzen;
+                  return (
                     <button
                       key={num}
+                      disabled={disabled}
                       onClick={() => setSpitzen(num)}
-                      className={`game-type-card ${spitzen === num ? 'active' : ''}`}
-                      style={{ width: '48px', height: '48px', borderRadius: '0.5rem', fontSize: '1.125rem', fontWeight: 700 }}
+                      className={`game-type-card ${spitzen === num && !disabled ? 'active' : ''}`}
+                      style={{ width: '48px', height: '48px', borderRadius: '0.5rem', fontSize: '1.125rem', fontWeight: 700, opacity: disabled ? 0.25 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
                     >
                       {num}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-            </section>
-          )}
+            </div>
+          </section>
 
-          {/* ── Augen (bei Null ausgeblendet) ── */}
-          {gameType !== 'null' && gameType !== 'passed' ? (
-            <section className="form-section">
-              <label className="section-label">Augen</label>
-              <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <input
-                  type="number"
-                  className="number-input"
-                  min="0"
-                  max="120"
-                  value={eyeCount}
-                  onChange={e => setEyeCount(Math.min(120, Math.max(0, parseInt(e.target.value) || 0)))}
-                />
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <button className={`chip ${eyeCount >= 61 && eyeCount < 90 ? 'active' : ''}`} onClick={() => setEyeCount(61)}>61+</button>
-                  <button className={`chip ${eyeCount >= 90 && eyeCount < 120 ? 'active' : ''}`} onClick={() => setEyeCount(90)}>Schneider (90+)</button>
-                  <button className={`chip ${eyeCount >= 120 ? 'active' : ''}`} onClick={() => setEyeCount(120)}>Schwarz (120)</button>
-                  <button className={`chip ${eyeCount < 61 ? 'active' : ''}`} onClick={() => setEyeCount(30)} style={{ color: 'var(--secondary)' }}>Verloren (&lt;61)</button>
-                </div>
+          {/* ── Augen ── */}
+          <section className="form-section">
+            <label className="section-label">Augen</label>
+            <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap', opacity: gameType === 'null' || gameType === 'passed' ? 0.4 : 1, pointerEvents: gameType === 'null' || gameType === 'passed' ? 'none' : 'auto' }}>
+              <input
+                type="number"
+                className="number-input"
+                disabled={gameType === 'null' || gameType === 'passed'}
+                min="0"
+                max="120"
+                value={eyeCount}
+                onChange={e => setEyeCount(Math.min(120, Math.max(0, parseInt(e.target.value) || 0)))}
+              />
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <button disabled={gameType === 'null' || gameType === 'passed'} className={`chip ${eyeCount >= 61 && eyeCount < 90 ? 'active' : ''}`} onClick={() => setEyeCount(61)}>61+</button>
+                <button disabled={gameType === 'null' || gameType === 'passed'} className={`chip ${eyeCount >= 90 && eyeCount < 120 ? 'active' : ''}`} onClick={() => setEyeCount(90)}>Schneider (90+)</button>
+                <button disabled={gameType === 'null' || gameType === 'passed'} className={`chip ${eyeCount >= 120 ? 'active' : ''}`} onClick={() => setEyeCount(120)}>Schwarz (120)</button>
+                <button disabled={gameType === 'null' || gameType === 'passed'} className={`chip ${eyeCount < 61 ? 'active' : ''}`} onClick={() => setEyeCount(30)} style={{ color: 'var(--secondary)' }}>Verloren (&lt;61)</button>
               </div>
-            </section>
-          ) : gameType === 'null' ? (
-            <section className="form-section">
-              <label className="section-label">Null-Ergebnis</label>
-              <div className="chip-grid">
-                <button className={`chip ${eyeCount === 0 ? 'active' : ''}`} onClick={() => setEyeCount(0)}>
-                  Gewonnen (0 Stiche)
-                </button>
-                <button className={`chip ${eyeCount !== 0 ? 'active' : ''}`} onClick={() => setEyeCount(1)} style={{ color: 'var(--secondary)' }}>
-                  Verloren (Stich gemacht)
-                </button>
-              </div>
-            </section>
-          ) : null}
+            </div>
+          </section>
+
+          {/* ── Null-Ergebnis ── */}
+          <section className="form-section">
+            <label className="section-label">Null-Ergebnis</label>
+            <div className="chip-grid" style={{ opacity: gameType !== 'null' ? 0.4 : 1, pointerEvents: gameType !== 'null' ? 'none' : 'auto' }}>
+              <button disabled={gameType !== 'null'} className={`chip ${eyeCount === 0 ? 'active' : ''}`} onClick={() => setEyeCount(0)}>
+                Gewonnen (0 Stiche)
+              </button>
+              <button disabled={gameType !== 'null'} className={`chip ${eyeCount !== 0 ? 'active' : ''}`} onClick={() => setEyeCount(1)} style={{ color: 'var(--secondary)' }}>
+                Verloren (Stich gemacht)
+              </button>
+            </div>
+          </section>
         </div>
 
         {/* ── Ergebnis-Dashboard ── */}
