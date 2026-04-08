@@ -268,8 +268,8 @@ const GAME_TYPE_DISPLAY = {
   spade:   { symbol: '♠', label: 'Pik' },
   heart:   { symbol: '♥', label: 'Herz' },
   diamond: { symbol: '♦', label: 'Karo' },
-  grand:   { symbol: '👑', label: 'Grand' },
-  null:    { symbol: 'N', label: 'Null' },
+  grand:   { symbol: null, matIcon: 'stars',  label: 'Grand' },
+  null:    { symbol: null, matIcon: 'block',  label: 'Null' },
 };
 
 function GameTypeIcon({ round }) {
@@ -300,9 +300,10 @@ function GameTypeIcon({ round }) {
       display: 'inline-flex', alignItems: 'center', gap: '0.15rem',
       verticalAlign: 'middle',
     }}>
-      <span style={{ fontSize: gt === 'grand' ? '1rem' : '1.1rem', lineHeight: 1 }}>
-        {display.symbol}
-      </span>
+      {display.symbol
+        ? <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>{display.symbol}</span>
+        : <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', lineHeight: 1 }}>{display.matIcon}</span>
+      }
       {suffixes.length > 0 && (
         <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--outline)', lineHeight: 1 }}>
           {suffixes.join('')}
