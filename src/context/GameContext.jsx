@@ -462,7 +462,9 @@ export function GameProvider({ children }) {
     const totals = {};
     state.seating.forEach(p => { totals[p] = 0; });
     state.rounds.forEach(r => {
-      totals[r.player] = (totals[r.player] || 0) + r.gameValue;
+      if (r.player && r.player !== '-') {
+        totals[r.player] = (totals[r.player] || 0) + r.gameValue;
+      }
     });
     return totals;
   }, [state.seating, state.rounds]);
