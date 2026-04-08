@@ -1,0 +1,1 @@
+ALTER TABLE rounds ADD COLUMN IF NOT EXISTS mit_ohne text NOT NULL DEFAULT 'mit';

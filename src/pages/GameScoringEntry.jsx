@@ -94,6 +94,7 @@ const GameScoringEntry = () => {
       schwarz,
       ouvert,
       isBock,
+      mitOhne,
     });
 
     resetForm();
@@ -231,10 +232,10 @@ const GameScoringEntry = () => {
             </div>
           </section>
 
-          {/* ── Spitzen (bei Null ausgeblendet) ── */}
+          {/* ── Ansage (bei Null ausgeblendet) ── */}
           {gameType !== 'null' && (
             <section className="form-section">
-              <label className="section-label">Spitzen (Matadore)</label>
+              <label className="section-label">Ansage</label>
               <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button className={`chip ${mitOhne === 'mit' ? 'active' : ''}`} onClick={() => setMitOhne('mit')}>Mit</button>

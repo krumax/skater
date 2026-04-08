@@ -56,6 +56,7 @@ export async function loadSession(sessionId) {
     seegerScores: r.seeger_scores,
     timestamp:    r.timestamp,
     isBock:       r.is_bock ?? false,
+    mitOhne:      r.mit_ohne ?? 'mit',
     // keep the DB id available if needed
     _dbId:        r.id,
     session_id:   r.session_id,
@@ -93,6 +94,7 @@ export async function insertRound(round, sessionId) {
       seeger_scores: round.seegerScores ?? null,
       timestamp:    round.timestamp ?? new Date().toISOString(),
       is_bock:      round.isBock ?? false,
+      mit_ohne:     round.mitOhne ?? 'mit',
     })
     .select()
     .single();
@@ -150,7 +152,7 @@ export async function listSessions() {
  * @returns {{ data, error }}
  */
 export async function updateRound(roundDbId, patch) {
-  const allowed = ['game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schwarz', 'spitzen', 'is_bock', 'game_value'];
+  const allowed = ['game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schwarz', 'spitzen', 'is_bock', 'game_value', 'mit_ohne'];
   const safePatch = Object.fromEntries(
     Object.entries(patch).filter(([k]) => allowed.includes(k))
   );

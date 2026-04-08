@@ -54,6 +54,7 @@ function gameReducer(state, action) {
         ...action.payload,
         gameValue: finalGameValue,
         isBock: action.payload.isBock ?? false,
+        mitOhne: action.payload.mitOhne ?? 'mit',
         timestamp: new Date().toISOString(),
       };
 
@@ -399,6 +400,7 @@ export function GameProvider({ children }) {
       ...(patch.spitzen    !== undefined && { spitzen:    patch.spitzen }),
       ...(patch.isBock     !== undefined && { is_bock:    patch.isBock }),
       ...(patch.gameValue  !== undefined && { game_value: patch.gameValue }),
+      ...(patch.mitOhne    !== undefined && { mit_ohne:   patch.mitOhne }),
     };
     const { error } = await syncService.updateRound(round._dbId, snakePatch);
     if (error) return { error };

@@ -363,7 +363,7 @@ const AchievementMatrix = ({ rounds, player }) => {
                 <th style={{ padding: '1.5rem', textAlign: 'left', borderRight: '1px solid rgba(192,200,195,0.5)', minWidth: '200px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <span style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.25rem' }}>Zeile: Spielart</span>
-                    <span style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Spalte: Spitzen & Zustände</span>
+                    <span style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Spalte: Ansage & Zustände</span>
                   </div>
                 </th>
                 {colSpecs.map(col => (
@@ -401,7 +401,7 @@ const AchievementMatrix = ({ rounds, player }) => {
                       if (idx === 0) {
                         return (
                           <td key="null-span" colSpan={5} style={{ padding: '0.5rem', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '0.1em', fontStyle: 'italic' }}>Spitzen entfällt bei Null</div>
+                            <div style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '0.1em', fontStyle: 'italic' }}>Ansage entfällt bei Null</div>
                           </td>
                         );
                       }

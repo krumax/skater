@@ -56,6 +56,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
   const [schneider, setSchneider]   = useState(round?.schneider ?? false);
   const [schwarz, setSchwarz]       = useState(round?.schwarz ?? false);
   const [spitzen, setSpitzen]       = useState(round?.spitzen ?? 1);
+  const [mitOhne, setMitOhne]       = useState(round?.mitOhne ?? 'mit');
   const [isBock, setIsBock]         = useState(round?.isBock ?? false);
   const [errors, setErrors]         = useState({});
   const [saving, setSaving]         = useState(false);
@@ -130,6 +131,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
       schneider,
       schwarz,
       spitzen: hasSuiteGame ? Number(spitzen) : 0,
+      mitOhne: hasSuiteGame ? mitOhne : 'mit',
       isBock,
       gameValue: newGameValue,
     };
@@ -205,11 +207,23 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
         {hasSuiteGame && (
           <div style={{ marginBottom: '1.25rem' }}>
             <label style={labelStyle}>
-              Spitzen
+              Ansage
               <span style={{ color: 'var(--text-secondary)', fontWeight: 400, marginLeft: '0.25rem' }}>
                 ({SPITZEN_RANGES[gameType].min}–{SPITZEN_RANGES[gameType].max})
               </span>
             </label>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={() => setMitOhne('mit')}
+                className={`chip${mitOhne === 'mit' ? ' active' : ''}`}
+              >Mit</button>
+              <button
+                type="button"
+                onClick={() => setMitOhne('ohne')}
+                className={`chip${mitOhne === 'ohne' ? ' active' : ''}`}
+              >Ohne</button>
+            </div>
             <input
               type="number"
               value={spitzen}

@@ -176,6 +176,7 @@ const SkatScoreList = () => {
                 <th style={thStyle}>#</th>
                 <th style={thStyle}>Spieler</th>
                 <th style={thStyle}>Typ</th>
+                <th style={{ ...thStyle, textAlign: 'right' }}>Ansage</th>
                 <th style={{ ...thStyle, textAlign: 'right' }}>Spielwert</th>
                 <th style={thDivider}></th>
                 {players.map(p => (
@@ -204,7 +205,7 @@ const SkatScoreList = () => {
                   ))}
                   {/* Toggle row */}
                   <tr style={{ backgroundColor: 'var(--surface-high)' }}>
-                    <td colSpan={5 + players.length * 2 + 2}
+                    <td colSpan={6 + players.length * 2 + 2}
                       style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>
                       <button
                         onClick={() => setExpanded(e => !e)}
@@ -318,6 +319,14 @@ const RoundRow = ({ r, idx, players, std, sf, onEdit }) => (
     <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
     <td style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
       <GameTypeIcon round={r} />
+    </td>
+    <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif" }}>
+      {r.gameType !== 'null' && r.spitzen != null
+        ? <span style={{ color: (r.mitOhne ?? 'mit') === 'ohne' ? 'var(--secondary)' : 'var(--on-surface)' }}>
+            {(r.mitOhne ?? 'mit') === 'ohne' ? '−' : '+'}{r.spitzen}
+          </span>
+        : <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>
+      }
     </td>
     <td style={{ ...tdStyle, fontWeight: 800, textAlign: 'right', color: r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
       {r.isBock === true && (
