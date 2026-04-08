@@ -47,6 +47,7 @@ export const SUIT_LABELS = {
   diamond: 'Karo',
   grand:   'Grand',
   null:    'Null',
+  passed:  'Eingepasst',
 };
 
 export const SUIT_SYMBOLS = {
@@ -56,6 +57,7 @@ export const SUIT_SYMBOLS = {
   diamond: '♦',
   grand:   '★',
   null:    '∅',
+  passed:  '⏸',
 };
 
 // ─── Multiplier Calculation ───
@@ -108,6 +110,17 @@ export function calculateGameValue({
   ouvert = false,
   eyeCount = 0,
 }) {
+  // ── Eingepasst ──
+  if (gameType === 'passed') {
+    return {
+      gameValue: 0,
+      baseValue: 0,
+      multiplier: 1,
+      won: true, // true verhindert rote Färbung, Wert ist ohnehin 0
+      details: { type: 'Eingepasst' },
+    };
+  }
+
   // ── Null games have fixed values ──
   if (gameType === 'null') {
     let value;
@@ -220,6 +233,10 @@ export function getOutcomeLabel(eyeCount) {
 export function calculateSeegerFabian({ declarer, allPlayers, gameValue, won }) {
   const scores = {};
   allPlayers.forEach(p => { scores[p] = 0; });
+
+  if (!declarer || declarer === '-' || gameValue === 0) {
+    return scores; // Eingepasst oder keine Wertung
+  }
 
   const playerCount = allPlayers.length;
   const opponentBonus = playerCount <= 3 ? 40 : 30;

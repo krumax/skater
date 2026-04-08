@@ -52,6 +52,7 @@ const GameScoringEntry = () => {
   }, [gameType, spitzen, hand, schneider, schwarz, ouvert, eyeCount]);
 
   const outcomeLabel = useMemo(() => {
+    if (gameType === 'passed') return 'Eingepasst';
     if (gameType === 'null') return eyeCount === 0 ? 'Null gewonnen' : 'Null verloren';
     return getOutcomeLabel(eyeCount);
   }, [gameType, eyeCount]);
@@ -73,14 +74,14 @@ const GameScoringEntry = () => {
   const handleCommit = () => {
     if (!result) return;
 
-    const typeLabel = SUIT_LABELS[gameType]
+    const typeLabel = gameType === 'passed' ? 'Eingepasst' : (SUIT_LABELS[gameType]
       + (hand ? ' Hand' : '')
       + (schneider ? ' Schneider' : '')
       + (schwarz ? ' Schwarz' : '')
-      + (ouvert ? ' Ouvert' : '');
+      + (ouvert ? ' Ouvert' : ''));
 
     addRound({
-      player: activePlayer,
+      player: gameType === 'passed' ? '-' : activePlayer,
       gameType,
       typeLabel,
       gameValue: result.gameValue,
@@ -148,7 +149,8 @@ const GameScoringEntry = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '3rem' }}>
         <div>
           {/* ── Alleinspieler wählen ── */}
-          <section className="form-section">
+          {gameType !== 'passed' && (
+            <section className="form-section">
             <label className="section-label">Wer ist der Alleinspieler?</label>
             <div className="player-grid">
               {currentRoles.activePlayers.map(name => {
@@ -173,6 +175,7 @@ const GameScoringEntry = () => {
               })}
             </div>
           </section>
+          )}
 
           {/* ── Spielart ── */}
           <section className="form-section">
@@ -185,6 +188,7 @@ const GameScoringEntry = () => {
                 { key: 'diamond', icon: '♦', label: 'Karo',   activeClass: 'active-suit-diamond' },
                 { key: 'grand',   icon: null, label: 'Grand',  activeClass: '', matIcon: 'stars' },
                 { key: 'null',    icon: null, label: 'Null',   activeClass: '', matIcon: 'block' },
+                { key: 'passed',  icon: null, label: 'Passen', activeClass: '', matIcon: 'skip_next' },
               ].map(suit => (
                 <button
                   key={suit.key}
@@ -206,7 +210,8 @@ const GameScoringEntry = () => {
           </section>
 
           {/* ── Spielstufe ── */}
-          <section className="form-section">
+          {gameType !== 'passed' && (
+            <section className="form-section">
             <label className="section-label">Spielstufe</label>
             <div className="chip-grid">
               {[
@@ -231,9 +236,10 @@ const GameScoringEntry = () => {
               </button>
             </div>
           </section>
+          )}
 
           {/* ── Ansage (bei Null ausgeblendet) ── */}
-          {gameType !== 'null' && (
+          {gameType !== 'null' && gameType !== 'passed' && (
             <section className="form-section">
               <label className="section-label">Ansage</label>
               <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
@@ -258,7 +264,7 @@ const GameScoringEntry = () => {
           )}
 
           {/* ── Augen (bei Null ausgeblendet) ── */}
-          {gameType !== 'null' ? (
+          {gameType !== 'null' && gameType !== 'passed' ? (
             <section className="form-section">
               <label className="section-label">Augen</label>
               <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -278,7 +284,7 @@ const GameScoringEntry = () => {
                 </div>
               </div>
             </section>
-          ) : (
+          ) : gameType === 'null' ? (
             <section className="form-section">
               <label className="section-label">Null-Ergebnis</label>
               <div className="chip-grid">
@@ -290,7 +296,7 @@ const GameScoringEntry = () => {
                 </button>
               </div>
             </section>
-          )}
+          ) : null}
         </div>
 
         {/* ── Ergebnis-Dashboard ── */}

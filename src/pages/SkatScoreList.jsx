@@ -146,7 +146,7 @@ const SkatScoreList = () => {
       <h3 className="headline" style={{ fontSize: '1.75rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         Spielverlauf
         {(() => {
-          const importCount = rounds.filter(r => !r.gameType || !['club','spade','heart','diamond','grand','null'].includes(r.gameType)).length;
+          const importCount = rounds.filter(r => !r.gameType || !['club','spade','heart','diamond','grand','null','passed'].includes(r.gameType)).length;
           return importCount > 0 ? (
             <span title={`${importCount} Spiele noch ohne Spieltyp`} style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
@@ -271,6 +271,7 @@ const GAME_TYPE_DISPLAY = {
   diamond: { symbol: '♦', label: 'Karo' },
   grand:   { symbol: null, matIcon: 'stars',  label: 'Grand' },
   null:    { symbol: null, matIcon: 'block',  label: 'Null' },
+  passed:  { symbol: null, matIcon: 'skip_next', label: 'Passen' },
 };
 
 function GameTypeIcon({ round }) {
@@ -321,7 +322,7 @@ const RoundRow = ({ r, idx, players, std, sf, onEdit, onDelete }) => (
       <GameTypeIcon round={r} />
     </td>
     <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif" }}>
-      {r.gameType !== 'null' && r.spitzen != null
+      {r.gameType !== 'null' && r.gameType !== 'passed' && r.spitzen != null
         ? <span style={{ color: (r.mitOhne ?? 'mit') === 'ohne' ? 'var(--secondary)' : 'var(--on-surface)' }}>
             {(r.mitOhne ?? 'mit') === 'ohne' ? '−' : '+'}{r.spitzen}
           </span>
