@@ -369,11 +369,7 @@ const AchievementMatrix = ({ rounds, player }) => {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
             <thead>
               <tr style={{ backgroundColor: 'var(--surface-low)' }}>
-                <th style={{ padding: '0.75rem 0.5rem', textAlign: 'left', borderRight: '1px solid rgba(192,200,195,0.5)', minWidth: '140px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontSize: '0.55rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.2rem' }}>Zeile: Spielart</span>
-                    <span style={{ fontSize: '0.55rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Spalte: Ansage & Zustände</span>
-                  </div>
+                <th style={{ padding: '0.5rem', borderRight: '1px solid rgba(192,200,195,0.5)' }}>
                 </th>
                 {colSpecs.map(col => (
                   <th key={col.id} style={{ padding: '0.5rem 0.25rem', minWidth: '44px', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
