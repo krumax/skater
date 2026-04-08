@@ -6,7 +6,7 @@ import GameTypeEditor from '../components/GameTypeEditor';
 
 const SkatScoreList = () => {
   const navigate = useNavigate();
-  const { rounds, players, getPlayerTotals, getSeegerTotals, getPlayerRank } = useGame();
+  const { rounds, players, getPlayerTotals, getSeegerTotals, getPlayerRank, deleteRound } = useGame();
 
   const standardTotals = getPlayerTotals();
   const seegerTotals = getSeegerTotals();
@@ -201,7 +201,7 @@ const SkatScoreList = () => {
                 <>
                   {expanded && olderRounds.map((r, idx) => (
                     <RoundRow key={r.id} r={r} idx={idx} players={players}
-                      std={runningStd[idx]} sf={runningSF[idx]} onEdit={setEditingRound} />
+                      std={runningStd[idx]} sf={runningSF[idx]} onEdit={setEditingRound} onDelete={deleteRound} />
                   ))}
                   {/* Toggle row */}
                   <tr style={{ backgroundColor: 'var(--surface-high)' }}>
@@ -227,7 +227,7 @@ const SkatScoreList = () => {
                 const idx = splitAt + i;
                 return (
                   <RoundRow key={r.id} r={r} idx={idx} players={players}
-                    std={runningStd[idx]} sf={runningSF[idx]} onEdit={setEditingRound} />
+                    std={runningStd[idx]} sf={runningSF[idx]} onEdit={setEditingRound} onDelete={deleteRound} />
                 );
               })}
             </tbody>
@@ -313,7 +313,7 @@ function GameTypeIcon({ round }) {
     </span>
   );
 }
-const RoundRow = ({ r, idx, players, std, sf, onEdit }) => (
+const RoundRow = ({ r, idx, players, std, sf, onEdit, onDelete }) => (
   <tr style={{ borderBottom: '1px solid var(--surface-high)', backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)' }}>
     <td style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
     <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
@@ -358,13 +358,24 @@ const RoundRow = ({ r, idx, players, std, sf, onEdit }) => (
         {sf[p] ?? 0}
       </td>
     ))}
-    <td style={{ ...tdStyle, textAlign: 'center', padding: '0.75rem 0.5rem' }}>
+    <td style={{ ...tdStyle, textAlign: 'center', padding: '0.75rem 0.5rem', display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
       <button
         aria-label={`Runde ${r.id} bearbeiten`}
         onClick={() => onEdit(r)}
         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', verticalAlign: 'middle', color: 'var(--outline)', lineHeight: 1, borderRadius: '0.25rem' }}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>edit</span>
+      </button>
+      <button
+        aria-label={`Runde ${r.id} löschen`}
+        onClick={() => {
+          if (window.confirm('Bist du sicher, dass du diese Runde wirklich löschen möchtest?')) {
+            onDelete(r);
+          }
+        }}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', verticalAlign: 'middle', color: 'var(--secondary)', lineHeight: 1, borderRadius: '0.25rem' }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>delete</span>
       </button>
     </td>
   </tr>
