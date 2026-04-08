@@ -28,12 +28,23 @@ function arcPath(startAngle, endAngle) {
   return `M ${CX} ${CY} L ${x1} ${y1} A ${R} ${R} 0 ${largeArc} 1 ${x2} ${y2} Z`;
 }
 
-function GameTypePieChart({ typeDistribution }) {
+function GameTypePieChart({ typeDistribution, rounds, player }) {
   // Build scores map: type → count, and color map: type → color
   const scores = Object.fromEntries(typeDistribution.map(({ type, count }) => [type, count]));
   const colorMap = Object.fromEntries(typeDistribution.map(({ type }) => [type, GAME_TYPE_COLORS[type] ?? '#999']));
   const slices = computeShares(scores, colorMap);
   const isSingle = slices.length === 1;
+
+  // Win rates per type
+  const winRates = useMemo(() => {
+    const map = {};
+    typeDistribution.forEach(({ type }) => {
+      const games = rounds.filter(r => r.player === player && r.gameType === type);
+      const wins  = games.filter(r => r.won).length;
+      map[type] = games.length > 0 ? Math.round((wins / games.length) * 100) : null;
+    });
+    return map;
+  }, [rounds, player, typeDistribution]);
 
   let cumAngle = 0;
   const paths = slices.map((s) => {
@@ -69,26 +80,117 @@ function GameTypePieChart({ typeDistribution }) {
           );
         })}
       </svg>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        {slices.map((s) => (
-          <li key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
-            <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: s.color, flexShrink: 0 }} />
-            <span style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              {s.name === 'grand'
-                ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', lineHeight: 1 }}>stars</span>
-                : s.name === 'null'
-                  ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', lineHeight: 1 }}>block</span>
-                  : SUIT_SYMBOLS[s.name] && <span>{SUIT_SYMBOLS[s.name]}</span>
-              }
-              {SUIT_LABELS[s.name] ?? s.name}
-            </span>
-            <span style={{ marginLeft: 'auto', fontWeight: 800 }}>{s.share}%</span>
-          </li>
-        ))}
-      </ul>
+
+      {/* Legende + Gewinnraten */}
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+        {/* Header */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 1rem', paddingBottom: '0.375rem', borderBottom: '1px solid var(--outline-variant)' }}>
+          <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)' }}>Anteil</span>
+          <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)' }}>Gewinnrate</span>
+        </div>
+        {slices.map((s) => {
+          const rate = winRates[s.name];
+          return (
+            <div key={s.name} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 1rem', alignItems: 'center' }}>
+              {/* Anteil */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8125rem' }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '3px', background: s.color, flexShrink: 0 }} />
+                <span style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                  {s.name === 'grand'
+                    ? <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', lineHeight: 1 }}>stars</span>
+                    : s.name === 'null'
+                      ? <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', lineHeight: 1 }}>block</span>
+                      : SUIT_SYMBOLS[s.name] && <span>{SUIT_SYMBOLS[s.name]}</span>
+                  }
+                  {SUIT_LABELS[s.name] ?? s.name}
+                </span>
+                <span style={{ marginLeft: 'auto', fontWeight: 800, fontSize: '0.75rem' }}>{s.share}%</span>
+              </div>
+              {/* Gewinnrate */}
+              {rate !== null ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <div style={{ flex: 1, height: '8px', borderRadius: '999px', overflow: 'hidden', display: 'flex', backgroundColor: 'var(--surface-high)' }}>
+                    <div style={{ width: `${rate}%`, backgroundColor: '#2e7d32', transition: 'width 0.4s ease' }} />
+                    <div style={{ flex: 1, backgroundColor: '#d84315' }} />
+                  </div>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: rate >= 50 ? '#2e7d32' : '#d84315', minWidth: '2.5rem', textAlign: 'right' }}>{rate}%</span>
+                </div>
+              ) : (
+                <span style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>—</span>
+              )}
+            </div>
+          );
+        })}
+        {/* Legende */}
+        <div style={{ display: 'flex', gap: '1rem', paddingTop: '0.375rem', borderTop: '1px solid var(--outline-variant)' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#2e7d32' }}>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#2e7d32', display: 'inline-block' }} />Gewonnen
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#d84315' }}>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#d84315', display: 'inline-block' }} />Verloren
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
+
+// ── WinRateByType ─────────────────────────────────────────────────────────────
+const WIN_RATE_GROUPS = [
+  { key: 'grand',  label: 'Grand',        icon: 'stars',  matIcon: true,  types: ['grand'] },
+  { key: 'suit',   label: 'Farbe',        icon: null,     matIcon: false, types: ['club', 'spade', 'heart', 'diamond'] },
+  { key: 'null',   label: 'Null',         icon: 'block',  matIcon: true,  types: ['null'] },
+];
+
+function WinRateByType({ rounds, player }) {
+  const groups = useMemo(() => {
+    return WIN_RATE_GROUPS.map(g => {
+      const games = rounds.filter(r => r.player === player && g.types.includes(r.gameType));
+      const wins  = games.filter(r => r.won).length;
+      const total = games.length;
+      const rate  = total > 0 ? Math.round((wins / total) * 100) : null;
+      return { ...g, wins, losses: total - wins, total, rate };
+    }).filter(g => g.total > 0);
+  }, [rounds, player]);
+
+  if (groups.length === 0) return <p style={{ color: 'var(--outline)', fontSize: '0.875rem' }}>Noch keine Daten.</p>;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {groups.map(g => (
+        <div key={g.key}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--on-surface)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              {g.matIcon
+                ? <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>{g.icon}</span>
+                : null}
+              {g.label}
+              <span style={{ fontWeight: 500, color: 'var(--outline)' }}>({g.total})</span>
+            </span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: g.rate >= 50 ? '#2e7d32' : 'var(--secondary)' }}>
+              {g.rate}% Sieg
+            </span>
+          </div>
+          <div style={{ height: '10px', borderRadius: '999px', overflow: 'hidden', backgroundColor: 'var(--surface-high)', display: 'flex' }}>
+            <div style={{ width: `${g.rate}%`, backgroundColor: '#2e7d32', transition: 'width 0.4s ease' }} />
+            <div style={{ flex: 1, backgroundColor: '#d84315' }} />
+          </div>
+        </div>
+      ))}
+      <div style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#2e7d32' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#2e7d32', display: 'inline-block' }} />
+          Gewonnen
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#d84315' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#d84315', display: 'inline-block' }} />
+          Verloren
+        </span>
+      </div>
+    </div>
+  );
+}
+
 
 const PlayerAnalytics = () => {
   const { players, rounds, getPlayerStats } = useGame();
@@ -170,11 +272,11 @@ const PlayerAnalytics = () => {
                 <p style={{ ...statValue, color: stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.longestLossStreak}</p>
               </div>
             </div>
-            <div className="card" style={{ width: '340px', border: '1px solid var(--outline-variant)' }}>
-              <p style={{ ...statLabel, marginBottom: '0.75rem' }}>Spielart-Verteilung</p>
+            <div className="card" style={{ width: '380px', border: '1px solid var(--outline-variant)' }}>
+              <p style={{ ...statLabel, marginBottom: '0.75rem' }}>Spielart-Verteilung & Gewinnraten</p>
               {stats.typeDistribution.length === 0
                 ? <p style={{ color: 'var(--outline)' }}>Noch keine Daten.</p>
-                : <GameTypePieChart typeDistribution={stats.typeDistribution} />
+                : <GameTypePieChart typeDistribution={stats.typeDistribution} rounds={rounds} player={selectedPlayer} />
               }
             </div>
           </div>
