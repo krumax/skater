@@ -17,15 +17,20 @@ const statLabel = { fontSize: '0.65rem', fontWeight: 700, textTransform: 'upperc
 const statValue = { fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" };
 
 // ── GameTypePieChart ──────────────────────────────────────────────────────────
-const CX = 100, CY = 100, R = 80;
+const CX = 110, CY = 110, R = 100, RI = 52;
 
-function arcPath(startAngle, endAngle) {
-  const x1 = CX + R * Math.sin(startAngle);
-  const y1 = CY - R * Math.cos(startAngle);
-  const x2 = CX + R * Math.sin(endAngle);
-  const y2 = CY - R * Math.cos(endAngle);
+function donutArcPath(startAngle, endAngle) {
+  const cos1 = Math.cos(startAngle - Math.PI / 2), sin1 = Math.sin(startAngle - Math.PI / 2);
+  const cos2 = Math.cos(endAngle   - Math.PI / 2), sin2 = Math.sin(endAngle   - Math.PI / 2);
   const largeArc = endAngle - startAngle > Math.PI ? 1 : 0;
-  return `M ${CX} ${CY} L ${x1} ${y1} A ${R} ${R} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+  // outer arc forward, inner arc backward
+  return [
+    `M ${CX + R  * cos1} ${CY + R  * sin1}`,
+    `A ${R}  ${R}  0 ${largeArc} 1 ${CX + R  * cos2} ${CY + R  * sin2}`,
+    `L ${CX + RI * cos2} ${CY + RI * sin2}`,
+    `A ${RI} ${RI} 0 ${largeArc} 0 ${CX + RI * cos1} ${CY + RI * sin1}`,
+    'Z',
+  ].join(' ');
 }
 
 function GameTypePieChart({ typeDistribution, rounds, player }) {
@@ -56,20 +61,24 @@ function GameTypePieChart({ typeDistribution, rounds, player }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-      <svg viewBox="0 0 200 200" width="280" height="280" aria-label="Spielart-Verteilung">
+      <svg viewBox="0 0 220 220" width="300" height="300" aria-label="Spielart-Verteilung">
         {isSingle ? (
-          <circle cx={CX} cy={CY} r={R} fill={slices[0].color} />
+          <>
+            <circle cx={CX} cy={CY} r={R} fill={slices[0].color} />
+            <circle cx={CX} cy={CY} r={RI} fill="white" />
+          </>
         ) : (
           paths.map((s) => (
-            <path key={s.name} d={arcPath(s.startAngle, s.endAngle)} fill={s.color} />
+            <path key={s.name} d={donutArcPath(s.startAngle, s.endAngle)} fill={s.color} />
           ))
         )}
+        {/* Labels auf dem Donut-Ring */}
         {paths.map((s) => {
           if (s.share < 5) return null;
           const midAngle = s.startAngle + (s.endAngle - s.startAngle) / 2;
-          const labelR = R * 0.65;
-          const lx = CX + labelR * Math.sin(midAngle);
-          const ly = CY - labelR * Math.cos(midAngle);
+          const labelR = (R + RI) / 2;
+          const lx = CX + labelR * Math.cos(midAngle - Math.PI / 2);
+          const ly = CY + labelR * Math.sin(midAngle - Math.PI / 2);
           const label = s.name === 'grand' ? '★' : s.name === 'null' ? '∅' : (SUIT_SYMBOLS[s.name] ?? (SUIT_LABELS[s.name] ?? s.name));
           return (
             <text key={`lbl-${s.name}`} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
@@ -79,6 +88,17 @@ function GameTypePieChart({ typeDistribution, rounds, player }) {
             </text>
           );
         })}
+        {/* Mittelkreis mit Spielanzahl */}
+        <circle cx={CX} cy={CY} r={RI} fill="white" />
+        <text x={CX} y={CY - 6} textAnchor="middle" dominantBaseline="middle"
+          fontSize="22" fontWeight="800" fill="var(--on-surface)" fontFamily="Manrope, sans-serif">
+          {typeDistribution.reduce((s, t) => s + t.count, 0)}
+        </text>
+        <text x={CX} y={CY + 14} textAnchor="middle" dominantBaseline="middle"
+          fontSize="8" fontWeight="700" fill="var(--outline)" letterSpacing="0.1em"
+          style={{ textTransform: 'uppercase' }}>
+          SPIELE
+        </text>
       </svg>
 
       {/* Legende + Gewinnraten */}
@@ -233,7 +253,10 @@ const PlayerAnalytics = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2rem', alignItems: 'start' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-                <p style={statLabel}>Spiele</p><p style={statValue}>{stats.totalGames}</p>
+                <p style={statLabel}>Kombiniert</p>
+                <p style={{ ...statValue, color: (stats.totalPoints + stats.seegerTotal) >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
+                  {(stats.totalPoints + stats.seegerTotal) >= 0 ? '+' : ''}{stats.totalPoints + stats.seegerTotal}
+                </p>
               </div>
               <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
                 <p style={statLabel}>Siegquote</p>
