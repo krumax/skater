@@ -236,18 +236,22 @@ const SkatScoreList = () => {
       )}
 
       {/* ── Sitzungsstatistik ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginTop: '3rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1.5rem', marginTop: '3rem' }}>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
           <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Runden gesamt</p>
           <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>{rounds.length}</p>
         </div>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
           <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Gewonnen</p>
-          <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>{rounds.filter(r => r.won).length}</p>
+          <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>{rounds.filter(r => r.won && r.gameType !== 'passed').length}</p>
         </div>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
           <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Verloren</p>
-          <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--secondary)' }}>{rounds.filter(r => !r.won).length}</p>
+          <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--secondary)' }}>{rounds.filter(r => !r.won && r.gameType !== 'passed').length}</p>
+        </div>
+        <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+          <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Eingepasst</p>
+          <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--outline)' }}>{rounds.filter(r => r.gameType === 'passed').length}</p>
         </div>
       </div>
 
