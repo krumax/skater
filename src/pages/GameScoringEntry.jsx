@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import {
   calculateGameValue,
@@ -9,8 +8,7 @@ import {
 } from '../lib/skatScoring';
 
 const GameScoringEntry = () => {
-  const navigate = useNavigate();
-  const { players, seating, addRound, currentRound, rounds, getPlayerRank, currentRoles, deleteRound } = useGame();
+  const { players, seating, addRound, currentRound, getPlayerRank, currentRoles } = useGame();
 
   // Rollen-Label für Spieler
   const getRoleTag = (name) => {
@@ -106,9 +104,6 @@ const GameScoringEntry = () => {
 
     resetForm();
   };
-
-  // ── Letzte Runden (max. 3) ──
-  const recentRounds = rounds.slice(-3).reverse();
 
   // ── Max. Spitzen nach Spielart ──
   const maxSpitzen = ['club', 'spade', 'heart', 'diamond'].includes(gameType) ? 11 : (gameType === 'grand' ? 4 : 0);
@@ -411,52 +406,6 @@ const GameScoringEntry = () => {
           </p>
         </div>
       </div>
-
-      {/* ── Letzte Ergebnisse ── */}
-      {recentRounds.length > 0 && (
-        <section style={{ marginTop: '4rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h3 className="headline" style={{ fontSize: '2rem' }}>Letzte Ergebnisse</h3>
-            <button onClick={() => navigate('/history')} style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '0.875rem' }}>
-              Zur Skatliste →
-            </button>
-          </div>
-          <div className="ledger-list">
-            {recentRounds.map(r => (
-              <div key={r.id} className="ledger-item">
-                <div className="ledger-meta">
-                  <span className="ledger-id">#{r.id}</span>
-                  <div className="ledger-col">
-                    <span className="ledger-col-label">Spieler</span>
-                    <span className="ledger-col-value">{r.player}</span>
-                  </div>
-                  <div className="ledger-col">
-                    <span className="ledger-col-label">Spiel</span>
-                    <span className="ledger-col-value" style={{ color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
-                      {r.typeLabel}
-                    </span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span className={`ledger-score ${r.gameValue >= 0 ? 'score-positive' : 'score-negative'}`}>
-                    {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
-                  </span>
-                  <button
-                    onClick={() => {
-                      if (window.confirm(`Runde #${r.id} (${r.player}, ${r.gameValue >= 0 ? '+' : ''}${r.gameValue}) löschen?`))
-                        deleteRound(r);
-                    }}
-                    title="Ergebnis löschen"
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--outline)', padding: '0.25rem', borderRadius: '0.375rem', lineHeight: 1 }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>delete</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 };
