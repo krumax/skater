@@ -75,6 +75,10 @@ const Sidebar = () => {
           <span className="material-symbols-outlined">group</span>
           Tischeinstellungen
         </NavLink>
+        <NavLink to="/info" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
+          <span className="material-symbols-outlined">menu_book</span>
+          Regelwerk
+        </NavLink>
       </nav>
 
       <div className="sidebar-footer">
