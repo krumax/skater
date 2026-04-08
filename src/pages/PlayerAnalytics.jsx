@@ -59,7 +59,7 @@ function GameTypePieChart({ typeDistribution }) {
           const labelR = R * 0.65;
           const lx = CX + labelR * Math.sin(midAngle);
           const ly = CY - labelR * Math.cos(midAngle);
-          const label = SUIT_SYMBOLS[s.name] || (SUIT_LABELS[s.name] ?? s.name);
+          const label = s.name === 'grand' ? '★' : s.name === 'null' ? '∅' : (SUIT_SYMBOLS[s.name] ?? (SUIT_LABELS[s.name] ?? s.name));
           return (
             <text key={`lbl-${s.name}`} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
               fontSize="11" fill="#fff" fontWeight="bold">
@@ -73,8 +73,13 @@ function GameTypePieChart({ typeDistribution }) {
         {slices.map((s) => (
           <li key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
             <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: s.color, flexShrink: 0 }} />
-            <span style={{ fontWeight: 600 }}>
-              {SUIT_SYMBOLS[s.name] && <span style={{ marginRight: '0.25rem' }}>{SUIT_SYMBOLS[s.name]}</span>}
+            <span style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              {s.name === 'grand'
+                ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', lineHeight: 1 }}>stars</span>
+                : s.name === 'null'
+                ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', lineHeight: 1 }}>block</span>
+                : SUIT_SYMBOLS[s.name] && <span>{SUIT_SYMBOLS[s.name]}</span>
+              }
               {SUIT_LABELS[s.name] ?? s.name}
             </span>
             <span style={{ marginLeft: 'auto', fontWeight: 800 }}>{s.share}%</span>
