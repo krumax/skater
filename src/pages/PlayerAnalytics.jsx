@@ -271,6 +271,20 @@ const PlayerAnalytics = () => {
                 </p>
                 <p style={{ ...statValue, color: stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.longestLossStreak}</p>
               </div>
+              {(() => {
+                const wonRounds = stats.rounds.filter(r => r.won);
+                return [
+                  { label: 'Hand',      count: wonRounds.filter(r => r.hand).length },
+                  { label: 'Schneider', count: wonRounds.filter(r => r.schneider).length },
+                  { label: 'Schwarz',   count: wonRounds.filter(r => r.schwarz).length },
+                  { label: 'Ouvert',    count: wonRounds.filter(r => r.ouvert).length },
+                ].map(t => (
+                  <div key={t.label} className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                    <p style={statLabel}>{t.label}</p>
+                    <p style={statValue}>{t.count}x</p>
+                  </div>
+                ));
+              })()}
             </div>
             <div className="card" style={{ width: '380px', border: '1px solid var(--outline-variant)' }}>
               <p style={{ ...statLabel, marginBottom: '0.75rem' }}>Spielart-Verteilung & Gewinnraten</p>
