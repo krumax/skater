@@ -117,23 +117,33 @@ const PlayerAnalytics = () => {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 380px', gap: '3rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem' }}>
-            <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-              <p style={statLabel}>Spiele</p><p style={statValue}>{stats.totalGames}</p>
+          {/* ── Kacheln + PieChart nebeneinander ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2rem', alignItems: 'start' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={statLabel}>Spiele</p><p style={statValue}>{stats.totalGames}</p>
+              </div>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={statLabel}>Siegquote</p>
+                <p style={{ ...statValue, color: parseFloat(stats.winRate) >= 50 ? 'var(--primary)' : 'var(--secondary)' }}>{stats.winRate}%</p>
+              </div>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={statLabel}>Standard</p>
+                <p style={{ ...statValue, color: stats.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>{stats.totalPoints >= 0 ? '+' : ''}{stats.totalPoints}</p>
+              </div>
+              <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+                <p style={statLabel}>Seeger-Fabian</p>
+                <p style={{ ...statValue, color: stats.seegerTotal >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>{stats.seegerTotal >= 0 ? '+' : ''}{stats.seegerTotal}</p>
+              </div>
             </div>
-            <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-              <p style={statLabel}>Siegquote</p>
-              <p style={{ ...statValue, color: parseFloat(stats.winRate) >= 50 ? 'var(--primary)' : 'var(--secondary)' }}>{stats.winRate}%</p>
-            </div>
-            <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-              <p style={statLabel}>Standard</p>
-              <p style={{ ...statValue, color: stats.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>{stats.totalPoints >= 0 ? '+' : ''}{stats.totalPoints}</p>
-            </div>
-            <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-              <p style={statLabel}>Seeger-Fabian</p>
-              <p style={{ ...statValue, color: stats.seegerTotal >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>{stats.seegerTotal >= 0 ? '+' : ''}{stats.seegerTotal}</p>
+            <div className="card" style={{ minWidth: '300px' }}>
+              <p style={{ ...statLabel, marginBottom: '0.75rem' }}>Spielart-Verteilung</p>
+              {stats.typeDistribution.length === 0
+                ? <p style={{ color: 'var(--outline)' }}>Noch keine Daten.</p>
+                : <GameTypePieChart typeDistribution={stats.typeDistribution} />
+              }
             </div>
           </div>
 
@@ -230,60 +240,6 @@ const PlayerAnalytics = () => {
                   </div>
                 )}
               </>)}
-            </div>
-          </section>
-
-          <section>
-            <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Spielprotokoll</h3>
-            {stats.rounds.length === 0 ? (
-              <div className="card" style={{ color: 'var(--outline)', textAlign: 'center', padding: '2rem' }}>Noch keine Runden für diesen Spieler.</div>
-            ) : (
-              <div className="ledger-list">
-                {stats.rounds.slice().reverse().map(r => (
-                  <div key={r.id} className="ledger-item">
-                    <div className="ledger-meta">
-                      <span className="ledger-id">#{r.id}</span>
-                      <div className="ledger-col">
-                        <span className="ledger-col-label">Spiel</span>
-                        <span className="ledger-col-value" style={{ color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>{r.typeLabel}</span>
-                      </div>
-                    </div>
-                    <span className={`ledger-score ${r.gameValue >= 0 ? 'score-positive' : 'score-negative'}`}>{r.gameValue >= 0 ? '+' : ''}{r.gameValue}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          <section>
-            <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Spielart-Verteilung</h3>
-            <div className="card">
-              {stats.typeDistribution.length === 0 ? (
-                <p style={{ color: 'var(--outline)' }}>Noch keine Daten.</p>
-              ) : (
-                <GameTypePieChart typeDistribution={stats.typeDistribution} />
-              )}
-            </div>
-          </section>
-
-          <section>
-            <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Wertungsvergleich</h3>
-            <div className="card" style={{ backgroundColor: 'var(--surface-low)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <div>
-                  <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Standard</p>
-                  <p style={{ fontSize: '2rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: stats.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>{stats.totalPoints >= 0 ? '+' : ''}{stats.totalPoints}</p>
-                </div>
-                <span style={{ fontSize: '1.5rem', color: 'var(--outline-variant)' }}>vs</span>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Seeger-Fabian</p>
-                  <p style={{ fontSize: '2rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: stats.seegerTotal >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>{stats.seegerTotal >= 0 ? '+' : ''}{stats.seegerTotal}</p>
-                </div>
-              </div>
-              <div style={{ height: '1px', backgroundColor: 'var(--outline-variant)', opacity: 0.3, margin: '1rem 0' }}></div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--outline)', lineHeight: 1.6 }}>Das Seeger-Fabian-System addiert +50 bei Gewinn und −50 bei Verlust auf den Alleinspieler, sowie +40 je Gegenspieler bei Verlust.</p>
             </div>
           </section>
         </div>
