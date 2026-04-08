@@ -177,6 +177,7 @@ const SkatScoreList = () => {
                 <th style={thStyle}>Spieler</th>
                 <th style={thStyle}>Typ</th>
                 <th style={{ ...thStyle, textAlign: 'right' }}>Ansage</th>
+                <th style={{ ...thStyle, textAlign: 'left', paddingLeft: '0.25rem', color: 'var(--outline)', fontSize: '0.6rem' }}>Mod.</th>
                 <th style={{ ...thStyle, textAlign: 'right' }}>Spielwert</th>
                 <th style={thDivider}></th>
                 {players.map(p => (
@@ -282,15 +283,11 @@ function GameTypeIcon({ round }) {
   const gt = round.gameType;
   const display = GAME_TYPE_DISPLAY[gt];
 
-  const suffixes = [];
-  if (round.hand)   suffixes.push('H');
-  if (round.ouvert) suffixes.push('O');
-
   const bg = display?.bg ?? 'var(--surface-high)';
   const color = display?.color ?? 'var(--outline)';
 
   return (
-    <span title={round.typeLabel} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', verticalAlign: 'middle' }}>
+    <span title={round.typeLabel} style={{ display: 'inline-flex', alignItems: 'center', verticalAlign: 'middle' }}>
       <span style={{
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
         width: '2rem', height: '2rem', borderRadius: '0.4rem',
@@ -303,11 +300,6 @@ function GameTypeIcon({ round }) {
             : <span className="material-symbols-outlined" style={{ fontSize: '1rem', color, lineHeight: 1 }}>{display.matIcon}</span>
         }
       </span>
-      {suffixes.length > 0 && (
-        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--outline)', lineHeight: 1 }}>
-          {suffixes.join('')}
-        </span>
-      )}
     </span>
   );
 }
@@ -318,13 +310,40 @@ const RoundRow = ({ r, idx, players, std, sf, onEdit, onDelete }) => (
     <td style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
       <GameTypeIcon round={r} />
     </td>
-    <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif" }}>
-      {r.gameType !== 'null' && r.gameType !== 'passed' && r.spitzen != null
-        ? <span style={{ color: (r.mitOhne ?? 'mit') === 'ohne' ? 'var(--secondary)' : 'var(--on-surface)' }}>
-            {(r.mitOhne ?? 'mit') === 'ohne' ? '−' : '+'}{r.spitzen}
+    <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif", paddingRight: '0.25rem' }}>
+      {(() => {
+        const isNull   = r.gameType === 'null';
+        const isPassed = r.gameType === 'passed';
+        if (isPassed) return <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>;
+        if (isNull)   return <span style={{ color: 'var(--outline)', opacity: 0.6 }}>—</span>;
+        return r.spitzen != null
+          ? <span style={{ color: (r.mitOhne ?? 'mit') === 'ohne' ? 'var(--secondary)' : 'var(--on-surface)' }}>
+              {(r.mitOhne ?? 'mit') === 'ohne' ? '−' : '+'}{r.spitzen}
+            </span>
+          : <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>;
+      })()}
+    </td>
+    <td style={{ ...tdStyle, paddingLeft: '0.25rem', paddingRight: '0.5rem' }}>
+      {(() => {
+        const badges = [];
+        if (r.hand)      badges.push('H');
+        if (r.schneider) badges.push('S');
+        if (r.schwarz)   badges.push('Sz');
+        if (r.ouvert)    badges.push('O');
+        if (badges.length === 0) return null;
+        return (
+          <span style={{ display: 'inline-flex', gap: '0.15rem', flexWrap: 'nowrap' }}>
+            {badges.map(b => (
+              <span key={b} style={{
+                fontSize: '0.55rem', fontWeight: 800, letterSpacing: '0.02em',
+                backgroundColor: 'var(--surface-high)', color: 'var(--on-surface-variant)',
+                padding: '0.1rem 0.3rem', borderRadius: '0.25rem', lineHeight: 1.4,
+                whiteSpace: 'nowrap',
+              }}>{b}</span>
+            ))}
           </span>
-        : <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>
-      }
+        );
+      })()}
     </td>
     <td style={{ ...tdStyle, fontWeight: 800, textAlign: 'right', color: r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
       {r.isBock === true && (
