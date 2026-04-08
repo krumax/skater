@@ -3,7 +3,7 @@ import { useGame } from '../context/GameContext';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
 
 const PlayerAnalytics = () => {
-  const { players, getPlayerStats } = useGame();
+  const { players, rounds, getPlayerStats } = useGame();
   const [selectedPlayer, setSelectedPlayer] = useState(players[0] || '');
 
   if (players.length === 0) {
@@ -18,6 +18,9 @@ const PlayerAnalytics = () => {
   }
 
   const stats = getPlayerStats(selectedPlayer);
+  const playShare = rounds.length > 0
+    ? ((stats.totalGames / rounds.length) * 100).toFixed(1)
+    : '0.0';
 
   return (
     <div>
@@ -108,6 +111,13 @@ const PlayerAnalytics = () => {
                   <div>
                     <h4 style={{ fontWeight: 700, marginBottom: '0.25rem' }}>Ø Punkte pro Spiel</h4>
                     <p style={{ color: 'var(--on-surface-variant)' }}>Durchschnittlich {stats.avgPoints} Punkte pro Spiel.</p>
+                  </div>
+                </div>
+                <div className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--tertiary)' }}>percent</span>
+                  <div>
+                    <h4 style={{ fontWeight: 700, marginBottom: '0.25rem' }}>Spielanteil</h4>
+                    <p style={{ color: 'var(--on-surface-variant)' }}>{playShare}% aller Runden am Tisch gespielt ({stats.totalGames} von {rounds.length}).</p>
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
