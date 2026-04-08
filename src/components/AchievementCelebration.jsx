@@ -134,7 +134,10 @@ const AchievementCelebration = ({ achievement, onClose }) => {
 
       {/* Modal card */}
       <div
-        onClick={e => e.stopPropagation()}
+        onClick={e => {
+          e.stopPropagation();
+          handleClose();
+        }}
         style={{
           position: 'relative', zIndex: 2,
           backgroundColor: 'var(--surface)',

@@ -58,16 +58,23 @@ function computeUnlockedKeys(rounds, player) {
  * for the player of the most recently added round.
  */
 const AchievementWatcher = () => {
-  const { rounds, players } = useGame();
+  const { rounds, players, sessionId } = useGame();
   const [celebration, setCelebration] = useState(null);
 
   // Snapshot of all players' unlocked keys — updated after each detection cycle
   const snapshotRef = useRef(null);
   const prevRoundCountRef = useRef(rounds.length);
+  const prevSessionIdRef = useRef(sessionId);
 
-  // Build initial snapshot on mount (or when players change)
+  // We only need one combined effect to watch for changes
   useEffect(() => {
-    if (snapshotRef.current === null) {
+    // 1. If initializing OR session changed OR completely out of sync (bulk load)
+    if (
+      snapshotRef.current === null ||
+      sessionId !== prevSessionIdRef.current ||
+      rounds.length > prevRoundCountRef.current + 1
+    ) {
+      // Rebuild snapshot silently
       const snap = {};
       players.forEach(p => {
         const { keys } = computeUnlockedKeys(rounds, p);
@@ -75,19 +82,18 @@ const AchievementWatcher = () => {
       });
       snapshotRef.current = snap;
       prevRoundCountRef.current = rounds.length;
+      prevSessionIdRef.current = sessionId;
+      return;
     }
-  }, [rounds, players]);
 
-  // Detect new achievements whenever rounds grow (new round added)
-  useEffect(() => {
-    if (snapshotRef.current === null) return;
+    // 2. If rounds didn't grow (deletion, reset, or unchanged)
     if (rounds.length <= prevRoundCountRef.current) {
-      // Rounds didn't grow (deletion, reset, or unchanged) — just update ref
+      // Just update ref
       prevRoundCountRef.current = rounds.length;
       return;
     }
 
-    // A new round was added — find the player of the latest round
+    // 3. Exactly ONE round was added. Safe to evaluate!
     const latestRound = rounds[rounds.length - 1];
     if (!latestRound) return;
 
@@ -127,13 +133,14 @@ const AchievementWatcher = () => {
       });
     }
 
-    // Update snapshot for this player
+    // Update snapshot and refs
     snapshotRef.current = {
       ...snapshotRef.current,
       [player]: currentKeys,
     };
     prevRoundCountRef.current = rounds.length;
-  }, [rounds, players]);
+    prevSessionIdRef.current = sessionId;
+  }, [rounds, players, sessionId]);
 
   return (
     <AchievementCelebration
