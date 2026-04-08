@@ -25,7 +25,9 @@ const GameScoringEntry = () => {
   const [gameType, setGameType] = useState('spade');
   const [hand, setHand] = useState(false);
   const [schneider, setSchneider] = useState(false);
+  const [schneiderAnnounced, setSchneiderAnnounced] = useState(false);
   const [schwarz, setSchwarz] = useState(false);
+  const [schwarzAnnounced, setSchwartzAnnounced] = useState(false);
   const [ouvert, setOuvert] = useState(false);
   const [mitOhne, setMitOhne] = useState('mit');
   const [spitzen, setSpitzen] = useState(1);
@@ -40,9 +42,9 @@ const GameScoringEntry = () => {
         spitzen,
         hand,
         schneider,
-        schneiderAnnounced: false,
+        schneiderAnnounced,
         schwarz,
-        schwarzAnnounced: false,
+        schwarzAnnounced,
         ouvert,
         eyeCount: gameType === 'null' ? (eyeCount === 0 ? 0 : 1) : eyeCount,
       });
@@ -62,7 +64,9 @@ const GameScoringEntry = () => {
     setGameType('spade');
     setHand(false);
     setSchneider(false);
+    setSchneiderAnnounced(false);
     setSchwarz(false);
+    setSchwartzAnnounced(false);
     setOuvert(false);
     setMitOhne('mit');
     setSpitzen(1);
@@ -76,8 +80,8 @@ const GameScoringEntry = () => {
 
     const typeLabel = gameType === 'passed' ? 'Eingepasst' : (SUIT_LABELS[gameType]
       + (hand ? ' Hand' : '')
-      + (schneider ? ' Schneider' : '')
-      + (schwarz ? ' Schwarz' : '')
+      + (schneiderAnnounced ? ' Schneider angesagt' : schneider ? ' Schneider' : '')
+      + (schwarzAnnounced ? ' Schwarz angesagt' : schwarz ? ' Schwarz' : '')
       + (ouvert ? ' Ouvert' : ''));
 
     addRound({
@@ -92,7 +96,9 @@ const GameScoringEntry = () => {
       spitzen,
       hand,
       schneider,
+      schneiderAnnounced,
       schwarz,
+      schwarzAnnounced,
       ouvert,
       isBock,
       mitOhne,
@@ -214,7 +220,9 @@ const GameScoringEntry = () => {
               {[
                 { key: 'hand', label: 'Hand', state: hand, setter: setHand, disabled: gameType === 'passed' },
                 { key: 'schneider', label: 'Schneider', state: schneider, setter: setSchneider, disabled: gameType === 'passed' || gameType === 'null' },
+                { key: 'schneiderAnnounced', label: 'Schneider angesagt', state: schneiderAnnounced, setter: setSchneiderAnnounced, disabled: gameType === 'passed' || gameType === 'null' || !hand },
                 { key: 'schwarz', label: 'Schwarz', state: schwarz, setter: setSchwarz, disabled: gameType === 'passed' || gameType === 'null' },
+                { key: 'schwarzAnnounced', label: 'Schwarz angesagt', state: schwarzAnnounced, setter: setSchwartzAnnounced, disabled: gameType === 'passed' || gameType === 'null' || !hand },
                 { key: 'ouvert', label: 'Ouvert', state: ouvert, setter: setOuvert, disabled: gameType === 'passed' },
               ].map(mod => (
                 <button
@@ -247,7 +255,7 @@ const GameScoringEntry = () => {
                 <button className={`chip ${mitOhne === 'ohne' ? 'active' : ''}`} onClick={() => setMitOhne('ohne')}>Ohne</button>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                {Array.from({ length: 11 }, (_, i) => i + 1).map(num => {
+                {Array.from({ length: 4 }, (_, i) => i + 1).map(num => {
                   const disabled = num > maxSpitzen;
                   return (
                     <button
@@ -264,6 +272,25 @@ const GameScoringEntry = () => {
               </div>
             </div>
           </section>
+
+          {/* ── Spitzen ── */}
+          {['club', 'spade', 'heart', 'diamond'].includes(gameType) && (
+            <section className="form-section">
+              <label className="section-label">Spitzen</label>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {Array.from({ length: 7 }, (_, i) => i + 5).map(num => (
+                  <button
+                    key={num}
+                    onClick={() => setSpitzen(num)}
+                    className={`game-type-card ${spitzen === num ? 'active' : ''}`}
+                    style={{ width: '48px', height: '48px', borderRadius: '0.5rem', fontSize: '1.125rem', fontWeight: 700 }}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* ── Augen ── */}
           <section className="form-section">

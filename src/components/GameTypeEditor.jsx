@@ -54,7 +54,9 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
   const [hand, setHand]             = useState(round?.hand ?? false);
   const [ouvert, setOuvert]         = useState(round?.ouvert ?? false);
   const [schneider, setSchneider]   = useState(round?.schneider ?? false);
+  const [schneiderAnnounced, setSchneiderAnnounced] = useState(round?.schneiderAnnounced ?? false);
   const [schwarz, setSchwarz]       = useState(round?.schwarz ?? false);
+  const [schwarzAnnounced, setSchwartzAnnounced]   = useState(round?.schwarzAnnounced ?? false);
   const [spitzen, setSpitzen]       = useState(round?.spitzen ?? 1);
   const [mitOhne, setMitOhne]       = useState(round?.mitOhne ?? 'mit');
   const [isBock, setIsBock]         = useState(round?.isBock ?? false);
@@ -129,7 +131,9 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
       hand,
       ouvert,
       schneider,
+      schneiderAnnounced,
       schwarz,
+      schwarzAnnounced,
       spitzen: hasSuiteGame ? Number(spitzen) : 0,
       mitOhne: hasSuiteGame ? mitOhne : 'mit',
       isBock,
@@ -157,12 +161,12 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Spieltyp bearbeiten"
+        aria-label="Spiel bearbeiten"
         style={dialogStyle}
         onClick={e => e.stopPropagation()}
       >
         <h2 style={{ margin: '0 0 1.5rem', fontSize: '1.25rem', color: '#1a1a2e' }}>
-          Spieltyp bearbeiten
+          Spiel bearbeiten
           <span style={{ color: '#555577', fontWeight: 400, fontSize: '0.9rem', marginLeft: '0.5rem' }}>
             Runde {round?.roundNumber ?? round?.id}
           </span>
@@ -170,32 +174,45 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
 
         {/* Spieltyp-Auswahl */}
         <label style={labelStyle}>Spieltyp</label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.25rem' }}>
-          {GAME_TYPES.map(type => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => setGameType(type)}
-              style={{
-                ...chipStyle,
-                ...(gameType === type ? chipActiveStyle : {}),
-              }}
-            >
-              {SUIT_LABELS[type]}
-            </button>
-          ))}
+        <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '0.5rem', marginBottom: '1.25rem' }}>
+          {[
+            { key: 'club',    icon: '♣', label: 'Kreuz',  color: null },
+            { key: 'spade',   icon: '♠', label: 'Pik',    color: null },
+            { key: 'heart',   icon: '♥', label: 'Herz',   color: '#e53935' },
+            { key: 'diamond', icon: '♦', label: 'Karo',   color: '#e53935' },
+            { key: 'grand',   icon: null, label: 'Grand',  matIcon: 'stars' },
+            { key: 'null',    icon: null, label: 'Null',   matIcon: 'block' },
+          ].map(({ key, icon, label, color, matIcon }) => {
+            const isActive = gameType === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setGameType(key)}
+                style={{
+                  ...gameTypeChipStyle,
+                  ...(isActive ? gameTypeChipActiveStyle : {}),
+                }}
+                title={label}
+              >
+                {icon
+                  ? <span style={{ fontSize: '1.25rem', lineHeight: 1, color: isActive ? '#fff' : (color ?? '#1a1a2e') }}>{icon}</span>
+                  : <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', lineHeight: 1 }}>{matIcon}</span>
+                }
+                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Checkboxen */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 1.5rem', marginBottom: '1.25rem' }}>
-          <CheckboxField label="Hand"      checked={hand}      onChange={setHand} />
-          <CheckboxField label="Ouvert"    checked={ouvert}    onChange={setOuvert} />
-          {hasSuiteGame && (
-            <>
-              <CheckboxField label="Schneider" checked={schneider} onChange={setSchneider} />
-              <CheckboxField label="Schwarz"   checked={schwarz}   onChange={setSchwarz} />
-            </>
-          )}
+          <CheckboxField label="Hand"                  checked={hand}                onChange={setHand} />
+          <CheckboxField label="Ouvert"                checked={ouvert}              onChange={setOuvert} />
+          <CheckboxField label="Schneider"             checked={schneider}           onChange={setSchneider}           disabled={isNullGame} />
+          <CheckboxField label="Schneider angesagt"    checked={schneiderAnnounced}  onChange={setSchneiderAnnounced}  disabled={isNullGame} />
+          <CheckboxField label="Schwarz"               checked={schwarz}             onChange={setSchwarz}             disabled={isNullGame} />
+          <CheckboxField label="Schwarz angesagt"      checked={schwarzAnnounced}    onChange={setSchwartzAnnounced}   disabled={isNullGame} />
         </div>
 
         {/* Bockrunde */}
@@ -203,43 +220,35 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
           <CheckboxField label="Bockrunde" checked={isBock} onChange={setIsBock} />
         </div>
 
-        {/* Spitzen-Eingabe (nur bei Farb-/Grand-Spielen) */}
-        {hasSuiteGame && (
-          <div style={{ marginBottom: '1.25rem' }}>
-            <label style={labelStyle}>
-              Ansage
-              <span style={{ color: 'var(--text-secondary)', fontWeight: 400, marginLeft: '0.25rem' }}>
-                ({SPITZEN_RANGES[gameType].min}–{SPITZEN_RANGES[gameType].max})
-              </span>
-            </label>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <button
-                type="button"
-                onClick={() => setMitOhne('mit')}
-                className={`chip${mitOhne === 'mit' ? ' active' : ''}`}
-              >Mit</button>
-              <button
-                type="button"
-                onClick={() => setMitOhne('ohne')}
-                className={`chip${mitOhne === 'ohne' ? ' active' : ''}`}
-              >Ohne</button>
-            </div>
-            <input
-              type="number"
-              value={spitzen}
-              min={SPITZEN_RANGES[gameType].min}
-              max={SPITZEN_RANGES[gameType].max}
-              onChange={e => setSpitzen(e.target.value)}
-              style={{
-                ...inputStyle,
-                ...(errors.spitzen ? inputErrorStyle : {}),
-              }}
-            />
-            {errors.spitzen && (
-              <p role="alert" style={errorTextStyle}>{errors.spitzen}</p>
-            )}
+        {/* Spitzen-Eingabe (immer sichtbar bei Farb-/Grand-Spielen, ausgegraut wenn nicht erlaubt) */}
+        <div style={{ marginBottom: '1.25rem', opacity: hasSuiteGame ? 1 : 0.35, pointerEvents: hasSuiteGame ? 'auto' : 'none' }}>
+          <label style={labelStyle}>Ansage</label>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <button type="button" onClick={() => setMitOhne('mit')} className={`chip${mitOhne === 'mit' ? ' active' : ''}`}>Mit</button>
+            <button type="button" onClick={() => setMitOhne('ohne')} className={`chip${mitOhne === 'ohne' ? ' active' : ''}`}>Ohne</button>
           </div>
-        )}
+          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+            {Array.from({ length: 11 }, (_, i) => i + 1).map(num => {
+              const maxAllowed = hasSuiteGame ? SPITZEN_RANGES[gameType]?.max ?? 0 : 0;
+              const disabled = num > maxAllowed;
+              return (
+                <button
+                  key={num}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => setSpitzen(num)}
+                  style={{
+                    ...spitzenBtnStyle,
+                    ...(spitzen === num && !disabled ? spitzenBtnActiveStyle : {}),
+                    ...(disabled ? spitzenBtnDisabledStyle : {}),
+                  }}
+                >
+                  {num}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Allgemeiner Fehler */}
         {errors.general && (
@@ -267,14 +276,15 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
 
 // ─── Hilfskomponente ───
 
-function CheckboxField({ label, checked, onChange }) {
+function CheckboxField({ label, checked, onChange, disabled = false }) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', userSelect: 'none', color: '#1a1a2e' }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: disabled ? 'not-allowed' : 'pointer', userSelect: 'none', color: '#1a1a2e', opacity: disabled ? 0.35 : 1 }}>
       <input
         type="checkbox"
         checked={checked}
         onChange={e => onChange(e.target.checked)}
-        style={{ width: '1rem', height: '1rem', cursor: 'pointer' }}
+        disabled={disabled}
+        style={{ width: '1rem', height: '1rem', cursor: disabled ? 'not-allowed' : 'pointer' }}
       />
       {label}
     </label>
@@ -299,7 +309,7 @@ const dialogStyle = {
   borderRadius: '0.75rem',
   padding: '1.75rem',
   width: '100%',
-  maxWidth: '420px',
+  maxWidth: '560px',
   boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
 };
 
@@ -376,4 +386,53 @@ const saveBtnStyle = {
 const saveBtnDisabledStyle = {
   opacity: 0.45,
   cursor: 'not-allowed',
+};
+
+const gameTypeChipStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.2rem',
+  width: '60px',
+  height: '60px',
+  borderRadius: '0.5rem',
+  border: '1.5px solid #c0c0d0',
+  background: 'transparent',
+  color: '#1a1a2e',
+  cursor: 'pointer',
+  transition: 'background 0.15s, border-color 0.15s',
+};
+
+const gameTypeChipActiveStyle = {
+  background: '#7c3aed',
+  borderColor: '#7c3aed',
+  color: '#ffffff',
+};
+
+const spitzenBtnStyle = {
+  width: '36px',
+  height: '36px',
+  borderRadius: '0.4rem',
+  border: '1.5px solid #c0c0d0',
+  background: 'transparent',
+  color: '#1a1a2e',
+  cursor: 'pointer',
+  fontSize: '0.9rem',
+  fontWeight: 700,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+const spitzenBtnActiveStyle = {
+  background: '#7c3aed',
+  borderColor: '#7c3aed',
+  color: '#ffffff',
+};
+
+const spitzenBtnDisabledStyle = {
+  opacity: 0.25,
+  cursor: 'not-allowed',
+  pointerEvents: 'none',
 };

@@ -279,7 +279,9 @@ const colSpecs = [
   { id: 'ohne_4', label: '−4', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 4 },
   { id: 'hand', label: 'Hand', isSpecial: true, check: (r) => r.hand },
   { id: 'schneider', label: 'Schneid', isSpecial: true, check: (r) => r.schneider || r.schneiderAnsagt },
+  { id: 'schneiderAnnounced', label: 'Schneid!', isSpecial: true, check: (r) => r.schneiderAnnounced },
   { id: 'schwarz', label: 'Schwarz', isSpecial: true, check: (r) => r.schwarz || r.schwarzAnsagt },
+  { id: 'schwarzAnnounced', label: 'Schwarz!', isSpecial: true, check: (r) => r.schwarzAnnounced },
   { id: 'ouvert', label: 'Ouvert', isSpecial: true, check: (r) => r.ouvert },
 ];
 
@@ -297,7 +299,7 @@ function useMatrixData(rounds, player) {
       colSpecs.forEach((col, idx) => {
         if (row.type === 'null') {
           if (idx < 8) return; // Ansage N/A bei Null
-          if (col.id === 'schneider' || col.id === 'schwarz') return; // N/A bei Null
+          if (col.id === 'schneider' || col.id === 'schwarz' || col.id === 'schneiderAnnounced' || col.id === 'schwarzAnnounced') return; // N/A bei Null
         }
 
         totalPossible++;
@@ -398,7 +400,7 @@ const AchievementMatrix = ({ rounds, player }) => {
                         );
                       }
                       if (idx < 8) return null; // handled by colspan
-                      if (col.id === 'schneider' || col.id === 'schwarz') {
+                      if (col.id === 'schneider' || col.id === 'schwarz' || col.id === 'schneiderAnnounced' || col.id === 'schwarzAnnounced') {
                         return (
                           <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: 'rgba(116, 91, 0, 0.05)' }}>
                           </td>

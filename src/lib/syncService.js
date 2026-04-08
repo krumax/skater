@@ -49,8 +49,10 @@ export async function loadSession(sessionId) {
     eyeCount:     r.eye_count,
     spitzen:      r.spitzen,
     hand:         r.hand,
-    schneider:    r.schneider,
-    schwarz:      r.schwarz,
+    schneider:            r.schneider,
+    schneiderAnnounced:   r.schneider_announced ?? false,
+    schwarz:              r.schwarz,
+    schwarzAnnounced:     r.schwarz_announced ?? false,
     ouvert:       r.ouvert,
     roles:        r.roles,
     seegerScores: r.seeger_scores,
@@ -88,7 +90,9 @@ export async function insertRound(round, sessionId) {
       spitzen:      round.spitzen ?? 1,
       hand:         round.hand ?? false,
       schneider:    round.schneider ?? false,
+      schneider_announced: round.schneiderAnnounced ?? false,
       schwarz:      round.schwarz ?? false,
+      schwarz_announced: round.schwarzAnnounced ?? false,
       ouvert:       round.ouvert ?? false,
       roles:        round.roles ?? null,
       seeger_scores: round.seegerScores ?? null,
@@ -152,7 +156,7 @@ export async function listSessions() {
  * @returns {{ data, error }}
  */
 export async function updateRound(roundDbId, patch) {
-  const allowed = ['game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schwarz', 'spitzen', 'is_bock', 'game_value', 'mit_ohne'];
+  const allowed = ['game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schneider_announced', 'schwarz', 'schwarz_announced', 'spitzen', 'is_bock', 'game_value', 'mit_ohne'];
   const safePatch = Object.fromEntries(
     Object.entries(patch).filter(([k]) => allowed.includes(k))
   );
