@@ -155,6 +155,20 @@ const PlayerAnalytics = () => {
             </div>
           </div>
 
+          {/* ── Skat Achievement Matrix ── */}
+          <section>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem', gap: '2rem' }}>
+              <div>
+                <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Spieler-Erfolge</span>
+                <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Skat Achievement Matrix</h3>
+                <p style={{ color: 'var(--on-surface-variant)' }}>Vervollständige die Matrix und beweise deine Meisterschaft. Jede Kombination, jede Spielart, jede Stufe — werde zum Skatmeister.</p>
+              </div>
+              <AchievementCompletionCard rounds={rounds} player={selectedPlayer} />
+            </div>
+
+            <AchievementMatrix rounds={rounds} player={selectedPlayer} />
+          </section>
+
           {/* ── Brot / Baguette ── */}
           <section>
             <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Brot &amp; Baguette</h3>
@@ -189,20 +203,6 @@ const PlayerAnalytics = () => {
                 </p>
               </div>
             </div>
-          </section>
-
-          {/* ── Skat Achievement Matrix ── */}
-          <section>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem', gap: '2rem' }}>
-              <div>
-                <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Spieler-Erfolge</span>
-                <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Skat Achievement Matrix</h3>
-                <p style={{ color: 'var(--on-surface-variant)' }}>Vervollständige die Matrix und beweise deine Meisterschaft. Jede Kombination, jede Spielart, jede Stufe — werde zum Skatmeister.</p>
-              </div>
-              <AchievementCompletionCard rounds={rounds} player={selectedPlayer} />
-            </div>
-
-            <AchievementMatrix rounds={rounds} player={selectedPlayer} />
           </section>
 
           <section>
