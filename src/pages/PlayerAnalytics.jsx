@@ -170,7 +170,7 @@ const PlayerAnalytics = () => {
                 <p style={{ ...statValue, color: stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)' }}>{stats.longestLossStreak}</p>
               </div>
             </div>
-            <div className="card" style={{ minWidth: '300px' }}>
+            <div className="card" style={{ width: '340px', border: '1px solid var(--outline-variant)' }}>
               <p style={{ ...statLabel, marginBottom: '0.75rem' }}>Spielart-Verteilung</p>
               {stats.typeDistribution.length === 0
                 ? <p style={{ color: 'var(--outline)' }}>Noch keine Daten.</p>
@@ -329,14 +329,13 @@ const AchievementCompletionCard = ({ rounds, player }) => {
   const level = Math.floor(unlockedCount / 3) + 1;
 
   return (
-    <div style={{
-      backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '0.5rem',
-      boxShadow: '0 12px 32px var(--shadow-color)', border: '1px solid var(--outline-variant)',
-      minWidth: '280px'
+    <div className="card" style={{
+      border: '1px solid var(--outline-variant)',
+      width: '340px', flexShrink: 0
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <span style={{ color: 'var(--on-surface-variant)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Gesamtfortschritt</span>
-        <span style={{ backgroundColor: 'var(--primary-container)', color: 'var(--on-primary)', fontSize: '0.75rem', padding: '0.25rem 0.5rem', borderRadius: '9999px', fontWeight: 700 }}>Level {level}</span>
+        <span style={{ color: 'var(--on-surface-variant)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>Gesamtfortschritt</span>
+        <span style={{ backgroundColor: 'var(--primary-container)', color: 'var(--on-primary)', fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '9999px', fontWeight: 700, whiteSpace: 'nowrap' }}>Level {level}</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.5rem' }}>
         <span style={{ fontSize: '2.25rem', fontFamily: "'Manrope', sans-serif", fontWeight: 800, color: 'var(--primary)' }}>{unlockedCount}</span>
