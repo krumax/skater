@@ -269,47 +269,40 @@ const SkatScoreList = () => {
 
 // ── Game type icon/badge ─────────────────────────────────────────────────────
 const GAME_TYPE_DISPLAY = {
-  club:    { symbol: '♣', label: 'Kreuz' },
-  spade:   { symbol: '♠', label: 'Pik' },
-  heart:   { symbol: '♥', label: 'Herz' },
-  diamond: { symbol: '♦', label: 'Karo' },
-  grand:   { symbol: null, matIcon: 'stars',  label: 'Grand' },
-  null:    { symbol: null, matIcon: 'block',  label: 'Null' },
-  passed:  { symbol: null, matIcon: 'skip_next', label: 'Passen' },
+  grand:   { symbol: null, matIcon: 'stars',    label: 'Grand',  bg: '#0b3d2e', color: '#fff' },
+  club:    { symbol: '♣',  matIcon: null,        label: 'Kreuz',  bg: '#1b1c1c', color: '#fff' },
+  spade:   { symbol: '♠',  matIcon: null,        label: 'Pik',    bg: '#414944', color: '#fff' },
+  heart:   { symbol: '♥',  matIcon: null,        label: 'Herz',   bg: '#b52619', color: '#fff' },
+  diamond: { symbol: '♦',  matIcon: null,        label: 'Karo',   bg: '#d0a600', color: '#1b1c1c' },
+  null:    { symbol: null, matIcon: 'block',     label: 'Null',   bg: '#717974', color: '#fff' },
+  passed:  { symbol: null, matIcon: 'skip_next', label: 'Passen', bg: '#c0c0d0', color: '#555' },
 };
 
 function GameTypeIcon({ round }) {
   const gt = round.gameType;
   const display = GAME_TYPE_DISPLAY[gt];
 
-  if (!display) {
-    // Unknown / Import
-    return (
-      <span title={round.typeLabel} style={{
-        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        width: '1.6rem', height: '1.6rem', borderRadius: '0.3rem',
-        fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.02em',
-        backgroundColor: 'var(--surface-high)', color: 'var(--outline)',
-        verticalAlign: 'middle',
-      }}>
-        ?
-      </span>
-    );
-  }
-
   const suffixes = [];
   if (round.hand)   suffixes.push('H');
   if (round.ouvert) suffixes.push('O');
 
+  const bg = display?.bg ?? 'var(--surface-high)';
+  const color = display?.color ?? 'var(--outline)';
+
   return (
-    <span title={round.typeLabel} style={{
-      display: 'inline-flex', alignItems: 'center', gap: '0.15rem',
-      verticalAlign: 'middle',
-    }}>
-      {display.symbol
-        ? <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>{display.symbol}</span>
-        : <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', lineHeight: 1 }}>{display.matIcon}</span>
-      }
+    <span title={round.typeLabel} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', verticalAlign: 'middle' }}>
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        width: '2rem', height: '2rem', borderRadius: '0.4rem',
+        backgroundColor: bg, flexShrink: 0,
+      }}>
+        {!display
+          ? <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--outline)' }}>?</span>
+          : display.symbol
+            ? <span style={{ fontSize: '1rem', fontWeight: 700, color, lineHeight: 1 }}>{display.symbol}</span>
+            : <span className="material-symbols-outlined" style={{ fontSize: '1rem', color, lineHeight: 1 }}>{display.matIcon}</span>
+        }
+      </span>
       {suffixes.length > 0 && (
         <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--outline)', lineHeight: 1 }}>
           {suffixes.join('')}
