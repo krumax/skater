@@ -1,6 +1,86 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
+import { computeShares } from '../components/ScoreDistributionChart';
+
+// Spieltyp-Farben (konsistent mit StatistikenCharts)
+const GAME_TYPE_COLORS = {
+  club:    '#1b1c1c',
+  spade:   '#414944',
+  heart:   '#b52619',
+  diamond: '#d0a600',
+  grand:   '#0b3d2e',
+  null:    '#717974',
+};
+
+// ── GameTypePieChart ──────────────────────────────────────────────────────────
+const CX = 100, CY = 100, R = 80;
+
+function arcPath(startAngle, endAngle) {
+  const x1 = CX + R * Math.sin(startAngle);
+  const y1 = CY - R * Math.cos(startAngle);
+  const x2 = CX + R * Math.sin(endAngle);
+  const y2 = CY - R * Math.cos(endAngle);
+  const largeArc = endAngle - startAngle > Math.PI ? 1 : 0;
+  return `M ${CX} ${CY} L ${x1} ${y1} A ${R} ${R} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+}
+
+function GameTypePieChart({ typeDistribution }) {
+  // Build scores map: type → count, and color map: type → color
+  const scores = Object.fromEntries(typeDistribution.map(({ type, count }) => [type, count]));
+  const colorMap = Object.fromEntries(typeDistribution.map(({ type }) => [type, GAME_TYPE_COLORS[type] ?? '#999']));
+  const slices = computeShares(scores, colorMap);
+  const isSingle = slices.length === 1;
+
+  let cumAngle = 0;
+  const paths = slices.map((s) => {
+    const startAngle = cumAngle;
+    const sweepAngle = (s.share / 100) * 2 * Math.PI;
+    cumAngle += sweepAngle;
+    return { ...s, startAngle, endAngle: cumAngle };
+  });
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+      <svg viewBox="0 0 200 200" width="200" height="200" aria-label="Spielart-Verteilung">
+        {isSingle ? (
+          <circle cx={CX} cy={CY} r={R} fill={slices[0].color} />
+        ) : (
+          paths.map((s) => (
+            <path key={s.name} d={arcPath(s.startAngle, s.endAngle)} fill={s.color} />
+          ))
+        )}
+        {paths.map((s) => {
+          if (s.share < 5) return null;
+          const midAngle = s.startAngle + (s.endAngle - s.startAngle) / 2;
+          const labelR = R * 0.65;
+          const lx = CX + labelR * Math.sin(midAngle);
+          const ly = CY - labelR * Math.cos(midAngle);
+          const label = SUIT_SYMBOLS[s.name] || (SUIT_LABELS[s.name] ?? s.name);
+          return (
+            <text key={`lbl-${s.name}`} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
+              fontSize="11" fill="#fff" fontWeight="bold">
+              <tspan x={lx} dy="-5">{label}</tspan>
+              <tspan x={lx} dy="13">{s.share}%</tspan>
+            </text>
+          );
+        })}
+      </svg>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {slices.map((s) => (
+          <li key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
+            <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: s.color, flexShrink: 0 }} />
+            <span style={{ fontWeight: 600 }}>
+              {SUIT_SYMBOLS[s.name] && <span style={{ marginRight: '0.25rem' }}>{SUIT_SYMBOLS[s.name]}</span>}
+              {SUIT_LABELS[s.name] ?? s.name}
+            </span>
+            <span style={{ marginLeft: 'auto', fontWeight: 800 }}>{s.share}%</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 const PlayerAnalytics = () => {
   const { players, rounds, getPlayerStats } = useGame();
@@ -180,23 +260,10 @@ const PlayerAnalytics = () => {
           <section>
             <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Spielart-Verteilung</h3>
             <div className="card">
-              {stats.typeDistribution.length === 0 ? (<p style={{ color: 'var(--outline)' }}>Noch keine Daten.</p>) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  {stats.typeDistribution.map(({ type, count, pct }) => (
-                    <div key={type}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                        <span style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          {SUIT_SYMBOLS[type] && <span style={{ fontSize: '1.25rem' }}>{SUIT_SYMBOLS[type]}</span>}
-                          {SUIT_LABELS[type] || type}
-                        </span>
-                        <span style={{ fontWeight: 800 }}>{pct}%</span>
-                      </div>
-                      <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--surface-high)', borderRadius: '4px' }}>
-                        <div style={{ width: `${pct}%`, height: '100%', backgroundColor: 'var(--primary)', borderRadius: '4px', transition: 'width 0.3s ease' }}></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {stats.typeDistribution.length === 0 ? (
+                <p style={{ color: 'var(--outline)' }}>Noch keine Daten.</p>
+              ) : (
+                <GameTypePieChart typeDistribution={stats.typeDistribution} />
               )}
             </div>
           </section>
