@@ -410,7 +410,13 @@ function useMatrixData(rounds, player) {
         if (unlockedGames.length > 0) {
           unlockedCount++;
           const maxScore = Math.max(...unlockedGames.map(g => g.gameValue));
-          map[row.type][col.id] = maxScore;
+          const firstGame = unlockedGames.reduce((a, b) =>
+            new Date(a.timestamp) < new Date(b.timestamp) ? a : b
+          );
+          const firstDate = firstGame.timestamp
+            ? new Date(firstGame.timestamp).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+            : null;
+          map[row.type][col.id] = { value: maxScore, date: firstDate };
           unlockedKeys.add(`${row.type}::${col.id}`);
         }
       });
@@ -519,7 +525,7 @@ const AchievementMatrix = ({ rounds, player }) => {
                     return (
                       <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
                         {isUnlocked ? (
-                          <div title={`Bestes Ergebnis: ${val}`} style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', backgroundColor: col.isSpecial ? 'var(--tertiary-container)' : 'var(--primary-container)', color: col.isSpecial ? 'var(--primary)' : 'var(--on-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s' }}
+                          <div title={`Bestes Ergebnis: ${val.value}${val.date ? ` · Erstmals: ${val.date}` : ''}`} style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', backgroundColor: col.isSpecial ? 'var(--tertiary-container)' : 'var(--primary-container)', color: col.isSpecial ? 'var(--primary)' : 'var(--on-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s' }}
                             onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
                             onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
                             <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
