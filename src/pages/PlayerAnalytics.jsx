@@ -281,14 +281,18 @@ const matrixConfig = [
 ];
 
 const colSpecs = [
-  { id: 'mit_1', label: 'Mit 1', check: (r) => r.isMit && r.matadors === 1 },
-  { id: 'mit_2', label: 'Mit 2', check: (r) => r.isMit && r.matadors === 2 },
-  { id: 'mit_3', label: 'Mit 3', check: (r) => r.isMit && r.matadors === 3 },
-  { id: 'ohne_1', label: 'Ohne 1', check: (r) => !r.isMit && r.matadors === 1 },
-  { id: 'ohne_2', label: 'Ohne 2', check: (r) => !r.isMit && r.matadors === 2 },
-  { id: 'hand', label: 'Hand', isSpecial: true, check: (r) => r.hand || (r.gameType === 'null' && r.nullType && r.nullType.includes('hand')) },
+  { id: 'mit_1', label: '+1', check: (r) => r.mitOhne === 'mit' && r.spitzen === 1 },
+  { id: 'mit_2', label: '+2', check: (r) => r.mitOhne === 'mit' && r.spitzen === 2 },
+  { id: 'mit_3', label: '+3', check: (r) => r.mitOhne === 'mit' && r.spitzen === 3 },
+  { id: 'mit_4', label: '+4', check: (r) => r.mitOhne === 'mit' && r.spitzen === 4 },
+  { id: 'ohne_1', label: '−1', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 1 },
+  { id: 'ohne_2', label: '−2', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 2 },
+  { id: 'ohne_3', label: '−3', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 3 },
+  { id: 'ohne_4', label: '−4', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 4 },
+  { id: 'hand', label: 'Hand', isSpecial: true, check: (r) => r.hand },
   { id: 'schneider', label: 'Schneid', isSpecial: true, check: (r) => r.schneider || r.schneiderAnsagt },
   { id: 'schwarz', label: 'Schwarz', isSpecial: true, check: (r) => r.schwarz || r.schwarzAnsagt },
+  { id: 'ouvert', label: 'Ouvert', isSpecial: true, check: (r) => r.ouvert },
 ];
 
 function useMatrixData(rounds, player) {
@@ -303,8 +307,8 @@ function useMatrixData(rounds, player) {
 
       colSpecs.forEach((col, idx) => {
         if (row.type === 'null') {
-          if (idx < 5) return; // Mutipliers N/A
-          if (col.id === 'schneider' || col.id === 'schwarz') return; // N/A
+          if (idx < 8) return; // Ansage N/A bei Null
+          if (col.id === 'schneider' || col.id === 'schwarz') return; // N/A bei Null
         }
 
         totalPossible++;
@@ -365,15 +369,15 @@ const AchievementMatrix = ({ rounds, player }) => {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
             <thead>
               <tr style={{ backgroundColor: 'var(--surface-low)' }}>
-                <th style={{ padding: '1.5rem', textAlign: 'left', borderRight: '1px solid rgba(192,200,195,0.5)', minWidth: '200px' }}>
+                <th style={{ padding: '0.75rem 0.5rem', textAlign: 'left', borderRight: '1px solid rgba(192,200,195,0.5)', minWidth: '140px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.25rem' }}>Zeile: Spielart</span>
-                    <span style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Spalte: Ansage & Zustände</span>
+                    <span style={{ fontSize: '0.55rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.2rem' }}>Zeile: Spielart</span>
+                    <span style={{ fontSize: '0.55rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Spalte: Ansage & Zustände</span>
                   </div>
                 </th>
                 {colSpecs.map(col => (
-                  <th key={col.id} style={{ padding: '1rem', minWidth: '80px', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
-                    <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: col.isSpecial ? 'var(--tertiary)' : 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  <th key={col.id} style={{ padding: '0.5rem 0.25rem', minWidth: '44px', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
+                    <div style={{ fontSize: '0.6rem', fontWeight: 700, color: col.isSpecial ? 'var(--tertiary)' : 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       {col.label}
                     </div>
                   </th>
@@ -385,18 +389,15 @@ const AchievementMatrix = ({ rounds, player }) => {
                 <tr key={row.type} style={{ borderTop: '1px solid rgba(192,200,195,0.3)', backgroundColor: row.type === 'grand' ? 'rgba(208, 166, 0, 0.05)' : 'transparent', transition: 'background-color 0.2s', cursor: 'pointer' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-high)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = row.type === 'grand' ? 'rgba(208, 166, 0, 0.05)' : 'transparent'}>
-                  <td style={{ padding: '1.5rem', borderRight: '1px solid rgba(192,200,195,0.3)', textAlign: 'left' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem', backgroundColor: row.color, color: row.textColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <td style={{ padding: '0.5rem 0.75rem', borderRight: '1px solid rgba(192,200,195,0.3)', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ width: '1.75rem', height: '1.75rem', borderRadius: '0.375rem', backgroundColor: row.color, color: row.textColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         {row.matIcon
-                          ? <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: row.textColor }}>{row.matIcon}</span>
-                          : <span style={{ fontSize: '1.25rem', fontWeight: 700, color: row.textColor }}>{row.suit}</span>
+                          ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: row.textColor }}>{row.matIcon}</span>
+                          : <span style={{ fontSize: '1rem', fontWeight: 700, color: row.textColor }}>{row.suit}</span>
                         }
                       </div>
-                      <div>
-                        <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)' }}>{row.name}</div>
-                        <div style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase' }}>{row.subtitle}</div>
-                      </div>
+                      <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem' }}>{row.name}</div>
                     </div>
                   </td>
                   
@@ -405,16 +406,16 @@ const AchievementMatrix = ({ rounds, player }) => {
                     if (row.type === 'null') {
                       if (idx === 0) {
                         return (
-                          <td key="null-span" colSpan={5} style={{ padding: '0.5rem', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '0.1em', fontStyle: 'italic' }}>Ansage entfällt bei Null</div>
+                          <td key="null-span" colSpan={8} style={{ padding: '0.25rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.55rem', color: 'var(--on-surface-variant)', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '0.1em', fontStyle: 'italic' }}>Ansage entfällt bei Null</div>
                           </td>
                         );
                       }
-                      if (idx < 5) return null; // handled by colspan
+                      if (idx < 8) return null; // handled by colspan
                       if (col.id === 'schneider' || col.id === 'schwarz') {
                         return (
-                          <td key={col.id} style={{ padding: '0.5rem', textAlign: 'center', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
-                             <div style={{ width: '3rem', height: '3rem', margin: '0 auto', borderRadius: '0.5rem', border: '1px dashed rgba(116, 91, 0, 0.2)' }}></div>
+                          <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
+                             <div style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', border: '1px dashed rgba(116, 91, 0, 0.2)' }}></div>
                           </td>
                         );
                       }
@@ -424,18 +425,18 @@ const AchievementMatrix = ({ rounds, player }) => {
                     const isUnlocked = val !== undefined;
 
                     return (
-                      <td key={col.id} style={{ padding: '0.5rem', textAlign: 'center', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
+                      <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
                         {isUnlocked ? (
-                          <div title={`Bestes Ergebnis: ${val}`} style={{ width: '3rem', height: '3rem', margin: '0 auto', borderRadius: '0.5rem', backgroundColor: col.isSpecial ? 'var(--tertiary-container)' : 'var(--primary-container)', color: col.isSpecial ? 'var(--primary)' : 'var(--on-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s' }}
-                               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'} 
+                          <div title={`Bestes Ergebnis: ${val}`} style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', backgroundColor: col.isSpecial ? 'var(--tertiary-container)' : 'var(--primary-container)', color: col.isSpecial ? 'var(--primary)' : 'var(--on-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s' }}
+                               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
                                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
-                            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', fontVariationSettings: "'FILL' 1" }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
                               {col.isSpecial ? 'star' : 'military_tech'}
                             </span>
                           </div>
                         ) : (
-                          <div style={{ width: '3rem', height: '3rem', margin: '0 auto', borderRadius: '0.5rem', border: `1px dashed ${col.isSpecial ? 'rgba(116, 91, 0, 0.3)' : 'var(--outline-variant)'}`, color: col.isSpecial ? 'rgba(116, 91, 0, 0.3)' : 'var(--outline-variant)', opacity: 0.6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {!col.isSpecial && <span className="material-symbols-outlined" style={{ fontSize: '1rem', opacity: 0.5 }}>lock</span>}
+                          <div style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', border: `1px dashed ${col.isSpecial ? 'rgba(116, 91, 0, 0.3)' : 'var(--outline-variant)'}`, opacity: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {!col.isSpecial && <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', opacity: 0.4 }}>lock</span>}
                           </div>
                         )}
                       </td>
@@ -458,7 +459,7 @@ const AchievementMatrix = ({ rounds, player }) => {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '0.25rem', backgroundColor: 'var(--tertiary-container)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>star</span></div>
-              <span style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>Besonderer Zustand gewonnen (Hand / Schneid / Schwarz)</span>
+              <span style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>Besonderer Zustand gewonnen (Hand / Schneider / Schwarz / Ouvert)</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '0.25rem', border: '1px dashed var(--outline-variant)', opacity: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span className="material-symbols-outlined" style={{ fontSize: '1rem', opacity: 0.5 }}>lock</span></div>
