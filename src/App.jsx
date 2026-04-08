@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { GameProvider } from './context/GameContext';
 import Sidebar from './components/Sidebar';
 import PasswordGate from './components/PasswordGate';
+import AchievementWatcher from './components/AchievementWatcher';
 import GameScoringEntry from './pages/GameScoringEntry';
 import PlayerAnalytics from './pages/PlayerAnalytics';
 import SkatScoreList from './pages/SkatScoreList';
@@ -26,6 +27,7 @@ function App() {
               </Routes>
             </main>
           </div>
+          <AchievementWatcher />
         </BrowserRouter>
       </GameProvider>
     </PasswordGate>
@@ -33,3 +35,4 @@ function App() {
 }
 
 export default App;
+

@@ -5,12 +5,12 @@ import { computeShares } from '../components/ScoreDistributionChart';
 
 // Spieltyp-Farben (konsistent mit StatistikenCharts)
 const GAME_TYPE_COLORS = {
-  club:    '#1b1c1c',
-  spade:   '#414944',
-  heart:   '#b52619',
+  club: '#1b1c1c',
+  spade: '#414944',
+  heart: '#b52619',
   diamond: '#d0a600',
-  grand:   '#0b3d2e',
-  null:    '#717974',
+  grand: '#0b3d2e',
+  null: '#717974',
 };
 
 const statLabel = { fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', marginBottom: '0.25rem' };
@@ -77,8 +77,8 @@ function GameTypePieChart({ typeDistribution }) {
               {s.name === 'grand'
                 ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', lineHeight: 1 }}>stars</span>
                 : s.name === 'null'
-                ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', lineHeight: 1 }}>block</span>
-                : SUIT_SYMBOLS[s.name] && <span>{SUIT_SYMBOLS[s.name]}</span>
+                  ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', lineHeight: 1 }}>block</span>
+                  : SUIT_SYMBOLS[s.name] && <span>{SUIT_SYMBOLS[s.name]}</span>
               }
               {SUIT_LABELS[s.name] ?? s.name}
             </span>
@@ -185,7 +185,7 @@ const PlayerAnalytics = () => {
               <div>
                 <h4 style={{ fontWeight: 700, marginBottom: '0.25rem', fontSize: '0.9375rem' }}>Was ist ein Brot?</h4>
                 <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.875rem', lineHeight: 1.5 }}>
-                  Ein Brot entsteht, wenn ein Spieler eine vollständige Geberrunde (Geben → Hören → Sagen) durchläuft, ohne ein einziges Mal Alleinspieler gewesen zu sein. Eine Baguette sind zwei Brote hintereinander (6 Runden ohne Spiel).
+                  Ein Brot entsteht, wenn ein Spieler eine vollständige Geberrunde (Geben → Hören → Sagen) durchläuft, ohne ein einziges Mal Alleinspieler gewesen zu sein. Ein Baguette sind zwei Brote hintereinander (6 Runden ohne Spiel).
                 </p>
               </div>
             </div>
@@ -201,7 +201,7 @@ const PlayerAnalytics = () => {
               </div>
               <AchievementCompletionCard rounds={rounds} player={selectedPlayer} />
             </div>
-            
+
             <AchievementMatrix rounds={rounds} player={selectedPlayer} />
           </section>
 
@@ -272,12 +272,12 @@ const PlayerAnalytics = () => {
 
 // Spieltyp-Konfiguration für die Matrix — Icons konsistent mit SkatScoreList & GameScoringEntry
 const matrixConfig = [
-  { type: 'grand',   name: 'Grand',  suit: null, matIcon: 'stars',  color: '#0b3d2e', textColor: '#fff',        subtitle: 'Grundwert 24' },
-  { type: 'club',    name: 'Kreuz',  suit: '♣',  matIcon: null,     color: '#1b1c1c', textColor: '#fff',        subtitle: 'Grundwert 12' },
-  { type: 'spade',   name: 'Pik',    suit: '♠',  matIcon: null,     color: '#414944', textColor: '#fff',        subtitle: 'Grundwert 11' },
-  { type: 'heart',   name: 'Herz',   suit: '♥',  matIcon: null,     color: '#b52619', textColor: '#fff',        subtitle: 'Grundwert 10' },
-  { type: 'diamond', name: 'Karo',   suit: '♦',  matIcon: null,     color: '#d0a600', textColor: '#1b1c1c',     subtitle: 'Grundwert 9' },
-  { type: 'null',    name: 'Null',   suit: null, matIcon: 'block',  color: '#717974', textColor: '#fff',        subtitle: 'Nullspiel' },
+  { type: 'grand', name: 'Grand', suit: null, matIcon: 'stars', color: '#0b3d2e', textColor: '#fff', subtitle: 'Grundwert 24' },
+  { type: 'club', name: 'Kreuz', suit: '♣', matIcon: null, color: '#1b1c1c', textColor: '#fff', subtitle: 'Grundwert 12' },
+  { type: 'spade', name: 'Pik', suit: '♠', matIcon: null, color: '#414944', textColor: '#fff', subtitle: 'Grundwert 11' },
+  { type: 'heart', name: 'Herz', suit: '♥', matIcon: null, color: '#b52619', textColor: '#fff', subtitle: 'Grundwert 10' },
+  { type: 'diamond', name: 'Karo', suit: '♦', matIcon: null, color: '#d0a600', textColor: '#1b1c1c', subtitle: 'Grundwert 9' },
+  { type: 'null', name: 'Null', suit: null, matIcon: 'block', color: '#717974', textColor: '#fff', subtitle: 'Nullspiel' },
 ];
 
 const colSpecs = [
@@ -300,6 +300,7 @@ function useMatrixData(rounds, player) {
     let unlockedCount = 0;
     let totalPossible = 0;
     const map = {};
+    const unlockedKeys = new Set();
 
     matrixConfig.forEach(row => {
       map[row.type] = {};
@@ -318,22 +319,24 @@ function useMatrixData(rounds, player) {
           unlockedCount++;
           const maxScore = Math.max(...unlockedGames.map(g => g.gameValue));
           map[row.type][col.id] = maxScore;
+          unlockedKeys.add(`${row.type}::${col.id}`);
         }
       });
     });
 
-    return { 
-      map, 
-      unlockedCount, 
-      totalPossible, 
-      percent: totalPossible > 0 ? Math.round((unlockedCount / totalPossible) * 100) : 0 
+    return {
+      map,
+      unlockedCount,
+      totalPossible,
+      unlockedKeys,
+      percent: totalPossible > 0 ? Math.round((unlockedCount / totalPossible) * 100) : 0
     };
   }, [rounds, player]);
 }
 
 const AchievementCompletionCard = ({ rounds, player }) => {
   const { unlockedCount, totalPossible, percent } = useMatrixData(rounds, player);
-  
+
   // Calculate Level based on unlocked count
   const level = Math.floor(unlockedCount / 3) + 1;
 
@@ -383,8 +386,8 @@ const AchievementMatrix = ({ rounds, player }) => {
             <tbody>
               {matrixConfig.map((row, i) => (
                 <tr key={row.type} style={{ borderTop: '1px solid rgba(192,200,195,0.3)', backgroundColor: row.type === 'grand' ? 'rgba(208, 166, 0, 0.05)' : 'transparent', transition: 'background-color 0.2s', cursor: 'pointer' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-high)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = row.type === 'grand' ? 'rgba(208, 166, 0, 0.05)' : 'transparent'}>
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-high)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = row.type === 'grand' ? 'rgba(208, 166, 0, 0.05)' : 'transparent'}>
                   <td style={{ padding: '0.5rem 0.75rem', borderRight: '1px solid rgba(192,200,195,0.3)', textAlign: 'left' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <div style={{ width: '1.75rem', height: '1.75rem', borderRadius: '0.375rem', backgroundColor: row.color, color: row.textColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -396,7 +399,7 @@ const AchievementMatrix = ({ rounds, player }) => {
                       <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem' }}>{row.name}</div>
                     </div>
                   </td>
-                  
+
                   {colSpecs.map((col, idx) => {
                     // Null special behaviors
                     if (row.type === 'null') {
@@ -410,8 +413,7 @@ const AchievementMatrix = ({ rounds, player }) => {
                       if (idx < 8) return null; // handled by colspan
                       if (col.id === 'schneider' || col.id === 'schwarz') {
                         return (
-                          <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
-                             <div style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', border: '1px dashed rgba(116, 91, 0, 0.2)' }}></div>
+                          <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: 'rgba(116, 91, 0, 0.05)' }}>
                           </td>
                         );
                       }
@@ -424,8 +426,8 @@ const AchievementMatrix = ({ rounds, player }) => {
                       <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
                         {isUnlocked ? (
                           <div title={`Bestes Ergebnis: ${val}`} style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', backgroundColor: col.isSpecial ? 'var(--tertiary-container)' : 'var(--primary-container)', color: col.isSpecial ? 'var(--primary)' : 'var(--on-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s' }}
-                               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
-                               onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+                            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
                             <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
                               {col.isSpecial ? 'star' : 'military_tech'}
                             </span>
@@ -444,7 +446,7 @@ const AchievementMatrix = ({ rounds, player }) => {
           </table>
         </div>
       </div>
-      
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
         <div style={{ backgroundColor: 'var(--surface-low)', padding: '1.5rem', borderRadius: '0.75rem' }}>
           <h4 style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', marginBottom: '1rem' }}>Legende</h4>
