@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
 import { computeShares } from '../components/ScoreDistributionChart';
@@ -12,6 +12,9 @@ const GAME_TYPE_COLORS = {
   grand:   '#0b3d2e',
   null:    '#717974',
 };
+
+const statLabel = { fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', marginBottom: '0.25rem' };
+const statValue = { fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" };
 
 // ── GameTypePieChart ──────────────────────────────────────────────────────────
 const CX = 100, CY = 100, R = 80;
@@ -183,6 +186,20 @@ const PlayerAnalytics = () => {
             </div>
           </section>
 
+          {/* ── Skat Achievement Matrix ── */}
+          <section>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem', gap: '2rem' }}>
+              <div>
+                <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Spieler-Erfolge</span>
+                <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Skat Achievement Matrix</h3>
+                <p style={{ color: 'var(--on-surface-variant)' }}>Vervollständige die Matrix und beweise deine Meisterschaft. Jede Kombination, jede Spielart, jede Stufe — werde zum Skatmeister.</p>
+              </div>
+              <AchievementCompletionCard rounds={rounds} player={selectedPlayer} />
+            </div>
+            
+            <AchievementMatrix rounds={rounds} player={selectedPlayer} />
+          </section>
+
           <section>
             <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Analyse</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -248,7 +265,205 @@ const PlayerAnalytics = () => {
   );
 };
 
-const statLabel = { fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', marginBottom: '0.25rem' };
-const statValue = { fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" };
+// Spieltyp-Konfiguration für die Matrix — Icons konsistent mit SkatScoreList & GameScoringEntry
+const matrixConfig = [
+  { type: 'grand',   name: 'Grand',  suit: null, matIcon: 'stars',  color: '#0b3d2e', textColor: '#fff',        subtitle: 'Grundwert 24' },
+  { type: 'club',    name: 'Kreuz',  suit: '♣',  matIcon: null,     color: '#1b1c1c', textColor: '#fff',        subtitle: 'Grundwert 12' },
+  { type: 'spade',   name: 'Pik',    suit: '♠',  matIcon: null,     color: '#414944', textColor: '#fff',        subtitle: 'Grundwert 11' },
+  { type: 'heart',   name: 'Herz',   suit: '♥',  matIcon: null,     color: '#b52619', textColor: '#fff',        subtitle: 'Grundwert 10' },
+  { type: 'diamond', name: 'Karo',   suit: '♦',  matIcon: null,     color: '#d0a600', textColor: '#1b1c1c',     subtitle: 'Grundwert 9' },
+  { type: 'null',    name: 'Null',   suit: null, matIcon: 'block',  color: '#717974', textColor: '#fff',        subtitle: 'Nullspiel' },
+];
+
+const colSpecs = [
+  { id: 'mit_1', label: 'Mit 1', check: (r) => r.isMit && r.matadors === 1 },
+  { id: 'mit_2', label: 'Mit 2', check: (r) => r.isMit && r.matadors === 2 },
+  { id: 'mit_3', label: 'Mit 3', check: (r) => r.isMit && r.matadors === 3 },
+  { id: 'ohne_1', label: 'Ohne 1', check: (r) => !r.isMit && r.matadors === 1 },
+  { id: 'ohne_2', label: 'Ohne 2', check: (r) => !r.isMit && r.matadors === 2 },
+  { id: 'hand', label: 'Hand', isSpecial: true, check: (r) => r.hand || (r.gameType === 'null' && r.nullType && r.nullType.includes('hand')) },
+  { id: 'schneider', label: 'Schneid', isSpecial: true, check: (r) => r.schneider || r.schneiderAnsagt },
+  { id: 'schwarz', label: 'Schwarz', isSpecial: true, check: (r) => r.schwarz || r.schwarzAnsagt },
+];
+
+function useMatrixData(rounds, player) {
+  return useMemo(() => {
+    let unlockedCount = 0;
+    let totalPossible = 0;
+    const map = {};
+
+    matrixConfig.forEach(row => {
+      map[row.type] = {};
+      const wonGames = rounds.filter(r => r.player === player && r.won && r.gameType === row.type);
+
+      colSpecs.forEach((col, idx) => {
+        if (row.type === 'null') {
+          if (idx < 5) return; // Mutipliers N/A
+          if (col.id === 'schneider' || col.id === 'schwarz') return; // N/A
+        }
+
+        totalPossible++;
+
+        const unlockedGames = wonGames.filter(col.check);
+        if (unlockedGames.length > 0) {
+          unlockedCount++;
+          const maxScore = Math.max(...unlockedGames.map(g => g.gameValue));
+          map[row.type][col.id] = maxScore;
+        }
+      });
+    });
+
+    return { 
+      map, 
+      unlockedCount, 
+      totalPossible, 
+      percent: totalPossible > 0 ? Math.round((unlockedCount / totalPossible) * 100) : 0 
+    };
+  }, [rounds, player]);
+}
+
+const AchievementCompletionCard = ({ rounds, player }) => {
+  const { unlockedCount, totalPossible, percent } = useMatrixData(rounds, player);
+  
+  // Calculate Level based on unlocked count
+  const level = Math.floor(unlockedCount / 3) + 1;
+
+  return (
+    <div style={{
+      backgroundColor: 'var(--surface)', padding: '1.5rem', borderRadius: '0.5rem',
+      boxShadow: '0 12px 32px var(--shadow-color)', border: '1px solid var(--outline-variant)',
+      minWidth: '280px'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <span style={{ color: 'var(--on-surface-variant)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Gesamtfortschritt</span>
+        <span style={{ backgroundColor: 'var(--primary-container)', color: 'var(--on-primary)', fontSize: '0.75rem', padding: '0.25rem 0.5rem', borderRadius: '9999px', fontWeight: 700 }}>Level {level}</span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <span style={{ fontSize: '2.25rem', fontFamily: "'Manrope', sans-serif", fontWeight: 800, color: 'var(--primary)' }}>{unlockedCount}</span>
+        <span style={{ color: 'var(--on-surface-variant)', fontSize: '1.5rem', fontFamily: "'Manrope', sans-serif", fontWeight: 600 }}>/ {totalPossible}</span>
+      </div>
+      <div style={{ width: '100%', backgroundColor: 'var(--surface-low)', height: '0.5rem', borderRadius: '999px', overflow: 'hidden' }}>
+        <div style={{ backgroundColor: 'var(--primary)', height: '100%', width: `${percent}%`, borderRadius: '999px' }}></div>
+      </div>
+      <p style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)', marginTop: '0.75rem', fontStyle: 'italic', textAlign: 'right' }}>{percent}% erreicht</p>
+    </div>
+  );
+};
+
+const AchievementMatrix = ({ rounds, player }) => {
+  const { map } = useMatrixData(rounds, player);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <div style={{ backgroundColor: 'var(--surface)', borderRadius: '0.75rem', boxShadow: '0 8px 32px var(--shadow-color)', overflow: 'hidden', border: '1px solid rgba(192,200,195,0.3)' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
+            <thead>
+              <tr style={{ backgroundColor: 'var(--surface-low)' }}>
+                <th style={{ padding: '1.5rem', textAlign: 'left', borderRight: '1px solid rgba(192,200,195,0.5)', minWidth: '200px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.25rem' }}>Zeile: Spielart</span>
+                    <span style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Spalte: Spitzen & Zustände</span>
+                  </div>
+                </th>
+                {colSpecs.map(col => (
+                  <th key={col.id} style={{ padding: '1rem', minWidth: '80px', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
+                    <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: col.isSpecial ? 'var(--tertiary)' : 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                      {col.label}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {matrixConfig.map((row, i) => (
+                <tr key={row.type} style={{ borderTop: '1px solid rgba(192,200,195,0.3)', backgroundColor: row.type === 'grand' ? 'rgba(208, 166, 0, 0.05)' : 'transparent', transition: 'background-color 0.2s', cursor: 'pointer' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-high)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = row.type === 'grand' ? 'rgba(208, 166, 0, 0.05)' : 'transparent'}>
+                  <td style={{ padding: '1.5rem', borderRight: '1px solid rgba(192,200,195,0.3)', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem', backgroundColor: row.color, color: row.textColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {row.matIcon
+                          ? <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: row.textColor }}>{row.matIcon}</span>
+                          : <span style={{ fontSize: '1.25rem', fontWeight: 700, color: row.textColor }}>{row.suit}</span>
+                        }
+                      </div>
+                      <div>
+                        <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)' }}>{row.name}</div>
+                        <div style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', textTransform: 'uppercase' }}>{row.subtitle}</div>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  {colSpecs.map((col, idx) => {
+                    // Null special behaviors
+                    if (row.type === 'null') {
+                      if (idx === 0) {
+                        return (
+                          <td key="null-span" colSpan={5} style={{ padding: '0.5rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '0.1em', fontStyle: 'italic' }}>Spitzen entfällt bei Null</div>
+                          </td>
+                        );
+                      }
+                      if (idx < 5) return null; // handled by colspan
+                      if (col.id === 'schneider' || col.id === 'schwarz') {
+                        return (
+                          <td key={col.id} style={{ padding: '0.5rem', textAlign: 'center', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
+                             <div style={{ width: '3rem', height: '3rem', margin: '0 auto', borderRadius: '0.5rem', border: '1px dashed rgba(116, 91, 0, 0.2)' }}></div>
+                          </td>
+                        );
+                      }
+                    }
+
+                    const val = map[row.type]?.[col.id];
+                    const isUnlocked = val !== undefined;
+
+                    return (
+                      <td key={col.id} style={{ padding: '0.5rem', textAlign: 'center', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
+                        {isUnlocked ? (
+                          <div title={`Bestes Ergebnis: ${val}`} style={{ width: '3rem', height: '3rem', margin: '0 auto', borderRadius: '0.5rem', backgroundColor: col.isSpecial ? 'var(--tertiary-container)' : 'var(--primary-container)', color: col.isSpecial ? 'var(--primary)' : 'var(--on-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s' }}
+                               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'} 
+                               onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', fontVariationSettings: "'FILL' 1" }}>
+                              {col.isSpecial ? 'star' : 'military_tech'}
+                            </span>
+                          </div>
+                        ) : (
+                          <div style={{ width: '3rem', height: '3rem', margin: '0 auto', borderRadius: '0.5rem', border: `1px dashed ${col.isSpecial ? 'rgba(116, 91, 0, 0.3)' : 'var(--outline-variant)'}`, color: col.isSpecial ? 'rgba(116, 91, 0, 0.3)' : 'var(--outline-variant)', opacity: 0.6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {!col.isSpecial && <span className="material-symbols-outlined" style={{ fontSize: '1rem', opacity: 0.5 }}>lock</span>}
+                          </div>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+        <div style={{ backgroundColor: 'var(--surface-low)', padding: '1.5rem', borderRadius: '0.75rem' }}>
+          <h4 style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', marginBottom: '1rem' }}>Legende</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '0.25rem', backgroundColor: 'var(--primary-container)', color: 'var(--on-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>military_tech</span></div>
+              <span style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>Gewonnen (mit Skat)</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '0.25rem', backgroundColor: 'var(--tertiary-container)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>star</span></div>
+              <span style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>Besonderer Zustand gewonnen (Hand / Schneid / Schwarz)</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '0.25rem', border: '1px dashed var(--outline-variant)', opacity: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span className="material-symbols-outlined" style={{ fontSize: '1rem', opacity: 0.5 }}>lock</span></div>
+              <span style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>Noch nicht gespielt</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default PlayerAnalytics;
