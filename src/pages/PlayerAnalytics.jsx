@@ -318,18 +318,30 @@ const PlayerAnalytics = () => {
             </div>
           </div>
 
-          {/* ── Skat Achievement Matrix ── */}
+          {/* ── Alleinspieler ── */}
           <section>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem', gap: '2rem' }}>
               <div>
-                <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Spieler-Erfolge</span>
-                <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Skat Achievement Matrix</h3>
+                <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Angriff</span>
+                <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Alleinspiel</h3>
                 <p style={{ color: 'var(--on-surface-variant)' }}>Vervollständige die Matrix und beweise deine Meisterschaft. Jede Kombination, jede Spielart, jede Stufe — werde zum Skatmeister.</p>
               </div>
               <AchievementCompletionCard rounds={rounds} player={selectedPlayer} />
             </div>
 
             <AchievementMatrix rounds={rounds} player={selectedPlayer} />
+
+            {/* ── Gegenspiel-Matrix ── */}
+            <div style={{ marginTop: '3rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem', gap: '2rem' }}>
+                <div>
+                  <span style={{ color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Abwehr</span>
+                  <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Gegenspiel</h3>
+                  <p style={{ color: 'var(--on-surface-variant)' }}>Wie oft hat {selectedPlayer} als Gegenspieler einen Alleinspieler gestoppt — aufgeschlüsselt nach Spieltyp und Gewinnstufe.</p>
+                </div>
+              </div>
+              <DefenseMatrix rounds={rounds} player={selectedPlayer} />
+            </div>
           </section>
 
           <section>
@@ -491,29 +503,86 @@ function useMatrixData(rounds, player) {
   }, [rounds, player]);
 }
 
+// Level-Definitionen: [minUnlocked, label, emoji]
+const LEVELS = [
+  [0,   'Anfänger',       '🃏'],
+  [5,   'Lehrling',       '📖'],
+  [10,  'Geselle',        '🎯'],
+  [20,  'Fortgeschrittener', '⚔️'],
+  [35,  'Experte',        '🏅'],
+  [50,  'Meister',        '🏆'],
+  [70,  'Großmeister',    '👑'],
+  [90,  'Skatlegende',    '⭐'],
+  [110, 'Unsterblicher',  '🌟'],
+];
+
+function getLevel(count) {
+  let current = LEVELS[0];
+  for (const l of LEVELS) {
+    if (count >= l[0]) current = l;
+    else break;
+  }
+  const idx = LEVELS.indexOf(current);
+  const next = LEVELS[idx + 1] ?? null;
+  return { ...current, idx, next };
+}
+
 const AchievementCompletionCard = ({ rounds, player }) => {
   const { unlockedCount, totalPossible, percent } = useMatrixData(rounds, player);
+  const { map: defMap } = useDefenseData(rounds, player);
 
-  // Calculate Level based on unlocked count
-  const level = Math.floor(unlockedCount / 3) + 1;
+  // Count defense achievements
+  const defenseCount = useMemo(() => {
+    let c = 0;
+    Object.values(defMap).forEach(row => { c += Object.keys(row).length; });
+    return c;
+  }, [defMap]);
+
+  const combined = unlockedCount + defenseCount;
+  const lv = getLevel(combined);
+  const nextThreshold = lv.next ? lv.next[0] : null;
+  const toNext = nextThreshold ? nextThreshold - combined : 0;
 
   return (
-    <div className="card" style={{
-      border: '1px solid var(--outline-variant)',
-      width: '340px', flexShrink: 0
-    }}>
+    <div className="card" style={{ border: '1px solid var(--outline-variant)', width: '340px', flexShrink: 0 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <span style={{ color: 'var(--on-surface-variant)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>Gesamtfortschritt</span>
-        <span style={{ backgroundColor: 'var(--primary-container)', color: 'var(--on-primary)', fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '9999px', fontWeight: 700, whiteSpace: 'nowrap' }}>Level {level}</span>
+        <span style={{ color: 'var(--on-surface-variant)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Gesamtfortschritt</span>
+        <span style={{ backgroundColor: 'var(--primary-container)', color: '#fff', fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '9999px', fontWeight: 700 }}>
+          {lv[2]} {lv[1]}
+        </span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.5rem' }}>
-        <span style={{ fontSize: '2.25rem', fontFamily: "'Manrope', sans-serif", fontWeight: 800, color: 'var(--primary)' }}>{unlockedCount}</span>
-        <span style={{ color: 'var(--on-surface-variant)', fontSize: '1.5rem', fontFamily: "'Manrope', sans-serif", fontWeight: 600 }}>/ {totalPossible}</span>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.25rem' }}>
+        <span style={{ fontSize: '2.25rem', fontFamily: "'Manrope', sans-serif", fontWeight: 800, color: 'var(--primary)' }}>{combined}</span>
+        <span style={{ color: 'var(--on-surface-variant)', fontSize: '1rem', fontWeight: 600 }}>Achievements</span>
       </div>
-      <div style={{ width: '100%', backgroundColor: 'var(--surface-low)', height: '0.5rem', borderRadius: '999px', overflow: 'hidden' }}>
-        <div style={{ backgroundColor: 'var(--primary)', height: '100%', width: `${percent}%`, borderRadius: '999px' }}></div>
+      <div style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.75rem' }}>
+        {unlockedCount} Alleinspieler · {defenseCount} Abwehr
       </div>
-      <p style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)', marginTop: '0.75rem', fontStyle: 'italic', textAlign: 'right' }}>{percent}% erreicht</p>
+      <div style={{ width: '100%', backgroundColor: 'var(--surface-low)', height: '0.5rem', borderRadius: '999px', overflow: 'hidden', marginBottom: '0.5rem' }}>
+        <div style={{ backgroundColor: 'var(--primary)', height: '100%', width: `${percent}%`, borderRadius: '999px' }} />
+      </div>
+      <p style={{ fontSize: '0.7rem', color: 'var(--on-surface-variant)', textAlign: 'right', marginBottom: '1rem' }}>
+        {percent}% der Alleinspieler-Matrix erreicht
+        {nextThreshold && <span style={{ marginLeft: '0.5rem', color: 'var(--outline)' }}>· noch {toNext} bis {lv.next[1]}</span>}
+      </p>
+
+      {/* Level-Legende */}
+      <div style={{ borderTop: '1px solid var(--outline-variant)', paddingTop: '0.75rem' }}>
+        <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', marginBottom: '0.5rem' }}>Level-Übersicht</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          {LEVELS.map((l, i) => {
+            const isActive = lv.idx === i;
+            return (
+              <div key={l[1]} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: combined >= l[0] ? 1 : 0.4 }}>
+                <span style={{ fontSize: '0.75rem' }}>{l[2]}</span>
+                <span style={{ fontSize: '0.7rem', fontWeight: isActive ? 800 : 500, color: isActive ? 'var(--primary)' : 'var(--on-surface-variant)', flex: 1 }}>{l[1]}</span>
+                <span style={{ fontSize: '0.65rem', color: 'var(--outline)' }}>ab {l[0]}</span>
+                {isActive && <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase' }}>← du</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
@@ -672,3 +741,152 @@ const AchievementMatrix = ({ rounds, player }) => {
 };
 
 export default PlayerAnalytics;
+
+// ─── DefenseMatrix ────────────────────────────────────────────────────────────
+
+function useDefenseData(rounds, player) {
+  return useMemo(() => {
+    // Runden wo der Spieler NICHT Alleinspieler war und der Alleinspieler VERLOREN hat
+    const defenseWins = rounds.filter(r => r.player !== player && !r.won && r.gameType !== 'passed');
+    const map = {};
+
+    matrixConfig.forEach(row => {
+      map[row.type] = {};
+      const relevant = defenseWins.filter(r => r.gameType === row.type);
+      colSpecs.forEach(col => {
+        const matched = relevant.filter(col.check);
+        if (matched.length > 0) {
+          const firstGame = matched.reduce((a, b) => new Date(a.timestamp) < new Date(b.timestamp) ? a : b);
+          const firstDate = firstGame.timestamp
+            ? new Date(firstGame.timestamp).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+            : null;
+          map[row.type][col.id] = { count: matched.length, date: firstDate };
+        }
+      });
+    });
+
+    // Null-Varianten
+    map['null'] = {};
+    const nullDefense = defenseWins.filter(r => r.gameType === 'null');
+    nullRows.forEach(nr => {
+      const matched = nullDefense.filter(nr.check);
+      if (matched.length > 0) {
+        const firstGame = matched.reduce((a, b) => new Date(a.timestamp) < new Date(b.timestamp) ? a : b);
+        const firstDate = firstGame.timestamp
+          ? new Date(firstGame.timestamp).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+          : null;
+        map['null'][nr.id] = { count: matched.length, date: firstDate };
+      }
+    });
+
+    return { map };
+  }, [rounds, player]);
+}
+
+function DefenseMatrix({ rounds, player }) {
+  const { map } = useDefenseData(rounds, player);
+
+  const cellBg   = 'rgba(181,38,25,0.12)';  // rötlich für Abwehr
+  const cellColor = '#7a1a10';
+
+  return (
+    <div style={{ backgroundColor: 'var(--surface)', borderRadius: '0.75rem', boxShadow: '0 8px 32px var(--shadow-color)', overflow: 'hidden', border: '1px solid rgba(192,200,195,0.3)' }}>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
+          <thead>
+            <tr style={{ backgroundColor: 'var(--surface-low)' }}>
+              <th style={{ padding: '0.5rem', borderRight: '1px solid rgba(192,200,195,0.5)', minWidth: '90px' }} />
+              {colSpecs.map(col => (
+                <th key={col.id} style={{ padding: '0.5rem 0.25rem', minWidth: '44px', backgroundColor: col.isSpecial ? 'rgba(116,91,0,0.05)' : 'transparent' }}>
+                  <div style={{ fontSize: '0.6rem', fontWeight: 700, color: col.isSpecial ? 'var(--tertiary)' : 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.1rem' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
+                      {col.label}
+                      {col.icon && !col.label2 && <span className="material-symbols-outlined" style={{ fontSize: '0.85rem' }}>{col.icon}</span>}
+                      {col.label2 && <><span className="material-symbols-outlined" style={{ fontSize: '0.7rem' }}>add</span>{col.label2}</>}
+                    </span>
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {matrixConfig.map(row => (
+              <tr key={row.type}
+                style={{ borderTop: '1px solid rgba(192,200,195,0.3)', transition: 'background-color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--surface-high)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                <td style={{ padding: '0.5rem 0.75rem', borderRight: '1px solid rgba(192,200,195,0.3)', textAlign: 'left', minWidth: '90px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ width: '1.75rem', height: '1.75rem', borderRadius: '0.375rem', backgroundColor: row.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      {row.matIcon
+                        ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: row.textColor }}>{row.matIcon}</span>
+                        : <span style={{ fontSize: '1rem', fontWeight: 700, color: row.textColor }}>{row.suit}</span>}
+                    </div>
+                    <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem', whiteSpace: 'normal', wordBreak: 'break-word' }}>{row.name}</div>
+                  </div>
+                </td>
+                {colSpecs.map(col => {
+                  const val = map[row.type]?.[col.id];
+                  return (
+                    <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: col.isSpecial ? 'rgba(116,91,0,0.04)' : 'transparent' }}>
+                      {val ? (
+                        <div title={`${val.count}× abgewehrt${val.date ? ` · Erstmals: ${val.date}` : ''}`}
+                          style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', backgroundColor: cellBg, color: cellColor, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s', fontSize: '0.7rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }}
+                          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+                          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                          {val.count}
+                        </div>
+                      ) : (
+                        <div style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', border: '1px dashed var(--outline-variant)', opacity: 0.35 }} />
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+            {/* Null-Varianten */}
+            {nullRows.map(nr => {
+              const val = map['null']?.[nr.id];
+              return (
+                <tr key={nr.id}
+                  style={{ borderTop: '1px solid rgba(192,200,195,0.3)', backgroundColor: 'rgba(113,121,116,0.04)', transition: 'background-color 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--surface-high)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(113,121,116,0.04)'}>
+                  <td style={{ padding: '0.5rem 0.75rem', borderRight: '1px solid rgba(192,200,195,0.3)', textAlign: 'left', minWidth: '90px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ width: '1.75rem', height: '1.75rem', borderRadius: '0.375rem', backgroundColor: '#717974', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#fff' }}>block</span>
+                      </div>
+                      <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem' }}>{nr.name}</div>
+                    </div>
+                  </td>
+                  {colSpecs.map((col, idx) => {
+                    if (idx === 0) return <td key="null-label" colSpan={8} style={{ padding: '0.25rem', textAlign: 'center' }}><div style={{ fontSize: '0.55rem', color: 'var(--on-surface-variant)', opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em', fontStyle: 'italic' }}>Ansage entfällt</div></td>;
+                    if (idx < 8) return null;
+                    const specialIdx = idx - 8;
+                    const isMatch = specialIdx === nr.specialColIdx;
+                    if (!isMatch) return <td key={col.id} style={{ padding: '0.25rem', backgroundColor: col.isSpecial ? 'rgba(116,91,0,0.04)' : 'transparent' }} />;
+                    return (
+                      <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: 'rgba(116,91,0,0.05)' }}>
+                        {val ? (
+                          <div title={`${val.count}× abgewehrt${val.date ? ` · Erstmals: ${val.date}` : ''}`}
+                            style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', backgroundColor: cellBg, color: cellColor, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s', fontSize: '0.7rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }}
+                            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+                            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                            {val.count}
+                          </div>
+                        ) : (
+                          <div style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', border: '1px dashed rgba(116,91,0,0.3)', opacity: 0.35 }} />
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
