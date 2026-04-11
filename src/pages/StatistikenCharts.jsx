@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
 import { SUIT_COLORS, PLAYER_COLORS } from '../lib/tokens';
@@ -7,6 +7,43 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, Cell,
 } from 'recharts';
+
+/* ── Zeitraster automatisch bestimmen ── */
+function detectTimeGranularity(rounds) {
+  const timestamps = rounds.map(r => new Date(r.timestamp).getTime()).filter(Boolean);
+  if (timestamps.length < 2) return 'week';
+  const spanMs = Math.max(...timestamps) - Math.min(...timestamps);
+  const days = spanMs / (1000 * 60 * 60 * 24);
+  if (days < 14)  return 'day';
+  if (days < 90)  return 'week';
+  if (days < 730) return 'month';
+  return 'year';
+}
+
+function formatTimeBucket(date, granularity) {
+  const d = new Date(date);
+  if (granularity === 'day')   return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+  if (granularity === 'week') {
+    // ISO-Wochennummer
+    const jan4 = new Date(d.getFullYear(), 0, 4);
+    const week = Math.ceil(((d - jan4) / 86400000 + jan4.getDay() + 1) / 7);
+    return `KW${week} ${d.getFullYear()}`;
+  }
+  if (granularity === 'month') return d.toLocaleDateString('de-DE', { month: 'short', year: 'numeric' });
+  return String(d.getFullYear());
+}
+
+function bucketKey(timestamp, granularity) {
+  const d = new Date(timestamp);
+  if (granularity === 'day')   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  if (granularity === 'week') {
+    const jan4 = new Date(d.getFullYear(), 0, 4);
+    const week = Math.ceil(((d - jan4) / 86400000 + jan4.getDay() + 1) / 7);
+    return `${d.getFullYear()}-W${week}`;
+  }
+  if (granularity === 'month') return `${d.getFullYear()}-${d.getMonth()}`;
+  return String(d.getFullYear());
+}
 
 /* ── Reusable label style constants ── */
 const statLabel = {
@@ -40,17 +77,38 @@ const ChartTooltip = ({ active, payload, label }) => {
 const StatistikenCharts = () => {
   const { rounds, players: allPlayers } = useGame();
   const players = allPlayers.filter(p => p !== '-');
+  const [xMode, setXMode] = useState('rounds'); // 'rounds' | 'time'
 
-  /* ── 1. Punkteentwicklung (cumulative score per player per round) ── */
-  const trendData = React.useMemo(() => {
+  /* ── 1a. Punkteentwicklung nach Runden ── */
+  const trendByRound = React.useMemo(() => {
     const running = {};
     players.forEach(p => { running[p] = 0; });
     return rounds.map((r, idx) => {
-      // Accumulate standard points for the declarer
       running[r.player] = (running[r.player] || 0) + r.gameValue;
       return { name: `R${idx + 1}`, ...{ ...running } };
     });
   }, [rounds, players]);
+
+  /* ── 1b. Punkteentwicklung nach Zeit ── */
+  const trendByTime = React.useMemo(() => {
+    if (rounds.length === 0) return [];
+    const granularity = detectTimeGranularity(rounds);
+    const buckets = {};   // key → { label, playerTotals }
+    const running = {};
+    players.forEach(p => { running[p] = 0; });
+
+    rounds.forEach(r => {
+      if (!r.timestamp) return;
+      running[r.player] = (running[r.player] || 0) + r.gameValue;
+      const key   = bucketKey(r.timestamp, granularity);
+      const label = formatTimeBucket(r.timestamp, granularity);
+      buckets[key] = { name: label, ...Object.fromEntries(players.map(p => [p, running[p]])) };
+    });
+
+    return Object.values(buckets);
+  }, [rounds, players]);
+
+  const trendData = xMode === 'rounds' ? trendByRound : trendByTime;
 
   /* ── 2. Spieltypen-Verteilung ── */
   const typeDistribution = React.useMemo(() => {
@@ -140,7 +198,25 @@ const StatistikenCharts = () => {
 
           {/* ── Punkteentwicklung (Line Chart) ── */}
           <section>
-            <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Punkteentwicklung</h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <h3 className="headline" style={{ fontSize: '1.5rem' }}>Punkteentwicklung</h3>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button
+                  onClick={() => setXMode('rounds')}
+                  className={`chip ${xMode === 'rounds' ? 'active' : ''}`}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.25rem' }}>tag</span>
+                  Runden
+                </button>
+                <button
+                  onClick={() => setXMode('time')}
+                  className={`chip ${xMode === 'time' ? 'active' : ''}`}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.25rem' }}>calendar_month</span>
+                  Zeit
+                </button>
+              </div>
+            </div>
             <div className="card">
               <ResponsiveContainer width="100%" height={340}>
                 <LineChart data={trendData} margin={{ top: 8, right: 24, left: 0, bottom: 0 }}>
