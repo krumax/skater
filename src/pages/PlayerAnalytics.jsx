@@ -117,7 +117,12 @@ const PlayerAnalytics = () => {
       </div>
 
       {/* Level-Karte */}
-      <AchievementCompletionCard rounds={rounds} player={selectedPlayer} />
+      <AchievementCompletionCard
+        rounds={rounds}
+        player={selectedPlayer}
+        allPlayers={players}
+        getPlayerStats={getPlayerStats}
+      />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem', marginTop: '3rem' }}>
 
