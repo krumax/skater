@@ -66,14 +66,6 @@ const PlayerAnalytics = () => {
     ? ((stats.totalGames / rounds.length) * 100).toFixed(1)
     : '0.0';
 
-  const wonRounds = stats.rounds.filter(r => r.won);
-  const modifierCounts = [
-    { label: 'Hand',      count: wonRounds.filter(r => r.hand).length },
-    { label: 'Schneider', count: wonRounds.filter(r => r.schneider).length },
-    { label: 'Schwarz',   count: wonRounds.filter(r => r.schwarz).length },
-    { label: 'Ouvert',    count: wonRounds.filter(r => r.ouvert).length },
-  ];
-
   return (
     <div>
       <header className="page-header">
@@ -108,9 +100,6 @@ const PlayerAnalytics = () => {
             <StatCard label="🥖 Baguettes"  value={stats.baguettes} color={stats.baguettes > 0 ? 'var(--secondary)' : 'var(--on-surface)'} tooltip="Ein Baguette sind zwei vollständige Geberrunden ohne Spiel (6 Runden)." />
             <StatCard label="🏆 Längste Siegesserie"  value={stats.longestWinStreak}  color={stats.longestWinStreak >= 3 ? 'var(--primary)' : 'var(--on-surface)'}   tooltip="Siege als Alleinspieler in Folge" />
             <StatCard label="💀 Längste Verlustserie" value={stats.longestLossStreak} color={stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)'} tooltip="Niederlagen als Alleinspieler in Folge" />
-            {modifierCounts.map(t => (
-              <StatCard key={t.label} label={t.label} value={`${t.count}x`} color="var(--on-surface)" />
-            ))}
           </div>
 
           <div className="card" style={{ width: '380px', border: '1px solid var(--outline-variant)' }}>
