@@ -455,7 +455,7 @@ function useMatrixData(rounds, player) {
           const firstDate = firstGame.timestamp
             ? new Date(firstGame.timestamp).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
             : null;
-          map[row.type][col.id] = { value: maxScore, date: firstDate };
+          map[row.type][col.id] = { value: maxScore, date: firstDate, count: unlockedGames.length };
           unlockedKeys.add(`${row.type}::${col.id}`);
         }
       });
@@ -476,8 +476,8 @@ function useMatrixData(rounds, player) {
         const firstDate = firstGame.timestamp
           ? new Date(firstGame.timestamp).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
           : null;
-        map['null'][nr.id] = { value: maxScore, date: firstDate };
-        unlockedKeys.add(`null::${nr.id}`);
+        map['null'][nr.id] = { value: maxScore, date: firstDate, count: unlockedGames.length };
+          unlockedKeys.add(`null::${nr.id}`);
       }
     });
 
@@ -577,12 +577,11 @@ const AchievementMatrix = ({ rounds, player }) => {
                     return (
                       <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: col.isSpecial ? 'rgba(116, 91, 0, 0.05)' : 'transparent' }}>
                         {isUnlocked ? (
-                          <div title={`Bestes Ergebnis: ${val.value}${val.date ? ` · Erstmals: ${val.date}` : ''}`} style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', backgroundColor: col.isSpecial ? 'var(--tertiary-container)' : 'var(--primary-container)', color: col.isSpecial ? 'var(--primary)' : 'var(--on-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s' }}
+                          <div title={`${val.count}× gewonnen · Bestes Ergebnis: ${val.value}${val.date ? ` · Erstmals: ${val.date}` : ''}`}
+                            style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', backgroundColor: col.isSpecial ? 'var(--tertiary-container)' : 'var(--primary-container)', color: col.isSpecial ? '#000' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s', fontSize: '0.7rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }}
                             onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
                             onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
-                            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
-                              {col.isSpecial ? 'star' : 'military_tech'}
-                            </span>
+                            {val.count}
                           </div>
                         ) : (
                           <div style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', border: `1px dashed ${col.isSpecial ? 'rgba(116, 91, 0, 0.3)' : 'var(--outline-variant)'}`, opacity: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -629,11 +628,11 @@ const AchievementMatrix = ({ rounds, player }) => {
                       return (
                         <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: 'rgba(116,91,0,0.05)' }}>
                           {isUnlocked ? (
-                            <div title={`Bestes Ergebnis: ${val.value}${val.date ? ` · Erstmals: ${val.date}` : ''}`}
-                              style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', backgroundColor: 'var(--tertiary-container)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s' }}
+                            <div title={`${val.count}× gewonnen · Bestes Ergebnis: ${val.value}${val.date ? ` · Erstmals: ${val.date}` : ''}`}
+                              style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', backgroundColor: 'var(--tertiary-container)', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s', fontSize: '0.7rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }}
                               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
                               onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
-                              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>star</span>
+                              {val.count}
                             </div>
                           ) : (
                             <div style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', border: '1px dashed rgba(116,91,0,0.3)', opacity: 0.5 }} />
