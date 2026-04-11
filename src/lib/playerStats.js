@@ -76,19 +76,33 @@ export function computePlayerStats(rounds, playerName) {
   // ── Streak calculations ──────────────────────────────────────────────────
   let longestWinStreak = 0, currentWinStreak = 0;
   let longestLossStreak = 0, currentLossStreak = 0;
+  let longestWinRounds = [], longestLossRounds = [];
+  let currentWinRounds = [], currentLossRounds = [];
 
   rounds.forEach(r => {
     if (r.player === playerName && r.won) {
       currentWinStreak += 1;
-      if (currentWinStreak > longestWinStreak) longestWinStreak = currentWinStreak;
+      currentWinRounds.push(r);
+      if (currentWinStreak > longestWinStreak) {
+        longestWinStreak = currentWinStreak;
+        longestWinRounds = [...currentWinRounds];
+      }
       currentLossStreak = 0;
+      currentLossRounds = [];
     } else if (r.player === playerName && !r.won) {
       currentLossStreak += 1;
-      if (currentLossStreak > longestLossStreak) longestLossStreak = currentLossStreak;
+      currentLossRounds.push(r);
+      if (currentLossStreak > longestLossStreak) {
+        longestLossStreak = currentLossStreak;
+        longestLossRounds = [...currentLossRounds];
+      }
       currentWinStreak = 0;
+      currentWinRounds = [];
     } else {
       currentWinStreak = 0;
+      currentWinRounds = [];
       currentLossStreak = 0;
+      currentLossRounds = [];
     }
   });
 
@@ -120,7 +134,8 @@ export function computePlayerStats(rounds, playerName) {
     totalPoints, avgPoints, seegerTotal,
     typeDistribution, rounds: playerRounds,
     brote, baguettes, currentStreak: consecutiveNonPlaying,
-    longestWinStreak, longestLossStreak,
+    longestWinStreak,  longestWinRounds,
+    longestLossStreak, longestLossRounds,
     bestWin, worstLoss,
   };
 }

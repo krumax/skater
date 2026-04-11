@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
-import { SUIT_LABELS } from '../lib/skatScoring';
+import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
+import { SUIT_COLORS, SUIT_TEXT_COLORS } from '../lib/tokens';
 import GameTypePieChart from '../components/analytics/GameTypePieChart';
 import AchievementCompletionCard from '../components/analytics/AchievementCompletionCard';
 import AchievementMatrix from '../components/analytics/AchievementMatrix';
@@ -25,7 +26,38 @@ function StatCard({ label, value, color, tooltip }) {
   );
 }
 
-// ── Analyse-Karte ─────────────────────────────────────────────────────────────
+// ── Streak-Kachel mit Spieltyp-Icons ─────────────────────────────────────────
+function StreakCard({ label, streakRounds, color }) {
+  return (
+    <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
+      <p style={{ ...statLabel, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+        {label}
+      </p>
+      <p style={{ ...statValue, color }}>{streakRounds.length}x</p>
+      {streakRounds.length > 0 && (
+        <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+          {streakRounds.map((r, i) => {
+            const bg   = SUIT_COLORS[r.gameType]  ?? '#999';
+            const fg   = SUIT_TEXT_COLORS[r.gameType] ?? '#fff';
+            const sym  = SUIT_SYMBOLS[r.gameType] ?? '?';
+            return (
+              <span key={i} title={SUIT_LABELS[r.gameType] ?? r.gameType} style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                width: '1.5rem', height: '1.5rem', borderRadius: '0.3rem',
+                backgroundColor: bg, color: fg,
+                fontSize: '0.8rem', fontWeight: 700, lineHeight: 1,
+              }}>
+                {sym}
+              </span>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function AnalysisCard({ icon, iconColor, title, children }) {
   return (
     <div className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
@@ -91,17 +123,29 @@ const PlayerAnalytics = () => {
 
         {/* ── Kacheln + PieChart ── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2rem', alignItems: 'start' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-            <StatCard label="Standard"      value={`${stats.totalPoints >= 0 ? '+' : ''}${stats.totalPoints}`} color={stats.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
-            <StatCard label="Seeger-Fabian" value={`${stats.seegerTotal >= 0 ? '+' : ''}${stats.seegerTotal}`} color={stats.seegerTotal >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
-            <StatCard label="Kombiniert"    value={`${(stats.totalPoints + stats.seegerTotal) >= 0 ? '+' : ''}${stats.totalPoints + stats.seegerTotal}`} color={(stats.totalPoints + stats.seegerTotal) >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
-            <StatCard label="Siegquote"     value={`${stats.winRate}%`}       color={parseFloat(stats.winRate) >= 50 ? 'var(--primary)' : 'var(--secondary)'} />
-            <StatCard label="Spielanteil"   value={`${playShare}%`}           color="var(--on-surface)" tooltip={`${stats.totalGames} von ${rounds.length} Runden`} />
-            <StatCard label="Ø Punkte / Spiel" value={stats.avgPoints}        color="var(--on-surface)" />
-            <StatCard label="🍞 Brote"      value={stats.brote}    color={stats.brote > 0 ? 'var(--secondary)' : 'var(--on-surface)'}    tooltip="Ein Brot ist eine vollständige Geberrunde ohne Spiel." />
-            <StatCard label="🥖 Baguettes"  value={stats.baguettes} color={stats.baguettes > 0 ? 'var(--secondary)' : 'var(--on-surface)'} tooltip="Ein Baguette sind zwei vollständige Geberrunden ohne Spiel (6 Runden)." />
-            <StatCard label="🏆 Längste Siegesserie"  value={stats.longestWinStreak}  color={stats.longestWinStreak >= 3 ? 'var(--primary)' : 'var(--on-surface)'}   tooltip="Siege als Alleinspieler in Folge" />
-            <StatCard label="💀 Längste Verlustserie" value={stats.longestLossStreak} color={stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)'} tooltip="Niederlagen als Alleinspieler in Folge" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Zeile 1: Punkte */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+              <StatCard label="Standard"      value={`${stats.totalPoints >= 0 ? '+' : ''}${stats.totalPoints}`} color={stats.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
+              <StatCard label="Seeger-Fabian" value={`${stats.seegerTotal >= 0 ? '+' : ''}${stats.seegerTotal}`} color={stats.seegerTotal >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
+              <StatCard label="Kombiniert"    value={`${(stats.totalPoints + stats.seegerTotal) >= 0 ? '+' : ''}${stats.totalPoints + stats.seegerTotal}`} color={(stats.totalPoints + stats.seegerTotal) >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
+            </div>
+            {/* Zeile 2: Quoten */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+              <StatCard label="Siegquote"        value={`${stats.winRate}%`}  color={parseFloat(stats.winRate) >= 50 ? 'var(--primary)' : 'var(--secondary)'} />
+              <StatCard label="Spielanteil"      value={`${playShare}%`}      color="var(--on-surface)" tooltip={`${stats.totalGames} von ${rounds.length} Runden`} />
+              <StatCard label="Ø Punkte / Spiel" value={stats.avgPoints}      color="var(--on-surface)" />
+            </div>
+            {/* Zeile 3: Brote */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <StatCard label="🍞 Brote"     value={stats.brote}     color={stats.brote     > 0 ? 'var(--secondary)' : 'var(--on-surface)'} tooltip="Ein Brot ist eine vollständige Geberrunde ohne Spiel." />
+              <StatCard label="🥖 Baguettes" value={stats.baguettes} color={stats.baguettes > 0 ? 'var(--secondary)' : 'var(--on-surface)'} tooltip="Ein Baguette sind zwei vollständige Geberrunden ohne Spiel (6 Runden)." />
+            </div>
+            {/* Zeile 4: Serien — volle Breite, 2 Spalten */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <StreakCard label="🏆 Längste Siegesserie"  streakRounds={stats.longestWinRounds}  color={stats.longestWinStreak  >= 3 ? 'var(--primary)'   : 'var(--on-surface)'} />
+              <StreakCard label="💀 Längste Verlustserie" streakRounds={stats.longestLossRounds} color={stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)'} />
+            </div>
           </div>
 
           <div className="card" style={{ width: '380px', border: '1px solid var(--outline-variant)' }}>
