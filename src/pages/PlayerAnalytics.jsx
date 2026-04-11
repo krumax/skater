@@ -239,7 +239,7 @@ const PlayerAnalytics = () => {
         <p className="page-subtitle">Detaillierte Auswertung pro Spieler.</p>
       </header>
 
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '3rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
         {players.map(name => (
           <button key={name} onClick={() => setSelectedPlayer(name)}
             className={`chip ${selectedPlayer === name ? 'active' : ''}`}
@@ -247,7 +247,9 @@ const PlayerAnalytics = () => {
         ))}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+      <AchievementCompletionCard rounds={rounds} player={selectedPlayer} />
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem', marginTop: '3rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
           {/* ── Kacheln + PieChart nebeneinander ── */}
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2rem', alignItems: 'start' }}>
@@ -320,13 +322,10 @@ const PlayerAnalytics = () => {
 
           {/* ── Alleinspieler ── */}
           <section>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem', gap: '2rem' }}>
-              <div>
-                <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Angriff</span>
-                <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Alleinspiel</h3>
-                <p style={{ color: 'var(--on-surface-variant)' }}>Vervollständige die Matrix und beweise deine Meisterschaft. Jede Kombination, jede Spielart, jede Stufe — werde zum Skatmeister.</p>
-              </div>
-              <AchievementCompletionCard rounds={rounds} player={selectedPlayer} />
+            <div style={{ marginBottom: '1.5rem' }}>
+              <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Angriff</span>
+              <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Alleinspiel</h3>
+              <p style={{ color: 'var(--on-surface-variant)' }}>Vervollständige die Matrix und beweise deine Meisterschaft. Jede Kombination, jede Spielart, jede Stufe — werde zum Skatmeister.</p>
             </div>
 
             <AchievementMatrix rounds={rounds} player={selectedPlayer} />
@@ -531,7 +530,6 @@ const AchievementCompletionCard = ({ rounds, player }) => {
   const { unlockedCount, totalPossible, percent } = useMatrixData(rounds, player);
   const { map: defMap } = useDefenseData(rounds, player);
 
-  // Count defense achievements
   const defenseCount = useMemo(() => {
     let c = 0;
     Object.values(defMap).forEach(row => { c += Object.keys(row).length; });
@@ -544,44 +542,51 @@ const AchievementCompletionCard = ({ rounds, player }) => {
   const toNext = nextThreshold ? nextThreshold - combined : 0;
 
   return (
-    <div className="card" style={{ border: '1px solid var(--outline-variant)', width: '340px', flexShrink: 0 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <span style={{ color: 'var(--on-surface-variant)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Gesamtfortschritt</span>
-        <span style={{ backgroundColor: 'var(--primary-container)', color: '#fff', fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '9999px', fontWeight: 700 }}>
-          {lv[2]} {lv[1]}
-        </span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.25rem' }}>
-        <span style={{ fontSize: '2.25rem', fontFamily: "'Manrope', sans-serif", fontWeight: 800, color: 'var(--primary)' }}>{combined}</span>
-        <span style={{ color: 'var(--on-surface-variant)', fontSize: '1rem', fontWeight: 600 }}>Achievements</span>
-      </div>
-      <div style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.75rem' }}>
-        {unlockedCount} Alleinspieler · {defenseCount} Abwehr
-      </div>
-      <div style={{ width: '100%', backgroundColor: 'var(--surface-low)', height: '0.5rem', borderRadius: '999px', overflow: 'hidden', marginBottom: '0.5rem' }}>
-        <div style={{ backgroundColor: 'var(--primary)', height: '100%', width: `${percent}%`, borderRadius: '999px' }} />
-      </div>
-      <p style={{ fontSize: '0.7rem', color: 'var(--on-surface-variant)', textAlign: 'right', marginBottom: '1rem' }}>
-        {percent}% der Alleinspieler-Matrix erreicht
-        {nextThreshold && <span style={{ marginLeft: '0.5rem', color: 'var(--outline)' }}>· noch {toNext} bis {lv.next[1]}</span>}
-      </p>
-
-      {/* Level-Legende */}
-      <div style={{ borderTop: '1px solid var(--outline-variant)', paddingTop: '0.75rem' }}>
-        <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', marginBottom: '0.5rem' }}>Level-Übersicht</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          {LEVELS.map((l, i) => {
-            const isActive = lv.idx === i;
-            return (
-              <div key={l[1]} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: combined >= l[0] ? 1 : 0.4 }}>
-                <span style={{ fontSize: '0.75rem' }}>{l[2]}</span>
-                <span style={{ fontSize: '0.7rem', fontWeight: isActive ? 800 : 500, color: isActive ? 'var(--primary)' : 'var(--on-surface-variant)', flex: 1 }}>{l[1]}</span>
-                <span style={{ fontSize: '0.65rem', color: 'var(--outline)' }}>ab {l[0]}</span>
-                {isActive && <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase' }}>← du</span>}
-              </div>
-            );
-          })}
+    <div className="card" style={{ border: '1px solid var(--outline-variant)', width: '100%' }}>
+      {/* Obere Zeile: Level + Zähler + Fortschrittsbalken */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+          <span style={{ fontSize: '2rem' }}>{lv[2]}</span>
+          <div>
+            <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', display: 'block' }}>Level</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>{lv[1]}</span>
+          </div>
         </div>
+        <div style={{ flexShrink: 0 }}>
+          <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', display: 'block' }}>Achievements</span>
+          <span style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }}>{combined}</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--outline)', marginLeft: '0.4rem' }}>({unlockedCount} Angriff · {defenseCount} Abwehr)</span>
+        </div>
+        <div style={{ flex: 1, minWidth: '200px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>{percent}% der Alleinspieler-Matrix</span>
+            {nextThreshold && <span style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>noch {toNext} bis {lv.next[1]} {lv.next[2]}</span>}
+          </div>
+          <div style={{ width: '100%', backgroundColor: 'var(--surface-low)', height: '0.5rem', borderRadius: '999px', overflow: 'hidden' }}>
+            <div style={{ backgroundColor: 'var(--primary)', height: '100%', width: `${percent}%`, borderRadius: '999px' }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Level-Legende horizontal */}
+      <div style={{ borderTop: '1px solid var(--outline-variant)', paddingTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        {LEVELS.map((l, i) => {
+          const isActive = lv.idx === i;
+          const reached = combined >= l[0];
+          return (
+            <div key={l[1]} style={{
+              display: 'flex', alignItems: 'center', gap: '0.3rem',
+              padding: '0.2rem 0.6rem', borderRadius: '999px',
+              backgroundColor: isActive ? 'var(--primary-container)' : 'transparent',
+              border: `1px solid ${isActive ? 'var(--primary)' : 'var(--outline-variant)'}`,
+              opacity: reached ? 1 : 0.4,
+            }}>
+              <span style={{ fontSize: '0.75rem' }}>{l[2]}</span>
+              <span style={{ fontSize: '0.65rem', fontWeight: isActive ? 800 : 500, color: isActive ? '#fff' : 'var(--on-surface-variant)' }}>{l[1]}</span>
+              <span style={{ fontSize: '0.6rem', color: isActive ? 'rgba(255,255,255,0.7)' : 'var(--outline)' }}>{l[0]}+</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
