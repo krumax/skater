@@ -57,7 +57,49 @@ function StreakCard({ label, streakRounds, color }) {
   );
 }
 
-// ── Hauptseite ────────────────────────────────────────────────────────────────
+// ── Highlight-Kachel (Sieg / Niederlage) ─────────────────────────────────────
+function HighlightCard({ icon, gradient, textColor, title, round }) {
+  const fmtDate = (ts) => ts
+    ? new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : null;
+  return (
+    <div className="card" style={{
+      display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1rem 1.5rem',
+      background: gradient,
+    }}>
+      <span className="material-symbols-outlined" style={{ fontSize: '1.75rem', color: textColor, flexShrink: 0 }}>{icon}</span>
+      <div style={{ flex: 1 }}>
+        <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: textColor, opacity: 0.65, marginBottom: '0.1rem' }}>{title}</p>
+        {round ? (
+          <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: textColor, lineHeight: 1 }}>
+            {round.gameValue > 0 ? '+' : ''}{round.gameValue}
+            <span style={{ fontSize: '0.9rem', fontWeight: 600, marginLeft: '0.6rem', opacity: 0.8 }}>
+              {SUIT_SYMBOLS[round.gameType]} {SUIT_LABELS[round.gameType]}
+            </span>
+          </p>
+        ) : (
+          <p style={{ fontSize: '1rem', color: textColor, opacity: 0.5 }}>–</p>
+        )}
+      </div>
+      {round && (
+        <div style={{ display: 'flex', gap: '1.25rem', flexShrink: 0 }}>
+          <div style={{ textAlign: 'right' }}>
+            <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: textColor, opacity: 0.65 }}>Runde</p>
+            <p style={{ fontWeight: 800, color: textColor }}>#{round.id}</p>
+          </div>
+          {fmtDate(round.timestamp) && (
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: textColor, opacity: 0.65 }}>Datum</p>
+              <p style={{ fontWeight: 800, color: textColor }}>{fmtDate(round.timestamp)}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 const PlayerAnalytics = () => {
   const { players: allPlayers, rounds, getPlayerStats } = useGame();
   const players = allPlayers.filter(p => p !== '-');
@@ -139,9 +181,21 @@ const PlayerAnalytics = () => {
               <StreakCard label="💀 Längste Verlustserie" streakRounds={stats.longestLossRounds} color={stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)'} />
             </div>
             {/* Zeile 5: Höchster Sieg / Höchste Niederlage */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <StatCard label="🏅 Höchster Sieg"       value={stats.bestWin  !== null ? `+${stats.bestWin}`  : '–'} color={stats.bestWin  !== null ? 'var(--primary)'   : 'var(--outline)'} />
-              <StatCard label="💔 Höchste Niederlage"  value={stats.worstLoss !== null ? `${stats.worstLoss}` : '–'} color={stats.worstLoss !== null ? 'var(--secondary)' : 'var(--outline)'} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <HighlightCard
+                icon="emoji_events"
+                gradient="linear-gradient(135deg, #d0a600, #a07800)"
+                textColor="#1b1c1c"
+                title="Höchster Sieg"
+                round={stats.bestWinRound}
+              />
+              <HighlightCard
+                icon="heart_broken"
+                gradient="linear-gradient(135deg, var(--secondary), var(--secondary-container))"
+                textColor="var(--on-secondary)"
+                title="Höchste Niederlage"
+                round={stats.worstLossRound}
+              />
             </div>
           </div>
 

@@ -59,6 +59,8 @@ export function computePlayerStats(rounds, playerName) {
   const lostRounds = playerRounds.filter(r => !r.won);
   const bestWin    = wonRounds.length  > 0 ? Math.max(...wonRounds.map(r => r.gameValue))  : null;
   const worstLoss  = lostRounds.length > 0 ? Math.min(...lostRounds.map(r => r.gameValue)) : null;
+  const bestWinRound  = bestWin  !== null ? wonRounds.find(r => r.gameValue === bestWin)   : null;
+  const worstLossRound = worstLoss !== null ? lostRounds.find(r => r.gameValue === worstLoss) : null;
 
   const typeCounts = {};
   playerRounds.forEach(r => {
@@ -136,7 +138,8 @@ export function computePlayerStats(rounds, playerName) {
     brote, baguettes, currentStreak: consecutiveNonPlaying,
     longestWinStreak,  longestWinRounds,
     longestLossStreak, longestLossRounds,
-    bestWin, worstLoss,
+    bestWin, bestWinRound,
+    worstLoss, worstLossRound,
   };
 }
 
