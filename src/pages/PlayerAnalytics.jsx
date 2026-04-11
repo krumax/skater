@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS } from '../lib/skatScoring';
 import GameTypePieChart from '../components/analytics/GameTypePieChart';
@@ -91,11 +91,13 @@ const PlayerAnalytics = () => {
 
         {/* ── Kacheln + PieChart ── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2rem', alignItems: 'start' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <StatCard label="Kombiniert"    value={`${(stats.totalPoints + stats.seegerTotal) >= 0 ? '+' : ''}${stats.totalPoints + stats.seegerTotal}`} color={(stats.totalPoints + stats.seegerTotal) >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
-            <StatCard label="Siegquote"     value={`${stats.winRate}%`}       color={parseFloat(stats.winRate) >= 50 ? 'var(--primary)' : 'var(--secondary)'} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
             <StatCard label="Standard"      value={`${stats.totalPoints >= 0 ? '+' : ''}${stats.totalPoints}`} color={stats.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
             <StatCard label="Seeger-Fabian" value={`${stats.seegerTotal >= 0 ? '+' : ''}${stats.seegerTotal}`} color={stats.seegerTotal >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
+            <StatCard label="Kombiniert"    value={`${(stats.totalPoints + stats.seegerTotal) >= 0 ? '+' : ''}${stats.totalPoints + stats.seegerTotal}`} color={(stats.totalPoints + stats.seegerTotal) >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
+            <StatCard label="Siegquote"     value={`${stats.winRate}%`}       color={parseFloat(stats.winRate) >= 50 ? 'var(--primary)' : 'var(--secondary)'} />
+            <StatCard label="Spielanteil"   value={`${playShare}%`}           color="var(--on-surface)" tooltip={`${stats.totalGames} von ${rounds.length} Runden`} />
+            <StatCard label="Ø Punkte / Spiel" value={stats.avgPoints}        color="var(--on-surface)" />
             <StatCard label="🍞 Brote"      value={stats.brote}    color={stats.brote > 0 ? 'var(--secondary)' : 'var(--on-surface)'}    tooltip="Ein Brot ist eine vollständige Geberrunde ohne Spiel." />
             <StatCard label="🥖 Baguettes"  value={stats.baguettes} color={stats.baguettes > 0 ? 'var(--secondary)' : 'var(--on-surface)'} tooltip="Ein Baguette sind zwei vollständige Geberrunden ohne Spiel (6 Runden)." />
             <StatCard label="🏆 Längste Siegesserie"  value={stats.longestWinStreak}  color={stats.longestWinStreak >= 3 ? 'var(--primary)' : 'var(--on-surface)'}   tooltip="Siege als Alleinspieler in Folge" />
@@ -139,12 +141,6 @@ const PlayerAnalytics = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <AnalysisCard icon={stats.wins > stats.losses ? 'check_circle' : 'warning'} iconColor={stats.wins > stats.losses ? 'var(--primary)' : 'var(--secondary)'} title="Sieg/Niederlage-Bilanz">
                 <p style={{ color: 'var(--on-surface-variant)' }}>{stats.wins} Siege und {stats.losses} Niederlagen ({stats.winRate}% Siegquote).</p>
-              </AnalysisCard>
-              <AnalysisCard icon="analytics" iconColor="var(--primary)" title="Ø Punkte pro Spiel">
-                <p style={{ color: 'var(--on-surface-variant)' }}>Durchschnittlich {stats.avgPoints} Punkte pro Spiel.</p>
-              </AnalysisCard>
-              <AnalysisCard icon="percent" iconColor="var(--tertiary)" title="Spielanteil">
-                <p style={{ color: 'var(--on-surface-variant)' }}>{playShare}% aller Runden am Tisch gespielt ({stats.totalGames} von {rounds.length}).</p>
               </AnalysisCard>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <AnalysisCard icon="emoji_events" iconColor="var(--primary)" title="Größter Sieg">
