@@ -399,12 +399,19 @@ const PlayerAnalytics = () => {
 
 // Spieltyp-Konfiguration für die Matrix — Icons konsistent mit SkatScoreList & GameScoringEntry
 const matrixConfig = [
-  { type: 'grand', name: 'Grand', suit: null, matIcon: 'stars', color: '#0b3d2e', textColor: '#fff', subtitle: 'Grundwert 24' },
-  { type: 'club', name: 'Kreuz', suit: '♣', matIcon: null, color: '#1b1c1c', textColor: '#fff', subtitle: 'Grundwert 12' },
-  { type: 'spade', name: 'Pik', suit: '♠', matIcon: null, color: '#414944', textColor: '#fff', subtitle: 'Grundwert 11' },
-  { type: 'heart', name: 'Herz', suit: '♥', matIcon: null, color: '#b52619', textColor: '#fff', subtitle: 'Grundwert 10' },
-  { type: 'diamond', name: 'Karo', suit: '♦', matIcon: null, color: '#d0a600', textColor: '#1b1c1c', subtitle: 'Grundwert 9' },
-  { type: 'null', name: 'Null', suit: null, matIcon: 'block', color: '#717974', textColor: '#fff', subtitle: 'Nullspiel' },
+  { type: 'grand',   name: 'Grand', suit: null, matIcon: 'stars', color: '#0b3d2e', textColor: '#fff', subtitle: 'Grundwert 24' },
+  { type: 'club',    name: 'Kreuz', suit: '♣',  matIcon: null,    color: '#1b1c1c', textColor: '#fff', subtitle: 'Grundwert 12' },
+  { type: 'spade',   name: 'Pik',   suit: '♠',  matIcon: null,    color: '#414944', textColor: '#fff', subtitle: 'Grundwert 11' },
+  { type: 'heart',   name: 'Herz',  suit: '♥',  matIcon: null,    color: '#b52619', textColor: '#fff', subtitle: 'Grundwert 10' },
+  { type: 'diamond', name: 'Karo',  suit: '♦',  matIcon: null,    color: '#d0a600', textColor: '#1b1c1c', subtitle: 'Grundwert 9' },
+];
+
+// Null-Varianten als eigene Zeilen
+const nullRows = [
+  { id: 'null',             name: 'Null',            check: (r) => !r.hand && !r.ouvert, specialColIdx: 0 },
+  { id: 'null_hand',        name: 'Null Hand',        check: (r) => r.hand  && !r.ouvert, specialColIdx: 1 },
+  { id: 'null_ouvert',      name: 'Null Ouvert',      check: (r) => !r.hand && r.ouvert,  specialColIdx: 2 },
+  { id: 'null_hand_ouvert', name: 'Null Hand Ouvert', check: (r) => r.hand  && r.ouvert,  specialColIdx: 3 },
 ];
 
 const colSpecs = [
@@ -416,12 +423,12 @@ const colSpecs = [
   { id: 'ohne_2', label: '−2', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 2 },
   { id: 'ohne_3', label: '−3', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 3 },
   { id: 'ohne_4', label: '−4', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 4 },
-  { id: 'hand', label: 'Hand', isSpecial: true, check: (r) => r.hand },
-  { id: 'schneider', label: 'Schneider', isSpecial: true, check: (r) => r.schneider || r.schneiderAnsagt },
-  { id: 'schneiderAnnounced', label: 'Schneider', icon: 'campaign', isSpecial: true, check: (r) => r.schneiderAnnounced },
-  { id: 'schwarz', label: 'Schwarz', isSpecial: true, check: (r) => r.schwarz || r.schwarzAnsagt },
-  { id: 'schwarzAnnounced', label: 'Schwarz', icon: 'campaign', isSpecial: true, check: (r) => r.schwarzAnnounced },
-  { id: 'ouvert', label: 'Ouvert', isSpecial: true, check: (r) => r.ouvert },
+  { id: 'hand',              label: 'Hand',      isSpecial: true, check: (r) => r.hand },
+  { id: 'schneider',         label: 'Schneider', isSpecial: true, check: (r) => r.schneider || r.schneiderAnsagt },
+  { id: 'schneiderAnnounced',label: 'Schneider', icon: 'campaign', isSpecial: true, check: (r) => r.schneiderAnnounced },
+  { id: 'schwarz',           label: 'Schwarz',   isSpecial: true, check: (r) => r.schwarz || r.schwarzAnsagt },
+  { id: 'schwarzAnnounced',  label: 'Schwarz',   icon: 'campaign', isSpecial: true, check: (r) => r.schwarzAnnounced },
+  { id: 'ouvert',            label: 'Ouvert',    isSpecial: true, check: (r) => r.ouvert },
 ];
 
 function useMatrixData(rounds, player) {
@@ -435,14 +442,8 @@ function useMatrixData(rounds, player) {
       map[row.type] = {};
       const wonGames = rounds.filter(r => r.player === player && r.won && r.gameType === row.type);
 
-      colSpecs.forEach((col, idx) => {
-        if (row.type === 'null') {
-          if (idx < 8) return; // Ansage N/A bei Null
-          if (col.id === 'schneider' || col.id === 'schwarz' || col.id === 'schneiderAnnounced' || col.id === 'schwarzAnnounced') return; // N/A bei Null
-        }
-
+      colSpecs.forEach((col) => {
         totalPossible++;
-
         const unlockedGames = wonGames.filter(col.check);
         if (unlockedGames.length > 0) {
           unlockedCount++;
@@ -457,6 +458,26 @@ function useMatrixData(rounds, player) {
           unlockedKeys.add(`${row.type}::${col.id}`);
         }
       });
+    });
+
+    // Null-Varianten separat
+    const wonNullGames = rounds.filter(r => r.player === player && r.won && r.gameType === 'null');
+    map['null'] = {};
+    nullRows.forEach(nr => {
+      totalPossible++;
+      const unlockedGames = wonNullGames.filter(nr.check);
+      if (unlockedGames.length > 0) {
+        unlockedCount++;
+        const maxScore = Math.max(...unlockedGames.map(g => g.gameValue));
+        const firstGame = unlockedGames.reduce((a, b) =>
+          new Date(a.timestamp) < new Date(b.timestamp) ? a : b
+        );
+        const firstDate = firstGame.timestamp
+          ? new Date(firstGame.timestamp).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+          : null;
+        map['null'][nr.id] = { value: maxScore, date: firstDate };
+        unlockedKeys.add(`null::${nr.id}`);
+      }
     });
 
     return {
@@ -513,7 +534,13 @@ const AchievementMatrix = ({ rounds, player }) => {
                     <div style={{ fontSize: '0.6rem', fontWeight: 700, color: col.isSpecial ? 'var(--tertiary)' : 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.1rem' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
                         {col.label}
-                        {col.icon && <span className="material-symbols-outlined" style={{ fontSize: '0.85rem' }}>{col.icon}</span>}
+                        {col.icon && !col.label2 && <span className="material-symbols-outlined" style={{ fontSize: '0.85rem' }}>{col.icon}</span>}
+                        {col.label2 && (
+                          <>
+                            <span className="material-symbols-outlined" style={{ fontSize: '0.7rem' }}>add</span>
+                            {col.label2}
+                          </>
+                        )}
                       </span>
                     </div>
                   </th>
@@ -538,22 +565,9 @@ const AchievementMatrix = ({ rounds, player }) => {
                   </td>
 
                   {colSpecs.map((col, idx) => {
-                    // Null special behaviors
-                    if (row.type === 'null') {
-                      if (idx === 0) {
-                        return (
-                          <td key="null-span" colSpan={8} style={{ padding: '0.25rem', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.55rem', color: 'var(--on-surface-variant)', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '0.1em', fontStyle: 'italic' }}>Ansage entfällt bei Null</div>
-                          </td>
-                        );
-                      }
-                      if (idx < 8) return null; // handled by colspan
-                      if (col.id === 'schneider' || col.id === 'schwarz' || col.id === 'schneiderAnnounced' || col.id === 'schwarzAnnounced') {
-                        return (
-                          <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: 'rgba(116, 91, 0, 0.05)' }}>
-                          </td>
-                        );
-                      }
+                    // nullOnly columns hidden for non-null rows
+                    if (col.nullOnly && row.type !== 'null') {
+                      return <td key={col.id} style={{ padding: '0.25rem', backgroundColor: 'rgba(116, 91, 0, 0.05)' }} />;
                     }
 
                     const val = map[row.type]?.[col.id];
@@ -579,6 +593,56 @@ const AchievementMatrix = ({ rounds, player }) => {
                   })}
                 </tr>
               ))}
+              {/* ── Null-Varianten ── */}
+              {nullRows.map((nr) => {
+                const val = map['null']?.[nr.id];
+                const isUnlocked = val !== undefined;
+                return (
+                  <tr key={nr.id}
+                    style={{ borderTop: '1px solid rgba(192,200,195,0.3)', backgroundColor: 'rgba(113,121,116,0.04)', transition: 'background-color 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-high)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(113,121,116,0.04)'}>
+                    <td style={{ padding: '0.5rem 0.75rem', borderRight: '1px solid rgba(192,200,195,0.3)', textAlign: 'left', minWidth: '90px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{ width: '1.75rem', height: '1.75rem', borderRadius: '0.375rem', backgroundColor: '#717974', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#fff' }}>block</span>
+                        </div>
+                        <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem', whiteSpace: 'normal', wordBreak: 'break-word' }}>{nr.name}</div>
+                      </div>
+                    </td>
+                    {colSpecs.map((col, idx) => {
+                      if (idx === 0) {
+                        return (
+                          <td key="null-label" colSpan={8} style={{ padding: '0.25rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.55rem', color: 'var(--on-surface-variant)', opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em', fontStyle: 'italic' }}>Ansage entfällt</div>
+                          </td>
+                        );
+                      }
+                      if (idx < 8) return null;
+                      // Special-Spalten idx 8..13 → specialIdx 0..5
+                      // Treppe: nr.specialColIdx bestimmt welche Special-Spalte das Kästchen zeigt
+                      const specialIdx = idx - 8;
+                      const isMatch = specialIdx === nr.specialColIdx;
+                      const bg = col.isSpecial ? 'rgba(116,91,0,0.04)' : 'transparent';
+                      if (!isMatch) return <td key={col.id} style={{ padding: '0.25rem', backgroundColor: bg }} />;
+                      return (
+                        <td key={col.id} style={{ padding: '0.25rem', textAlign: 'center', backgroundColor: 'rgba(116,91,0,0.05)' }}>
+                          {isUnlocked ? (
+                            <div title={`Bestes Ergebnis: ${val.value}${val.date ? ` · Erstmals: ${val.date}` : ''}`}
+                              style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', backgroundColor: 'var(--tertiary-container)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s' }}
+                              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+                              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>star</span>
+                            </div>
+                          ) : (
+                            <div style={{ width: '2rem', height: '2rem', margin: '0 auto', borderRadius: '0.375rem', border: '1px dashed rgba(116,91,0,0.3)', opacity: 0.5 }} />
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
