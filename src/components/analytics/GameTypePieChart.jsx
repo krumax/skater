@@ -27,7 +27,9 @@ export default function GameTypePieChart({ typeDistribution, rounds, player }) {
   const winRates = useMemo(() => {
     const map = {};
     typeDistribution.forEach(({ type }) => {
-      const games = rounds.filter(r => r.player === player && r.gameType === type);
+      const games = player
+        ? rounds.filter(r => r.player === player && r.gameType === type)
+        : rounds.filter(r => r.gameType === type);
       const wins  = games.filter(r => r.won).length;
       map[type] = games.length > 0 ? Math.round((wins / games.length) * 100) : null;
     });

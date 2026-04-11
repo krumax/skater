@@ -2,10 +2,10 @@ import React from 'react';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
 import { SUIT_COLORS, PLAYER_COLORS } from '../lib/tokens';
+import GameTypePieChart from '../components/analytics/GameTypePieChart';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell,
-  BarChart, Bar,
+  BarChart, Bar, Cell,
 } from 'recharts';
 
 /* ── Reusable label style constants ── */
@@ -35,14 +35,6 @@ const ChartTooltip = ({ active, payload, label }) => {
   );
 };
 
-/* ── Custom Pie Label ── */
-const renderPieLabel = ({ name, pct, x, y, textAnchor }) => (
-  <text x={x} y={y} textAnchor={textAnchor} dominantBaseline="central"
-    style={{ fontSize: '0.75rem', fontWeight: 600, fill: 'var(--on-surface)' }}>
-    {name} ({pct}%)
-  </text>
-);
-
 /* ──────────────────────────────────────────────── */
 
 const StatistikenCharts = () => {
@@ -60,8 +52,8 @@ const StatistikenCharts = () => {
     });
   }, [rounds, players]);
 
-  /* ── 2. Spieltypen-Verteilung (pie chart data) ── */
-  const pieData = React.useMemo(() => {
+  /* ── 2. Spieltypen-Verteilung ── */
+  const typeDistribution = React.useMemo(() => {
     const counts = {};
     rounds.forEach(r => {
       const t = r.gameType || 'unknown';
@@ -69,13 +61,8 @@ const StatistikenCharts = () => {
     });
     const total = rounds.length || 1;
     return Object.entries(counts)
-      .map(([type, count]) => ({
-        type,
-        name: (SUIT_SYMBOLS[type] ? SUIT_SYMBOLS[type] + ' ' : '') + (SUIT_LABELS[type] || type),
-        value: count,
-        pct: ((count / total) * 100).toFixed(0),
-      }))
-      .sort((a, b) => b.value - a.value);
+      .map(([type, count]) => ({ type, count, pct: ((count / total) * 100).toFixed(0) }))
+      .sort((a, b) => b.count - a.count);
   }, [rounds]);
 
   /* ── 3. Gewinnraten nach Typ (bar chart data) ── */
@@ -96,7 +83,6 @@ const StatistikenCharts = () => {
       }))
       .sort((a, b) => b.winRate - a.winRate);
   }, [rounds]);
-
   /* ── 4. KPIs ── */
   const kpis = React.useMemo(() => {
     const totalGames = rounds.length;
@@ -178,19 +164,8 @@ const StatistikenCharts = () => {
             {/* Pie Chart */}
             <section>
               <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Spieltypen-Verteilung</h3>
-              <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ResponsiveContainer width="100%" height={320}>
-                  <PieChart>
-                    <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%"
-                      outerRadius={110} innerRadius={55} paddingAngle={3}
-                      label={renderPieLabel} labelLine={{ stroke: 'var(--outline-variant)', strokeWidth: 1 }}>
-                      {pieData.map((entry, i) => (
-                        <Cell key={i} fill={SUIT_COLORS[entry.type] || PLAYER_COLORS[i % PLAYER_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<ChartTooltip />} />
-                  </PieChart>
-                </ResponsiveContainer>
+              <div className="card">
+                <GameTypePieChart typeDistribution={typeDistribution} rounds={rounds} player={null} />
               </div>
             </section>
 
