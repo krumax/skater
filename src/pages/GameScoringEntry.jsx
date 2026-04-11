@@ -6,9 +6,17 @@ import {
   SUIT_LABELS,
   SUIT_SYMBOLS,
 } from '../lib/skatScoring';
+import { computePlayerLevel } from '../lib/playerLevel';
 
 const GameScoringEntry = () => {
-  const { players, seating, addRound, currentRound, getPlayerRank, currentRoles } = useGame();
+  const { players, seating, addRound, currentRound, getPlayerRank, currentRoles, rounds } = useGame();
+
+  // Level pro Spieler vorberechnen
+  const playerLevels = useMemo(() =>
+    Object.fromEntries(
+      players.filter(p => p !== '-').map(p => [p, computePlayerLevel(rounds, p)])
+    ),
+  [rounds, players]);
 
   // Rollen-Label für Spieler
   const getRoleTag = (name) => {
@@ -155,19 +163,29 @@ const GameScoringEntry = () => {
             <div className="player-grid" style={{ opacity: gameType === 'passed' ? 0.4 : 1, pointerEvents: gameType === 'passed' ? 'none' : 'auto' }}>
               {currentRoles.activePlayers.filter(name => name !== '-').map(name => {
                 const roleTag = getRoleTag(name);
+                const lv = playerLevels[name];
                 return (
-                  <button 
+                  <button
                     key={name}
                     onClick={() => setActivePlayer(name)}
                     className={`player-card ${activePlayer === name ? 'active' : ''}`}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: '2.5rem' }}>person</span>
                     <span style={{ fontWeight: 700 }}>{name}</span>
+                    {lv && (
+                      <span style={{
+                        fontSize: '0.75rem', fontWeight: 600,
+                        color: activePlayer === name ? 'rgba(255,255,255,0.85)' : 'var(--outline)',
+                        marginTop: '0.2rem',
+                      }}>
+                        {lv.emoji} {lv.label}
+                      </span>
+                    )}
                     {roleTag && (
                       <span style={{
                         fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase',
                         letterSpacing: '0.1em', color: activePlayer === name ? 'rgba(255,255,255,0.7)' : 'var(--outline)',
-                        marginTop: '0.25rem',
+                        marginTop: '0.1rem',
                       }}>{roleTag}</span>
                     )}
                   </button>
