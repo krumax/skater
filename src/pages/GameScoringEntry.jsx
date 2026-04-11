@@ -48,7 +48,6 @@ const GameScoringEntry = () => {
             players={activePlayers}
             activePlayer={form.activePlayer}
             onSelect={form.setActivePlayer}
-            currentRoles={currentRoles}
             playerLevels={playerLevels}
             disabled={form.gameType === 'passed'}
           />
