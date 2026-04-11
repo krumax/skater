@@ -86,11 +86,14 @@ const arbitraryRound = fc.record({
   ouvert:      fc.boolean(),
   schneider:   fc.boolean(),
   schwarz:     fc.boolean(),
-  // spitzen: 1–11 covers all game types (grand max is 4, but component clamps via validation)
   spitzen:     fc.integer({ min: 1, max: 11 }),
   roundNumber: fc.integer({ min: 1, max: 500 }),
   _dbId:       fc.uuid(),
-});
+}).map(round => ({
+  ...round,
+  // Grand erlaubt max 4 Spitzen — auf gültigen Bereich begrenzen
+  spitzen: round.gameType === 'grand' ? Math.min(round.spitzen, 4) : round.spitzen,
+}));
 
 // ── Property 2 ────────────────────────────────────────────────────────────────
 
@@ -118,17 +121,17 @@ describe('Property 2: Dialog öffnet korrekte Runde (Anforderungen 1.2, 2.1)', (
         // ── Alle 6 Spieltyp-Chips sind vorhanden ──
         const allLabels = Object.values(SUIT_LABELS_MAP);
         const buttons = screen.getAllByRole('button');
-        const gameTypeButtons = buttons.filter(b => allLabels.includes(b.textContent));
+        const gameTypeButtons = buttons.filter(b =>
+          allLabels.some(label => b.textContent.includes(label))
+        );
         expect(gameTypeButtons.length).toBe(6);
 
         // ── Aktiver Chip entspricht round.gameType ──
-        // chipActiveStyle setzt background: 'var(--accent, #cba6f7)' als inline-style.
-        // In jsdom wird der Wert als literaler String gesetzt.
         const activeChip = gameTypeButtons.find(b =>
           b.style.background !== '' && b.style.background !== 'transparent'
         );
         expect(activeChip).toBeDefined();
-        expect(activeChip.textContent).toBe(expectedLabel);
+        expect(activeChip.textContent).toContain(expectedLabel);
 
         // ── Hand-Checkbox ──
         const handCheckbox = screen.getByLabelText('Hand');
@@ -139,22 +142,44 @@ describe('Property 2: Dialog öffnet korrekte Runde (Anforderungen 1.2, 2.1)', (
         expect(ouvertCheckbox.checked).toBe(round.ouvert);
 
         if (!isNullGame) {
-          // ── Schneider-Checkbox (nur bei Farb-/Grand-Spielen) ──
+          // ── Schneider-Checkbox (nur bei Farb-/Grand-Spielen aktiv) ──
           const schneiderCheckbox = screen.getByLabelText('Schneider');
           expect(schneiderCheckbox.checked).toBe(round.schneider);
+          expect(schneiderCheckbox.disabled).toBe(false);
 
-          // ── Schwarz-Checkbox (nur bei Farb-/Grand-Spielen) ──
+          // ── Schwarz-Checkbox (nur bei Farb-/Grand-Spielen aktiv) ──
           const schwarzCheckbox = screen.getByLabelText('Schwarz');
           expect(schwarzCheckbox.checked).toBe(round.schwarz);
+          expect(schwarzCheckbox.disabled).toBe(false);
 
-          // ── Spitzen-Eingabefeld (nur bei Farb-/Grand-Spielen) ──
-          const spitzenInput = screen.getByRole('spinbutton');
-          expect(Number(spitzenInput.value)).toBe(round.spitzen);
+          // ── Spitzen-Auswahl (Buttons 1–11 bei Farb-/Grand-Spielen) ──
+          // Grand erlaubt max 4 Spitzen — Komponente zeigt nur 1–4 aktiv
+          const maxSpitzen = round.gameType === 'grand' ? 4 : 11;
+          const expectedSpitzen = Math.min(round.spitzen, maxSpitzen);
+          const spitzenButtons = screen.getAllByRole('button').filter(b =>
+            /^\d+$/.test(b.textContent?.trim())
+          );
+          expect(spitzenButtons.length).toBeGreaterThan(0);
+          const activeSpitzen = spitzenButtons.find(b => b.style.background && b.style.background !== 'transparent');
+          expect(activeSpitzen).toBeDefined();
+          expect(Number(activeSpitzen.textContent.trim())).toBe(expectedSpitzen);
         } else {
-          // ── Null-Spiel: Schneider, Schwarz und Spitzen sind ausgeblendet ──
-          expect(screen.queryByLabelText('Schneider')).toBeNull();
-          expect(screen.queryByLabelText('Schwarz')).toBeNull();
-          expect(screen.queryByRole('spinbutton')).toBeNull();
+          // ── Null-Spiel: Schneider und Schwarz sind disabled (nicht versteckt) ──
+          const schneiderCheckbox = screen.queryByLabelText('Schneider');
+          expect(schneiderCheckbox).not.toBeNull();
+          expect(schneiderCheckbox.disabled).toBe(true);
+
+          const schwarzCheckbox = screen.queryByLabelText('Schwarz');
+          expect(schwarzCheckbox).not.toBeNull();
+          expect(schwarzCheckbox.disabled).toBe(true);
+
+          // Spitzen-Buttons sind bei Null im DOM, aber disabled/inaktiv
+          const spitzenButtons = screen.getAllByRole('button').filter(b =>
+            /^\d+$/.test(b.textContent?.trim())
+          );
+          // Kein aktiver Spitzen-Button bei Null
+          const activeSpitzen = spitzenButtons.find(b => b.style.background && b.style.background !== 'transparent');
+          expect(activeSpitzen).toBeUndefined();
         }
       }),
       { numRuns: 100 }

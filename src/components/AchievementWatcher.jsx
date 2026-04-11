@@ -1,52 +1,27 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import AchievementCelebration from './AchievementCelebration';
-
-/* ── Matrix config (duplicated from PlayerAnalytics for independence) ── */
-const matrixConfig = [
-  { type: 'grand', name: 'Grand', suit: null, matIcon: 'stars' },
-  { type: 'club', name: 'Kreuz', suit: '♣', matIcon: null },
-  { type: 'spade', name: 'Pik', suit: '♠', matIcon: null },
-  { type: 'heart', name: 'Herz', suit: '♥', matIcon: null },
-  { type: 'diamond', name: 'Karo', suit: '♦', matIcon: null },
-  { type: 'null', name: 'Null', suit: null, matIcon: 'block' },
-];
-
-const colSpecs = [
-  { id: 'mit_1', label: '+1', check: (r) => r.mitOhne === 'mit' && r.spitzen === 1 },
-  { id: 'mit_2', label: '+2', check: (r) => r.mitOhne === 'mit' && r.spitzen === 2 },
-  { id: 'mit_3', label: '+3', check: (r) => r.mitOhne === 'mit' && r.spitzen === 3 },
-  { id: 'mit_4', label: '+4', check: (r) => r.mitOhne === 'mit' && r.spitzen === 4 },
-  { id: 'ohne_1', label: '−1', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 1 },
-  { id: 'ohne_2', label: '−2', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 2 },
-  { id: 'ohne_3', label: '−3', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 3 },
-  { id: 'ohne_4', label: '−4', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 4 },
-  { id: 'hand', label: 'Hand', isSpecial: true, check: (r) => r.hand },
-  { id: 'schneider', label: 'Schneid', isSpecial: true, check: (r) => r.schneider || r.schneiderAnsagt },
-  { id: 'schwarz', label: 'Schwarz', isSpecial: true, check: (r) => r.schwarz || r.schwarzAnsagt },
-  { id: 'ouvert', label: 'Ouvert', isSpecial: true, check: (r) => r.ouvert },
-];
+import { MATRIX_ROWS, NULL_ROWS, COL_SPECS } from '../lib/achievementConfig';
 
 function computeUnlockedKeys(rounds, player) {
   const keys = new Set();
   let count = 0;
   let total = 0;
 
-  matrixConfig.forEach(row => {
+  // Farb-/Trumpf-Spiele (ohne Null)
+  MATRIX_ROWS.forEach(row => {
     const wonGames = rounds.filter(r => r.player === player && r.won && r.gameType === row.type);
-
-    colSpecs.forEach((col, idx) => {
-      if (row.type === 'null') {
-        if (idx < 8) return;
-        if (col.id === 'schneider' || col.id === 'schwarz') return;
-      }
+    COL_SPECS.forEach(col => {
       total++;
-      const matched = wonGames.filter(col.check);
-      if (matched.length > 0) {
-        count++;
-        keys.add(`${row.type}::${col.id}`);
-      }
+      if (wonGames.some(col.check)) { count++; keys.add(`${row.type}::${col.id}`); }
     });
+  });
+
+  // Null-Varianten
+  const wonNull = rounds.filter(r => r.player === player && r.won && r.gameType === 'null');
+  NULL_ROWS.forEach(nr => {
+    total++;
+    if (wonNull.some(nr.check)) { count++; keys.add(`null::${nr.id}`); }
   });
 
   return { keys, count, total };
@@ -109,8 +84,8 @@ const AchievementWatcher = () => {
 
     if (newAchievements.length > 0) {
       const [gameType, colId] = newAchievements[0].split('::');
-      const rowCfg = matrixConfig.find(r => r.type === gameType);
-      const colCfg = colSpecs.find(c => c.id === colId);
+      const rowCfg = MATRIX_ROWS.find(r => r.type === gameType) ?? NULL_ROWS.find(r => r.id === gameType);
+      const colCfg = COL_SPECS.find(c => c.id === colId);
       const oldCount = prevKeys.size;
       const oldLevel = Math.floor(oldCount / 3) + 1;
       const newLevel = Math.floor(newCount / 3) + 1;

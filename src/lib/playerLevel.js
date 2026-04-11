@@ -1,3 +1,5 @@
+import { MATRIX_ROWS, NULL_ROWS, COL_SPECS } from './achievementConfig';
+
 // Level-Definitionen: [minAchievements, label, emoji]
 export const LEVELS = [
   [0,   'Anfänger',          '🃏'],
@@ -23,68 +25,37 @@ export function getLevel(count) {
   return { min: current[0], label: current[1], emoji: current[2], idx, next };
 }
 
-// Matrix-Konfiguration (gespiegelt aus PlayerAnalytics)
-const matrixConfig = [
-  { type: 'grand' }, { type: 'club' }, { type: 'spade' },
-  { type: 'heart' }, { type: 'diamond' },
-];
-const nullRows = [
-  { id: 'null',             check: (r) => !r.hand && !r.ouvert },
-  { id: 'null_hand',        check: (r) =>  r.hand && !r.ouvert },
-  { id: 'null_ouvert',      check: (r) => !r.hand &&  r.ouvert },
-  { id: 'null_hand_ouvert', check: (r) =>  r.hand &&  r.ouvert },
-];
-const colSpecs = [
-  { check: (r) => r.mitOhne === 'mit'  && r.spitzen === 1 },
-  { check: (r) => r.mitOhne === 'mit'  && r.spitzen === 2 },
-  { check: (r) => r.mitOhne === 'mit'  && r.spitzen === 3 },
-  { check: (r) => r.mitOhne === 'mit'  && r.spitzen === 4 },
-  { check: (r) => r.mitOhne === 'ohne' && r.spitzen === 1 },
-  { check: (r) => r.mitOhne === 'ohne' && r.spitzen === 2 },
-  { check: (r) => r.mitOhne === 'ohne' && r.spitzen === 3 },
-  { check: (r) => r.mitOhne === 'ohne' && r.spitzen === 4 },
-  { check: (r) =>  r.hand && !r.schneider && !r.schwarz },
-  { check: (r) =>  r.hand &&  r.schneider && !r.schwarz },
-  { check: (r) =>  r.hand &&  r.schwarz },
-  { check: (r) => !r.hand && (r.schneider || r.schneiderAnsagt) },
-  { check: (r) =>  r.schneiderAnnounced },
-  { check: (r) => !r.hand && (r.schwarz  || r.schwarzAnsagt) },
-  { check: (r) =>  r.schwarzAnnounced },
-  { check: (r) =>  r.ouvert },
-];
-
 /**
  * Berechnet den Achievement-Count (Angriff + Abwehr) für einen Spieler
  * und gibt das aktuelle Level zurück.
  */
 export function computePlayerLevel(rounds, player) {
-  // Angriff: gewonnene Spiele als Alleinspieler
+  // Angriff
   const unlockedKeys = new Set();
-  matrixConfig.forEach(({ type }) => {
+  MATRIX_ROWS.forEach(({ type }) => {
     const wonGames = rounds.filter(r => r.player === player && r.won && r.gameType === type);
-    colSpecs.forEach((col, i) => {
+    COL_SPECS.forEach((col, i) => {
       if (wonGames.some(col.check)) unlockedKeys.add(`${type}::${i}`);
     });
   });
   const wonNull = rounds.filter(r => r.player === player && r.won && r.gameType === 'null');
-  nullRows.forEach(nr => {
+  NULL_ROWS.forEach(nr => {
     if (wonNull.some(nr.check)) unlockedKeys.add(`null::${nr.id}`);
   });
 
-  // Abwehr: Runden wo Alleinspieler verloren hat und dieser Spieler NICHT Alleinspieler war
+  // Abwehr
   const defenseKeys = new Set();
   const defenseWins = rounds.filter(r => r.player !== player && !r.won && r.gameType !== 'passed');
-  matrixConfig.forEach(({ type }) => {
+  MATRIX_ROWS.forEach(({ type }) => {
     const relevant = defenseWins.filter(r => r.gameType === type);
-    colSpecs.forEach((col, i) => {
+    COL_SPECS.forEach((col, i) => {
       if (relevant.some(col.check)) defenseKeys.add(`${type}::${i}`);
     });
   });
   const nullDefense = defenseWins.filter(r => r.gameType === 'null');
-  nullRows.forEach(nr => {
+  NULL_ROWS.forEach(nr => {
     if (nullDefense.some(nr.check)) defenseKeys.add(`null::${nr.id}`);
   });
 
-  const combined = unlockedKeys.size + defenseKeys.size;
-  return getLevel(combined);
+  return getLevel(unlockedKeys.size + defenseKeys.size);
 }
