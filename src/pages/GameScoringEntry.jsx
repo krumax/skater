@@ -315,7 +315,7 @@ const GameScoringEntry = () => {
           {/* ── Null-Ergebnis ── */}
           <section className="form-section">
             <label className="section-label">Null-Ergebnis</label>
-            <div className="chip-grid" style={{ opacity: gameType !== 'null' ? 0.4 : 1, pointerEvents: gameType !== 'null' ? 'none' : 'auto' }}>
+            <div className="chip-grid" style={{ gridTemplateColumns: '1fr 1fr', opacity: gameType !== 'null' ? 0.4 : 1, pointerEvents: gameType !== 'null' ? 'none' : 'auto' }}>
               <button disabled={gameType !== 'null'} className={`chip ${eyeCount === 0 ? 'active' : ''}`} onClick={() => setEyeCount(0)}>
                 Gewonnen (0 Stiche)
               </button>
