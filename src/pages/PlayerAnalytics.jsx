@@ -413,7 +413,6 @@ const nullRows = [
   { id: 'null_ouvert',      name: 'Null Ouvert',      check: (r) => !r.hand && r.ouvert,  specialColIdx: 2 },
   { id: 'null_hand_ouvert', name: 'Null Hand Ouvert', check: (r) => r.hand  && r.ouvert,  specialColIdx: 3 },
 ];
-
 const colSpecs = [
   { id: 'mit_1', label: '+1', check: (r) => r.mitOhne === 'mit' && r.spitzen === 1 },
   { id: 'mit_2', label: '+2', check: (r) => r.mitOhne === 'mit' && r.spitzen === 2 },
@@ -423,10 +422,12 @@ const colSpecs = [
   { id: 'ohne_2', label: '−2', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 2 },
   { id: 'ohne_3', label: '−3', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 3 },
   { id: 'ohne_4', label: '−4', check: (r) => r.mitOhne === 'ohne' && r.spitzen === 4 },
-  { id: 'hand',              label: 'Hand',      isSpecial: true, check: (r) => r.hand },
-  { id: 'schneider',         label: 'Schneider', isSpecial: true, check: (r) => r.schneider || r.schneiderAnsagt },
+  { id: 'hand',              label: 'Hand',      isSpecial: true, check: (r) => r.hand && !r.schneider && !r.schwarz },
+  { id: 'hand_schneider',    label: 'Hand', icon: 'add', label2: 'S',  isSpecial: true, check: (r) => r.hand && r.schneider && !r.schwarz },
+  { id: 'hand_schwarz',      label: 'Hand', icon: 'add', label2: 'Sz', isSpecial: true, check: (r) => r.hand && r.schwarz },
+  { id: 'schneider',         label: 'Schneider', isSpecial: true, check: (r) => !r.hand && (r.schneider || r.schneiderAnsagt) },
   { id: 'schneiderAnnounced',label: 'Schneider', icon: 'campaign', isSpecial: true, check: (r) => r.schneiderAnnounced },
-  { id: 'schwarz',           label: 'Schwarz',   isSpecial: true, check: (r) => r.schwarz || r.schwarzAnsagt },
+  { id: 'schwarz',           label: 'Schwarz',   isSpecial: true, check: (r) => !r.hand && (r.schwarz || r.schwarzAnsagt) },
   { id: 'schwarzAnnounced',  label: 'Schwarz',   icon: 'campaign', isSpecial: true, check: (r) => r.schwarzAnnounced },
   { id: 'ouvert',            label: 'Ouvert',    isSpecial: true, check: (r) => r.ouvert },
 ];
