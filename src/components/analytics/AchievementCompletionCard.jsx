@@ -63,19 +63,19 @@ export default function AchievementCompletionCard({ rounds, player, allPlayers =
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
                   <span style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>Sieg / Niederlage</span>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>{selWins}S · {selLosses}N · {selTotal} gespielt</span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>{selWins} Siege · {selLosses} Niederlagen · {selTotal} Spiele</span>
                 </div>
                 <div style={{ width: '100%', backgroundColor: 'var(--surface-low)', height: '0.75rem', borderRadius: '999px', overflow: 'hidden', display: 'flex' }}>
-                  <div style={{ width: `${winPct}%`,  backgroundColor: '#0b3d2e',          borderRadius: '999px 0 0 999px', transition: 'width 0.4s ease' }} />
-                  <div style={{ width: `${lossPct}%`, backgroundColor: 'var(--secondary)', borderRadius: '0 999px 999px 0', transition: 'width 0.4s ease' }} />
+                  <div style={{ width: `${winPct}%`,  backgroundColor: '#414944',  borderRadius: '999px 0 0 999px', transition: 'width 0.4s ease' }} />
+                  <div style={{ width: `${lossPct}%`, backgroundColor: '#717974',  borderRadius: '0 999px 999px 0', transition: 'width 0.4s ease' }} />
                 </div>
                 <div style={{ display: 'flex', gap: '1.25rem', marginTop: '0.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <div style={{ width: '0.55rem', height: '0.55rem', borderRadius: '50%', backgroundColor: '#0b3d2e', flexShrink: 0 }} />
+                    <div style={{ width: '0.55rem', height: '0.55rem', borderRadius: '50%', backgroundColor: '#414944', flexShrink: 0 }} />
                     <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--on-surface)', whiteSpace: 'nowrap' }}>Siege {winPct.toFixed(1)}%</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <div style={{ width: '0.55rem', height: '0.55rem', borderRadius: '50%', backgroundColor: 'var(--secondary)', flexShrink: 0 }} />
+                    <div style={{ width: '0.55rem', height: '0.55rem', borderRadius: '50%', backgroundColor: '#717974', flexShrink: 0 }} />
                     <span style={{ fontSize: '0.7rem', fontWeight: 500, color: 'var(--outline)', whiteSpace: 'nowrap' }}>Niederlagen {lossPct.toFixed(1)}%</span>
                   </div>
                 </div>

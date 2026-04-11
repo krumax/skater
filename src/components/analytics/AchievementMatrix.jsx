@@ -80,32 +80,6 @@ export default function AchievementMatrix({ rounds, player }) {
           </table>
         </div>
       </div>
-
-      {/* Legende */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-        <div style={{ backgroundColor: 'var(--surface-low)', padding: '1.5rem', borderRadius: '0.75rem' }}>
-          <h4 style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', marginBottom: '1rem' }}>Legende</h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {[
-              { bg: 'var(--primary-container)', icon: 'military_tech', text: 'Gewonnen (mit Skat)' },
-              { bg: 'var(--tertiary-container)', icon: 'star', text: 'Besonderer Zustand gewonnen (Hand / Schneider / Schwarz / Ouvert)' },
-            ].map(({ bg, icon, text }) => (
-              <div key={icon} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '0.25rem', backgroundColor: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{icon}</span>
-                </div>
-                <span style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>{text}</span>
-              </div>
-            ))}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '0.25rem', border: '1px dashed var(--outline-variant)', opacity: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', opacity: 0.5 }}>lock</span>
-              </div>
-              <span style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>Noch nicht gespielt</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
