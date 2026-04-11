@@ -250,7 +250,7 @@ const GameScoringEntry = () => {
           <section className="form-section">
             <label className="section-label">Ansage</label>
             <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-              <div style={{ display: 'flex', gap: '0.5rem', opacity: maxSpitzen === 0 ? 0.4 : 1, pointerEvents: maxSpitzen === 0 ? 'none' : 'auto' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', opacity: maxSpitzen === 0 ? 0.25 : 1, pointerEvents: maxSpitzen === 0 ? 'none' : 'auto' }}>
                 <button className={`chip ${mitOhne === 'mit' ? 'active' : ''}`} onClick={() => setMitOhne('mit')}>Mit</button>
                 <button className={`chip ${mitOhne === 'ohne' ? 'active' : ''}`} onClick={() => setMitOhne('ohne')}>Ohne</button>
               </div>
@@ -274,23 +274,21 @@ const GameScoringEntry = () => {
           </section>
 
           {/* ── Spitzen ── */}
-          {['club', 'spade', 'heart', 'diamond'].includes(gameType) && (
-            <section className="form-section">
-              <label className="section-label">Spitzen</label>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                {Array.from({ length: 7 }, (_, i) => i + 5).map(num => (
-                  <button
-                    key={num}
-                    onClick={() => setSpitzen(num)}
-                    className={`game-type-card ${spitzen === num ? 'active' : ''}`}
-                    style={{ width: '48px', height: '48px', borderRadius: '0.5rem', fontSize: '1.125rem', fontWeight: 700 }}
-                  >
-                    {num}
-                  </button>
-                ))}
-              </div>
-            </section>
-          )}
+          <section className="form-section" style={{ opacity: ['club', 'spade', 'heart', 'diamond'].includes(gameType) ? 1 : 0.25, pointerEvents: ['club', 'spade', 'heart', 'diamond'].includes(gameType) ? 'auto' : 'none' }}>
+            <label className="section-label">Spitzen</label>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              {Array.from({ length: 7 }, (_, i) => i + 5).map(num => (
+                <button
+                  key={num}
+                  onClick={() => setSpitzen(num)}
+                  className={`game-type-card ${spitzen === num ? 'active' : ''}`}
+                  style={{ width: '48px', height: '48px', borderRadius: '0.5rem', fontSize: '1.125rem', fontWeight: 700 }}
+                >
+                  {num}
+                </button>
+              ))}
+            </div>
+          </section>
 
           {/* ── Augen ── */}
           <section className="form-section">
@@ -350,7 +348,28 @@ const GameScoringEntry = () => {
                 </div>
                 <div className="result-breakdown">
                   <div className="breakdown-row">
-                    <span style={{ opacity: 0.8 }}>Grundwert ({SUIT_LABELS[gameType]})</span>
+                    <span style={{ opacity: 0.8, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      Grundwert
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        width: '1.25rem', height: '1.25rem', borderRadius: '0.25rem', flexShrink: 0,
+                        backgroundColor: {
+                          club: '#1b1c1c', spade: '#3d4040', heart: '#8b1a1a',
+                          diamond: '#b5860d', grand: '#1b4332', null: '#6b7280', passed: '#4a4a5a',
+                        }[gameType] ?? 'var(--surface-high)',
+                      }}>
+                        {gameType === 'grand'
+                          ? <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: '#fff' }}>stars</span>
+                          : gameType === 'null'
+                            ? <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: '#fff' }}>block</span>
+                            : gameType === 'passed'
+                              ? <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: '#fff' }}>skip_next</span>
+                              : <span style={{ fontSize: '0.75rem', fontWeight: 700, color: gameType === 'diamond' ? '#1b1c1c' : '#fff', lineHeight: 1 }}>
+                                  {{ club: '♣', spade: '♠', heart: '♥', diamond: '♦' }[gameType]}
+                                </span>
+                        }
+                      </span>
+                    </span>
                     <span style={{ fontWeight: 800 }}>{result.baseValue}</span>
                   </div>
                   <div className="breakdown-row">
