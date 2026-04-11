@@ -25,6 +25,24 @@
   --outline-variant: #c0c8c3;
   
   --shadow-color: rgba(27, 28, 28, 0.08);
+
+  /* ── Suit / Game-type colors ── */
+  --suit-grand:   #0b3d2e;
+  --suit-club:    #1b1c1c;
+  --suit-spade:   #414944;
+  --suit-heart:   #b52619;
+  --suit-diamond: #d0a600;
+  --suit-null:    #717974;
+  --suit-passed:  #4a4a5a;
+
+  /* ── Semantic outcome colors ── */
+  --win-color:  #2e7d32;
+  --loss-color: #d84315;
+
+  /* ── Sync status colors ── */
+  --sync-ok:    #4caf50;
+  --sync-error: #f44336;
+  --sync-busy:  #9e9e9e;
 }
 
 * {

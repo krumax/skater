@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS } from '../lib/skatScoring';
 import GameTypeEditor from '../components/GameTypeEditor';
+import { computeRunningTotals } from '../lib/playerStats';
 
 const SkatScoreList = () => {
   const navigate = useNavigate();
@@ -18,18 +19,11 @@ const SkatScoreList = () => {
   const [expanded, setExpanded] = useState(false);
   const [editingRound, setEditingRound] = useState(null);
 
-  // Precompute running totals for every round index once
-  const runningStd = [];
-  const runningSF  = [];
-  rounds.forEach((r, idx) => {
-    const std = idx === 0 ? {} : { ...runningStd[idx - 1] };
-    const sf  = idx === 0 ? {} : { ...runningSF[idx - 1] };
-    players.forEach(p => { if (std[p] === undefined) std[p] = 0; if (sf[p] === undefined) sf[p] = 0; });
-    std[r.player] = (std[r.player] || 0) + r.gameValue;
-    if (r.seegerScores) players.forEach(p => { sf[p] = (sf[p] || 0) + (r.seegerScores[p] || 0); });
-    runningStd.push(std);
-    runningSF.push(sf);
-  });
+  // Running totals per round — memoized, pure function
+  const { runningStd, runningSF } = useMemo(
+    () => computeRunningTotals(players, rounds),
+    [players, rounds]
+  );
 
   const splitAt = Math.max(0, rounds.length - VISIBLE_TAIL);
   const olderRounds = rounds.slice(0, splitAt);

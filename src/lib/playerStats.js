@@ -124,3 +124,41 @@ export function computePlayerStats(rounds, playerName) {
     bestWin, worstLoss,
   };
 }
+
+// ── Running totals ────────────────────────────────────────────────────────────
+
+/**
+ * Computes cumulative standard and Seeger-Fabian scores after each round.
+ *
+ * @param {string[]} players - Active player names (no "-")
+ * @param {Array}    rounds  - All rounds in order
+ * @returns {{ runningStd: object[], runningSF: object[] }}
+ *   Each entry is a snapshot of all player totals after that round index.
+ */
+export function computeRunningTotals(players, rounds) {
+  const runningStd = [];
+  const runningSF  = [];
+
+  rounds.forEach((r, idx) => {
+    const std = idx === 0 ? {} : { ...runningStd[idx - 1] };
+    const sf  = idx === 0 ? {} : { ...runningSF[idx - 1] };
+
+    players.forEach(p => {
+      if (std[p] === undefined) std[p] = 0;
+      if (sf[p]  === undefined) sf[p]  = 0;
+    });
+
+    std[r.player] = (std[r.player] || 0) + r.gameValue;
+
+    if (r.seegerScores) {
+      players.forEach(p => {
+        sf[p] = (sf[p] || 0) + (r.seegerScores[p] || 0);
+      });
+    }
+
+    runningStd.push(std);
+    runningSF.push(sf);
+  });
+
+  return { runningStd, runningSF };
+}

@@ -198,3 +198,62 @@ describe('computePlayerStats', () => {
     expect(stats.seegerTotal).toBe(-18);
   });
 });
+
+// ── computeRunningTotals ──────────────────────────────────────────────────────
+
+import { computeRunningTotals } from './playerStats';
+
+describe('computeRunningTotals', () => {
+  const players = ['Alice', 'Bob', 'Carol'];
+
+  it('returns empty arrays for no rounds', () => {
+    const { runningStd, runningSF } = computeRunningTotals(players, []);
+    expect(runningStd).toHaveLength(0);
+    expect(runningSF).toHaveLength(0);
+  });
+
+  it('accumulates standard scores correctly', () => {
+    const rounds = [
+      makeRound({ player: 'Alice', gameValue: 18, seegerScores: null }),
+      makeRound({ player: 'Bob',   gameValue: -36, seegerScores: null }),
+      makeRound({ player: 'Alice', gameValue: 24, seegerScores: null }),
+    ];
+    const { runningStd } = computeRunningTotals(players, rounds);
+    expect(runningStd[0]).toMatchObject({ Alice: 18, Bob: 0, Carol: 0 });
+    expect(runningStd[1]).toMatchObject({ Alice: 18, Bob: -36, Carol: 0 });
+    expect(runningStd[2]).toMatchObject({ Alice: 42, Bob: -36, Carol: 0 });
+  });
+
+  it('accumulates Seeger-Fabian scores correctly', () => {
+    const rounds = [
+      makeRound({ player: 'Alice', gameValue: 18, seegerScores: { Alice: 68, Bob: -40, Carol: -40 } }),
+      makeRound({ player: 'Bob',   gameValue: -36, seegerScores: { Alice: 40, Bob: -86, Carol: 40 } }),
+    ];
+    const { runningSF } = computeRunningTotals(players, rounds);
+    expect(runningSF[0]).toMatchObject({ Alice: 68, Bob: -40, Carol: -40 });
+    expect(runningSF[1]).toMatchObject({ Alice: 108, Bob: -126, Carol: 0 });
+  });
+
+  it('each snapshot is independent (no shared references)', () => {
+    const rounds = [
+      makeRound({ player: 'Alice', gameValue: 10, seegerScores: null }),
+      makeRound({ player: 'Alice', gameValue: 10, seegerScores: null }),
+    ];
+    const { runningStd } = computeRunningTotals(players, rounds);
+    // Mutating snapshot[0] should not affect snapshot[1]
+    runningStd[0].Alice = 999;
+    expect(runningStd[1].Alice).toBe(20);
+  });
+
+  it('handles rounds without seegerScores (null)', () => {
+    const rounds = [makeRound({ player: 'Alice', gameValue: 18, seegerScores: null })];
+    const { runningSF } = computeRunningTotals(players, rounds);
+    expect(runningSF[0]).toMatchObject({ Alice: 0, Bob: 0, Carol: 0 });
+  });
+
+  it('initializes all players to 0 even if they never played', () => {
+    const rounds = [makeRound({ player: 'Alice', gameValue: 18, seegerScores: null })];
+    const { runningStd } = computeRunningTotals(players, rounds);
+    expect(runningStd[0].Carol).toBe(0);
+  });
+});

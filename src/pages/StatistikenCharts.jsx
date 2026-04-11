@@ -1,22 +1,12 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
+import { SUIT_COLORS, PLAYER_COLORS } from '../lib/tokens';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell,
   BarChart, Bar,
 } from 'recharts';
-
-/* ── Colour palette for players & chart slices ── */
-const PLAYER_COLORS = ['#0b3d2e', '#b52619', '#745b00', '#396756', '#ff5c47', '#d0a600'];
-const PIE_COLORS = {
-  club:    '#1b1c1c',
-  spade:   '#414944',
-  heart:   '#b52619',
-  diamond: '#d0a600',
-  grand:   '#0b3d2e',
-  null:    '#717974',
-};
 
 /* ── Reusable label style constants ── */
 const statLabel = {
@@ -195,7 +185,7 @@ const StatistikenCharts = () => {
                       outerRadius={110} innerRadius={55} paddingAngle={3}
                       label={renderPieLabel} labelLine={{ stroke: 'var(--outline-variant)', strokeWidth: 1 }}>
                       {pieData.map((entry, i) => (
-                        <Cell key={i} fill={PIE_COLORS[entry.type] || PLAYER_COLORS[i % PLAYER_COLORS.length]} />
+                        <Cell key={i} fill={SUIT_COLORS[entry.type] || PLAYER_COLORS[i % PLAYER_COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip content={<ChartTooltip />} />
@@ -216,7 +206,7 @@ const StatistikenCharts = () => {
                     <Tooltip content={<ChartTooltip />} />
                     <Bar dataKey="winRate" name="Gewinnrate" radius={[6, 6, 0, 0]} maxBarSize={56}>
                       {winRateData.map((entry, i) => (
-                        <Cell key={i} fill={PIE_COLORS[entry.type] || PLAYER_COLORS[i % PLAYER_COLORS.length]} />
+                        <Cell key={i} fill={SUIT_COLORS[entry.type] || PLAYER_COLORS[i % PLAYER_COLORS.length]} />
                       ))}
                     </Bar>
                   </BarChart>

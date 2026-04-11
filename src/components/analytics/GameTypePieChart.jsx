@@ -1,11 +1,7 @@
 import React, { useMemo } from 'react';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../../lib/skatScoring';
 import { computeShares } from '../ScoreDistributionChart';
-
-const GAME_TYPE_COLORS = {
-  club: '#1b1c1c', spade: '#414944', heart: '#b52619',
-  diamond: '#d0a600', grand: '#0b3d2e', null: '#717974',
-};
+import { SUIT_COLORS } from '../../lib/tokens';
 
 const CX = 110, CY = 110, R = 100, RI = 52;
 
@@ -24,7 +20,7 @@ function donutArcPath(startAngle, endAngle) {
 
 export default function GameTypePieChart({ typeDistribution, rounds, player }) {
   const scores   = Object.fromEntries(typeDistribution.map(({ type, count }) => [type, count]));
-  const colorMap = Object.fromEntries(typeDistribution.map(({ type }) => [type, GAME_TYPE_COLORS[type] ?? '#999']));
+  const colorMap = Object.fromEntries(typeDistribution.map(({ type }) => [type, SUIT_COLORS[type] ?? '#999']));
   const slices   = computeShares(scores, colorMap);
   const isSingle = slices.length === 1;
 

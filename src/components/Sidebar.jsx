@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
+import { SYNC_COLORS } from '../lib/tokens';
 
 const ROLE_LABELS = {
   geber: { label: 'Geben', icon: 'style', desc: 'Kartengeber' },
@@ -9,10 +10,10 @@ const ROLE_LABELS = {
 };
 
 const SYNC_ICON = {
-  idle:    { icon: 'cloud_done', color: '#4caf50', title: 'Synchronisiert' },
-  synced:  { icon: 'cloud_done', color: '#4caf50', title: 'Synchronisiert' },
-  syncing: { icon: 'sync',       color: '#9e9e9e', title: 'Synchronisiert…', spin: true },
-  error:   { icon: 'cloud_off',  color: '#f44336', title: 'Synchronisierungsfehler' },
+  idle:    { icon: 'cloud_done', color: SYNC_COLORS.idle,    title: 'Synchronisiert' },
+  synced:  { icon: 'cloud_done', color: SYNC_COLORS.synced,  title: 'Synchronisiert' },
+  syncing: { icon: 'sync',       color: SYNC_COLORS.syncing, title: 'Synchronisiert…', spin: true },
+  error:   { icon: 'cloud_off',  color: SYNC_COLORS.error,   title: 'Synchronisierungsfehler' },
 };
 
 const Sidebar = () => {

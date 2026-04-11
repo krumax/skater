@@ -1,14 +1,5 @@
 import React from 'react';
-
-// ── Farben konsistent mit dem Rest der App ──
-const SUIT_COLORS = {
-  diamond: '#d0a600',
-  heart:   '#b52619',
-  spade:   '#414944',
-  club:    '#1b1c1c',
-  grand:   '#0b3d2e',
-  null:    '#717974',
-};
+import { SUIT_COLORS } from '../lib/tokens';
 
 // ── Reiztabelle-Daten ──
 // Spalten: Gewinnstufen 1–5, Hand(6), Schneider(7), Schn.anges.(8), Schwarz(9), Schw.anges.(10), Ouvert(11)
