@@ -1,15 +1,31 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useGame } from '../context/GameContext';
-import {
-  calculateGameValue,
-  getOutcomeLabel,
-  SUIT_LABELS,
-  SUIT_SYMBOLS,
-} from '../lib/skatScoring';
+import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
 import { computePlayerLevel } from '../lib/playerLevel';
+import { useGameForm } from '../hooks/useGameForm';
 
 const GameScoringEntry = () => {
   const { players, seating, addRound, currentRound, getPlayerRank, currentRoles, rounds } = useGame();
+
+  const {
+    activePlayer, setActivePlayer,
+    gameType, setGameType,
+    hand, setHand,
+    schneider, setSchneider,
+    schneiderAnnounced, setSchneiderAnnounced,
+    schwarz, setSchwarz,
+    schwarzAnnounced, setSchwartzAnnounced,
+    ouvert, setOuvert,
+    mitOhne, setMitOhne,
+    spitzen, setSpitzen,
+    eyeCount, setEyeCount,
+    isBock, setIsBock,
+    maxSpitzen,
+    result,
+    outcomeLabel,
+    resetForm,
+    buildRoundPayload,
+  } = useGameForm(currentRoles.activePlayers[0] || players[0]);
 
   // Level pro Spieler vorberechnen
   const playerLevels = useMemo(() =>
@@ -26,95 +42,15 @@ const GameScoringEntry = () => {
     return null;
   };
 
-  // ── Formular-Status ──
-  const [activePlayer, setActivePlayer] = useState(currentRoles.activePlayers[0] || players[0]);
-  const [gameType, setGameType] = useState('spade');
-  const [hand, setHand] = useState(false);
-  const [schneider, setSchneider] = useState(false);
-  const [schneiderAnnounced, setSchneiderAnnounced] = useState(false);
-  const [schwarz, setSchwarz] = useState(false);
-  const [schwarzAnnounced, setSchwartzAnnounced] = useState(false);
-  const [ouvert, setOuvert] = useState(false);
-  const [mitOhne, setMitOhne] = useState('mit');
-  const [spitzen, setSpitzen] = useState(1);
-  const [eyeCount, setEyeCount] = useState(61);
-  const [isBock, setIsBock] = useState(false);
-
-  // ── Automatische Berechnung ──
-  const result = useMemo(() => {
-    try {
-      return calculateGameValue({
-        gameType,
-        spitzen,
-        hand,
-        schneider,
-        schneiderAnnounced,
-        schwarz,
-        schwarzAnnounced,
-        ouvert,
-        eyeCount: gameType === 'null' ? (eyeCount === 0 ? 0 : 1) : eyeCount,
-      });
-    } catch {
-      return null;
-    }
-  }, [gameType, spitzen, hand, schneider, schwarz, ouvert, eyeCount]);
-
-  const outcomeLabel = useMemo(() => {
-    if (gameType === 'passed') return 'Eingepasst';
-    if (gameType === 'null') return eyeCount === 0 ? 'Null gewonnen' : 'Null verloren';
-    return getOutcomeLabel(eyeCount);
-  }, [gameType, eyeCount]);
-
-  // ── Formular zurücksetzen ──
-  const resetForm = () => {
-    setGameType('spade');
-    setHand(false);
-    setSchneider(false);
-    setSchneiderAnnounced(false);
-    setSchwarz(false);
-    setSchwartzAnnounced(false);
-    setOuvert(false);
-    setMitOhne('mit');
-    setSpitzen(1);
-    setEyeCount(61);
-    setIsBock(false);
-  };
-
   // ── Ergebnis speichern ──
   const handleCommit = () => {
-    if (!result) return;
-
-    const typeLabel = gameType === 'passed' ? 'Eingepasst' : (SUIT_LABELS[gameType]
-      + (hand ? ' Hand' : '')
-      + (schneiderAnnounced ? ' Schneider angesagt' : schneider ? ' Schneider' : '')
-      + (schwarzAnnounced ? ' Schwarz angesagt' : schwarz ? ' Schwarz' : '')
-      + (ouvert ? ' Ouvert' : ''));
-
-    addRound({
-      player: gameType === 'passed' ? '-' : activePlayer,
-      gameType,
-      typeLabel,
-      gameValue: result.gameValue,
-      baseValue: result.baseValue,
-      multiplier: result.multiplier,
-      won: result.won,
-      eyeCount,
-      spitzen,
-      hand,
-      schneider,
-      schneiderAnnounced,
-      schwarz,
-      schwarzAnnounced,
-      ouvert,
-      isBock,
-      mitOhne,
-    });
-
+    const payload = buildRoundPayload();
+    if (!payload) return;
+    addRound(payload);
     resetForm();
   };
 
   // ── Max. Spitzen nach Spielart ──
-  const maxSpitzen = ['club', 'spade', 'heart', 'diamond'].includes(gameType) ? 11 : (gameType === 'grand' ? 4 : 0);
 
   const rankings = getPlayerRank();
 
