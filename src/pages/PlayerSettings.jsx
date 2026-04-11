@@ -186,7 +186,7 @@ export default function PlayerSettings() {
     setEditingPlayer(null); setEditName('');
   };
   const handleRemove = (name) => {
-    if (rounds.some(r => r.player === name))
+    if (name !== '-' && rounds.some(r => r.player === name))
       if (!window.confirm(`„${name}" hat bereits Runden gespielt. Fortfahren?`)) return;
     removePlayer(name);
   };
@@ -372,8 +372,8 @@ export default function PlayerSettings() {
                         style={{ padding: '0.4rem', borderRadius: '0.375rem', color: 'var(--outline)', background: 'none', border: 'none', cursor: 'pointer' }}>
                         <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>edit</span>
                       </button>
-                      <button onClick={e => { e.stopPropagation(); handleRemove(name); }} title="Entfernen" disabled={n <= 3}
-                        style={{ padding: '0.4rem', borderRadius: '0.375rem', color: n <= 3 ? 'var(--outline-variant)' : 'var(--secondary)', background: 'none', border: 'none', cursor: n <= 3 ? 'not-allowed' : 'pointer' }}>
+                      <button onClick={e => { e.stopPropagation(); handleRemove(name); }} title="Entfernen" disabled={n <= 3 && name !== '-'}
+                        style={{ padding: '0.4rem', borderRadius: '0.375rem', color: (n <= 3 && name !== '-') ? 'var(--outline-variant)' : 'var(--secondary)', background: 'none', border: 'none', cursor: (n <= 3 && name !== '-') ? 'not-allowed' : 'pointer' }}>
                         <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>person_remove</span>
                       </button>
                     </div>

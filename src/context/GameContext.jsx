@@ -6,8 +6,6 @@ const SESSION_STORAGE_KEY = 'skatSessionId';
 
 const GameContext = createContext();
 
-const DEFAULT_PLAYERS = ['Christian', 'Elena', 'Marcus'];
-
 /**
  * Table model:
  *   seating: array of player names in clockwise order around the table
@@ -23,7 +21,7 @@ const DEFAULT_PLAYERS = ['Christian', 'Elena', 'Marcus'];
  */
 
 const initialState = {
-  seating: DEFAULT_PLAYERS,   // fixed seating order (3 or 4)
+  seating: [],   // fixed seating order (3 or 4), starts empty until session is loaded
   geberIndex: 0,              // who is dealing this round
   rounds: [],
   currentRound: 1,
@@ -33,6 +31,7 @@ const initialState = {
 
 function getRoles(seating, geberIndex) {
   const n = seating.length;
+  if (n === 0) return { geber: '', hoeren: '', sagen: '', activePlayers: [] };
   const geber  = seating[geberIndex % n];
   const hoeren = seating[(geberIndex + 1) % n];
   const sagen  = seating[(geberIndex + 2) % n];
@@ -87,9 +86,14 @@ function gameReducer(state, action) {
 
     case 'LOAD_SESSION': {
       const { session, rounds } = action.payload;
+      // Platzhalter-Spieler "-" aus dem geladenen seating entfernen
+      const rawSeating = session.seating ?? [];
+      const cleanSeating = rawSeating.filter(p => p !== '-');
+      // Mindestens 3 Spieler behalten — falls alle "-" waren, Fallback auf raw
+      const seating = cleanSeating.length >= 1 ? cleanSeating : rawSeating;
       return {
         ...state,
-        seating: session.seating,
+        seating,
         geberIndex: session.geber_index,
         currentRound: session.current_round,
         rounds: rounds,
@@ -123,12 +127,12 @@ function gameReducer(state, action) {
     }
 
     case 'REMOVE_PLAYER': {
-      if (state.seating.length <= 3) return state; // min 3
+      if (state.seating.length <= 3 && action.payload !== '-') return state; // min 3 real players
       const newSeating = state.seating.filter(p => p !== action.payload);
       return {
         ...state,
         seating: newSeating,
-        geberIndex: state.geberIndex % newSeating.length,
+        geberIndex: state.geberIndex % Math.max(newSeating.length, 1),
       };
     }
 
@@ -208,48 +212,47 @@ function gameReducer(state, action) {
 
 export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
-  const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'syncing' | 'synced' | 'error'
+  const [syncStatus, setSyncStatus] = useState('idle');
   const [syncError, setSyncError] = useState(null);
+  const [sessionLoaded, setSessionLoaded] = useState(false);
 
   // Initialization — load session on mount, never auto-create
   useEffect(() => {
+    function loadDispatch(payload) {
+      dispatch({ type: 'LOAD_SESSION', payload });
+      setSessionLoaded(true);
+    }
+
     async function initSession() {
       setSyncStatus('syncing');
       const storedId = localStorage.getItem(SESSION_STORAGE_KEY);
       if (storedId) {
         const { data, error } = await syncService.loadSession(storedId);
         if (!error && data) {
-          dispatch({ type: 'LOAD_SESSION', payload: data });
+          loadDispatch(data);
           setSyncStatus('synced');
           return;
         }
-        // Stored session no longer exists — fall through to load latest
         localStorage.removeItem(SESSION_STORAGE_KEY);
       }
-      // No stored session or it was invalid — load the most recent session from DB
       const { data: sessions, error: listError } = await syncService.listSessions();
       if (listError || !sessions?.length) {
-        // No sessions at all — only now create one
-        const { data: newSession, error: createError } = await syncService.createSession(initialState.seating);
-        if (createError || !newSession) {
-          setSyncStatus('error');
-          setSyncError(createError?.message ?? 'Fehler beim Erstellen der Session');
-          return;
-        }
-        localStorage.setItem(SESSION_STORAGE_KEY, newSession.id);
-        dispatch({ type: 'LOAD_SESSION', payload: { session: newSession, rounds: [] } });
-      } else {
-        // Load the most recent existing session
-        const latest = sessions[0];
-        const { data, error } = await syncService.loadSession(latest.id);
-        if (error || !data) {
-          setSyncStatus('error');
-          setSyncError(error?.message ?? 'Fehler beim Laden der Session');
-          return;
-        }
-        localStorage.setItem(SESSION_STORAGE_KEY, latest.id);
-        dispatch({ type: 'LOAD_SESSION', payload: data });
+        // No sessions at all — mark as loaded but don't create a session with empty players.
+        // The user must create a new table via the wizard first.
+        setSessionLoaded(true);
+        setSyncStatus('synced');
+        return;
       }
+      // Load the most recent existing session
+      const latest = sessions[0];
+      const { data, error } = await syncService.loadSession(latest.id);
+      if (error || !data) {
+        setSyncStatus('error');
+        setSyncError(error?.message ?? 'Fehler beim Laden der Session');
+        return;
+      }
+      localStorage.setItem(SESSION_STORAGE_KEY, latest.id);
+      loadDispatch(data);
       setSyncStatus('synced');
     }
     initSession();
@@ -326,7 +329,7 @@ export function GameProvider({ children }) {
   const removePlayer = useCallback(async (name) => {
     dispatch({ type: 'REMOVE_PLAYER', payload: name });
     const sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
-    if (!sessionId || state.seating.length <= 3) return;
+    if (!sessionId || (state.seating.length <= 3 && name !== '-')) return;
     const newSeating = state.seating.filter(p => p !== name);
     const { error } = await syncService.updateSeating(sessionId, newSeating);
     if (error) console.error('updateSeating (removePlayer) fehlgeschlagen:', error);
@@ -476,7 +479,7 @@ export function GameProvider({ children }) {
   // ── Standard totals ──
   const getPlayerTotals = useCallback(() => {
     const totals = {};
-    state.seating.forEach(p => { totals[p] = 0; });
+    state.seating.filter(p => p !== '-').forEach(p => { totals[p] = 0; });
     state.rounds.forEach(r => {
       if (r.player && r.player !== '-') {
         totals[r.player] = (totals[r.player] || 0) + r.gameValue;
@@ -488,10 +491,10 @@ export function GameProvider({ children }) {
   // ── Seeger-Fabian totals ──
   const getSeegerTotals = useCallback(() => {
     const totals = {};
-    state.seating.forEach(p => { totals[p] = 0; });
+    state.seating.filter(p => p !== '-').forEach(p => { totals[p] = 0; });
     state.rounds.forEach(r => {
       if (r.seegerScores) {
-        state.seating.forEach(p => {
+        state.seating.filter(p => p !== '-').forEach(p => {
           totals[p] = (totals[p] || 0) + (r.seegerScores[p] || 0);
         });
       }
@@ -619,6 +622,7 @@ export function GameProvider({ children }) {
       // Sync
       syncStatus,
       syncError,
+      sessionLoaded,
       // Actions
       addRound,
       resetSession,

@@ -153,7 +153,7 @@ const GameScoringEntry = () => {
           <section className="form-section">
             <label className="section-label">Wer ist der Alleinspieler?</label>
             <div className="player-grid" style={{ opacity: gameType === 'passed' ? 0.4 : 1, pointerEvents: gameType === 'passed' ? 'none' : 'auto' }}>
-              {currentRoles.activePlayers.map(name => {
+              {currentRoles.activePlayers.filter(name => name !== '-').map(name => {
                 const roleTag = getRoleTag(name);
                 return (
                   <button 

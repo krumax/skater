@@ -6,12 +6,13 @@ import GameTypeEditor from '../components/GameTypeEditor';
 
 const SkatScoreList = () => {
   const navigate = useNavigate();
-  const { rounds, players, getPlayerTotals, getSeegerTotals, getPlayerRank, deleteRound } = useGame();
+  const { rounds, players: allPlayers, getPlayerTotals, getSeegerTotals, getPlayerRank, deleteRound, sessionLoaded } = useGame();
+  const players = allPlayers.filter(p => p !== '-');
 
   const standardTotals = getPlayerTotals();
   const seegerTotals = getSeegerTotals();
-  const standardRank = getPlayerRank(false);
-  const seegerRank = getPlayerRank(true);
+  const standardRank = getPlayerRank(false).filter(e => e.name !== '-');
+  const seegerRank = getPlayerRank(true).filter(e => e.name !== '-');
 
   const VISIBLE_TAIL = 5;
   const [expanded, setExpanded] = useState(false);
@@ -114,6 +115,7 @@ const SkatScoreList = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {(() => {
               const combined = players
+                .filter(p => p !== '-')
                 .map(p => ({ name: p, score: (standardTotals[p] ?? 0) + (seegerTotals[p] ?? 0) }))
                 .sort((a, b) => b.score - a.score)
                 .map((entry, idx) => ({ ...entry, rank: idx + 1 }));

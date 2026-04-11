@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
 import { computeShares } from '../components/ScoreDistributionChart';
@@ -213,8 +213,16 @@ function WinRateByType({ rounds, player }) {
 
 
 const PlayerAnalytics = () => {
-  const { players, rounds, getPlayerStats } = useGame();
-  const [selectedPlayer, setSelectedPlayer] = useState(players[0] || '');
+  const { players: allPlayers, rounds, getPlayerStats } = useGame();
+  const players = allPlayers.filter(p => p !== '-');
+  const [selectedPlayer, setSelectedPlayer] = useState('');
+
+  // Sobald echte Spieler geladen sind, ersten auswählen
+  useEffect(() => {
+    if (players.length > 0 && (!selectedPlayer || !players.includes(selectedPlayer))) {
+      setSelectedPlayer(players[0]);
+    }
+  }, [players]);
 
   if (players.length === 0) {
     return (
@@ -240,7 +248,7 @@ const PlayerAnalytics = () => {
       </header>
 
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
-        {players.map(name => (
+        {players.filter(name => name !== '-').map(name => (
           <button key={name} onClick={() => setSelectedPlayer(name)}
             className={`chip ${selectedPlayer === name ? 'active' : ''}`}
             style={{ fontSize: '1rem', padding: '0.75rem 1.5rem' }}>{name}</button>

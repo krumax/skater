@@ -56,7 +56,8 @@ const renderPieLabel = ({ name, pct, x, y, textAnchor }) => (
 /* ──────────────────────────────────────────────── */
 
 const StatistikenCharts = () => {
-  const { rounds, players } = useGame();
+  const { rounds, players: allPlayers } = useGame();
+  const players = allPlayers.filter(p => p !== '-');
 
   /* ── 1. Punkteentwicklung (cumulative score per player per round) ── */
   const trendData = React.useMemo(() => {
