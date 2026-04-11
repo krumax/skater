@@ -1,0 +1,123 @@
+/**
+ * ResultDashboard — zeigt das berechnete Rundenergebnis mit Aufschlüsselung
+ * sowie den aktuellen Tischstand und den Speichern-Button.
+ */
+
+const SUIT_COLORS = {
+  club: '#1b1c1c', spade: '#3d4040', heart: '#8b1a1a',
+  diamond: '#b5860d', grand: '#1b4332', null: '#6b7280', passed: '#4a4a5a',
+};
+
+function SuitBadge({ gameType }) {
+  const bg = SUIT_COLORS[gameType] ?? 'var(--surface-high)';
+  const style = {
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    width: '1.25rem', height: '1.25rem', borderRadius: '0.25rem', flexShrink: 0,
+    backgroundColor: bg,
+  };
+  if (gameType === 'grand') {
+    return <span style={style}><span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: '#fff' }}>stars</span></span>;
+  }
+  if (gameType === 'null') {
+    return <span style={style}><span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: '#fff' }}>block</span></span>;
+  }
+  if (gameType === 'passed') {
+    return <span style={style}><span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: '#fff' }}>skip_next</span></span>;
+  }
+  const symbols = { club: '♣', spade: '♠', heart: '♥', diamond: '♦' };
+  return (
+    <span style={style}>
+      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: gameType === 'diamond' ? '#1b1c1c' : '#fff', lineHeight: 1 }}>
+        {symbols[gameType]}
+      </span>
+    </span>
+  );
+}
+
+export function formatScore(gameValue, isBock) {
+  const value = isBock ? gameValue * 2 : gameValue;
+  return (value > 0 ? '+' : '') + value;
+}
+
+export default function ResultDashboard({ result, outcomeLabel, gameType, isBock, rankings, onCommit }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      {result && (
+        <div
+          className="result-dashboard"
+          style={result.won ? {} : { background: 'linear-gradient(135deg, var(--secondary), var(--secondary-container))' }}
+        >
+          <div className="result-content">
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8 }}>
+              Rundenergebnis — {outcomeLabel}
+            </span>
+
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem' }}>
+              <span className="result-value" style={{ color: result.won ? 'var(--on-surface)' : 'var(--on-secondary)' }}>
+                {formatScore(result.gameValue, isBock)}
+              </span>
+              <span style={{ fontWeight: 600, opacity: 0.9 }}>Punkte</span>
+            </div>
+
+            <div className="result-breakdown">
+              <div className="breakdown-row">
+                <span style={{ opacity: 0.8, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  Grundwert <SuitBadge gameType={gameType} />
+                </span>
+                <span style={{ fontWeight: 800 }}>{result.baseValue}</span>
+              </div>
+              <div className="breakdown-row">
+                <span style={{ opacity: 0.8 }}>Multiplikator</span>
+                <span style={{ fontWeight: 800 }}>×{result.multiplier}</span>
+              </div>
+              {!result.won && (
+                <div className="breakdown-row">
+                  <span style={{ opacity: 0.8 }}>Verlust-Strafe</span>
+                  <span style={{ fontWeight: 800 }}>×2</span>
+                </div>
+              )}
+              {isBock && (
+                <div className="breakdown-row">
+                  <span style={{ opacity: 0.8 }}>Bockrunde</span>
+                  <span style={{ fontWeight: 800 }}>×2</span>
+                </div>
+              )}
+              <div className="breakdown-row breakdown-total" style={{ gridColumn: '1 / -1', borderTop: '1px solid rgba(27,28,28,0.15)', marginTop: '0.5rem', paddingTop: '0.75rem' }}>
+                <span>Gesamt</span>
+                <span>{formatScore(result.gameValue, isBock)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Aktueller Stand */}
+      <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <div style={{ backgroundColor: 'var(--surface-high)', padding: '1rem', borderRadius: '1rem', color: 'var(--primary)' }}>
+          <span className="material-symbols-outlined">trending_up</span>
+        </div>
+        <div>
+          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>
+            Aktueller Stand
+          </p>
+          {rankings.length > 0 && (
+            <p style={{ fontSize: '1.125rem', fontWeight: 700 }}>
+              {rankings[0].name} führt ({rankings[0].score >= 0 ? '+' : ''}{rankings[0].score})
+            </p>
+          )}
+        </div>
+      </div>
+
+      <button
+        className="btn-primary"
+        style={{ width: '100%', padding: '1.25rem', fontSize: '1.125rem', letterSpacing: '0.1em' }}
+        onClick={onCommit}
+      >
+        ERGEBNIS SPEICHERN
+      </button>
+      <p style={{ textAlign: 'center', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--outline)' }}>
+        Bitte alle Werte vor dem Speichern überprüfen
+      </p>
+    </div>
+  );
+}
