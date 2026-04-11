@@ -57,19 +57,6 @@ function StreakCard({ label, streakRounds, color }) {
   );
 }
 
-
-function AnalysisCard({ icon, iconColor, title, children }) {
-  return (
-    <div className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-      <span className="material-symbols-outlined" style={{ color: iconColor }}>{icon}</span>
-      <div>
-        <h4 style={{ fontWeight: 700, marginBottom: '0.25rem' }}>{title}</h4>
-        {children}
-      </div>
-    </div>
-  );
-}
-
 // ── Hauptseite ────────────────────────────────────────────────────────────────
 const PlayerAnalytics = () => {
   const { players: allPlayers, rounds, getPlayerStats } = useGame();
@@ -151,6 +138,11 @@ const PlayerAnalytics = () => {
               <StreakCard label="🏆 Längste Siegesserie"  streakRounds={stats.longestWinRounds}  color={stats.longestWinStreak  >= 3 ? 'var(--primary)'   : 'var(--on-surface)'} />
               <StreakCard label="💀 Längste Verlustserie" streakRounds={stats.longestLossRounds} color={stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)'} />
             </div>
+            {/* Zeile 5: Höchster Sieg / Höchste Niederlage */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <StatCard label="🏅 Höchster Sieg"       value={stats.bestWin  !== null ? `+${stats.bestWin}`  : '–'} color={stats.bestWin  !== null ? 'var(--primary)'   : 'var(--outline)'} />
+              <StatCard label="💔 Höchste Niederlage"  value={stats.worstLoss !== null ? `${stats.worstLoss}` : '–'} color={stats.worstLoss !== null ? 'var(--secondary)' : 'var(--outline)'} />
+            </div>
           </div>
 
           <div className="card" style={{ width: '380px', border: '1px solid var(--outline-variant)' }}>
@@ -162,6 +154,7 @@ const PlayerAnalytics = () => {
           </div>
         </div>
 
+        {/* ── Achievement-Matrizen ── */}
         {/* ── Achievement-Matrizen ── */}
         <section>
           <div style={{ marginBottom: '1.5rem' }}>
@@ -181,38 +174,6 @@ const PlayerAnalytics = () => {
           </div>
         </section>
 
-        {/* ── Analyse ── */}
-        <section>
-          <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Analyse</h3>
-          {stats.totalGames === 0 ? (
-            <div className="card" style={{ color: 'var(--outline)', textAlign: 'center', padding: '2rem' }}>Noch keine Spiele gespielt.</div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <AnalysisCard icon={stats.wins > stats.losses ? 'check_circle' : 'warning'} iconColor={stats.wins > stats.losses ? 'var(--primary)' : 'var(--secondary)'} title="Sieg/Niederlage-Bilanz">
-                <p style={{ color: 'var(--on-surface-variant)' }}>{stats.wins} Siege und {stats.losses} Niederlagen ({stats.winRate}% Siegquote).</p>
-              </AnalysisCard>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <AnalysisCard icon="emoji_events" iconColor="var(--primary)" title="Größter Sieg">
-                  {stats.bestWin !== null
-                    ? <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>+{stats.bestWin}</p>
-                    : <p style={{ color: 'var(--outline)' }}>Noch kein Sieg</p>}
-                </AnalysisCard>
-                <AnalysisCard icon="heart_broken" iconColor="var(--secondary)" title="Höchste Niederlage">
-                  {stats.worstLoss !== null
-                    ? <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--secondary)' }}>{stats.worstLoss}</p>
-                    : <p style={{ color: 'var(--outline)' }}>Noch keine Niederlage</p>}
-                </AnalysisCard>
-              </div>
-              {stats.typeDistribution.length > 0 && (
-                <AnalysisCard icon="style" iconColor="var(--tertiary)" title="Bevorzugte Spielart">
-                  <p style={{ color: 'var(--on-surface-variant)' }}>
-                    Bevorzugt {SUIT_LABELS[stats.typeDistribution[0]?.type] || stats.typeDistribution[0]?.type} ({stats.typeDistribution[0]?.pct}% aller Spiele).
-                  </p>
-                </AnalysisCard>
-              )}
-            </div>
-          )}
-        </section>
       </div>
     </div>
   );
