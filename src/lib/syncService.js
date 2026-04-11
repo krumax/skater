@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { calculateSeegerFabian } from './skatScoring';
 
 /**
  * Creates a new session in Supabase.
@@ -47,32 +48,40 @@ export async function loadSession(sessionId) {
   if (roundsError) return { data: null, error: roundsError };
 
   // Map snake_case DB columns → camelCase fields expected by the UI
-  const rounds = rawRounds.map(r => ({
-    id:           r.round_number,
-    player:       r.player,
-    gameType:     r.game_type,
-    typeLabel:    r.type_label,
-    gameValue:    r.game_value,
-    baseValue:    r.base_value,
-    multiplier:   r.multiplier,
-    won:          r.won,
-    eyeCount:     r.eye_count,
-    spitzen:      r.spitzen,
-    hand:         r.hand,
-    schneider:            r.schneider,
-    schneiderAnnounced:   r.schneider_announced ?? false,
-    schwarz:              r.schwarz,
-    schwarzAnnounced:     r.schwarz_announced ?? false,
-    ouvert:       r.ouvert,
-    roles:        r.roles,
-    seegerScores: r.seeger_scores,
-    timestamp:    r.timestamp,
-    isBock:       r.is_bock ?? false,
-    mitOhne:      r.mit_ohne ?? 'mit',
-    // keep the DB id available if needed
-    _dbId:        r.id,
-    session_id:   r.session_id,
-  }));
+  // seegerScores are recomputed from source data to ensure correctness
+  const rounds = rawRounds.map(r => {
+    const recomputedSeeger = calculateSeegerFabian({
+      declarer:   r.player,
+      allPlayers: session.seating ?? [],
+      gameValue:  r.game_value,
+      won:        r.won,
+    });
+    return {
+      id:           r.round_number,
+      player:       r.player,
+      gameType:     r.game_type,
+      typeLabel:    r.type_label,
+      gameValue:    r.game_value,
+      baseValue:    r.base_value,
+      multiplier:   r.multiplier,
+      won:          r.won,
+      eyeCount:     r.eye_count,
+      spitzen:      r.spitzen,
+      hand:         r.hand,
+      schneider:            r.schneider,
+      schneiderAnnounced:   r.schneider_announced ?? false,
+      schwarz:              r.schwarz,
+      schwarzAnnounced:     r.schwarz_announced ?? false,
+      ouvert:       r.ouvert,
+      roles:        r.roles,
+      seegerScores: recomputedSeeger,
+      timestamp:    r.timestamp,
+      isBock:       r.is_bock ?? false,
+      mitOhne:      r.mit_ohne ?? 'mit',
+      _dbId:        r.id,
+      session_id:   r.session_id,
+    };
+  });
 
   return { data: { session, rounds }, error: null };
 }

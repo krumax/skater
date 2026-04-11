@@ -198,7 +198,9 @@ const SkatScoreList = () => {
                 <>
                   {expanded && olderRounds.map((r, idx) => (
                     <RoundRow key={r.id} r={r} idx={idx} players={players}
-                      std={runningStd[idx]} sf={runningSF[idx]} onEdit={setEditingRound} onDelete={deleteRound} />
+                      std={runningStd[idx]} sf={runningSF[idx]}
+                      sfPrev={idx > 0 ? runningSF[idx - 1] : null}
+                      onEdit={setEditingRound} onDelete={deleteRound} />
                   ))}
                   {/* Toggle row */}
                   <tr style={{ backgroundColor: 'var(--surface-high)' }}>
@@ -224,7 +226,9 @@ const SkatScoreList = () => {
                 const idx = splitAt + i;
                 return (
                   <RoundRow key={r.id} r={r} idx={idx} players={players}
-                    std={runningStd[idx]} sf={runningSF[idx]} onEdit={setEditingRound} onDelete={deleteRound} />
+                    std={runningStd[idx]} sf={runningSF[idx]}
+                    sfPrev={idx > 0 ? runningSF[idx - 1] : null}
+                    onEdit={setEditingRound} onDelete={deleteRound} />
                 );
               })}
             </tbody>
@@ -299,7 +303,7 @@ function GameTypeIcon({ round }) {
     </span>
   );
 }
-const RoundRow = ({ r, idx, players, std, sf, onEdit, onDelete }) => (
+const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
   <tr style={{ borderBottom: '1px solid var(--surface-high)', backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)' }}>
     <td style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
     <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
@@ -366,11 +370,17 @@ const RoundRow = ({ r, idx, players, std, sf, onEdit, onDelete }) => (
       </td>
     ))}
     <td style={tdDivider}></td>
-    {players.map(p => (
-      <td key={`sf-${p}`} style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: (r.seegerScores?.[p] || 0) !== 0 ? 1 : 0.4, color: (sf[p] ?? 0) >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
-        {sf[p] ?? 0}
-      </td>
-    ))}
+    {players.map(p => {
+      const prev = sfPrev?.[p] ?? 0;
+      const curr = sf[p] ?? 0;
+      const delta = curr - prev;
+      const color = delta < 0 ? 'var(--secondary)' : 'var(--on-surface)';
+      return (
+        <td key={`sf-${p}`} style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: delta !== 0 ? 1 : 0.4, color }}>
+          {curr}
+        </td>
+      );
+    })}
     <td style={{ ...tdStyle, textAlign: 'center', padding: '0.75rem 0.5rem', display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
       <button
         aria-label={`Runde ${r.id} bearbeiten`}

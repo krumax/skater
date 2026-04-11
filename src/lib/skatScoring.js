@@ -223,6 +223,12 @@ export function getOutcomeLabel(eyeCount) {
 
 /**
  * Calculates Seeger-Fabian tournament scores for all players in a round.
+ *
+ * Pure tournament bonus — independent of game value:
+ *   Declarer won:  +50
+ *   Declarer lost: −50
+ *   Each opponent when declarer loses: +40
+ *
  * @param {object} params
  * @param {string}   params.declarer   – name of the solo player
  * @param {string[]} params.allPlayers – all player names
@@ -242,17 +248,11 @@ export function calculateSeegerFabian({ declarer, allPlayers, gameValue, won }) 
   const opponentBonus = playerCount <= 3 ? 40 : 30;
 
   if (won) {
-    // Declarer gets game value + 50
-    scores[declarer] = gameValue + 50;
-    // Opponents get nothing extra
+    scores[declarer] = 50;
   } else {
-    // Declarer gets game value (negative) − 50
-    scores[declarer] = gameValue - 50;
-    // Each opponent gets bonus
+    scores[declarer] = -50;
     allPlayers.forEach(p => {
-      if (p !== declarer) {
-        scores[p] = opponentBonus;
-      }
+      if (p !== declarer) scores[p] = opponentBonus;
     });
   }
 
