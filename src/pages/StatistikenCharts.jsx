@@ -198,14 +198,25 @@ const StatistikenCharts = () => {
     const totalGames = rounds.length;
     const totalPoints = rounds.reduce((s, r) => s + r.gameValue, 0);
     const avg = totalGames > 0 ? (totalPoints / totalGames).toFixed(1) : '0';
-    const best = totalGames > 0 ? Math.max(...rounds.map(r => r.gameValue)) : 0;
-    const bestRound = rounds.find(r => r.gameValue === best);
-    const bestLabel = bestRound
-      ? `${SUIT_LABELS[bestRound.gameType] || bestRound.gameType} (+${best})`
-      : '–';
     const wins = rounds.filter(r => r.won).length;
     const winRate = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(1) : '0';
-    return { totalGames, totalPoints, avg, bestLabel, winRate };
+
+    const wonRounds  = rounds.filter(r => r.won && r.player !== '-');
+    const lostRounds = rounds.filter(r => !r.won && r.player !== '-');
+
+    const bestValue = wonRounds.length  > 0 ? Math.max(...wonRounds.map(r => r.gameValue))  : null;
+    const worstValue = lostRounds.length > 0 ? Math.min(...lostRounds.map(r => r.gameValue)) : null;
+
+    const bestRound  = bestValue  !== null ? wonRounds.find(r => r.gameValue === bestValue)   : null;
+    const worstRound = worstValue !== null ? lostRounds.find(r => r.gameValue === worstValue) : null;
+
+    const fmtDate = (ts) => ts ? new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : null;
+
+    return {
+      totalGames, totalPoints, avg, winRate,
+      best:  bestRound  ? { value: bestValue,  player: bestRound.player,  type: bestRound.gameType,  round: bestRound.id,  date: fmtDate(bestRound.timestamp)  } : null,
+      worst: worstRound ? { value: worstValue, player: worstRound.player, type: worstRound.gameType, round: worstRound.id, date: fmtDate(worstRound.timestamp) } : null,
+    };
   }, [rounds]);
 
   const noData = rounds.length === 0;
@@ -218,7 +229,7 @@ const StatistikenCharts = () => {
       </header>
 
       {/* ── KPI Cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '3rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
           <p style={statLabel}>Spiele gesamt</p>
           <p style={statValue}>{kpis.totalGames}</p>
@@ -237,6 +248,76 @@ const StatistikenCharts = () => {
           <p style={statLabel}>Gewinnrate</p>
           <p style={{ ...statValue, color: parseFloat(kpis.winRate) >= 50 ? 'var(--primary)' : 'var(--secondary)' }}>{kpis.winRate}%</p>
         </div>
+      </div>
+
+      {/* ── Highlight-Kacheln ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '3rem' }}>
+        {kpis.best && (
+          <div className="card" style={{
+            display: 'flex', alignItems: 'center', gap: '2rem', padding: '1.25rem 2rem',
+            background: 'linear-gradient(135deg, #d0a600, #a07800)',
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: '#1b1c1c', flexShrink: 0 }}>emoji_events</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65, marginBottom: '0.1rem' }}>Bestes Spiel der Session</p>
+              <p style={{ ...statValue, color: '#1b1c1c', fontSize: '1.75rem', lineHeight: 1 }}>
+                +{kpis.best.value}
+                <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
+                  {SUIT_SYMBOLS[kpis.best.type]} {SUIT_LABELS[kpis.best.type]}
+                </span>
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65 }}>Alleinspieler</p>
+                <p style={{ fontWeight: 800, color: '#1b1c1c' }}>{kpis.best.player}</p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65 }}>Runde</p>
+                <p style={{ fontWeight: 800, color: '#1b1c1c' }}>#{kpis.best.round}</p>
+              </div>
+              {kpis.best.date && (
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65 }}>Datum</p>
+                  <p style={{ fontWeight: 800, color: '#1b1c1c' }}>{kpis.best.date}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {kpis.worst && (
+          <div className="card" style={{
+            display: 'flex', alignItems: 'center', gap: '2rem', padding: '1.25rem 2rem',
+            background: 'linear-gradient(135deg, var(--secondary), var(--secondary-container))',
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--on-secondary)', flexShrink: 0 }}>heart_broken</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65, marginBottom: '0.1rem' }}>Höchste Niederlage der Session</p>
+              <p style={{ ...statValue, color: 'var(--on-secondary)', fontSize: '1.75rem', lineHeight: 1 }}>
+                {kpis.worst.value}
+                <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
+                  {SUIT_SYMBOLS[kpis.worst.type]} {SUIT_LABELS[kpis.worst.type]}
+                </span>
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65 }}>Alleinspieler</p>
+                <p style={{ fontWeight: 800, color: 'var(--on-secondary)' }}>{kpis.worst.player}</p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65 }}>Runde</p>
+                <p style={{ fontWeight: 800, color: 'var(--on-secondary)' }}>#{kpis.worst.round}</p>
+              </div>
+              {kpis.worst.date && (
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65 }}>Datum</p>
+                  <p style={{ fontWeight: 800, color: 'var(--on-secondary)' }}>{kpis.worst.date}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {noData ? (
@@ -320,23 +401,6 @@ const StatistikenCharts = () => {
             </section>
           </div>
 
-          {/* ── Bestes Spiel Highlight ── */}
-          <section>
-            <div className="card" style={{
-              display: 'flex', alignItems: 'center', gap: '2rem', padding: '2rem',
-              background: 'linear-gradient(135deg, var(--tertiary), var(--tertiary-container))',
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--on-surface)' }}>emoji_events</span>
-              <div>
-                <p style={{ ...statLabel, color: 'var(--on-surface)', opacity: 0.7 }}>Bestes Spiel der Session</p>
-                <p style={{ ...statValue, color: 'var(--on-surface)', fontSize: '2rem' }}>{kpis.bestLabel}</p>
-              </div>
-              <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                <p style={{ ...statLabel, color: 'var(--on-surface)', opacity: 0.7 }}>Spiele insgesamt</p>
-                <p style={{ ...statValue, color: 'var(--on-surface)', fontSize: '2rem' }}>{kpis.totalGames}</p>
-              </div>
-            </div>
-          </section>
         </div>
       )}
     </div>
