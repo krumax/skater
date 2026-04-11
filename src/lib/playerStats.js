@@ -177,3 +177,65 @@ export function computeRunningTotals(players, rounds) {
 
   return { runningStd, runningSF };
 }
+
+// ── Achievement first-unlock indices ─────────────────────────────────────────
+
+import { MATRIX_ROWS, NULL_ROWS, COL_SPECS } from './achievementConfig';
+
+/**
+ * Berechnet für jeden Spieler die Runden-Indizes (0-basiert) an denen
+ * ein Achievement zum ersten Mal freigeschaltet wurde (Angriff + Abwehr).
+ *
+ * @param {string[]} players - Aktive Spielernamen
+ * @param {Array}    rounds  - Alle Runden in Reihenfolge
+ * @returns {Array<{ roundIndex: number, player: string, label: string }>}
+ */
+export function computeAchievementUnlocks(players, rounds) {
+  // Pro Spieler: Set der bereits gesehenen Achievement-Keys
+  const seen = Object.fromEntries(players.map(p => [p, new Set()]));
+  const unlocks = [];
+
+  rounds.forEach((r, idx) => {
+    players.forEach(player => {
+      // ── Angriff ──
+      if (r.player === player && r.won) {
+        const checkRows = r.gameType === 'null'
+          ? NULL_ROWS.filter(nr => nr.check(r)).map(nr => ({ key: `null::${nr.id}`, label: `${nr.name}` }))
+          : MATRIX_ROWS.filter(row => row.type === r.gameType).flatMap(row =>
+              COL_SPECS.filter(col => col.check(r)).map(col => ({
+                key: `${row.type}::${col.id}`,
+                label: `${row.name} ${col.label}${col.label2 ? '+' + col.label2 : ''}`,
+              }))
+            );
+
+        checkRows.forEach(({ key, label }) => {
+          if (!seen[player].has(key)) {
+            seen[player].add(key);
+            unlocks.push({ roundIndex: idx, player, label: `⚔️ ${label}` });
+          }
+        });
+      }
+
+      // ── Abwehr ──
+      if (r.player !== player && !r.won && r.gameType !== 'passed') {
+        const checkRows = r.gameType === 'null'
+          ? NULL_ROWS.filter(nr => nr.check(r)).map(nr => ({ key: `def::null::${nr.id}`, label: `${nr.name}` }))
+          : MATRIX_ROWS.filter(row => row.type === r.gameType).flatMap(row =>
+              COL_SPECS.filter(col => col.check(r)).map(col => ({
+                key: `def::${row.type}::${col.id}`,
+                label: `${row.name} ${col.label}${col.label2 ? '+' + col.label2 : ''}`,
+              }))
+            );
+
+        checkRows.forEach(({ key, label }) => {
+          if (!seen[player].has(key)) {
+            seen[player].add(key);
+            unlocks.push({ roundIndex: idx, player, label: `🛡️ ${label}` });
+          }
+        });
+      }
+    });
+  });
+
+  return unlocks;
+}

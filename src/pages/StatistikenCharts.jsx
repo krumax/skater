@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
 import { SUIT_COLORS, PLAYER_COLORS } from '../lib/tokens';
+import { computeAchievementUnlocks } from '../lib/playerStats';
 import GameTypePieChart from '../components/analytics/GameTypePieChart';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -57,10 +58,12 @@ const statValue = {
 /* ── Custom Recharts Tooltip ── */
 const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
+  const achievements = payload[0]?.payload?._achievements ?? [];
   return (
     <div style={{
       background: 'var(--surface)', padding: '0.75rem 1rem', borderRadius: '0.5rem',
       boxShadow: '0 8px 24px var(--shadow-color)', fontSize: '0.8125rem',
+      maxWidth: '260px',
     }}>
       <p style={{ fontWeight: 700, marginBottom: '0.25rem' }}>{label}</p>
       {payload.map((p, i) => (
@@ -68,6 +71,18 @@ const ChartTooltip = ({ active, payload, label }) => {
           {p.name}: <strong>{p.value}</strong>
         </p>
       ))}
+      {achievements.length > 0 && (
+        <div style={{ marginTop: '0.5rem', borderTop: '1px solid var(--outline-variant)', paddingTop: '0.5rem' }}>
+          <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', marginBottom: '0.3rem' }}>
+            Neue Achievements
+          </p>
+          {achievements.map((a, i) => (
+            <p key={i} style={{ fontSize: '0.75rem', color: 'var(--on-surface)', marginBottom: '0.15rem' }}>
+              {a.label} <span style={{ color: 'var(--outline)', fontSize: '0.7rem' }}>({a.player})</span>
+            </p>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -79,15 +94,33 @@ const StatistikenCharts = () => {
   const players = allPlayers.filter(p => p !== '-');
   const [xMode, setXMode] = useState('rounds'); // 'rounds' | 'time'
 
+  /* ── Achievement-Unlocks (muss vor trendByRound stehen) ── */
+  const achievementUnlocks = React.useMemo(() =>
+    computeAchievementUnlocks(players, rounds),
+  [players, rounds]);
+
+  const unlocksByRound = React.useMemo(() => {
+    const map = {};
+    achievementUnlocks.forEach(({ roundIndex, player, label }) => {
+      if (!map[roundIndex]) map[roundIndex] = [];
+      map[roundIndex].push({ player, label });
+    });
+    return map;
+  }, [achievementUnlocks]);
+
   /* ── 1a. Punkteentwicklung nach Runden ── */
   const trendByRound = React.useMemo(() => {
     const running = {};
     players.forEach(p => { running[p] = 0; });
     return rounds.map((r, idx) => {
       running[r.player] = (running[r.player] || 0) + r.gameValue;
-      return { name: `R${idx + 1}`, ...{ ...running } };
+      return {
+        name: `R${idx + 1}`,
+        ...{ ...running },
+        _achievements: unlocksByRound[idx] ?? [],
+      };
     });
-  }, [rounds, players]);
+  }, [rounds, players, unlocksByRound]);
 
   /* ── 1b. Punkteentwicklung nach Zeit ── */
   const trendByTime = React.useMemo(() => {
@@ -109,6 +142,25 @@ const StatistikenCharts = () => {
   }, [rounds, players]);
 
   const trendData = xMode === 'rounds' ? trendByRound : trendByTime;
+
+  // Custom Dot: zeigt einen Stern wenn an diesem Punkt ein Achievement freigeschaltet wurde
+  const makeAchievementDot = (playerName, playerColor) => (props) => {
+    const { cx, cy, index } = props;
+    if (xMode !== 'rounds') return null;
+    const events = unlocksByRound[index];
+    if (!events) return null;
+    const mine = events.filter(e => e.player === playerName);
+    if (mine.length === 0) return null;
+
+    const tooltip = mine.map(e => e.label).join('\n');
+    return (
+      <g key={`ach-${playerName}-${index}`}>
+        <circle cx={cx} cy={cy} r={7} fill={playerColor} stroke="var(--surface)" strokeWidth={2} />
+        <text x={cx} y={cy + 1} textAnchor="middle" dominantBaseline="middle"
+          fontSize="8" fill="#fff" fontWeight="bold">★</text>
+      </g>
+    );
+  };
 
   /* ── 2. Spieltypen-Verteilung ── */
   const typeDistribution = React.useMemo(() => {
@@ -227,7 +279,9 @@ const StatistikenCharts = () => {
                   <Legend wrapperStyle={{ fontSize: '0.8125rem', fontWeight: 600 }} />
                   {players.map((p, i) => (
                     <Line key={p} type="monotone" dataKey={p} stroke={PLAYER_COLORS[i % PLAYER_COLORS.length]}
-                      strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
+                      strokeWidth={2.5} dot={false} activeDot={{ r: 5 }}
+                      dot={xMode === 'rounds' ? makeAchievementDot(p, PLAYER_COLORS[i % PLAYER_COLORS.length]) : false}
+                    />
                   ))}
                 </LineChart>
               </ResponsiveContainer>
