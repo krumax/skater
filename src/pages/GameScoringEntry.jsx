@@ -40,7 +40,7 @@ const GameScoringEntry = () => {
         <p className="page-subtitle">Runde {currentRound} — Ergebnis dieser Runde erfassen.</p>
       </header>
 
-      <RolesBar currentRoles={currentRoles} seatingCount={seating.length} />
+      <RolesBar seating={seating} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '3rem' }}>
         <div>

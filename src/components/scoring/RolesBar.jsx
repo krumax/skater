@@ -1,14 +1,15 @@
 /**
- * RolesBar — zeigt die aktuellen Tischrollen (Geben/Hören/Sagen)
- * und bei 4 Spielern den aussetzendem Spieler.
+ * RolesBar — zeigt die initiale Sitzordnung wie in den Einstellungen konfiguriert.
+ * Geben = seating[0], Hören = seating[1], Sagen = seating[2].
+ * Ändert sich nicht mit den Runden.
  */
 import { Link } from 'react-router-dom';
 
-export default function RolesBar({ currentRoles, seatingCount }) {
+export default function RolesBar({ seating }) {
   const roles = [
-    { role: 'Geben', icon: 'style',              name: currentRoles.geber },
-    { role: 'Hören', icon: 'hearing',             name: currentRoles.hoeren },
-    { role: 'Sagen', icon: 'record_voice_over',   name: currentRoles.sagen },
+    { role: 'Geben', icon: 'style',            name: seating[0] ?? '–' },
+    { role: 'Hören', icon: 'hearing',           name: seating[1] ?? '–' },
+    { role: 'Sagen', icon: 'record_voice_over', name: seating[2] ?? '–' },
   ];
 
   return (
@@ -38,12 +39,12 @@ export default function RolesBar({ currentRoles, seatingCount }) {
           </div>
         ))}
 
-        {seatingCount === 4 && (
+        {seating.length === 4 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', opacity: 0.5 }}>
             <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>pause_circle</span>
             <div>
-              <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', display: 'block' }}>Sitzt aus</span>
-              <span style={{ fontWeight: 700, fontSize: '1rem' }}>{currentRoles.geber}</span>
+              <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', display: 'block' }}>4. Spieler</span>
+              <span style={{ fontWeight: 700, fontSize: '1rem' }}>{seating[3]}</span>
             </div>
           </div>
         )}
