@@ -21,16 +21,13 @@ const Sidebar = () => {
   const syncIcon = SYNC_ICON[syncStatus] ?? SYNC_ICON.idle;
 
   return (
-    <aside className="sidebar" style={{ position: 'relative' }}>
+    <aside className="sidebar">
       <img
         src="/sitchoverflow_logo.png"
         alt="StichOverflow"
-        style={{
-          position: 'absolute', top: 0, left: 0, right: 0,
-          width: '100%', display: 'block',
-        }}
+        style={{ width: '100%', marginBottom: '0.75rem', display: 'block' }}
       />
-      <div className="sidebar-header" style={{ paddingTop: '67%' }}>
+      <div className="sidebar-header">
         {tableName && (
           <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', opacity: 0.6, margin: '0 0 0.2rem' }}>{tableName}</p>
         )}
