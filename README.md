@@ -1,9 +1,9 @@
-# Skat Zählapp
+# StichOverflow
 
 Eine moderne, minimale React/Vite-Anwendung zum bequemen und fehlerfreien Zählen von Skat-Runden am echten Kartentisch. Die App kümmert sich um die teils komplexe Punkteberechnung, speichert den Verlauf sicher in der Cloud, bietet detaillierte Statistiken und motiviert die Spieler durch visuelle Auszeichnungen (Achievements).
 
 ## Wozu setzt man die App ein?
-Statt Stift und Papier zu bemühen und am Ende des Abends mühsam Punkte zusammenzurechnen, übernimmt die Skat Zählapp die komplette Verwaltung eines Spieleabends. Sie richtet sich an Skat-Runden, die gerne klassisch oder nach der erweiterten (Seeger-Fabian) Wertung spielen und gleichzeitig detaillierte Statistiken über ihr Spielverhalten (Gewinnrate, Pechsträhnen, gespielte Typen) sammeln möchten.
+Statt Stift und Papier zu bemühen und am Ende des Abends mühsam Punkte zusammenzurechnen, übernimmt StichOverflow die komplette Verwaltung eines Spieleabends. Sie richtet sich an Skat-Runden, die gerne klassisch oder nach der erweiterten (Seeger-Fabian) Wertung spielen und gleichzeitig detaillierte Statistiken über ihr Spielverhalten (Gewinnrate, Pechsträhnen, gespielte Typen) sammeln möchten.
 
 ## 🚀 Kernfunktionen (Features)
 
