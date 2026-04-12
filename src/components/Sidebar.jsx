@@ -70,11 +70,11 @@ const Sidebar = () => {
         </NavLink>
         <NavLink to="/statistiken" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
           <span className="material-symbols-outlined">insights</span>
-          Statistiken
+          Tischstatistik
         </NavLink>
         <NavLink to="/players" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
           <span className="material-symbols-outlined">group</span>
-          Tischeinstellungen
+          Einstellungen
         </NavLink>
         <NavLink to="/info" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
           <span className="material-symbols-outlined">menu_book</span>

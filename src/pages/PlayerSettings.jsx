@@ -208,7 +208,7 @@ export default function PlayerSettings() {
     <div>
       <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 className="page-title">Tischeinstellungen</h1>
+          <h1 className="page-title">Einstellungen</h1>
           <p className="page-subtitle">Reihenfolge per Drag &amp; Drop — Position 1 ist immer Geber.</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
             {editingTableName ? (

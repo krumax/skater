@@ -224,8 +224,8 @@ const StatistikenCharts = () => {
   return (
     <div>
       <header className="page-header">
-        <h1 className="page-title">Statistiken & Analysen</h1>
-        <p className="page-subtitle">Detaillierte Auswertung deiner Skat-Runden. Analysiere Trends, Gewinnraten und Spieltypen.</p>
+        <h1 className="page-title">Tischstatistik</h1>
+        <p className="page-subtitle">Detaillierte Auswertung des Tisches. Analysiere Trends, Gewinnraten und Spieltypen.</p>
       </header>
 
       {/* ── KPI Cards ── */}

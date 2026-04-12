@@ -6,6 +6,7 @@ import GameTypePieChart from '../components/analytics/GameTypePieChart';
 import AchievementCompletionCard from '../components/analytics/AchievementCompletionCard';
 import AchievementMatrix from '../components/analytics/AchievementMatrix';
 import DefenseMatrix from '../components/analytics/DefenseMatrix';
+import PlayerRankingCard from '../components/analytics/PlayerRankingCard';
 
 const statLabel = {
   fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase',
@@ -152,6 +153,11 @@ const PlayerAnalytics = () => {
         allPlayers={players}
         getPlayerStats={getPlayerStats}
       />
+
+      {/* Ranking-Karten */}
+      <div style={{ marginTop: '1.5rem' }}>
+        <PlayerRankingCard rounds={rounds} player={selectedPlayer} />
+      </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem', marginTop: '3rem' }}>
 
