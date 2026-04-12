@@ -2,6 +2,7 @@
  * ResultDashboard — zeigt das berechnete Rundenergebnis mit Aufschlüsselung
  * sowie den aktuellen Tischstand und den Speichern-Button.
  */
+import { SUIT_LABELS, SUIT_SYMBOLS } from '../../lib/skatScoring';
 
 const SUIT_COLORS = {
   club: '#1b1c1c', spade: '#3d4040', heart: '#8b1a1a',
@@ -39,7 +40,50 @@ export function formatScore(gameValue, isBock) {
   return (value > 0 ? '+' : '') + value;
 }
 
-export default function ResultDashboard({ result, outcomeLabel, gameType, isBock, rankings, onCommit }) {
+// ── Letzte Runde ──────────────────────────────────────────────────────────────
+function LastRoundCard({ round }) {
+  if (!round) return null;
+
+  const modifiers = [
+    round.hand      && 'Hand',
+    round.schneider && 'Schneider',
+    round.schwarz   && 'Schwarz',
+    round.ouvert    && 'Ouvert',
+    round.isBock    && 'Bock',
+  ].filter(Boolean);
+
+  const scoreColor = round.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)';
+
+  return (
+    <div className="card" style={{ padding: '0.875rem 1rem' }}>
+      <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', marginBottom: '0.5rem' }}>
+        Letzte Runde #{round.id}
+      </p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Spieltyp-Badge */}
+        <SuitBadge gameType={round.gameType} />
+
+        {/* Spieler + Typ */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--on-surface)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {round.player === '-' ? 'Eingepasst' : round.player}
+          </p>
+          <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>
+            {SUIT_SYMBOLS[round.gameType]} {SUIT_LABELS[round.gameType] ?? round.gameType}
+            {modifiers.length > 0 && <span style={{ marginLeft: '0.4rem', opacity: 0.75 }}>· {modifiers.join(' · ')}</span>}
+          </p>
+        </div>
+
+        {/* Punktwert */}
+        <p style={{ fontSize: '1.125rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: scoreColor, flexShrink: 0 }}>
+          {round.gameValue >= 0 ? '+' : ''}{round.gameValue}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function ResultDashboard({ result, outcomeLabel, gameType, isBock, rankings, onCommit, lastRound }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       {result && (
@@ -90,6 +134,8 @@ export default function ResultDashboard({ result, outcomeLabel, gameType, isBock
           </div>
         </div>
       )}
+
+      <LastRoundCard round={lastRound} />
 
       {/* Aktueller Stand */}
       <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
