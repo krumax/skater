@@ -3,10 +3,12 @@ import { useGame } from '../context/GameContext';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
 import { SUIT_COLORS, PLAYER_COLORS } from '../lib/tokens';
 import { computeAchievementUnlocks } from '../lib/playerStats';
-import GameTypePieChart from '../components/analytics/GameTypePieChart';
+import GameTypePieChart      from '../components/analytics/GameTypePieChart';
+import GameValueHistogram    from '../components/analytics/GameValueHistogram';
+import GameTypeHeatmap       from '../components/analytics/GameTypeHeatmap';
+import WinRateTrendChart     from '../components/analytics/WinRateTrendChart';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  BarChart, Bar, Cell,
 } from 'recharts';
 
 /* ── Zeitraster automatisch bestimmen ── */
@@ -175,24 +177,65 @@ const StatistikenCharts = () => {
       .sort((a, b) => b.count - a.count);
   }, [rounds]);
 
-  /* ── 3. Gewinnraten nach Typ (bar chart data) ── */
-  const winRateData = React.useMemo(() => {
-    const map = {};
-    rounds.forEach(r => {
-      const t = r.gameType || 'unknown';
-      if (!map[t]) map[t] = { total: 0, wins: 0 };
-      map[t].total += 1;
-      if (r.won) map[t].wins += 1;
-    });
-    return Object.entries(map)
-      .map(([type, { total, wins }]) => ({
-        type,
-        name: (SUIT_SYMBOLS[type] ? SUIT_SYMBOLS[type] + ' ' : '') + (SUIT_LABELS[type] || type),
-        winRate: total > 0 ? Math.round((wins / total) * 100) : 0,
-        total,
-      }))
-      .sort((a, b) => b.winRate - a.winRate);
+  /* ── 3. Gewinnraten nach Typ — entfernt, ersetzt durch neue Statistiken ── */
+
+  /* ── 3. Erfolgsquoten Alleinspieler vs. Gegenspieler ── */
+  const successRates = React.useMemo(() => {
+    const realRounds = rounds.filter(r => r.gameType !== 'passed' && r.player !== '-');
+    const soloWins   = realRounds.filter(r => r.won).length;
+    const soloTotal  = realRounds.length;
+    const soloRate   = soloTotal > 0 ? ((soloWins / soloTotal) * 100).toFixed(1) : '0';
+    const defRate    = soloTotal > 0 ? (((soloTotal - soloWins) / soloTotal) * 100).toFixed(1) : '0';
+    return { soloRate, defRate, soloWins, soloTotal };
   }, [rounds]);
+
+  /* ── 4. Führungswechsel ── */
+  const leaderChanges = React.useMemo(() => {
+    if (players.length < 2 || rounds.length < 2) return 0;
+    const running = Object.fromEntries(players.map(p => [p, 0]));
+    let leader = null;
+    let changes = 0;
+    rounds.forEach(r => {
+      running[r.player] = (running[r.player] || 0) + r.gameValue;
+      const newLeader = Object.entries(running).sort(([,a],[,b]) => b - a)[0][0];
+      if (leader && newLeader !== leader) changes++;
+      leader = newLeader;
+    });
+    return changes;
+  }, [rounds, players]);
+
+  /* ── 5. Comeback-Quote ── */
+  const comebackRate = React.useMemo(() => {
+    if (rounds.length < 4) return null;
+    const mid = Math.floor(rounds.length / 2);
+    const running = Object.fromEntries(players.map(p => [p, 0]));
+    rounds.slice(0, mid).forEach(r => { running[r.player] = (running[r.player] || 0) + r.gameValue; });
+    const midLeader = Object.entries(running).sort(([,a],[,b]) => b - a)[0][0];
+    rounds.slice(mid).forEach(r => { running[r.player] = (running[r.player] || 0) + r.gameValue; });
+    const finalLeader = Object.entries(running).sort(([,a],[,b]) => b - a)[0][0];
+    return midLeader !== finalLeader;
+  }, [rounds, players]);
+
+  /* ── 6. Größter Swing (max Punktsprung in 5 aufeinanderfolgenden Runden) ── */
+  const biggestSwing = React.useMemo(() => {
+    if (rounds.length < 2) return null;
+    const window = 5;
+    let maxSwing = 0;
+    let maxPlayer = null;
+    const running = Object.fromEntries(players.map(p => [p, 0]));
+    const snapshots = [];
+    rounds.forEach(r => {
+      running[r.player] = (running[r.player] || 0) + r.gameValue;
+      snapshots.push({ ...running });
+    });
+    players.forEach(p => {
+      for (let i = window; i < snapshots.length; i++) {
+        const swing = Math.abs(snapshots[i][p] - snapshots[i - window][p]);
+        if (swing > maxSwing) { maxSwing = swing; maxPlayer = p; }
+      }
+    });
+    return maxSwing > 0 ? { swing: maxSwing, player: maxPlayer } : null;
+  }, [rounds, players]);
   /* ── 4. KPIs ── */
   const kpis = React.useMemo(() => {
     const totalGames = rounds.length;
@@ -369,7 +412,7 @@ const StatistikenCharts = () => {
             </div>
           </section>
 
-          {/* ── Spieltypen-Verteilung + Gewinnraten (two-column) ── */}
+          {/* ── Spieltypen-Verteilung + neue Statistiken ── */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
 
             {/* Pie Chart */}
@@ -380,26 +423,100 @@ const StatistikenCharts = () => {
               </div>
             </section>
 
-            {/* Bar Chart */}
+            {/* Tisch-Statistiken */}
             <section>
-              <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Gewinnraten nach Typ</h3>
-              <div className="card">
-                <ResponsiveContainer width="100%" height={320}>
-                  <BarChart data={winRateData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--outline-variant)" strokeOpacity={0.35} />
-                    <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--outline)' }} />
-                    <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--outline)' }} unit="%" />
-                    <Tooltip content={<ChartTooltip />} />
-                    <Bar dataKey="winRate" name="Gewinnrate" radius={[6, 6, 0, 0]} maxBarSize={56}>
-                      {winRateData.map((entry, i) => (
-                        <Cell key={i} fill={SUIT_COLORS[entry.type] || PLAYER_COLORS[i % PLAYER_COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+              <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Tisch-Dynamik</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+
+                {/* Erfolgsquoten */}
+                <div className="card" style={{ backgroundColor: 'var(--surface-low)' }}>
+                  <p style={{ ...statLabel, marginBottom: '0.75rem' }}>Erfolgsquoten</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.2rem' }}>⚔️ Alleinspieler</p>
+                      <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: parseFloat(successRates.soloRate) >= 50 ? 'var(--primary)' : 'var(--secondary)' }}>
+                        {successRates.soloRate}%
+                      </p>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>{successRates.soloWins} von {successRates.soloTotal}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.2rem' }}>🛡️ Gegenspieler</p>
+                      <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: parseFloat(successRates.defRate) >= 50 ? 'var(--primary)' : 'var(--secondary)' }}>
+                        {successRates.defRate}%
+                      </p>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>{successRates.soloTotal - successRates.soloWins} von {successRates.soloTotal}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Führungswechsel */}
+                <div className="card" style={{ backgroundColor: 'var(--surface-low)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--primary)', flexShrink: 0 }}>swap_vert</span>
+                  <div>
+                    <p style={statLabel}>Führungswechsel</p>
+                    <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }}>{leaderChanges}×</p>
+                    <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>Wechsel der Tabellenführung</p>
+                  </div>
+                </div>
+
+                {/* Comeback */}
+                <div className="card" style={{ backgroundColor: 'var(--surface-low)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: comebackRate ? 'var(--primary)' : 'var(--outline)', flexShrink: 0 }}>trending_up</span>
+                  <div>
+                    <p style={statLabel}>Comeback</p>
+                    <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: comebackRate ? 'var(--primary)' : 'var(--outline)' }}>
+                      {comebackRate === null ? '–' : comebackRate ? 'Ja' : 'Nein'}
+                    </p>
+                    <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>Halbzeit-Führender am Ende vorne?</p>
+                  </div>
+                </div>
+
+                {/* Größter Swing */}
+                <div className="card" style={{ backgroundColor: 'var(--surface-low)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--tertiary)', flexShrink: 0 }}>bolt</span>
+                  <div>
+                    <p style={statLabel}>Größter Swing (5 Runden)</p>
+                    {biggestSwing ? (
+                      <>
+                        <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }}>±{biggestSwing.swing}</p>
+                        <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>{biggestSwing.player}</p>
+                      </>
+                    ) : (
+                      <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--outline)' }}>–</p>
+                    )}
+                  </div>
+                </div>
+
               </div>
             </section>
           </div>
+
+          {/* ── Histogramm ── */}
+          <section>
+            <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Verteilung der Spielwerte</h3>
+            <div className="card">
+              <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.75rem' }}>Häufigkeit der Spielwerte in 24-Punkte-Bins — grün = Siege, rot = Niederlagen</p>
+              <GameValueHistogram rounds={rounds} />
+            </div>
+          </section>
+
+          {/* ── Heatmap ── */}
+          <section>
+            <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Gewinnrate: Spieler × Spieltyp</h3>
+            <div className="card">
+              <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '1rem' }}>Wie gut ist jeder Spieler in welcher Spielart? Grün = hohe Gewinnrate, Rot = niedrige.</p>
+              <GameTypeHeatmap rounds={rounds} players={players} />
+            </div>
+          </section>
+
+          {/* ── Gewinnquoten-Trend ── */}
+          <section>
+            <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Lernkurve: Gewinnquote je Spieltyp</h3>
+            <div className="card">
+              <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.75rem' }}>Gleitender Durchschnitt (10 Runden) — lernt die Runde bestimmte Spielarten besser?</p>
+              <WinRateTrendChart rounds={rounds} />
+            </div>
+          </section>
 
         </div>
       )}
