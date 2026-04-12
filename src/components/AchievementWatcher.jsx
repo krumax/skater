@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import AchievementCelebration from './AchievementCelebration';
+import SkatSpruchToast from './SkatSpruchToast';
 import { MATRIX_ROWS, NULL_ROWS, COL_SPECS } from '../lib/achievementConfig';
+import { getSkatSpruch } from '../lib/skatSprueche';
 
 function computeUnlockedKeys(rounds, player) {
   const keys = new Set();
@@ -35,6 +37,8 @@ function computeUnlockedKeys(rounds, player) {
 const AchievementWatcher = () => {
   const { rounds, players, sessionId } = useGame();
   const [celebration, setCelebration] = useState(null);
+  const [spruch, setSpruch] = useState(null);
+  const [spruchWon, setSpruchWon] = useState(true);
 
   // Snapshot of all players' unlocked keys — updated after each detection cycle
   const snapshotRef = useRef(null);
@@ -115,13 +119,29 @@ const AchievementWatcher = () => {
     };
     prevRoundCountRef.current = rounds.length;
     prevSessionIdRef.current = sessionId;
+
+    // Skatspruch — nur wenn kein Achievement-Popup erscheint (würde sich überlagern)
+    if (newAchievements.length === 0) {
+      const text = getSkatSpruch(latestRound, rounds);
+      if (text) {
+        setSpruch(text);
+        setSpruchWon(latestRound.won);
+      }
+    }
   }, [rounds, players, sessionId]);
 
   return (
-    <AchievementCelebration
-      achievement={celebration}
-      onClose={() => setCelebration(null)}
-    />
+    <>
+      <AchievementCelebration
+        achievement={celebration}
+        onClose={() => setCelebration(null)}
+      />
+      <SkatSpruchToast
+        spruch={spruch}
+        won={spruchWon}
+        onDone={() => setSpruch(null)}
+      />
+    </>
   );
 };
 
