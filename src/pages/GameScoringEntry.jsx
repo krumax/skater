@@ -91,6 +91,26 @@ const GameScoringEntry = () => {
             eyeCount={form.eyeCount}
             setEyeCount={form.setEyeCount}
           />
+
+          {form.isSpaltarsch && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+              padding: '1rem 1.25rem', borderRadius: '0.75rem',
+              backgroundColor: 'var(--secondary-container)',
+              border: '1px solid var(--secondary)',
+            }}>
+              <span style={{ fontSize: '1.5rem', lineHeight: 1, flexShrink: 0 }}>💥</span>
+              <div>
+                <p style={{ fontWeight: 800, color: 'var(--on-secondary-container)', marginBottom: '0.25rem' }}>
+                  Spaltarsch!
+                </p>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--on-secondary-container)', opacity: 0.85 }}>
+                  Der Alleinspieler hat exakt 60 Augen — Spiel verloren.
+                  Die nächsten <strong>{seating.length}</strong> Runden müssen als Bockrunde gespielt werden.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <ResultDashboard

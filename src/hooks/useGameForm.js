@@ -52,6 +52,10 @@ export function useGameForm(initialPlayer = '') {
     return getOutcomeLabel(eyeCount);
   }, [gameType, eyeCount]);
 
+  // Spaltarsch: exakt 60 Augen bei Farb- oder Grandspiel → verloren, Bockrunden-Pflicht
+  const SUIT_GAMES = ['club', 'spade', 'heart', 'diamond', 'grand'];
+  const isSpaltarsch = SUIT_GAMES.includes(gameType) && eyeCount === 60;
+
   // Handles game type change with side effects (reset eyeCount, clamp spitzen)
   const setGameType = (type) => {
     setGameTypeRaw(type);
@@ -124,6 +128,7 @@ export function useGameForm(initialPlayer = '') {
     maxSpitzen,
     result,
     outcomeLabel,
+    isSpaltarsch,
     // Actions
     resetForm,
     buildRoundPayload,
