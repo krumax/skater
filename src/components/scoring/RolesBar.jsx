@@ -1,19 +1,20 @@
 /**
  * RolesBar — zeigt die initiale Sitzordnung wie in den Einstellungen konfiguriert.
- * Geben = seating[0], Hören = seating[1], Sagen = seating[2].
- * Ändert sich nicht mit den Runden.
  */
 import { Link } from 'react-router-dom';
 
-export default function RolesBar({ seating }) {
-  const roles = [
-    { role: 'Geben', icon: 'style',            name: seating[0] ?? '–' },
-    { role: 'Hören', icon: 'hearing',           name: seating[1] ?? '–' },
-    { role: 'Sagen', icon: 'record_voice_over', name: seating[2] ?? '–' },
-  ];
+const ROLE_LABELS = ['Geben', 'Hören', 'Sagen', 'Sagen²'];
+const HIGHLIGHT_COLOR = '#717974'; // Null-Grau
+
+export default function RolesBar({ seating, step, totalDeals, completedRounds, onReset }) {
+  const justCompleted = step === 0 && totalDeals > 0 && totalDeals % (seating.length || 3) === 0;
+
+  const safeDeals  = isNaN(totalDeals)      ? '–' : totalDeals;
+  const safeRounds = isNaN(completedRounds) ? '–' : completedRounds;
 
   return (
-    <div style={{ marginBottom: '2.5rem' }}>
+    <div style={{ marginBottom: 0 }}>
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
         <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>
           Initiale Sitzordnung
@@ -25,29 +26,80 @@ export default function RolesBar({ seating }) {
       </div>
 
       <div style={{
-        display: 'flex', gap: '2rem', padding: '1rem 1.5rem',
+        padding: '1rem 1.5rem',
         backgroundColor: 'var(--surface-low)', borderRadius: '0.75rem',
-        alignItems: 'center', flexWrap: 'wrap',
+        width: '100%', boxSizing: 'border-box',
       }}>
-        {roles.map(r => (
-          <div key={r.role} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--primary)' }}>{r.icon}</span>
-            <div>
-              <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', display: 'block' }}>{r.role}</span>
-              <span style={{ fontWeight: 700, fontSize: '1rem' }}>{r.name}</span>
-            </div>
-          </div>
-        ))}
+        {/* Spieler-Chips — gleich breit, kompakt */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.875rem' }}>
+          {seating.map((name, i) => {
+            const isActive   = i === step;
+            const roleLabel  = ROLE_LABELS[i] ?? `Pos ${i + 1}`;
+            return (
+              <div key={i} style={{
+                flex: '0 1 140px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                padding: '0.35rem 0.75rem', borderRadius: '0.5rem',
+                backgroundColor: isActive ? HIGHLIGHT_COLOR : 'transparent',
+                border: `1px solid ${isActive ? HIGHLIGHT_COLOR : 'var(--outline-variant)'}`,
+                transition: 'background-color 0.2s, border-color 0.2s',
+                textAlign: 'center',
+              }}>
+                <span style={{
+                  fontSize: '0.55rem', fontWeight: 700, textTransform: 'uppercase',
+                  letterSpacing: '0.1em', display: 'block',
+                  color: isActive ? 'rgba(255,255,255,0.7)' : 'var(--outline)',
+                }}>
+                  {roleLabel}
+                </span>
+                <span style={{
+                  fontWeight: 700, fontSize: '0.875rem',
+                  color: isActive ? '#fff' : 'var(--on-surface)',
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  maxWidth: '100%',
+                }}>
+                  {name}
+                </span>
+              </div>
+            );
+          })}
+        </div>
 
-        {seating.length === 4 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', opacity: 0.5 }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>pause_circle</span>
+        {/* Counter-Zeile */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
             <div>
-              <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', display: 'block' }}>4. Spieler</span>
-              <span style={{ fontWeight: 700, fontSize: '1rem' }}>{seating[3]}</span>
+              <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', display: 'block' }}>
+                Einzelspiele
+              </span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--on-surface)' }}>
+                {safeDeals}
+              </span>
+            </div>
+            <div>
+              <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', display: 'block' }}>
+                Runden
+              </span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: justCompleted ? 'var(--tertiary)' : 'var(--on-surface)' }}>
+                {safeRounds}{justCompleted && <span style={{ fontSize: '0.75rem', marginLeft: '0.3rem' }}>✓</span>}
+              </span>
             </div>
           </div>
-        )}
+
+          <button
+            onClick={onReset}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.3rem',
+              background: 'none', border: '1px solid var(--outline-variant)',
+              borderRadius: '0.4rem', padding: '0.3rem 0.7rem',
+              fontSize: '0.7rem', fontWeight: 700, color: 'var(--outline)',
+              cursor: 'pointer', letterSpacing: '0.05em',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>restart_alt</span>
+            Reset
+          </button>
+        </div>
       </div>
     </div>
   );

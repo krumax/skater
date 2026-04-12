@@ -135,6 +135,17 @@ export default function ResultDashboard({ result, outcomeLabel, gameType, isBock
         </div>
       )}
 
+      <button
+        className="btn-primary"
+        style={{ width: '100%', padding: '1.25rem', fontSize: '1.125rem', letterSpacing: '0.1em' }}
+        onClick={onCommit}
+      >
+        ERGEBNIS SPEICHERN
+      </button>
+      <p style={{ textAlign: 'center', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--outline)' }}>
+        Bitte alle Werte vor dem Speichern überprüfen
+      </p>
+
       <LastRoundCard round={lastRound} />
 
       {/* Aktueller Stand */}
@@ -153,17 +164,6 @@ export default function ResultDashboard({ result, outcomeLabel, gameType, isBock
           )}
         </div>
       </div>
-
-      <button
-        className="btn-primary"
-        style={{ width: '100%', padding: '1.25rem', fontSize: '1.125rem', letterSpacing: '0.1em' }}
-        onClick={onCommit}
-      >
-        ERGEBNIS SPEICHERN
-      </button>
-      <p style={{ textAlign: 'center', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--outline)' }}>
-        Bitte alle Werte vor dem Speichern überprüfen
-      </p>
     </div>
   );
 }

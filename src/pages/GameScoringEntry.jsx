@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useGame } from '../context/GameContext';
 import { computePlayerLevel } from '../lib/playerLevel';
 import { useGameForm } from '../hooks/useGameForm';
+import { useRoundCounter } from '../hooks/useRoundCounter';
 import RolesBar            from '../components/scoring/RolesBar';
 import PlayerSelector      from '../components/scoring/PlayerSelector';
 import GameTypeSelector    from '../components/scoring/GameTypeSelector';
@@ -16,6 +17,7 @@ const GameScoringEntry = () => {
   const { players, seating, addRound, currentRound, getPlayerRank, currentRoles, rounds } = useGame();
 
   const form = useGameForm(currentRoles.activePlayers[0] || players[0]);
+  const counter = useRoundCounter();
 
   const playerLevels = useMemo(() =>
     Object.fromEntries(
@@ -28,6 +30,7 @@ const GameScoringEntry = () => {
     if (!payload) return;
     addRound(payload);
     form.resetForm();
+    counter.increment(seating.length);
   };
 
   const rankings = getPlayerRank();
@@ -40,9 +43,16 @@ const GameScoringEntry = () => {
         <p className="page-subtitle">Runde {currentRound} — Ergebnis dieser Runde erfassen.</p>
       </header>
 
-      <RolesBar seating={seating} />
-
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '3rem' }}>
+        <div style={{ gridColumn: '1 / -1' }}>
+          <RolesBar
+            seating={seating}
+            step={counter.step}
+            totalDeals={counter.totalDeals}
+            completedRounds={counter.completedRounds(seating.length)}
+            onReset={counter.reset}
+          />
+        </div>
         <div>
           <PlayerSelector
             players={activePlayers}
