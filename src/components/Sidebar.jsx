@@ -3,12 +3,6 @@ import { NavLink } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { SYNC_COLORS } from '../lib/tokens';
 
-const ROLE_LABELS = {
-  geber: { label: 'Geben', icon: 'style', desc: 'Kartengeber' },
-  hoeren: { label: 'Hören', icon: 'hearing', desc: 'Vorhand' },
-  sagen: { label: 'Sagen', icon: 'record_voice_over', desc: 'Mittelhand' },
-};
-
 const SYNC_ICON = {
   idle:    { icon: 'cloud_done', color: SYNC_COLORS.idle,    title: 'Synchronisiert' },
   synced:  { icon: 'cloud_done', color: SYNC_COLORS.synced,  title: 'Synchronisiert' },
@@ -17,8 +11,9 @@ const SYNC_ICON = {
 };
 
 const Sidebar = () => {
-  const { currentRound, currentRoles, seating, syncStatus, refreshFromDB, tableName } = useGame();
+  const { currentRound, seating, syncStatus, refreshFromDB, tableName, getPlayerTotals } = useGame();
   const syncIcon = SYNC_ICON[syncStatus] ?? SYNC_ICON.idle;
+  const totals = getPlayerTotals();
 
   return (
     <aside className="sidebar">
@@ -30,37 +25,40 @@ const Sidebar = () => {
       <p style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.4rem', letterSpacing: '0.12em', color: '#d0a600', marginBottom: '0.75rem', fontFamily: "'Manrope', sans-serif", textTransform: 'uppercase' }}>
         Skatastrophe
       </p>
-      <div className="sidebar-header">
-        {tableName && (
-          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', opacity: 0.6, margin: '0 0 0.2rem' }}>{tableName}</p>
-        )}
-        <h2>Tisch</h2>
-        <p>Runde {currentRound}</p>
-      </div>
-
-      {/* Geben-Hören-Sagen Anzeige */}
+      {/* Tisch-Info-Box */}
       <div style={{
-        display: 'flex', flexDirection: 'column', gap: '0.375rem',
-        margin: '0 0 1.5rem 0', padding: '0.875rem',
         backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '0.5rem',
+        padding: '0.75rem 0.875rem', marginBottom: '1.5rem',
+        display: 'flex', flexDirection: 'column', gap: '0.5rem',
       }}>
-        <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.5, marginBottom: '0.25rem' }}>
-          Tischordnung
-        </span>
-        {['geber', 'hoeren', 'sagen'].map(role => (
-          <div key={role} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', fontSize: '0.8125rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', opacity: 0.7 }}>{ROLE_LABELS[role].icon}</span>
-            <span style={{ fontWeight: 700, width: '3.5rem', color: 'rgba(255,255,255,0.6)' }}>{ROLE_LABELS[role].label}</span>
-            <span style={{ fontWeight: 500 }}>{currentRoles[role]}</span>
-          </div>
-        ))}
-        {seating.length === 4 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', fontSize: '0.8125rem', marginTop: '0.25rem', opacity: 0.5 }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>pause_circle</span>
-            <span style={{ fontWeight: 700, width: '3.5rem' }}>Pause</span>
-            <span>{currentRoles.geber}</span>
+        {tableName && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6 }}>table_bar</span>
+            <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#fff' }}>{tableName}</span>
           </div>
         )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+            {seating.filter(p => p !== '-').map(p => {
+              const score = totals[p] ?? 0;
+              return (
+                <div key={p} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6 }}>person</span>
+                    <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)' }}>{p}</span>
+                  </div>
+                  <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: score >= 0 ? 'rgba(255,255,255,0.9)' : '#f87171', fontFamily: "'Manrope', sans-serif" }}>
+                    {score >= 0 ? '+' : ''}{score}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6 }}>tag</span>
+          <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)' }}>
+            Runde <strong style={{ color: '#fff' }}>{currentRound}</strong>
+          </span>
+        </div>
       </div>
       
       <nav className="sidebar-nav">
