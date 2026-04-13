@@ -403,7 +403,7 @@ const StatistikenCharts = () => {
                   <Legend wrapperStyle={{ fontSize: '0.8125rem', fontWeight: 600 }} />
                   {players.map((p, i) => (
                     <Line key={p} type="monotone" dataKey={p} stroke={PLAYER_COLORS[i % PLAYER_COLORS.length]}
-                      strokeWidth={2.5} dot={false} activeDot={{ r: 5 }}
+                      strokeWidth={2.5} activeDot={{ r: 5 }}
                       dot={xMode === 'rounds' ? makeAchievementDot(p, PLAYER_COLORS[i % PLAYER_COLORS.length]) : false}
                     />
                   ))}
@@ -471,11 +471,11 @@ const StatistikenCharts = () => {
                   </div>
                 </div>
 
-                {/* Größter Swing */}
+                {/* Größter Push */}
                 <div className="card" style={{ backgroundColor: 'var(--surface-low)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--tertiary)', flexShrink: 0 }}>bolt</span>
                   <div>
-                    <p style={statLabel}>Größter Swing (5 Runden)</p>
+                    <p style={statLabel}>Größter Push (5 Runden)</p>
                     {biggestSwing ? (
                       <>
                         <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }}>±{biggestSwing.swing}</p>

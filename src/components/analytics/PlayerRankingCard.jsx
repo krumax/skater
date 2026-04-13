@@ -14,11 +14,12 @@ const CX = SIZE / 2, CY = SIZE / 2;
 const R = 46;
 const CIRCUMFERENCE = 2 * Math.PI * R;
 
-function RankRing({ progressPct, color, label, sublabel }) {
+function RankRing({ progressPct, color, label, sublabel, wins, totalLabel }) {
   const dash = (progressPct / 100) * CIRCUMFERENCE;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ cursor: 'help' }}>
+        <title>{`${totalLabel}: ${wins} gewonnene Spiele`}</title>
         {/* Track */}
         <circle cx={CX} cy={CY} r={R} fill="none" stroke="var(--surface-low)" strokeWidth="8" />
         {/* Progress */}
@@ -133,6 +134,8 @@ function CategoryCard({ category, wins }) {
           progressPct={rank.progressPct}
           color={rank.nextTier?.color ?? rank.currentTier?.color ?? meta.color}
           sublabel={ringLabel}
+          wins={wins}
+          totalLabel={meta.label}
         />
       </div>
 
