@@ -47,26 +47,36 @@ function RankRing({ progressPct, color, label, sublabel }) {
 }
 
 // ── Tier-Zeile ────────────────────────────────────────────────────────────────
-function TierRow({ tier, threshold, wins, isActive, isReached }) {
-  const barPct = isActive
-    ? Math.min(100, Math.round(((wins - (threshold.prevWins ?? 0)) / (threshold.wins - (threshold.prevWins ?? 0))) * 100))
-    : isReached ? 100 : 0;
+function TierRow({ tier, threshold, wins, isActive, isNext, isReached }) {
+  let barPct;
+  if (isActive) {
+    barPct = 100; // vollständig erreicht
+  } else if (isNext) {
+    // Fortschritt innerhalb dieses Tiers (aktuell in Arbeit)
+    const from = threshold.prevWins ?? 0;
+    const to   = threshold.wins;
+    barPct = Math.min(100, Math.round(((wins - from) / (to - from)) * 100));
+  } else if (isReached) {
+    barPct = 100;
+  } else {
+    barPct = 0;
+  }
 
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: '0.75rem',
       padding: '0.5rem 0.75rem', borderRadius: '0.5rem',
-      backgroundColor: isActive ? `${tier.color}22` : 'transparent',
-      border: isActive ? `1px solid ${tier.color}66` : '1px solid transparent',
-      opacity: isReached || isActive ? 1 : 0.4,
+      backgroundColor: isNext ? `${tier.color}22` : 'transparent',
+      border: isNext ? `1px solid ${tier.color}66` : '1px solid transparent',
+      opacity: isReached || isNext ? 1 : 0.4,
     }}>
       <span style={{ fontSize: '1rem', flexShrink: 0 }}>{tier.icon}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
-          <span style={{ fontSize: '0.75rem', fontWeight: isActive ? 800 : 600, color: isActive ? tier.color : 'var(--on-surface-variant)' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: isNext ? 800 : 600, color: isNext ? tier.color : 'var(--on-surface-variant)' }}>
             {tier.label}
           </span>
-          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: isActive ? tier.color : 'var(--outline)' }}>
+          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: isNext ? tier.color : 'var(--outline)' }}>
             {threshold.wins} Siege
           </span>
         </div>
@@ -131,8 +141,9 @@ function CategoryCard({ category, wins }) {
         {enriched.map(threshold => {
           const tier = RANK_TIERS.find(t => t.id === threshold.tier);
           const isReached = wins >= threshold.wins;
-          const isActive  = rank.currentTier?.id === threshold.tier ||
-            (!rank.currentTier && threshold.tier === 'bronze');
+          const isActive  = isReached && rank.currentTier?.id === threshold.tier;
+          // isNext = der Tier auf den wir gerade hinarbeiten (noch nicht erreicht, aber nächster)
+          const isNext    = !isReached && rank.nextTier?.id === threshold.tier;
           return (
             <TierRow
               key={threshold.tier}
@@ -140,6 +151,7 @@ function CategoryCard({ category, wins }) {
               threshold={threshold}
               wins={wins}
               isActive={isActive}
+              isNext={isNext}
               isReached={isReached}
             />
           );
