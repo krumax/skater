@@ -26,12 +26,13 @@ export default function RolesBar({ seating, step, totalDeals, completedRounds, o
       </div>
 
       <div style={{
-        padding: '1rem 1.5rem',
+        padding: '0.75rem 1.5rem',
         backgroundColor: 'var(--surface-low)', borderRadius: '0.75rem',
         width: '100%', boxSizing: 'border-box',
+        display: 'flex', alignItems: 'center', gap: '1rem',
       }}>
         {/* Spieler-Chips — gleich breit, kompakt */}
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.875rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flex: 1 }}>
           {seating.map((name, i) => {
             const isActive   = i === step;
             const roleLabel  = ROLE_LABELS[i] ?? `Pos ${i + 1}`;
@@ -65,27 +66,24 @@ export default function RolesBar({ seating, step, totalDeals, completedRounds, o
           })}
         </div>
 
-        {/* Counter-Zeile */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-          <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
-            <div>
-              <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', display: 'block' }}>
-                Einzelspiele
-              </span>
-              <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--on-surface)' }}>
-                {safeDeals}
-              </span>
-            </div>
-            <div>
-              <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', display: 'block' }}>
-                Runden
-              </span>
-              <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: justCompleted ? 'var(--tertiary)' : 'var(--on-surface)' }}>
-                {safeRounds}{justCompleted && <span style={{ fontSize: '0.75rem', marginLeft: '0.3rem' }}>✓</span>}
-              </span>
-            </div>
+        {/* Counter + Reset — rechts auf gleicher Höhe */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexShrink: 0 }}>
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', display: 'block' }}>
+              Einzelspiele
+            </span>
+            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--on-surface)' }}>
+              {safeDeals}
+            </span>
           </div>
-
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', display: 'block' }}>
+              Runden
+            </span>
+            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: justCompleted ? 'var(--tertiary)' : 'var(--on-surface)' }}>
+              {safeRounds}{justCompleted && <span style={{ fontSize: '0.75rem', marginLeft: '0.3rem' }}>✓</span>}
+            </span>
+          </div>
           <button
             onClick={onReset}
             style={{
