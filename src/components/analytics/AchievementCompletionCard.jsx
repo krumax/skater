@@ -19,6 +19,8 @@ export default function AchievementCompletionCard({ rounds, player, allPlayers =
   const nextThreshold = lv.next ? lv.next.min : null;
   const toNext = nextThreshold ? nextThreshold - combined : 0;
 
+  const pStats = getPlayerStats ? getPlayerStats(player) : null;
+
   return (
     <div className="card" style={{ border: '1px solid var(--outline-variant)', width: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '2rem', flexWrap: 'wrap' }}>
@@ -52,22 +54,21 @@ export default function AchievementCompletionCard({ rounds, player, allPlayers =
           </div>
 
           {/* Sieg/Niederlage-Anteil des ausgewählten Spielers */}
-          {getPlayerStats && (() => {
-            const selTotal = getPlayerStats(player).totalGames;
-            const selWins  = getPlayerStats(player).wins;
+          {pStats && pStats.totalGames > 0 && (() => {
+            const selTotal  = pStats.totalGames;
+            const selWins   = pStats.wins;
             const selLosses = selTotal - selWins;
-            const winPct  = selTotal > 0 ? (selWins   / selTotal) * 100 : 0;
-            const lossPct = selTotal > 0 ? (selLosses / selTotal) * 100 : 0;
-            if (selTotal === 0) return null;
+            const winPct    = (selWins   / selTotal) * 100;
+            const lossPct   = (selLosses / selTotal) * 100;
             return (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
                   <span style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>Sieg / Niederlage</span>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>{selWins} Siege · {selLosses} Niederlagen · {selTotal} Spiele</span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>{selWins}S · {selLosses}N · {selTotal} Spiele</span>
                 </div>
                 <div style={{ width: '100%', backgroundColor: 'var(--surface-low)', height: '0.75rem', borderRadius: '999px', overflow: 'hidden', display: 'flex' }}>
-                  <div style={{ width: `${winPct}%`,  backgroundColor: '#414944',  borderRadius: '999px 0 0 999px', transition: 'width 0.4s ease' }} />
-                  <div style={{ width: `${lossPct}%`, backgroundColor: '#717974',  borderRadius: '0 999px 999px 0', transition: 'width 0.4s ease' }} />
+                  <div style={{ width: `${winPct}%`,  backgroundColor: '#414944', borderRadius: '999px 0 0 999px', transition: 'width 0.4s ease' }} />
+                  <div style={{ width: `${lossPct}%`, backgroundColor: '#717974', borderRadius: '0 999px 999px 0', transition: 'width 0.4s ease' }} />
                 </div>
                 <div style={{ display: 'flex', gap: '1.25rem', marginTop: '0.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -82,6 +83,24 @@ export default function AchievementCompletionCard({ rounds, player, allPlayers =
               </div>
             );
           })()}
+
+          {/* Kennzahlen: Standard / Seeger-Fabian / Kombiniert */}
+          {pStats && pStats.totalGames > 0 && (
+            <div style={{ borderTop: '1px solid var(--outline-variant)', paddingTop: '0.75rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+                {[
+                  { label: 'Standard',      value: pStats.totalPoints,                              color: pStats.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)' },
+                  { label: 'Seeger-Fabian', value: pStats.seegerTotal,                              color: pStats.seegerTotal >= 0 ? 'var(--primary)' : 'var(--secondary)' },
+                  { label: 'Kombiniert',    value: pStats.totalPoints + pStats.seegerTotal,          color: (pStats.totalPoints + pStats.seegerTotal) >= 0 ? 'var(--primary)' : 'var(--secondary)' },
+                ].map(({ label, value, color }) => (
+                  <div key={label} style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', display: 'block', marginBottom: '0.2rem' }}>{label}</span>
+                    <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color }}>{value >= 0 ? '+' : ''}{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Rechts: Level-Legende */}

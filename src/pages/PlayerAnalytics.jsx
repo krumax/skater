@@ -160,24 +160,12 @@ const PlayerAnalytics = () => {
         {/* ── Kacheln + PieChart ── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2rem', alignItems: 'start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {/* Zeile 1: Punkte */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-              <StatCard label="Standard"      value={`${stats.totalPoints >= 0 ? '+' : ''}${stats.totalPoints}`} color={stats.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
-              <StatCard label="Seeger-Fabian" value={`${stats.seegerTotal >= 0 ? '+' : ''}${stats.seegerTotal}`} color={stats.seegerTotal >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
-              <StatCard label="Kombiniert"    value={`${(stats.totalPoints + stats.seegerTotal) >= 0 ? '+' : ''}${stats.totalPoints + stats.seegerTotal}`} color={(stats.totalPoints + stats.seegerTotal) >= 0 ? 'var(--primary)' : 'var(--secondary)'} />
-            </div>
-            {/* Zeile 2: Quoten */}
+            {/* Zeile 1: Quoten */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
               <StatCard label="Siegquote"        value={`${stats.winRate}%`}  color={parseFloat(stats.winRate) >= 50 ? 'var(--primary)' : 'var(--secondary)'} />
               <StatCard label="Spielanteil"      value={`${playShare}%`}      color="var(--on-surface)" tooltip={`${stats.totalGames} von ${rounds.length} Runden`} />
               <StatCard label="Ø Punkte / Spiel" value={stats.avgPoints}      color="var(--on-surface)" />
             </div>
-            {/* Zeile 3: Brote */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <StatCard label="🍞 Brote"     value={stats.brote}     color={stats.brote     > 0 ? 'var(--secondary)' : 'var(--on-surface)'} tooltip="Ein Brot ist eine vollständige Geberrunde ohne Spiel." />
-              <StatCard label="🥖 Baguettes" value={stats.baguettes} color={stats.baguettes > 0 ? 'var(--secondary)' : 'var(--on-surface)'} tooltip="Ein Baguette sind zwei vollständige Geberrunden ohne Spiel (6 Runden)." />
-            </div>
-            {/* Zeile 4: Serien — volle Breite, 2 Spalten */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <StreakCard label="🏆 Längste Siegesserie"  streakRounds={stats.longestWinRounds}  color={stats.longestWinStreak  >= 3 ? 'var(--primary)'   : 'var(--on-surface)'} />
               <StreakCard label="💀 Längste Verlustserie" streakRounds={stats.longestLossRounds} color={stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)'} />
@@ -249,11 +237,6 @@ const PlayerAnalytics = () => {
               <DefenseMatrix rounds={rounds} player={selectedPlayer} />
             </>
           )}
-        </section>
-
-        {/* ── Ranking-Karten ── */}
-        <section>
-          <PlayerRankingCard rounds={rounds} player={selectedPlayer} />
         </section>
 
       </div>
