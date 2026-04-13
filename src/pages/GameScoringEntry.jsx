@@ -14,7 +14,7 @@ import NullOutcomeSelector from '../components/scoring/NullOutcomeSelector';
 import ResultDashboard     from '../components/scoring/ResultDashboard';
 
 const GameScoringEntry = () => {
-  const { players, seating, addRound, currentRound, getPlayerRank, currentRoles, rounds } = useGame();
+  const { players, seating, addRound, currentRound, getPlayerRank, currentRoles, rounds, getPlayerTotals, getSeegerTotals } = useGame();
 
   const form = useGameForm(currentRoles.activePlayers[0] || players[0]);
   const counter = useRoundCounter();
@@ -24,6 +24,9 @@ const GameScoringEntry = () => {
       players.filter(p => p !== '-').map(p => [p, computePlayerLevel(rounds, p)])
     ),
   [rounds, players]);
+
+  const stdTotals    = getPlayerTotals();
+  const seegerTotals = getSeegerTotals();
 
   const handleCommit = () => {
     const payload = form.buildRoundPayload();
@@ -59,6 +62,8 @@ const GameScoringEntry = () => {
             activePlayer={form.activePlayer}
             onSelect={form.setActivePlayer}
             playerLevels={playerLevels}
+            stdTotals={stdTotals}
+            seegerTotals={seegerTotals}
             disabled={form.gameType === 'passed'}
           />
 
