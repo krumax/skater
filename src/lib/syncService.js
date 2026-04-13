@@ -1,23 +1,27 @@
 import { supabase } from './supabaseClient';
 import { calculateSeegerFabian } from './skatScoring';
 
+/** Holt die user_id der aktuellen Session — null wenn nicht eingeloggt */
+async function getUserId() {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.user?.id ?? null;
+}
+
 /**
  * Creates a new session in Supabase.
- * @param {string[]} seating - Array of player names in seating order
- * @returns {{ data: session, error }}
  */
 export async function createSession(seating, tableName = '') {
+  const user_id = await getUserId();
   const { data, error } = await supabase
     .from('sessions')
-    .insert({ seating, geber_index: 0, current_round: 1, table_name: tableName || null })
+    .insert({ seating, geber_index: 0, current_round: 1, table_name: tableName || null, user_id })
     .select()
     .single();
 
-  // Fallback: if table_name column doesn't exist yet, retry without it
   if (error && error.message?.includes('table_name')) {
     return await supabase
       .from('sessions')
-      .insert({ seating, geber_index: 0, current_round: 1 })
+      .insert({ seating, geber_index: 0, current_round: 1, user_id })
       .select()
       .single();
   }
@@ -93,6 +97,7 @@ export async function loadSession(sessionId) {
  * @returns {{ data, error }}
  */
 export async function insertRound(round, sessionId) {
+  const user_id = await getUserId();
   const { data, error } = await supabase
     .from('rounds')
     .insert({
@@ -118,6 +123,7 @@ export async function insertRound(round, sessionId) {
       timestamp:    round.timestamp ?? new Date().toISOString(),
       is_bock:      round.isBock ?? false,
       mit_ohne:     round.mitOhne ?? 'mit',
+      user_id,
     })
     .select()
     .single();
