@@ -18,11 +18,10 @@ const CX          = SIZE / 2;
 const CY          = SIZE / 2;
 const R_OUTER     = 72;
 const R_INNER     = 54;
-const GAP_DEG     = 4;     // Lücke zwischen Segmenten in Grad
-const START_DEG   = 210;   // Beginn des Bogens (unten-links)
-const END_DEG     = 330;   // Ende des Bogens (unten-rechts) → 300° Bogen
-
-const TOTAL_ARC   = 360 - (END_DEG - START_DEG); // 300°
+const GAP_DEG     = 4;
+const START_DEG   = 200;   // Beginn unten-links
+const END_DEG     = 340;   // Ende unten-rechts — Lücke = 40° unten
+const TOTAL_ARC   = 320;   // 360 - 40° Lücke
 
 function toRad(deg) { return (deg * Math.PI) / 180; }
 
