@@ -23,9 +23,9 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <img
-        src="/sitchoverflow_logo.png"
-        alt="StichOverflow"
-        style={{ width: '100%', marginBottom: '0.75rem', display: 'block' }}
+        src="/skatastrophe_logo_2.png"
+        alt="Skatastrophe"
+        style={{ width: '80%', marginBottom: '0.75rem', marginTop: '-1rem', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
       />
       <div className="sidebar-header">
         {tableName && (
