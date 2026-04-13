@@ -19,11 +19,11 @@ const Sidebar = () => {
     <aside className="sidebar">
       <img
         src="/skatastrophe_logo_3.png"
-        alt="Skatastrophe"
+        alt="SKATASTROPHE"
         style={{ width: '80%', marginBottom: '0.25rem', marginTop: '-1rem', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
       />
       <p style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.4rem', letterSpacing: '0.12em', color: '#d0a600', marginBottom: '0.75rem', fontFamily: "'Manrope', sans-serif", textTransform: 'uppercase' }}>
-        Skatastrophe
+        SKATASTROPHE
       </p>
       {/* Tisch-Info-Box */}
       <div style={{
