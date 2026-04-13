@@ -39,7 +39,7 @@ const GameScoringEntry = () => {
   return (
     <div>
       <header className="page-header">
-        <h1 className="page-title">Neues Spielergebnis</h1>
+        <h1 className="page-title">Aktuelle Runde</h1>
         <p className="page-subtitle">Runde {currentRound} — Ergebnis dieser Runde erfassen.</p>
       </header>
 

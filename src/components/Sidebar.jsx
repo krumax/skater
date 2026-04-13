@@ -23,10 +23,13 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <img
-        src="/skatastrophe_logo_2.png"
+        src="/skatastrophe_logo_3.png"
         alt="Skatastrophe"
-        style={{ width: '80%', marginBottom: '0.75rem', marginTop: '-1rem', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
+        style={{ width: '80%', marginBottom: '0.25rem', marginTop: '-1rem', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
       />
+      <p style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.4rem', letterSpacing: '0.12em', color: '#d0a600', marginBottom: '0.75rem', fontFamily: "'Manrope', sans-serif", textTransform: 'uppercase' }}>
+        Skatastrophe
+      </p>
       <div className="sidebar-header">
         {tableName && (
           <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', opacity: 0.6, margin: '0 0 0.2rem' }}>{tableName}</p>

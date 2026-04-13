@@ -63,7 +63,7 @@ export default function SkatInfo() {
   return (
     <div>
       <header className="page-header">
-        <h1 className="page-title">Skat Regelwerk</h1>
+        <h1 className="page-title">Regelwerk</h1>
         <p className="page-subtitle">Nachschlagewerk — Reiztabelle und Spielwerte auf einen Blick.</p>
       </header>
 
