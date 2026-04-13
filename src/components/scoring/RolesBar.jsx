@@ -3,7 +3,7 @@
  */
 import { Link } from 'react-router-dom';
 
-const ROLE_LABELS = ['Geben', 'Hören', 'Sagen', 'Sagen²'];
+const ROLE_LABELS = ['Geben', 'Hören', 'Sagen', 'Aussetzen'];
 const HIGHLIGHT_COLOR = '#717974'; // Null-Grau
 
 export default function RolesBar({ seating, step, totalDeals, completedRounds, onReset }) {

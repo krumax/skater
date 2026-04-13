@@ -20,8 +20,10 @@ export function getRoles(seating, geberIndex) {
   const geber  = seating[geberIndex % n];
   const hoeren = seating[(geberIndex + 1) % n];
   const sagen  = seating[(geberIndex + 2) % n];
+  // Bei 4 Spielern: Geber sitzt aus (Skat-Regel).
+  // activePlayers in fester Sitzordnung damit die Reihenfolge in der UI stabil bleibt.
   const activePlayers = n === 4
-    ? [hoeren, sagen, seating[(geberIndex + 3) % n]]
+    ? seating.filter(p => p !== geber)
     : seating;
   return { geber, hoeren, sagen, activePlayers };
 }
