@@ -12,24 +12,30 @@ function lerp(a, b, t) {
   return Math.round(a + (b - a) * t);
 }
 
+// Farbskala: Mittelpunkt bei 70% (typische Skat-Gewinnrate)
+// < 50%  → kräftig rot
+// 50-70% → rot → neutral
+// 70-85% → neutral → hellgrün
+// > 85%  → kräftig grün
 function rateToColor(rate) {
-  // 0% → rot, 50% → neutral (surface-high), 100% → grün
   if (rate === null) return 'var(--surface-low)';
-  const t = rate / 100;
-  if (t >= 0.5) {
-    // neutral → grün
-    const tt = (t - 0.5) * 2;
-    const r = lerp(80, 11, tt);
-    const g = lerp(80, 61, tt);
-    const b = lerp(80, 46, tt);
-    return `rgb(${r},${g},${b})`;
-  } else {
+
+  if (rate >= 85) {
+    // hellgrün → kräftig grün
+    const t = Math.min(1, (rate - 85) / 15);
+    return `rgb(${lerp(40, 11, t)},${lerp(100, 61, t)},${lerp(60, 46, t)})`;
+  } else if (rate >= 70) {
+    // neutral → hellgrün
+    const t = (rate - 70) / 15;
+    return `rgb(${lerp(90, 40, t)},${lerp(100, 100, t)},${lerp(80, 60, t)})`;
+  } else if (rate >= 50) {
     // rot → neutral
-    const tt = t * 2;
-    const r = lerp(181, 80, tt);
-    const g = lerp(38, 80, tt);
-    const b = lerp(25, 80, tt);
-    return `rgb(${r},${g},${b})`;
+    const t = (rate - 50) / 20;
+    return `rgb(${lerp(160, 90, t)},${lerp(40, 100, t)},${lerp(30, 80, t)})`;
+  } else {
+    // kräftig rot
+    const t = Math.min(1, (50 - rate) / 50);
+    return `rgb(${lerp(160, 200, t)},${lerp(40, 20, t)},${lerp(30, 20, t)})`;
   }
 }
 
@@ -109,8 +115,11 @@ export default function GameTypeHeatmap({ rounds, players }) {
       {/* Legende */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
         <span style={{ fontSize: '0.65rem', color: 'var(--outline)' }}>0%</span>
-        <div style={{ flex: 1, height: '6px', borderRadius: '999px', background: 'linear-gradient(to right, rgb(181,38,25), rgb(80,80,80), rgb(11,61,46))' }} />
+        <div style={{ flex: 1, height: '6px', borderRadius: '999px', background: 'linear-gradient(to right, rgb(200,20,20), rgb(160,40,30), rgb(90,100,80), rgb(40,100,60), rgb(11,61,46))' }} />
         <span style={{ fontSize: '0.65rem', color: 'var(--outline)' }}>100%</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.25rem' }}>
+        <span style={{ fontSize: '0.6rem', color: 'var(--outline)', opacity: 0.7 }}>Mittelpunkt bei 70% (typische Gewinnrate)</span>
       </div>
     </div>
   );
