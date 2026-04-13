@@ -155,11 +155,6 @@ const PlayerAnalytics = () => {
         getPlayerStats={getPlayerStats}
       />
 
-      {/* Ranking-Karten */}
-      <div style={{ marginTop: '1.5rem' }}>
-        <PlayerRankingCard rounds={rounds} player={selectedPlayer} />
-      </div>
-
       <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem', marginTop: '3rem' }}>
 
         {/* ── Kacheln + PieChart ── */}
@@ -254,6 +249,11 @@ const PlayerAnalytics = () => {
               <DefenseMatrix rounds={rounds} player={selectedPlayer} />
             </>
           )}
+        </section>
+
+        {/* ── Ranking-Karten ── */}
+        <section>
+          <PlayerRankingCard rounds={rounds} player={selectedPlayer} />
         </section>
 
       </div>
