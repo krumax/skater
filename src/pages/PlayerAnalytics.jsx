@@ -105,6 +105,7 @@ const PlayerAnalytics = () => {
   const { players: allPlayers, rounds, getPlayerStats } = useGame();
   const players = allPlayers.filter(p => p !== '-');
   const [selectedPlayer, setSelectedPlayer] = useState('');
+  const [matrixTab, setMatrixTab] = useState('angriff');
 
   useEffect(() => {
     if (players.length > 0 && (!selectedPlayer || !players.includes(selectedPlayer))) {
@@ -215,23 +216,44 @@ const PlayerAnalytics = () => {
         </div>
 
         {/* ── Achievement-Matrizen ── */}
-        {/* ── Achievement-Matrizen ── */}
         <section>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>⚔️ Angriff</span>
-            <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Alleinspiel</h3>
-            <p style={{ color: 'var(--on-surface-variant)' }}>Vervollständige die Matrix und beweise deine Meisterschaft. Jede Kombination, jede Spielart, jede Stufe — werde zum Skatmeister.</p>
+          {/* Tab-Leiste */}
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
+            <button
+              onClick={() => setMatrixTab('angriff')}
+              className={`chip ${matrixTab === 'angriff' ? 'active' : ''}`}
+              style={{ fontSize: '0.9rem', padding: '0.6rem 1.25rem' }}
+            >
+              ⚔️ Angriff
+            </button>
+            <button
+              onClick={() => setMatrixTab('abwehr')}
+              className={`chip ${matrixTab === 'abwehr' ? 'active' : ''}`}
+              style={{ fontSize: '0.9rem', padding: '0.6rem 1.25rem' }}
+            >
+              🛡️ Abwehr
+            </button>
           </div>
-          <AchievementMatrix rounds={rounds} player={selectedPlayer} />
 
-          <div style={{ marginTop: '3rem' }}>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <span style={{ color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>🛡️Abwehr</span>
-              <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Gegenspiel</h3>
-              <p style={{ color: 'var(--on-surface-variant)' }}>Wie oft hat {selectedPlayer} als Gegenspieler einen Alleinspieler gestoppt — aufgeschlüsselt nach Spieltyp und Gewinnstufe.</p>
-            </div>
-            <DefenseMatrix rounds={rounds} player={selectedPlayer} />
-          </div>
+          {matrixTab === 'angriff' ? (
+            <>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>⚔️ Angriff</span>
+                <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Alleinspiel</h3>
+                <p style={{ color: 'var(--on-surface-variant)' }}>Vervollständige die Matrix und beweise deine Meisterschaft. Jede Kombination, jede Spielart, jede Stufe — werde zum Skatmeister.</p>
+              </div>
+              <AchievementMatrix rounds={rounds} player={selectedPlayer} />
+            </>
+          ) : (
+            <>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <span style={{ color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>🛡️ Abwehr</span>
+                <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Gegenspiel</h3>
+                <p style={{ color: 'var(--on-surface-variant)' }}>Wie oft hat {selectedPlayer} als Gegenspieler einen Alleinspieler gestoppt — aufgeschlüsselt nach Spieltyp und Gewinnstufe.</p>
+              </div>
+              <DefenseMatrix rounds={rounds} player={selectedPlayer} />
+            </>
+          )}
         </section>
 
       </div>
