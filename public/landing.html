@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SKATASTROPHE — Die digitale Skat-Zählapp</title>
+  <meta name="description" content="Vergiss Stift und Papier. SKATASTROPHE zählt regelkonform, berechnet Seeger-Fabian automatisch und zeigt dir Statistiken, die dein Spiel verändern." />
+  <meta property="og:title" content="SKATASTROPHE — Die digitale Skat-Zählapp" />
+  <meta property="og:description" content="Vergiss Stift und Papier. SKATASTROPHE zählt regelkonform, berechnet Seeger-Fabian automatisch und zeigt dir Statistiken, die dein Spiel verändern." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SKATASTROPHE",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Web",
+    "description": "Digitale Skat-Zählapp mit regelkonformer Punkteberechnung, Seeger-Fabian-System, Cloud-Sync und Spielerstatistiken.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+  }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark:   #0b3d2e;
+      --green-mid:    #1a5c44;
+      --gold:         #d0a600;
+      --gold-light:   #f0c000;
+      --cream:        #f5f0e8;
+      --cream-dark:   #ede7d9;
+      --text-dark:    #1b1c1c;
+      --text-muted:   #6b6b6b;
+      --white:        #ffffff;
+      --radius:       1rem;
+      --shadow:       0 8px 32px rgba(11,61,46,0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; line-height: 1.2; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--green-dark);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.1rem; font-weight: 800;
+      color: var(--gold); letter-spacing: 0.1em; text-decoration: none;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: rgba(255,255,255,0.75); text-decoration: none;
+      font-size: 0.875rem; font-weight: 600;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-cta {
+      background: var(--gold); color: var(--text-dark);
+      padding: 0.5rem 1.25rem; border-radius: 999px;
+      font-weight: 800; font-size: 0.875rem; text-decoration: none;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .nav-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--green-dark);
+      padding: 6rem 2rem 5rem;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 3rem; align-items: center;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(208,166,0,0.15); color: var(--gold);
+      border: 1px solid rgba(208,166,0,0.3);
+      padding: 0.3rem 0.9rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      color: var(--white); margin-bottom: 0.5rem;
+    }
+    .hero h1 span { color: var(--gold); }
+    .hero-sub {
+      color: rgba(255,255,255,0.7); font-size: 1.125rem;
+      margin-bottom: 2.5rem; max-width: 480px;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--gold); color: var(--text-dark);
+      padding: 0.875rem 2rem; border-radius: 999px;
+      font-weight: 800; font-size: 1rem; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .btn-ghost {
+      background: transparent; color: rgba(255,255,255,0.8);
+      padding: 0.875rem 2rem; border-radius: 999px;
+      font-weight: 700; font-size: 1rem; text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.25);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    .hero-visual {
+      display: flex; justify-content: center; align-items: center;
+    }
+    .hero-mockup {
+      width: 100%; max-width: 420px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1.5rem; padding: 2rem;
+      aspect-ratio: 4/3;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.3); font-size: 0.875rem; text-align: center;
+    }
+
+    /* ── SECTION WRAPPER ── */
+    section { padding: 5rem 2rem; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--gold); margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
+      font-weight: 800; margin-bottom: 1rem;
+    }
+    .section-sub {
+      color: var(--text-muted); font-size: 1.0625rem;
+      max-width: 560px; margin-bottom: 3rem;
+    }
+
+    /* ── TAGLINE BAND ── */
+    .tagline-band {
+      background: var(--cream-dark);
+      padding: 3rem 2rem; text-align: center;
+    }
+    .tagline-band p {
+      font-family: 'Manrope', sans-serif;
+      font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+      font-weight: 700; color: var(--green-dark);
+    }
+    .tagline-band span { color: var(--gold); }
+
+    /* ── FEATURES GRID ── */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--white); border-radius: var(--radius);
+      padding: 2rem; box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(11,61,46,0.15); }
+    .feature-icon {
+      width: 3rem; height: 3rem; border-radius: 0.75rem;
+      background: var(--green-dark); color: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1.25rem;
+    }
+    .feature-card h3 { font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .feature-card p { color: var(--text-muted); font-size: 0.9375rem; }
+
+    /* ── STATS BAND ── */
+    .stats-band {
+      background: var(--green-dark); color: var(--white);
+      padding: 4rem 2rem;
+    }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 2rem; text-align: center; max-width: 900px; margin: 0 auto;
+    }
+    .stat-number {
+      font-family: 'Manrope', sans-serif;
+      font-size: 3rem; font-weight: 800; color: var(--gold);
+      line-height: 1;
+    }
+    .stat-label { color: rgba(255,255,255,0.65); font-size: 0.875rem; margin-top: 0.5rem; }
+
+    /* ── FEATURE SHOWCASE (alternating) ── */
+    .showcase { background: var(--white); }
+    .showcase-item {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: center; padding: 4rem 0;
+      border-bottom: 1px solid var(--cream-dark);
+    }
+    .showcase-item:last-child { border-bottom: none; }
+    .showcase-item.reverse { direction: rtl; }
+    .showcase-item.reverse > * { direction: ltr; }
+    .showcase-visual {
+      background: var(--cream); border-radius: var(--radius);
+      aspect-ratio: 16/10;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: 0.875rem; text-align: center;
+      padding: 2rem;
+    }
+    .showcase-content h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.75rem; }
+    .showcase-content p { color: var(--text-muted); margin-bottom: 1.5rem; }
+    .tag-list { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .tag {
+      background: var(--cream); color: var(--green-dark);
+      padding: 0.25rem 0.75rem; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 700;
+    }
+
+    /* ── SPRUCH EASTER EGG ── */
+    .spruch-section { background: var(--cream-dark); text-align: center; }
+    .spruch-card {
+      background: var(--gold); color: var(--text-dark);
+      border-radius: var(--radius); padding: 2.5rem 3rem;
+      max-width: 640px; margin: 0 auto;
+      box-shadow: 0 8px 32px rgba(208,166,0,0.3);
+    }
+    .spruch-quote {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.5rem; font-weight: 800;
+      font-style: italic; margin-bottom: 0.75rem;
+    }
+    .spruch-meta { font-size: 0.8rem; font-weight: 700; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* ── FAQ ── */
+    .faq-list { max-width: 720px; margin: 0 auto; }
+    .faq-item {
+      border-bottom: 1px solid var(--cream-dark); padding: 1.5rem 0;
+    }
+    .faq-item summary {
+      font-weight: 700; font-size: 1.0625rem; cursor: pointer;
+      list-style: none; display: flex; justify-content: space-between;
+      align-items: center;
+    }
+    .faq-item summary::after { content: '+'; font-size: 1.5rem; color: var(--gold); }
+    .faq-item[open] summary::after { content: '−'; }
+    .faq-item p { color: var(--text-muted); margin-top: 0.75rem; font-size: 0.9375rem; }
+
+    /* ── CTA FINAL ── */
+    .cta-final {
+      background: var(--green-dark); color: var(--white);
+      text-align: center; padding: 6rem 2rem;
+    }
+    .cta-final h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1rem; }
+    .cta-final h2 span { color: var(--gold); }
+    .cta-final p { color: rgba(255,255,255,0.7); margin-bottom: 2.5rem; font-size: 1.125rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #0a1a14; color: rgba(255,255,255,0.5);
+      padding: 2rem; text-align: center; font-size: 0.875rem;
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; padding: 4rem 1.5rem 3rem; }
+      .hero-visual { display: none; }
+      .showcase-item { grid-template-columns: 1fr; gap: 2rem; }
+      .showcase-item.reverse { direction: ltr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <img src="/skatastrophe_logo_3.png" alt="SKATASTROPHE" style="height: 36px; display: block;" />
+      <span>SKATASTROPHE</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#showcase">Showcase</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a href="/app" class="nav-cta">App starten →</a>
+  </nav>
+
+  <!-- HERO -->
+  <div style="background: var(--green-dark);">
+    <div class="hero">
+      <div class="hero-content">
+        <div class="hero-badge">🃏 Die digitale Skat-Zählapp</div>
+        <img
+          src="/skatastrophe_logo_3.png"
+          alt="SKATASTROPHE Logo"
+          style="width: 220px; margin-bottom: 1.5rem; display: block;"
+        />
+        <h1>Die Evolution<br>deines <span>Skatabends.</span></h1>
+        <p class="hero-sub">
+          Vergiss Stift und Papier. SKATASTROPHE zählt regelkonform,
+          berechnet Seeger-Fabian automatisch und zeigt dir Statistiken,
+          die dein Spiel verändern — inklusive Brot-Zähler.
+        </p>
+        <div class="hero-actions">
+          <a href="/app" class="btn-primary">Jetzt starten ↗</a>
+          <a href="#features" class="btn-ghost">Features entdecken</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-mockup">
+          <!-- Screenshot Placeholder -->
+          📱 App Screenshot<br><small>kommt bald</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAGLINE BAND -->
+  <div class="tagline-band">
+    <p>Präzision in jedem Stich. <span>Spaß bei jeder Niederlage.</span></p>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="container">
+      <p class="section-label">Was SKATASTROPHE kann</p>
+      <h2 class="section-title">Alles was du brauchst.<br>Nichts was du nicht brauchst.</h2>
+      <p class="section-sub">
+        Entwickelt für echte Skat-Runden am Tisch — nicht für Turniere auf dem Papier.
+      </p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🧮</div>
+          <h3>Regelkonforme Berechnung</h3>
+          <p>Grand, Null, Kreuz, Pik, Herz, Karo — alle Spieltypen mit Spitzen, Hand, Schneider, Schwarz und Ouvert. Bockrunden inklusive.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🏆</div>
+          <h3>Seeger-Fabian automatisch</h3>
+          <p>Das Turniersystem nach Seeger-Fabian wird bei jeder Runde automatisch mitberechnet. +50, −50, +40 — kein Kopfrechnen mehr.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Tiefe Spielerstatistiken</h3>
+          <p>Gewinnraten, Siegesserien, Brot & Baguette-Zähler, Spieltyp-Verteilung und Heatmaps. Wer hat wirklich das beste Grand-Spiel?</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎖️</div>
+          <h3>Achievement-System</h3>
+          <p>Wer zum ersten Mal einen "Grand Hand Schwarz" gewinnt, bekommt Konfetti. Wer zum dritten Mal verliert, bekommt einen Spruch.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">☁️</div>
+          <h3>Cloud-Synchronisierung</h3>
+          <p>Alle Geräte am Tisch sehen denselben Stand in Echtzeit. Kein Abtippen, kein Vergessen, kein Streit über die letzte Runde.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🍞</div>
+          <h3>Brot & Baguette-Zähler</h3>
+          <p>Wer drei Runden lang nicht gespielt hat, bekommt ein Brot. Zwei Brote hintereinander? Baguette. Weil Skat auch Humor braucht.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAND -->
+  <div class="stats-band">
+    <div class="stats-grid">
+      <div>
+        <div class="stat-number">7</div>
+        <div class="stat-label">Spieltypen unterstützt</div>
+      </div>
+      <div>
+        <div class="stat-number">9</div>
+        <div class="stat-label">Achievement-Level</div>
+      </div>
+      <div>
+        <div class="stat-number">∞</div>
+        <div class="stat-label">Skatsprüche bei Niederlagen</div>
+      </div>
+      <div>
+        <div class="stat-number">0€</div>
+        <div class="stat-label">Kosten</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHOWCASE -->
+  <section id="showcase" class="showcase">
+    <div class="container">
+      <p class="section-label">Showcase</p>
+      <h2 class="section-title">Vom Spieler zum Strategen.</h2>
+
+      <div class="showcase-item">
+        <div class="showcase-visual">
+          <!-- Screenshot: Spielerstatistik -->
+          📸 Screenshot: Spielerstatistik
+        </div>
+        <div class="showcase-content">
+          <h3>Spielerstatistik auf Profi-Niveau</h3>
+          <p>
+            Gewinnraten, Seeger-Fabian-Punkte, längste Siegesserien und die
+            persönliche Achievement-Matrix — alles auf einen Blick.
+            Wer ist wirklich der Großmeister am Tisch?
+          </p>
+          <div class="tag-list">
+            <span class="tag">Gewinnrate</span>
+            <span class="tag">Seeger-Fabian</span>
+            <span class="tag">Achievements</span>
+            <span class="tag">Rangsystem</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="showcase-item reverse">
+        <div class="showcase-visual">
+          <!-- Screenshot: Tischstatistik -->
+          📸 Screenshot: Tischstatistik
+        </div>
+        <div class="showcase-content">
+          <h3>Tischstatistik — das große Bild</h3>
+          <p>
+            Wie oft hat der Alleinspieler gewonnen? Wie oft die Gegenspieler?
+            Wer hat die längste Niederlagenserie? Die Heatmap zeigt,
+            wer bei welchem Spieltyp wirklich stark ist.
+          </p>
+          <div class="tag-list">
+            <span class="tag">Heatmap</span>
+            <span class="tag">Erfolgsquoten</span>
+            <span class="tag">Führungswechsel</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="showcase-item">
+        <div class="showcase-visual">
+          <!-- Screenshot: Aktuelle Runde -->
+          📸 Screenshot: Aktuelle Runde
+        </div>
+        <div class="showcase-content">
+          <h3>Runden erfassen in Sekunden</h3>
+          <p>
+            Spieltyp wählen, Ansage setzen, Augen eingeben — fertig.
+            Kein Rechnen, kein Tippen von Zahlen. Die App übernimmt alles.
+          </p>
+          <div class="tag-list">
+            <span class="tag">Schnelle Eingabe</span>
+            <span class="tag">Alle Modifikatoren</span>
+            <span class="tag">Spaltarsch-Erkennung</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPRUCH EASTER EGG -->
+  <section class="spruch-section">
+    <div class="container">
+      <p class="section-label" style="text-align:center;">SKATASTROPHE hat Humor</p>
+      <h2 class="section-title" style="text-align:center; margin-bottom:2rem;">
+        Weil Niederlagen auch Spaß machen können.
+      </h2>
+      <div class="spruch-card">
+        <div class="spruch-quote">„Gute Nacht Lisette."</div>
+        <div class="spruch-meta">— Erscheint automatisch nach einer Niederlage</div>
+      </div>
+      <p style="text-align:center; margin-top:1.5rem; color:var(--text-muted); font-size:0.9rem;">
+        Über 40 klassische Skatsprüche — für Siege, Niederlagen, Spaltarsch und Serien.
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <p class="section-label" style="text-align:center;">Häufige Fragen</p>
+      <h2 class="section-title" style="text-align:center; margin-bottom:3rem;">FAQ</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Ist SKATASTROPHE kostenlos?</summary>
+          <p>Ja, vollständig kostenlos. Kein Abo, keine versteckten Kosten.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Was ist das Seeger-Fabian-System?</summary>
+          <p>Das Seeger-Fabian-System ist eine erweiterte Turnierwertung im Skat. Der Alleinspieler bekommt bei einem Sieg +50 Bonuspunkte, bei einer Niederlage −50. Die Gegenspieler erhalten bei einer Niederlage des Alleinspielers je +40 Punkte. SKATASTROPHE berechnet das automatisch bei jeder Runde.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Funktioniert die App mit 3 und 4 Spielern?</summary>
+          <p>Ja. Bei 4 Spielern sitzt der Geber automatisch aus — genau wie in den offiziellen Skat-Regeln. Die App verwaltet die Rotation automatisch.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Was ist ein "Brot"?</summary>
+          <p>Ein Brot entsteht, wenn ein Spieler drei aufeinanderfolgende Runden nicht als Alleinspieler gespielt hat — also eine komplette Geberrunde passiv war. Zwei Brote hintereinander ergeben ein Baguette. Rein zur Unterhaltung.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Werden meine Daten gespeichert?</summary>
+          <p>Ja, alle Runden werden sicher in der Cloud gespeichert (Supabase/PostgreSQL). Alle Geräte am Tisch sehen denselben Stand in Echtzeit.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Was ist ein Spaltarsch?</summary>
+          <p>Ein Spaltarsch passiert, wenn der Alleinspieler exakt 60 Augen hat — also genau die Hälfte. Das Spiel gilt als verloren, und die nächsten Runden werden als Bockrunden gespielt. SKATASTROPHE erkennt das automatisch und weist darauf hin.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <div class="cta-final">
+    <div class="container">
+      <h2>Bereit für deinen <span>besten Skatabend?</span></h2>
+      <p>Kostenlos starten. Kein Download. Läuft im Browser.</p>
+      <a href="/app" class="btn-primary" style="font-size:1.125rem; padding:1rem 2.5rem;">
+        Jetzt kostenlos starten ↗
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 SKATASTROPHE · <a href="/app">App öffnen</a> · <a href="/app/info">Regelwerk</a></p>
+  </footer>
+
+</body>
+</html>
