@@ -23,7 +23,9 @@ export default function NullOutcomeSelector({ gameType, eyeCount, setEyeCount })
           disabled={!active}
           className={`chip ${eyeCount !== 0 ? 'active' : ''}`}
           onClick={() => setEyeCount(1)}
-          style={{ color: 'var(--secondary)' }}
+          style={eyeCount !== 0 && active
+            ? { backgroundColor: 'var(--secondary)', color: '#fff', borderColor: 'var(--secondary)' }
+            : { color: 'var(--secondary)' }}
         >
           Verloren (Stich gemacht)
         </button>

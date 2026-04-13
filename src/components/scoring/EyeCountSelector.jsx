@@ -19,7 +19,10 @@ export default function EyeCountSelector({ gameType, eyeCount, setEyeCount }) {
           <button disabled={disabled} className={`chip ${eyeCount >= 61 && eyeCount < 90  ? 'active' : ''}`} onClick={() => setEyeCount(61)}>61+</button>
           <button disabled={disabled} className={`chip ${eyeCount >= 90 && eyeCount < 120 ? 'active' : ''}`} onClick={() => setEyeCount(90)}>Schneider (90+)</button>
           <button disabled={disabled} className={`chip ${eyeCount >= 120               ? 'active' : ''}`} onClick={() => setEyeCount(120)}>Schwarz (120)</button>
-          <button disabled={disabled} className={`chip ${eyeCount < 61 && eyeCount !== 60 ? 'active' : ''}`} onClick={() => setEyeCount(30)} style={{ color: 'var(--secondary)' }}>Verloren (&lt;61)</button>
+          <button disabled={disabled} className={`chip ${eyeCount < 61 && eyeCount !== 60 ? 'active' : ''}`} onClick={() => setEyeCount(30)}
+            style={eyeCount < 61 && eyeCount !== 60 ? { backgroundColor: 'var(--secondary)', color: '#fff', borderColor: 'var(--secondary)' } : { color: 'var(--secondary)' }}>
+            Verloren (&lt;61)
+          </button>
           <button
             disabled={!canSpaltarsch}
             className={`chip ${eyeCount === 60 ? 'active' : ''}`}
@@ -27,7 +30,9 @@ export default function EyeCountSelector({ gameType, eyeCount, setEyeCount }) {
             style={{
               opacity: canSpaltarsch ? 1 : 0.4,
               pointerEvents: canSpaltarsch ? 'auto' : 'none',
-              color: eyeCount === 60 ? undefined : 'var(--secondary)',
+              ...(eyeCount === 60
+                ? { backgroundColor: 'var(--secondary)', color: '#fff', borderColor: 'var(--secondary)' }
+                : { color: 'var(--secondary)' }),
             }}
             title="Spaltarsch: exakt 60 Augen — Spiel verloren, nächste Runden als Bockrunde"
           >
