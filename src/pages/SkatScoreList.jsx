@@ -38,6 +38,26 @@ const SkatScoreList = () => {
         </div>
       </header>
 
+      {/* ── Sitzungsstatistik ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+        <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)', padding: '0.75rem 1rem' }}>
+          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Runden gesamt</p>
+          <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>{rounds.length}</p>
+        </div>
+        <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)', padding: '0.75rem 1rem' }}>
+          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Gewonnen</p>
+          <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>{rounds.filter(r => r.won && r.gameType !== 'passed').length}</p>
+        </div>
+        <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)', padding: '0.75rem 1rem' }}>
+          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Verloren</p>
+          <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--secondary)' }}>{rounds.filter(r => !r.won && r.gameType !== 'passed').length}</p>
+        </div>
+        <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)', padding: '0.75rem 1rem' }}>
+          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Eingepasst</p>
+          <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--outline)' }}>{rounds.filter(r => r.gameType === 'passed').length}</p>
+        </div>
+      </div>
+
       {/* ── Dreifache Wertungsübersicht ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
         {/* Standard */}
@@ -139,11 +159,10 @@ const SkatScoreList = () => {
       </div>
 
       {/* ── Spielverlauf ── */}
-      <h3 className="headline" style={{ fontSize: '1.75rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        Spielverlauf
-        {(() => {
-          const importCount = rounds.filter(r => !r.gameType || !['club','spade','heart','diamond','grand','null','passed'].includes(r.gameType)).length;
-          return importCount > 0 ? (
+      {(() => {
+        const importCount = rounds.filter(r => !r.gameType || !['club','spade','heart','diamond','grand','null','passed'].includes(r.gameType)).length;
+        return importCount > 0 ? (
+          <div style={{ marginBottom: '1rem' }}>
             <span title={`${importCount} Spiele noch ohne Spieltyp`} style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
               fontSize: '0.8rem', fontWeight: 700,
@@ -154,9 +173,9 @@ const SkatScoreList = () => {
               <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>pending</span>
               {importCount} Import
             </span>
-          ) : null;
-        })()}
-      </h3>
+          </div>
+        ) : null;
+      })()}
 
       {rounds.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--outline)' }}>
@@ -235,26 +254,6 @@ const SkatScoreList = () => {
           </table>
         </div>
       )}
-
-      {/* ── Sitzungsstatistik ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1.5rem', marginTop: '3rem' }}>
-        <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Runden gesamt</p>
-          <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>{rounds.length}</p>
-        </div>
-        <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Gewonnen</p>
-          <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>{rounds.filter(r => r.won && r.gameType !== 'passed').length}</p>
-        </div>
-        <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Verloren</p>
-          <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--secondary)' }}>{rounds.filter(r => !r.won && r.gameType !== 'passed').length}</p>
-        </div>
-        <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Eingepasst</p>
-          <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--outline)' }}>{rounds.filter(r => r.gameType === 'passed').length}</p>
-        </div>
-      </div>
 
       {/* ── GameTypeEditor Modal ── */}
       {editingRound !== null && (
