@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
+import { useSearchParams } from 'react-router-dom';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
 import { SUIT_COLORS, SUIT_TEXT_COLORS } from '../lib/tokens';
 import GameTypePieChart from '../components/analytics/GameTypePieChart';
@@ -122,14 +123,18 @@ function HighlightCard({ icon, gradient, textColor, title, round }) {
 const PlayerAnalytics = () => {
   const { players: allPlayers, rounds, getPlayerStats } = useGame();
   const players = allPlayers.filter(p => p !== '-');
+  const [searchParams] = useSearchParams();
   const [selectedPlayer, setSelectedPlayer] = useState('');
   const [matrixTab, setMatrixTab] = useState('angriff');
 
   useEffect(() => {
-    if (players.length > 0 && (!selectedPlayer || !players.includes(selectedPlayer))) {
+    const fromUrl = searchParams.get('player');
+    if (fromUrl && players.includes(fromUrl)) {
+      setSelectedPlayer(fromUrl);
+    } else if (players.length > 0 && (!selectedPlayer || !players.includes(selectedPlayer))) {
       setSelectedPlayer(players[0]);
     }
-  }, [players]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [players, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (players.length === 0) {
     return (

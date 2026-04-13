@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { SYNC_COLORS } from '../lib/tokens';
 
@@ -32,33 +32,33 @@ const Sidebar = () => {
         display: 'flex', flexDirection: 'column', gap: '0.5rem',
       }}>
         {tableName && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6 }}>table_bar</span>
+          <Link to="/statistiken" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6, color: '#fff' }}>table_bar</span>
             <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#fff' }}>{tableName}</span>
-          </div>
+          </Link>
         )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
             {seating.filter(p => p !== '-').map(p => {
               const score = totals[p] ?? 0;
               return (
-                <div key={p} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                <Link key={p} to={`/analytics?player=${encodeURIComponent(p)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6 }}>person</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6, color: '#fff' }}>person</span>
                     <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)' }}>{p}</span>
                   </div>
                   <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: score >= 0 ? 'rgba(255,255,255,0.9)' : '#f87171', fontFamily: "'Manrope', sans-serif" }}>
                     {score >= 0 ? '+' : ''}{score}
                   </span>
-                </div>
+                </Link>
               );
             })}
           </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6 }}>tag</span>
+        <Link to="/history" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6, color: '#fff' }}>tag</span>
           <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)' }}>
             Runde <strong style={{ color: '#fff' }}>{currentRound}</strong>
           </span>
-        </div>
+        </Link>
       </div>
       
       <nav className="sidebar-nav">
