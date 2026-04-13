@@ -6,7 +6,6 @@ import { computeAchievementUnlocks } from '../lib/playerStats';
 import GameTypePieChart      from '../components/analytics/GameTypePieChart';
 import GameValueHistogram    from '../components/analytics/GameValueHistogram';
 import GameTypeHeatmap       from '../components/analytics/GameTypeHeatmap';
-import WinRateTrendChart     from '../components/analytics/WinRateTrendChart';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
@@ -528,14 +527,7 @@ const StatistikenCharts = () => {
             </div>
           </section>
 
-          {/* ── Gewinnquoten-Trend ── */}
-          <section>
-            <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Lernkurve: Gewinnquote je Spieltyp</h3>
-            <div className="card">
-              <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.75rem' }}>Gleitender Durchschnitt (10 Runden) — lernt die Runde bestimmte Spielarten besser?</p>
-              <WinRateTrendChart rounds={rounds} />
-            </div>
-          </section>
+
 
         </div>
       )}
