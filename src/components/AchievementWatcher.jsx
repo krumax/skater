@@ -120,8 +120,8 @@ const AchievementWatcher = () => {
     prevRoundCountRef.current = rounds.length;
     prevSessionIdRef.current = sessionId;
 
-    // Skatspruch — nur wenn kein Achievement-Popup erscheint (würde sich überlagern)
-    if (newAchievements.length === 0) {
+    // Skatspruch — nur wenn kein Achievement-Popup erscheint und kein Eingepasst
+    if (newAchievements.length === 0 && latestRound.gameType !== 'passed') {
       const text = getSkatSpruch(latestRound, rounds);
       if (text) {
         setSpruch(text);

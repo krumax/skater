@@ -184,14 +184,14 @@ const PlayerAnalytics = () => {
           icon="emoji_events"
           gradient="linear-gradient(135deg, #d0a600, #a07800)"
           textColor="#1b1c1c"
-          title="Höchster Sieg"
+          title="↑ Spiel"
           round={stats.bestWinRound}
         />
         <HighlightCard
           icon="heart_broken"
           gradient="linear-gradient(135deg, var(--secondary), var(--secondary-container))"
           textColor="var(--on-secondary)"
-          title="Höchste Niederlage"
+          title="↓ Niederlage"
           round={stats.worstLossRound}
         />
       </div>
