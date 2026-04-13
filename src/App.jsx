@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { GameProvider } from './context/GameContext';
 import Sidebar from './components/Sidebar';
-import PasswordGate from './components/PasswordGate';
+import AuthGate from './components/AuthGate';
 import AchievementWatcher from './components/AchievementWatcher';
 import GameScoringEntry from './pages/GameScoringEntry';
 import PlayerAnalytics from './pages/PlayerAnalytics';
@@ -13,7 +13,7 @@ import SkatInfo from './pages/SkatInfo';
 
 function App() {
   return (
-    <PasswordGate>
+    <AuthGate>
       <GameProvider>
         <BrowserRouter>
           <div className="app-container">
@@ -32,7 +32,7 @@ function App() {
           <AchievementWatcher />
         </BrowserRouter>
       </GameProvider>
-    </PasswordGate>
+    </AuthGate>
   );
 }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { SYNC_COLORS } from '../lib/tokens';
+import { supabase } from '../lib/supabaseClient';
 
 const SYNC_ICON = {
   idle:    { icon: 'cloud_done', color: SYNC_COLORS.idle,    title: 'Synchronisiert' },
@@ -105,25 +106,33 @@ const Sidebar = () => {
             <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>
               v{__APP_VERSION__}
             </span>
+            <button
+              onClick={refreshFromDB}
+              disabled={syncStatus === 'syncing'}
+              title="Daten neu laden"
+              style={{
+                background: 'none', border: 'none',
+                cursor: syncStatus === 'syncing' ? 'not-allowed' : 'pointer',
+                color: syncStatus === 'syncing' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.6)',
+                display: 'flex', alignItems: 'center', padding: '0',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>refresh</span>
+            </button>
           </div>
           <button
-            onClick={refreshFromDB}
-            disabled={syncStatus === 'syncing'}
-            title="Daten aus Datenbank laden"
+            onClick={() => supabase.auth.signOut()}
+            title="Abmelden"
             style={{
-              background: 'none',
-              border: 'none',
-              cursor: syncStatus === 'syncing' ? 'not-allowed' : 'pointer',
-              color: syncStatus === 'syncing' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.7)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              fontSize: '0.8125rem',
-              padding: '0.25rem 0.5rem',
+              background: 'none', border: 'none',
+              cursor: 'pointer', color: 'rgba(255,255,255,0.5)',
+              display: 'flex', alignItems: 'center', gap: '0.25rem',
+              fontSize: '0.8125rem', padding: '0.25rem 0.5rem',
+              fontFamily: 'inherit',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>refresh</span>
-            Aktualisieren
+            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>logout</span>
+            Abmelden
           </button>
         </div>
       </div>
