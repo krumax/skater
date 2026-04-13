@@ -29,10 +29,28 @@ function StatCard({ label, value, color, tooltip }) {
 
 // ── Streak-Kachel mit Spieltyp-Icons ─────────────────────────────────────────
 function StreakCard({ label, streakRounds, color }) {
+  const totalPoints = streakRounds.reduce((s, r) => s + r.gameValue, 0);
+  const lastRound   = streakRounds.length > 0 ? streakRounds[streakRounds.length - 1] : null;
+  const endDate     = lastRound?.timestamp
+    ? new Date(lastRound.timestamp).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : null;
+  const tooltip = streakRounds.length > 0
+    ? `Punkte gesamt: ${totalPoints >= 0 ? '+' : ''}${totalPoints}${endDate ? `\nSerienende: ${endDate}` : ''}`
+    : undefined;
+
   return (
     <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
       <p style={{ ...statLabel, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
         {label}
+        {tooltip && (
+          <span
+            className="material-symbols-outlined"
+            title={tooltip}
+            style={{ fontSize: '0.8rem', cursor: 'help', opacity: 0.6 }}
+          >
+            info
+          </span>
+        )}
       </p>
       <p style={{ ...statValue, color }}>{streakRounds.length}x</p>
       {streakRounds.length > 0 && (
