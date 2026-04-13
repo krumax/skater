@@ -236,7 +236,17 @@ const StatistikenCharts = () => {
     });
     return maxSwing > 0 ? { swing: maxSwing, player: maxPlayer } : null;
   }, [rounds, players]);
-  /* ── 4. KPIs ── */
+  /* ── 6. Längste Serien (tischübergreifend) ── */
+  const tableStreaks = React.useMemo(() => {
+    const realRounds = rounds.filter(r => r.gameType !== 'passed' && r.player !== '-');
+    let longestWin = 0, curWin = 0;
+    let longestLoss = 0, curLoss = 0;
+    realRounds.forEach(r => {
+      if (r.won) { curWin++; curLoss = 0; if (curWin > longestWin) longestWin = curWin; }
+      else        { curLoss++; curWin = 0; if (curLoss > longestLoss) longestLoss = curLoss; }
+    });
+    return { longestWin, longestLoss };
+  }, [rounds]);
   const kpis = React.useMemo(() => {
     const totalGames = rounds.length;
     const totalPoints = rounds.reduce((s, r) => s + r.gameValue, 0);
@@ -449,6 +459,27 @@ const StatistikenCharts = () => {
                   </div>
                 </div>
 
+                {/* Längste Serien */}
+                <div className="card" style={{ backgroundColor: 'var(--surface-low)' }}>
+                  <p style={{ ...statLabel, marginBottom: '0.75rem' }}>Längste Serien am Tisch</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.2rem' }}>🏆 Siegesserie</p>
+                      <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: tableStreaks.longestWin >= 5 ? 'var(--primary)' : 'var(--on-surface)' }}>
+                        {tableStreaks.longestWin}×
+                      </p>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>aufeinanderfolgende Siege</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.2rem' }}>💀 Niederlagenserie</p>
+                      <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: tableStreaks.longestLoss >= 5 ? 'var(--secondary)' : 'var(--on-surface)' }}>
+                        {tableStreaks.longestLoss}×
+                      </p>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>aufeinanderfolgende Niederlagen</p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Führungswechsel */}
                 <div className="card" style={{ backgroundColor: 'var(--surface-low)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--primary)', flexShrink: 0 }}>swap_vert</span>
@@ -456,18 +487,6 @@ const StatistikenCharts = () => {
                     <p style={statLabel}>Führungswechsel</p>
                     <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }}>{leaderChanges}×</p>
                     <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>Wechsel der Tabellenführung</p>
-                  </div>
-                </div>
-
-                {/* Comeback */}
-                <div className="card" style={{ backgroundColor: 'var(--surface-low)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: comebackRate ? 'var(--primary)' : 'var(--outline)', flexShrink: 0 }}>trending_up</span>
-                  <div>
-                    <p style={statLabel}>Comeback</p>
-                    <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: comebackRate ? 'var(--primary)' : 'var(--outline)' }}>
-                      {comebackRate === null ? '–' : comebackRate ? 'Ja' : 'Nein'}
-                    </p>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>Halbzeit-Führender am Ende vorne?</p>
                   </div>
                 </div>
 
