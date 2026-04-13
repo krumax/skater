@@ -317,7 +317,7 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
         if (isPassed) return <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>;
         if (isNull)   return <span style={{ color: 'var(--outline)', opacity: 0.6 }}>—</span>;
         return r.spitzen != null
-          ? <span style={{ color: (r.mitOhne ?? 'mit') === 'ohne' ? 'var(--secondary)' : 'var(--on-surface)' }}>
+          ? <span style={{ color: 'var(--on-surface)' }}>
               {(r.mitOhne ?? 'mit') === 'ohne' ? '−' : '+'}{r.spitzen}
             </span>
           : <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>;
