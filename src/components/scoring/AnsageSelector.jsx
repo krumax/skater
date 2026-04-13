@@ -8,7 +8,7 @@ export default function AnsageSelector({ mitOhne, setMitOhne, spitzen, setSpitze
   return (
     <section className="form-section">
       <label className="section-label">Ansage</label>
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '0.5rem', opacity: disabled ? 0.25 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
           <button className={`chip ${mitOhne === 'mit'   ? 'active' : ''}`} onClick={() => setMitOhne('mit')}>Mit</button>
           <button className={`chip ${mitOhne === 'ohne'  ? 'active' : ''}`} onClick={() => setMitOhne('ohne')}>Ohne</button>
@@ -22,7 +22,7 @@ export default function AnsageSelector({ mitOhne, setMitOhne, spitzen, setSpitze
                 disabled={isDisabled}
                 onClick={() => setSpitzen(num)}
                 className={`game-type-card ${spitzen === num && !isDisabled ? 'active' : ''}`}
-                style={{ width: '48px', height: '48px', borderRadius: '0.5rem', fontSize: '1.125rem', fontWeight: 700, opacity: isDisabled ? 0.25 : 1, pointerEvents: isDisabled ? 'none' : 'auto' }}
+                style={{ width: '40px', height: '40px', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: 700, opacity: isDisabled ? 0.25 : 1, pointerEvents: isDisabled ? 'none' : 'auto' }}
               >
                 {num}
               </button>

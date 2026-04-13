@@ -13,19 +13,9 @@ export default function EyeCountSelector({ gameType, eyeCount, setEyeCount }) {
     <section className="form-section">
       <label className="section-label">Augen</label>
       <div style={{
-        display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap',
+        display: 'flex', gap: '0.75rem', flexWrap: 'wrap',
         opacity: disabled ? 0.4 : 1, pointerEvents: disabled ? 'none' : 'auto',
       }}>
-        <input
-          type="number"
-          className="number-input"
-          disabled={disabled}
-          min="0"
-          max="120"
-          value={eyeCount}
-          onChange={e => setEyeCount(Math.min(120, Math.max(0, parseInt(e.target.value) || 0)))}
-        />
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <button disabled={disabled} className={`chip ${eyeCount >= 61 && eyeCount < 90  ? 'active' : ''}`} onClick={() => setEyeCount(61)}>61+</button>
           <button disabled={disabled} className={`chip ${eyeCount >= 90 && eyeCount < 120 ? 'active' : ''}`} onClick={() => setEyeCount(90)}>Schneider (90+)</button>
           <button disabled={disabled} className={`chip ${eyeCount >= 120               ? 'active' : ''}`} onClick={() => setEyeCount(120)}>Schwarz (120)</button>
@@ -43,7 +33,6 @@ export default function EyeCountSelector({ gameType, eyeCount, setEyeCount }) {
           >
             💥 Spaltarsch (60)
           </button>
-        </div>
       </div>
     </section>
   );

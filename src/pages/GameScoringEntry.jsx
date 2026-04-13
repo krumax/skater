@@ -78,17 +78,19 @@ const GameScoringEntry = () => {
             isBock={form.isBock}                     setIsBock={form.setIsBock}
           />
 
-          <AnsageSelector
-            mitOhne={form.mitOhne}   setMitOhne={form.setMitOhne}
-            spitzen={form.spitzen}   setSpitzen={form.setSpitzen}
-            maxSpitzen={form.maxSpitzen}
-          />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <AnsageSelector
+              mitOhne={form.mitOhne}   setMitOhne={form.setMitOhne}
+              spitzen={form.spitzen}   setSpitzen={form.setSpitzen}
+              maxSpitzen={form.maxSpitzen}
+            />
 
-          <SpitzenSelector
-            gameType={form.gameType}
-            spitzen={form.spitzen}
-            setSpitzen={form.setSpitzen}
-          />
+            <SpitzenSelector
+              gameType={form.gameType}
+              spitzen={form.spitzen}
+              setSpitzen={form.setSpitzen}
+            />
+          </div>
 
           <EyeCountSelector
             gameType={form.gameType}
