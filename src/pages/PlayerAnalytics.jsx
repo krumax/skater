@@ -155,6 +155,24 @@ const PlayerAnalytics = () => {
         getPlayerStats={getPlayerStats}
       />
 
+      {/* ── Höchster Sieg / Höchste Niederlage ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+        <HighlightCard
+          icon="emoji_events"
+          gradient="linear-gradient(135deg, #d0a600, #a07800)"
+          textColor="#1b1c1c"
+          title="Höchster Sieg"
+          round={stats.bestWinRound}
+        />
+        <HighlightCard
+          icon="heart_broken"
+          gradient="linear-gradient(135deg, var(--secondary), var(--secondary-container))"
+          textColor="var(--on-secondary)"
+          title="Höchste Niederlage"
+          round={stats.worstLossRound}
+        />
+      </div>
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem', marginTop: '3rem' }}>
 
         {/* ── Kacheln + PieChart ── */}
@@ -166,26 +184,15 @@ const PlayerAnalytics = () => {
               <StatCard label="Spielanteil"      value={`${playShare}%`}      color="var(--on-surface)" tooltip={`${stats.totalGames} von ${rounds.length} Runden`} />
               <StatCard label="Ø Punkte / Spiel" value={stats.avgPoints}      color="var(--on-surface)" />
             </div>
+            {/* Zeile 2: Brote */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <StatCard label="🍞 Brote"     value={stats.brote}     color={stats.brote     > 0 ? 'var(--secondary)' : 'var(--on-surface)'} tooltip="Ein Brot ist eine vollständige Geberrunde ohne Spiel." />
+              <StatCard label="🥖 Baguettes" value={stats.baguettes} color={stats.baguettes > 0 ? 'var(--secondary)' : 'var(--on-surface)'} tooltip="Ein Baguette sind zwei vollständige Geberrunden ohne Spiel (6 Runden)." />
+            </div>
+            {/* Zeile 3: Serien */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <StreakCard label="🏆 Längste Siegesserie"  streakRounds={stats.longestWinRounds}  color={stats.longestWinStreak  >= 3 ? 'var(--primary)'   : 'var(--on-surface)'} />
               <StreakCard label="💀 Längste Verlustserie" streakRounds={stats.longestLossRounds} color={stats.longestLossStreak >= 3 ? 'var(--secondary)' : 'var(--on-surface)'} />
-            </div>
-            {/* Zeile 5: Höchster Sieg / Höchste Niederlage */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <HighlightCard
-                icon="emoji_events"
-                gradient="linear-gradient(135deg, #d0a600, #a07800)"
-                textColor="#1b1c1c"
-                title="Höchster Sieg"
-                round={stats.bestWinRound}
-              />
-              <HighlightCard
-                icon="heart_broken"
-                gradient="linear-gradient(135deg, var(--secondary), var(--secondary-container))"
-                textColor="var(--on-secondary)"
-                title="Höchste Niederlage"
-                round={stats.worstLossRound}
-              />
             </div>
           </div>
 
@@ -237,6 +244,11 @@ const PlayerAnalytics = () => {
               <DefenseMatrix rounds={rounds} player={selectedPlayer} />
             </>
           )}
+        </section>
+
+        {/* ── Ranking-Karten: Farbspiel / Null / Grand ── */}
+        <section>
+          <PlayerRankingCard rounds={rounds} player={selectedPlayer} />
         </section>
 
       </div>
