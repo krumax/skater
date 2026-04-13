@@ -90,17 +90,22 @@ const Sidebar = () => {
 
       <div className="sidebar-footer">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span
-            className="material-symbols-outlined"
-            title={syncIcon.title}
-            style={{
-              fontSize: '1.25rem',
-              color: syncIcon.color,
-              animation: syncIcon.spin ? 'spin 1.2s linear infinite' : 'none',
-            }}
-          >
-            {syncIcon.icon}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span
+              className="material-symbols-outlined"
+              title={syncIcon.title}
+              style={{
+                fontSize: '1.25rem',
+                color: syncIcon.color,
+                animation: syncIcon.spin ? 'spin 1.2s linear infinite' : 'none',
+              }}
+            >
+              {syncIcon.icon}
+            </span>
+            <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>
+              v{__APP_VERSION__}
+            </span>
+          </div>
           <button
             onClick={refreshFromDB}
             disabled={syncStatus === 'syncing'}
