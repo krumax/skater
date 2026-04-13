@@ -304,7 +304,7 @@ const StatistikenCharts = () => {
       </div>
 
       {/* ── Highlight-Kacheln ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '3rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '3rem' }}>
         {kpis.best && (
           <div className="card" style={{
             display: 'flex', alignItems: 'center', gap: '2rem', padding: '1.25rem 2rem',
@@ -312,7 +312,7 @@ const StatistikenCharts = () => {
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: '#1b1c1c', flexShrink: 0 }}>emoji_events</span>
             <div style={{ flex: 1 }}>
-              <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65, marginBottom: '0.1rem' }}>Bestes Spiel der Session</p>
+              <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65, marginBottom: '0.1rem' }}>↑ Spiel</p>
               <p style={{ ...statValue, color: '#1b1c1c', fontSize: '1.75rem', lineHeight: 1 }}>
                 +{kpis.best.value}
                 <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
@@ -322,7 +322,7 @@ const StatistikenCharts = () => {
             </div>
             <div style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65 }}>Alleinspieler</p>
+                <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65 }}>Spieler</p>
                 <p style={{ fontWeight: 800, color: '#1b1c1c' }}>{kpis.best.player}</p>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -345,7 +345,7 @@ const StatistikenCharts = () => {
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--on-secondary)', flexShrink: 0 }}>heart_broken</span>
             <div style={{ flex: 1 }}>
-              <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65, marginBottom: '0.1rem' }}>Höchste Niederlage der Session</p>
+              <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65, marginBottom: '0.1rem' }}>↓ Niederlage</p>
               <p style={{ ...statValue, color: 'var(--on-secondary)', fontSize: '1.75rem', lineHeight: 1 }}>
                 {kpis.worst.value}
                 <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
@@ -355,7 +355,7 @@ const StatistikenCharts = () => {
             </div>
             <div style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65 }}>Alleinspieler</p>
+                <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65 }}>Spieler</p>
                 <p style={{ fontWeight: 800, color: 'var(--on-secondary)' }}>{kpis.worst.player}</p>
               </div>
               <div style={{ textAlign: 'right' }}>
