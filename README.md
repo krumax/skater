@@ -1,35 +1,30 @@
 # Skatastrophe
 
-Eine moderne, minimale React/Vite-Anwendung zum bequemen und fehlerfreien Zählen von Skat-Runden am echten Kartentisch. Die App kümmert sich um die teils komplexe Punkteberechnung, speichert den Verlauf sicher in der Cloud, bietet detaillierte Statistiken und motiviert die Spieler durch visuelle Auszeichnungen (Achievements).
+Skatastrophe ist eine moderne Web-App für Skat-Runden am echten Kartentisch. Sie ersetzt Stift und Papier durch regelkonforme Punkteberechnung, Cloud-Synchronisierung und detaillierte Spieleranalysen.
 
-## Wozu setzt man die App ein?
-Statt Stift und Papier zu bemühen und am Ende des Abends mühsam Punkte zusammenzurechnen, übernimmt Skatastrophe die komplette Verwaltung eines Spieleabends. Sie richtet sich an Skat-Runden, die gerne klassisch oder nach der erweiterten (Seeger-Fabian) Wertung spielen und gleichzeitig detaillierte Statistiken über ihr Spielverhalten (Gewinnrate, Pechsträhnen, gespielte Typen) sammeln möchten.
+---
 
-## 🚀 Kernfunktionen (Features)
+## Was kann die App?
 
-### 🧮 Intelligente Punkteberechnung
-* **Regelkonform:** Erfassung aller Spieltypen (Kreuz, Pik, Herz, Karo, Grand, Null) inklusive aller gängigen Ansagen und Modifikatoren (Mit/Ohne Spitzen, Hand, Schneider, Schwarz, Ouvert).
-* **Seeger-Fabian-System:** Neben der Reizwert- bzw. Standardwertung wird automatisch das erweiterte Turniersystem nach Seeger-Fabian berechnet (+50 für Gewinner, -50 für Verlierer, +40 für Gegenspieler bei Verlust des Alleinspielers).
-* **Bockrunden:** Unterstützt doppelte Punktwertung bei entsprechenden Runden.
+### 🧮 Punkteberechnung
+Alle Spieltypen (Kreuz, Pik, Herz, Karo, Grand, Null, Eingepasst) werden vollständig unterstützt — inklusive Spitzen (Mit/Ohne), Hand, Schneider, Schwarz, Ouvert und Bockrunden. Neben der Standardwertung berechnet die App automatisch das **Seeger-Fabian-Turniersystem** (+50/−50 für den Alleinspieler, +40 für Gegenspieler bei Niederlage).
 
-### 👥 Tischlogik & Management
-* **Geben-Hören-Sagen:** Die App berechnet anhand der Sitzordnung automatisch, wer an der Reihe ist zu geben, wer Vorhand (Hören) und wer Mittelhand (Sagen) ist.
-* **Dynamische Runden:** Nahtloses Hinzufügen, Umbenennen oder Verschieben von Spielern. Bei 4 Spielern setzt der Geber z. B. automatisch im Hintergrund aus.
-* **Spielverlauf editieren:** Nachträgliches Ändern oder Löschen von fehlerhaft eingetragenen Spielen.
+### 👥 Tischverwaltung
+- Sitzordnung mit 3 oder 4 Spielern, automatische Geber-Rotation
+- Spieler hinzufügen, umbenennen, umsortieren
+- Runden nachträglich bearbeiten oder löschen
+- Mehrere Sessions verwalten und wechseln
 
-### 📊 Statistiken & Analytics
-* **Diagramme:** Übersichtliche Auswertung des kumulierten Punktestands über Zeit.
-* **Spieler-KPIs:** Analyse von Gewinnraten, Durchschnittspunkten, höchsten Gewinnen, verheerendsten Verlusten sowie Auswertung von Sieges- und Pechsträhnen.
-* **"Brot & Baguette"-Zähler:** Ein ironisches Feature für Runden, bei denen Spieler über komplette Geberrunden hinweg komplett passiv bleiben.
+### 📊 Statistiken
+- **Tischstatistik:** Punkteentwicklung über Zeit, Spieltypen-Verteilung, Gewinnrate-Heatmap, Führungswechsel, längste Serien
+- **Spielerstatistik:** Gewinnraten, Durchschnittspunkte, Sieges-/Verlustserien, Brot & Baguette-Zähler, Spieltyp-Verteilung
+- **Ranking-System:** Kategorie-basierte Ränge (Bronze → Legende) für Farbspiel, Null und Grand
 
-### 🏆 Achievements (Erfolge)
-* **Erfolgsmatrix:** Wer zum ersten Mal z.B. einen "Grand mit 4" oder einen "Null Ouvert" gewinnt, füllt langsam seine persönliche Skat-Erfolgsmatrix.
-* **Live-Celebration:** Das Freischalten von neuen Kombinationen wird mit einem responsiven Trophäen-Popup inklusive Konfetti-Effekt gefeiert.
-* **Spieler-Level:** Für mehr Motivation gibt es bei ausreichend freigeschalteten Achievements regelmäßige Level-Ups für die Spieler.
+### 🏆 Achievements
+Jeder Spieler füllt eine persönliche Erfolgsmatrix — für Angriff (als Alleinspieler) und Abwehr (als Gegenspieler). Neue Kombinationen werden mit einem Konfetti-Popup gefeiert. Ein Level-System (Anfänger → Unsterblicher) motiviert langfristig.
 
-### ☁️ Cloud-Synchronisierung
-* Eine Anbindung via Supabase (PostgreSQL) sorgt dafür, dass die gesamte Tisch-Session mitsamt Spielern, Scores und Historie cloudbasiert gesichert wird.
-* Jedes verbundene Gerät kann nahtlos (und synchron) im Browser geöffnet werden, um die Runde fortzuführen.
+### ☁️ Cloud-Sync
+Alle Daten werden in Echtzeit über **Supabase** (PostgreSQL) synchronisiert. Jedes Gerät am Tisch kann die Session im Browser öffnen und mitverfolgen.
 
 ---
 
@@ -43,73 +38,25 @@ npm install
 
 ### 2. Supabase konfigurieren
 
-#### 2.1 Supabase Projekt anlegen
+Erstelle ein kostenloses Projekt auf [supabase.com](https://supabase.com) und notiere **Project URL** und **anon public key** (*Project Settings → API*).
 
-Gehe auf [supabase.com](https://supabase.com), erstelle ein kostenloses Projekt und notiere dir die **Project URL** sowie den **anon public key** (unter *Project Settings → API*).
+#### Datenbank einrichten
 
-#### 2.2 Datenbank-Migration ausführen
+Die SQL-Migrationsdateien liegen unter [`supabase/migrations/`](./supabase/migrations/). Führe sie der Reihe nach im **SQL Editor** des Supabase-Dashboards aus:
 
-Öffne den **SQL Editor** im Supabase-Dashboard und führe das folgende Skript aus:
+| Datei | Inhalt |
+|-------|--------|
+| `001_initial_schema.sql` | Tabellen `sessions` und `rounds` mit RLS-Policies |
+| `002_historical_import.sql` | Optionale Testdaten |
+| `003` – `006` | Erweiterungen (Bock-Feld, Mit/Ohne, Ansagen, Tischname) |
 
-```sql
--- sessions
-CREATE TABLE sessions (
-  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  seating       jsonb NOT NULL,
-  geber_index   integer NOT NULL DEFAULT 0,
-  current_round integer NOT NULL DEFAULT 1,
-  created_at    timestamptz NOT NULL DEFAULT now()
-);
+#### Umgebungsvariablen setzen
 
--- rounds
-CREATE TABLE rounds (
-  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  session_id   uuid NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
-  round_number integer NOT NULL,
-  player       text NOT NULL,
-  game_type    text NOT NULL,
-  type_label   text NOT NULL,
-  game_value   integer NOT NULL,
-  base_value   integer NOT NULL,
-  multiplier   integer NOT NULL,
-  won          boolean NOT NULL,
-  eye_count    integer NOT NULL DEFAULT 0,
-  spitzen      integer NOT NULL DEFAULT 1,
-  hand         boolean NOT NULL DEFAULT false,
-  schneider    boolean NOT NULL DEFAULT false,
-  schwarz      boolean NOT NULL DEFAULT false,
-  ouvert       boolean NOT NULL DEFAULT false,
-  roles        jsonb,
-  seeger_scores jsonb,
-  timestamp    timestamptz NOT NULL DEFAULT now()
-);
-
--- Row Level Security — allow anonymous read/write
-ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE rounds ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Anon read/write sessions" ON sessions FOR ALL TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "Anon read/write rounds" ON rounds FOR ALL TO anon USING (true) WITH CHECK (true);
-```
-
-#### 2.3 Historische Daten importieren (Optional)
-
-Möchtest du eine vorhandene Historie laden (z.B. Testdaten), führe das zweite Skript aus:
-`supabase/migrations/002_historical_import.sql`
-
-Hiermit wird eine feste Session-ID (`a0000000-0000-0000-0000-000000000001`) angelegt. Um diese in der App zu verbinden, setze in der Entwicklerkonsole des Browsers:
-```js
-localStorage.setItem('skatSessionId', 'a0000000-0000-0000-0000-000000000001')
-```
-Anschließend die App neu laden.
-
-#### 2.4 Variablen setzen
-
-Kopiere die Beispiel-Datei:
 ```bash
 cp .env.local.example .env.local
 ```
-und fülle sie mit deinen Supabase-Zugangsdaten. (Diese Datei wird via `.gitignore` ignoriert).
+
+Trage deine Supabase-Zugangsdaten in `.env.local` ein (wird via `.gitignore` ignoriert).
 
 ### 3. App starten
 
@@ -122,9 +69,17 @@ npm run dev
 ## Tests
 
 ```bash
-# Watch-Modus
-npm test
-
-# Einmaliger Run
-npx vitest run
+npx vitest run        # einmaliger Run
+npm test              # Watch-Modus
 ```
+
+---
+
+## Tech Stack
+
+- **React 19** + Vite 8
+- **React Router v7**
+- **Recharts** für Charts
+- **Supabase** (PostgreSQL + RLS)
+- **Vitest** + fast-check für Tests
+- **Husky** für automatisches Versions-Bumping bei jedem Commit
