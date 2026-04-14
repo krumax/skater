@@ -10,6 +10,8 @@ function copyLanding(srcDir, destDir) {
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   copyLanding('landing', 'dist');
+  // _redirects direkt in dist/ schreiben (nicht in dist/app/)
+  fs.writeFileSync('dist/_redirects', '/app  /app/index.html  200\n/app/*  /app/index.html  200\n');
 }
 
 export { copyLanding };
