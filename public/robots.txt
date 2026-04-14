@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Allow: /landing/
+Disallow: /app/
+
+Sitemap: https://skatastrophe.de/sitemap.xml
