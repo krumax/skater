@@ -18,6 +18,7 @@ const Sidebar = () => {
   const totals = getPlayerTotals();
 
   return (
+    <>
     <aside className="sidebar">
       <a href="/" style={{ display: 'block', textDecoration: 'none', cursor: 'pointer' }}>
         <img
@@ -140,6 +141,27 @@ const Sidebar = () => {
         </div>
       </div>
     </aside>
+
+    {/* ── Bottom Navigation (Mobile only) ── */}
+    <nav className="bottom-nav" aria-label="Mobile Navigation">
+      <NavLink to="/" end className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
+        <span className="material-symbols-outlined">playing_cards</span>
+        Runde
+      </NavLink>
+      <NavLink to="/history" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
+        <span className="material-symbols-outlined">menu_book</span>
+        Liste
+      </NavLink>
+      <NavLink to="/players" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
+        <span className="material-symbols-outlined">group</span>
+        Spieler
+      </NavLink>
+      <NavLink to="/info" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
+        <span className="material-symbols-outlined">help</span>
+        Regeln
+      </NavLink>
+    </nav>
+    </>
   );
 };
 
