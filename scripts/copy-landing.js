@@ -10,10 +10,18 @@ function copyLanding(srcDir, destDir) {
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   copyLanding('landing', 'dist/landing');
-  // _redirects in dist/ schreiben
-  // /landing/* → Landing Page statisch servieren (kein Rewrite nötig, Cloudflare findet dist/landing/index.html)
-  // /* → SPA-Fallback für React App
-  fs.writeFileSync('dist/_redirects', '/landing  /landing/index.html  200\n/landing/*  /landing/index.html  200\n/*  /index.html  200\n');
+  
+  // Erstelle 404.html um Cloudflare's automatisches SPA-Verhalten zu deaktivieren
+  fs.writeFileSync('dist/404.html', '<!DOCTYPE html><html><head><title>404</title></head><body>404 Not Found</body></html>');
+  
+  // _redirects: Landing Page auf /, React App auf /app
+  fs.writeFileSync('dist/_redirects', 
+    '/landing  /landing/index.html  200\n' +
+    '/landing/*  /landing/index.html  200\n' +
+    '/app  /app/index.html  200\n' +
+    '/app/*  /app/index.html  200\n' +
+    '/  /index.html  200\n'
+  );
 }
 
 export { copyLanding };
