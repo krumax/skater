@@ -106,6 +106,14 @@
   cursor: pointer;
   padding: 0;
   transition: background 0.2s, width 0.3s;
+  /* 44×44px touch target via padding */
+  position: relative;
+  margin: 0 10px;
+}
+.vc-dot::before {
+  content: '';
+  position: absolute;
+  inset: -18px;
 }
 
 .vc-dot.active {

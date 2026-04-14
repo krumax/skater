@@ -120,6 +120,7 @@
   </nav>
 
   <!-- HERO -->
+  <main>
   <div class="hero-wrap">
     <div class="hero">
       <div>
@@ -278,13 +279,13 @@
 
     </div>
 
-    <div class="vc-dots">
-      <button class="vc-dot active"></button>
-      <button class="vc-dot"></button>
-      <button class="vc-dot"></button>
-      <button class="vc-dot"></button>
-      <button class="vc-dot"></button>
-      <button class="vc-dot"></button>
+    <div class="vc-dots" role="tablist" aria-label="Ansichten Navigation">
+      <button class="vc-dot active" aria-label="Ansicht 1: Aktuelle Runde" aria-selected="true"  role="tab"></button>
+      <button class="vc-dot"        aria-label="Ansicht 2: Skatliste"       aria-selected="false" role="tab"></button>
+      <button class="vc-dot"        aria-label="Ansicht 3: Spielerstatistik" aria-selected="false" role="tab"></button>
+      <button class="vc-dot"        aria-label="Ansicht 4: Tischstatistik"  aria-selected="false" role="tab"></button>
+      <button class="vc-dot"        aria-label="Ansicht 5: Einstellungen"   aria-selected="false" role="tab"></button>
+      <button class="vc-dot"        aria-label="Ansicht 6: Regelwerk"       aria-selected="false" role="tab"></button>
     </div>
   </section>
 
@@ -352,6 +353,8 @@
       <a href="/app" class="btn-primary" style="font-size:1.125rem;padding:1rem 2.5rem;">Jetzt kostenlos starten ↗</a>
     </div>
   </div>
+
+  </main>
 
   <!-- FOOTER -->
   <footer>
