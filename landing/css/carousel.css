@@ -116,8 +116,16 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .vc-section { padding: 3.5rem 0 2rem; }
+  .vc-header { padding: 0 1.25rem 2rem; }
+  .vc-track { padding: 0.75rem 1.25rem 1.25rem; gap: 1rem; }
   .vc-card {
     grid-template-columns: 1fr;
-    width: 85vw;
+    width: 82vw;
+    padding: 1.5rem;
+    gap: 1.25rem;
   }
+  .vc-card h3 { font-size: 1.125rem; }
+  .vc-card p { font-size: 0.875rem; }
+  .vc-card img { border-radius: 0.5rem !important; }
 }
