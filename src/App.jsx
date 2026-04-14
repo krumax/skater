@@ -15,7 +15,7 @@ function App() {
   return (
     <AuthGate>
       <GameProvider>
-        <BrowserRouter basename="/app">
+        <BrowserRouter>
           <div className="app-container">
             <Sidebar />
             <main className="main-content">
