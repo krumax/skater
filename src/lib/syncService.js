@@ -167,17 +167,24 @@ export async function updateSeating(sessionId, seating) {
  * @returns {{ data: session[], error }}
  */
 export async function listSessions() {
-  const { data, error } = await supabase
+  const user_id = await getUserId();
+  const query = supabase
     .from('sessions')
     .select('id, seating, geber_index, current_round, created_at, table_name')
     .order('created_at', { ascending: false });
 
+  if (user_id) query.eq('user_id', user_id);
+
+  const { data, error } = await query;
+
   // Fallback: if table_name column doesn't exist yet, retry without it
   if (error && error.message?.includes('table_name')) {
-    const { data: fallback, error: fallbackError } = await supabase
+    const fallbackQuery = supabase
       .from('sessions')
       .select('id, seating, geber_index, current_round, created_at')
       .order('created_at', { ascending: false });
+    if (user_id) fallbackQuery.eq('user_id', user_id);
+    const { data: fallback, error: fallbackError } = await fallbackQuery;
     return { data: fallback, error: fallbackError };
   }
 

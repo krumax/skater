@@ -1,11 +1,12 @@
 {
   "name": "temp_app",
   "private": true,
-  "version": "1.1.9",
+  "version": "1.1.10",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "node scripts/copy-landing.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest --run",

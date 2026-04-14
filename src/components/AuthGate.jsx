@@ -6,6 +6,7 @@
  */
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import logoUrl from '/skatastrophe_logo_3.png';
 
 export default function AuthGate({ children }) {
   const [user, setUser]       = useState(null);
@@ -52,7 +53,7 @@ export default function AuthGate({ children }) {
     setError('');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: window.location.origin + '/app/' },
     });
     if (error) setError(error.message);
   };
@@ -75,7 +76,7 @@ export default function AuthGate({ children }) {
       }}>
         {/* Logo */}
         <img
-          src="/skatastrophe_logo_3.png"
+          src={logoUrl}
           alt="SKATASTROPHE"
           style={{ width: '140px', marginBottom: '0.5rem', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
         />

@@ -3,6 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { SYNC_COLORS } from '../lib/tokens';
 import { supabase } from '../lib/supabaseClient';
+import logoUrl from '/skatastrophe_logo_3.png';
 
 const SYNC_ICON = {
   idle:    { icon: 'cloud_done', color: SYNC_COLORS.idle,    title: 'Synchronisiert' },
@@ -19,7 +20,7 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <img
-        src="/skatastrophe_logo_3.png"
+        src={logoUrl}
         alt="SKATASTROPHE"
         style={{ width: '80%', marginBottom: '0.25rem', marginTop: '-1rem', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
       />

@@ -94,6 +94,9 @@ function makeBuilder(table) {
 vi.mock('./supabaseClient', () => ({
   supabase: {
     from: (table) => makeBuilder(table),
+    auth: {
+      getSession: async () => ({ data: { session: null } }),
+    },
   },
 }));
 

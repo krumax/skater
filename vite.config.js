@@ -4,6 +4,10 @@ import pkg from './package.json'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/app/',
+  build: {
+    outDir: 'dist/app',
+  },
   plugins: [react()],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
