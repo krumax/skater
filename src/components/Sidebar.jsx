@@ -19,14 +19,16 @@ const Sidebar = () => {
 
   return (
     <aside className="sidebar">
-      <img
-        src={logoUrl}
-        alt="SKATASTROPHE"
-        style={{ width: '80%', marginBottom: '0.25rem', marginTop: '-1rem', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
-      />
-      <p style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.4rem', letterSpacing: '0.12em', color: '#d0a600', marginBottom: '0.75rem', fontFamily: "'Manrope', sans-serif", textTransform: 'uppercase' }}>
-        SKATASTROPHE
-      </p>
+      <a href="/" style={{ display: 'block', textDecoration: 'none', cursor: 'pointer' }}>
+        <img
+          src={logoUrl}
+          alt="SKATASTROPHE"
+          style={{ width: '80%', marginBottom: '0.25rem', marginTop: '-1rem', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
+        />
+        <p style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.4rem', letterSpacing: '0.12em', color: '#d0a600', marginBottom: '0.75rem', fontFamily: "'Manrope', sans-serif", textTransform: 'uppercase' }}>
+          SKATASTROPHE
+        </p>
+      </a>
       {/* Tisch-Info-Box */}
       <div style={{
         backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '0.5rem',
