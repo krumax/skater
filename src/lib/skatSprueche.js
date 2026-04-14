@@ -9,18 +9,18 @@
 
 const SPRUECHE = [
   // Sieg — allgemein
-  { situation: 'Sieg', bedingung: null,              spruch: 'Der Sack ist zu' },
-  { situation: 'Sieg', bedingung: null,              spruch: 'Glück muss man haben' },
+  { situation: 'Sieg', bedingung: null,              spruch: 'Well played {{player}}! Der Sack ist zu Leute!' },
+  { situation: 'Sieg', bedingung: null,              spruch: 'Glück muss man haben, ne {{player}}?' },
   { situation: 'Sieg', bedingung: null,              spruch: 'Auf das magerste Pferd setzen sich die meisten Fliegen' },
-  { situation: 'Sieg', bedingung: null,              spruch: 'Das genügt, sagt der Staatsanwalt' },
+  { situation: 'Sieg', bedingung: null,              spruch: '{{player}} so: Das genügt, sagt der Staatsanwalt' },
   { situation: 'Sieg', bedingung: null,              spruch: 'Die ersten Pflaumen sind immer madig' },
   // Sieg — Spieltyp
   { situation: 'Sieg', bedingung: 'schneider',       spruch: 'Schneider sind auch Menschen' },
   { situation: 'Sieg', bedingung: 'schneider',       spruch: 'Oma-Blatt' },
   { situation: 'Sieg', bedingung: 'schneider',       spruch: 'Alle Gewehre auf\'s Rathaus' },
-  { situation: 'Sieg', bedingung: 'schneider',       spruch: 'Der hat sich aber warm angezogen' },
+  { situation: 'Sieg', bedingung: 'schneider',       spruch: 'Der {{player}} hat sich aber warm angezogen' },
   { situation: 'Sieg', bedingung: 'schneider',       spruch: 'Endlich wird die Wiese grün' },
-  { situation: 'Sieg', bedingung: 'schwarz',         spruch: 'Der spielt mit gezinkten Karten' },
+  { situation: 'Sieg', bedingung: 'schwarz',         spruch: '{{player}} spielt mit gezinkten Karten' },
   { situation: 'Sieg', bedingung: 'schwarz',         spruch: 'Schwarz wie die Nacht' },
   { situation: 'Sieg', bedingung: 'club',            spruch: 'Ein Kreuz, ein Leid…' },
   { situation: 'Sieg', bedingung: 'heart',           spruch: 'Herzen mit Schmerzen' },
@@ -29,38 +29,40 @@ const SPRUECHE = [
   { situation: 'Sieg', bedingung: 'diamond',         spruch: 'Billig mit Millich still ich das Kind' },
   { situation: 'Sieg', bedingung: 'diamond',         spruch: 'Karo, dieser Hühnerhund' },
   { situation: 'Sieg', bedingung: 'null',            spruch: 'Null auf dem Pferde' },
-  { situation: 'Sieg', bedingung: 'mit3',            spruch: 'Wer die Buben hat, hat die Macht' },
+  { situation: 'Sieg', bedingung: 'mit3',            spruch: 'Wer die Buben hat, hat die Macht! Hart gespielt {{player}}!' },
   { situation: 'Sieg', bedingung: 'mit3',            spruch: 'Das Spiel gewinnt meine Großmutter in der Narkose' },
   // Sieg — Serien
   { situation: 'Sieg', bedingung: 'serie3',          spruch: 'Heute läuft\'s' },
-  { situation: 'Sieg', bedingung: 'serie4',          spruch: 'Er hat sich dicke vollgesogen' },
-  { situation: 'Sieg', bedingung: 'serie5',          spruch: 'Du hast dich wohl am Schweinestall gescheuert' },
+  { situation: 'Sieg', bedingung: 'serie4',          spruch: '{{player}} hat sich dicke vollgesogen! Widerlich' },
+  { situation: 'Sieg', bedingung: 'serie5',          spruch: '{{player}} hat sich wohl am Schweinestall gescheuert' },
   // Niederlage — allgemein
-  { situation: 'Niederlage', bedingung: null,        spruch: 'Jetzt ist der Drops gelutscht' },
-  { situation: 'Niederlage', bedingung: null,        spruch: 'Skat ist wie das Leben – mal hat man Glück, mal nicht' },
+  { situation: 'Niederlage', bedingung: null,        spruch: 'Jetzt ist der Drops für {{player}} gelutscht' },
+  { situation: 'Niederlage', bedingung: null,        spruch: 'Skat ist wie das Leben - mal hat man Glück, mal nicht' },
   { situation: 'Niederlage', bedingung: null,        spruch: 'Dem Alleinspieler nichts schenken' },
+  { situation: 'Niederlage', bedingung: null,        spruch: 'Is wie es is: Manchmal verliert man und manchmal gewinnen die andern' },
   { situation: 'Niederlage', bedingung: null,        spruch: 'Wer zählt, gewinnt' },
-  { situation: 'Niederlage', bedingung: null,        spruch: 'Erst denken, dann spielen' },
+  { situation: 'Niederlage', bedingung: null,        spruch: '{{player}}!! Erst denken, dann spielen' },
   { situation: 'Niederlage', bedingung: null,        spruch: '„Einmal genügt", sagt der Staatsanwalt' },
   { situation: 'Niederlage', bedingung: null,        spruch: 'Aber wer sagt denn, dass der Löwe kein Schmalz frisst' },
   { situation: 'Niederlage', bedingung: null,        spruch: 'Aha, sagte die Polizei, jetzt kommt\'s Gewitter von hinten' },
   { situation: 'Niederlage', bedingung: null,        spruch: 'Aus, dein treuer Vater…' },
   { situation: 'Niederlage', bedingung: null,        spruch: 'Die Beerdigung findet vom Trauerhaus aus statt' },
   { situation: 'Niederlage', bedingung: null,        spruch: 'Ein richtiger Skatspieler gewinnt mit 59…' },
-  { situation: 'Niederlage', bedingung: null,        spruch: 'Gute Nacht Lisette' },
+  { situation: 'Niederlage', bedingung: null,        spruch: 'Gute Nacht {{player}}' },
   // Niederlage — Spieltyp / Bedingung
-  { situation: 'Niederlage', bedingung: 'schneider', spruch: 'Abgestochen wie eine Sau' },
+  { situation: 'Niederlage', bedingung: 'schneider', spruch: 'Boah! {{player}}!! Abgestochen wie eine Sau' },
   { situation: 'Niederlage', bedingung: 'schneider', spruch: 'Da bist du aber fein davon gekommen' },
   { situation: 'Niederlage', bedingung: 'schneider', spruch: 'Da war kein Blumentopf zu gewinnen' },
   { situation: 'Niederlage', bedingung: 'schneider', spruch: 'Der sitzt im Keller' },
   { situation: 'Niederlage', bedingung: 'ohnetrumpf', spruch: 'Ohne Trumpf kein Kampf' },
   { situation: 'Niederlage', bedingung: 'passed',    spruch: 'Raupenfraß' },
   // Niederlage — Serien
-  { situation: 'Niederlage', bedingung: 'serie3',    spruch: 'Das wird aber ein kalter Winter' },
-  { situation: 'Niederlage', bedingung: 'serie4',    spruch: 'Jetzt kann man wohl das Licht ausmachen' },
+  { situation: 'Niederlage', bedingung: 'serie3',    spruch: 'Das wird aber ein kalter Winter für {{player}}! Man ey!' },
+  { situation: 'Niederlage', bedingung: 'serie4',    spruch: 'Jetzt kann {{player}} wohl das Licht ausmachen' },
   { situation: 'Niederlage', bedingung: 'serie5',    spruch: 'Kein Abend für Künstler' },
+  { situation: 'Niederlage', bedingung: 'serie5',    spruch: 'Kein Abend für {{player}}' },
   // Spaltarsch
-  { situation: 'Niederlage', bedingung: 'spaltarsch', spruch: 'Ehrlich geteilt' },
+  { situation: 'Niederlage', bedingung: 'spaltarsch', spruch: 'Ehrlich geteilt, Sinnig gespalten!' },
   { situation: 'Niederlage', bedingung: 'spaltarsch', spruch: 'Höhere Gewalten haben ihm den Arsch gespalten' },
   { situation: 'Niederlage', bedingung: 'spaltarsch', spruch: 'Mensch, du hast doch glatt dasselbe wie wir' },
 ];
@@ -132,5 +134,5 @@ export function getSkatSpruch(round, allRounds) {
 
   if (Math.random() > probability) return null;
 
-  return pick(candidates).spruch;
+  return pick(candidates).spruch.replace('{{player}}', player);
 }
