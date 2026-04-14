@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { computePlayerLevel } from '../lib/playerLevel';
 import { useGameForm } from '../hooks/useGameForm';
@@ -31,10 +31,25 @@ const GameScoringEntry = () => {
   const handleCommit = () => {
     const payload = form.buildRoundPayload();
     if (!payload) return;
+    const wasActiveBock = counter.bockRoundsLeft > 0;
+    // Wenn Spaltarsch: Bockrunden starten (addiert zu laufenden)
+    if (form.isSpaltarsch) counter.triggerBock(seating.length);
     addRound(payload);
     form.resetForm();
     counter.increment(seating.length);
+    // Nach dem Speichern einen Bockrunden-Counter herunter (nur wenn Bockrunde aktiv war)
+    if (wasActiveBock) counter.decrementBock();
   };
+
+  // Bock-Chip automatisch aktivieren/deaktivieren je nach laufenden Bockrunden
+  useEffect(() => {
+    if (counter.bockRoundsLeft > 0 && !form.isBock) {
+      form.setIsBock(true);
+    } else if (counter.bockRoundsLeft === 0 && form.isBock) {
+      form.setIsBock(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [counter.bockRoundsLeft]);
 
   const rankings = getPlayerRank();
   const activePlayers = currentRoles.activePlayers.filter(n => n !== '-');
@@ -53,6 +68,7 @@ const GameScoringEntry = () => {
             step={counter.step}
             totalDeals={counter.totalDeals}
             completedRounds={counter.completedRounds(seating.length)}
+            bockRoundsLeft={counter.bockRoundsLeft}
             onReset={counter.reset}
           />
         </div>

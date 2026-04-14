@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 const ROLE_LABELS = ['Geben', 'Hören', 'Sagen', 'Aussetzen'];
 const HIGHLIGHT_COLOR = '#717974'; // Null-Grau
 
-export default function RolesBar({ seating, step, totalDeals, completedRounds, onReset }) {
+export default function RolesBar({ seating, step, totalDeals, completedRounds, bockRoundsLeft, onReset }) {
   const justCompleted = step === 0 && totalDeals > 0 && totalDeals % (seating.length || 3) === 0;
 
   const safeDeals  = isNaN(totalDeals)      ? '–' : totalDeals;
@@ -82,6 +82,14 @@ export default function RolesBar({ seating, step, totalDeals, completedRounds, o
             </span>
             <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: justCompleted ? 'var(--tertiary)' : 'var(--on-surface)' }}>
               {safeRounds}{justCompleted && <span style={{ fontSize: '0.75rem', marginLeft: '0.3rem' }}>✓</span>}
+            </span>
+          </div>
+          <div style={{ textAlign: 'center', opacity: bockRoundsLeft > 0 ? 1 : 0.35 }}>
+            <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: bockRoundsLeft > 0 ? 'var(--secondary)' : 'var(--outline)', display: 'block' }}>
+              Bockrunden
+            </span>
+            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: bockRoundsLeft > 0 ? 'var(--secondary)' : 'var(--on-surface)' }}>
+              {bockRoundsLeft}
             </span>
           </div>
           <button
