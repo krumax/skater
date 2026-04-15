@@ -61,7 +61,7 @@ const GameScoringEntry = () => {
         <p className="page-subtitle">Runde {currentRound} — Ergebnis dieser Runde erfassen.</p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'min(100%, 1fr) 380px', gap: '3rem' }}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '2rem', alignItems: 'start' }}
            className="scoring-grid">
         <div style={{ gridColumn: '1 / -1' }}>
           <RolesBar

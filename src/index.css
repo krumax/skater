@@ -188,7 +188,7 @@ button {
 .main-content {
   margin-left: 280px;
   flex: 1;
-  padding: 3rem 4rem;
+  padding: 2.5rem 2.5rem;
   max-width: 1200px;
 }
 
@@ -633,6 +633,7 @@ button {
   .scoring-grid {
     grid-template-columns: 1fr !important;
     gap: 1.5rem !important;
+    align-items: unset !important;
   }
 
   .scoring-grid > div:first-child {
@@ -664,6 +665,8 @@ button {
   position: sticky;
   top: 2rem;
   align-self: start;
+  /* align-self: start ist zwingend — ohne es dehnt das Grid-Item
+     auf volle Höhe und sticky hat keinen Scroll-Raum */
 }
 
 /* ─────────────────────────────────────────────
