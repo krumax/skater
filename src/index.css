@@ -737,6 +737,12 @@ button {
    ───────────────────────────────────────────── */
 
 /* ── SkatScoreList: Mobile-Tabelle — nur Kern-Spalten ── */
+@media (min-width: 769px) {
+  .mobile-table {
+    min-width: 900px;
+  }
+}
+
 @media (max-width: 768px) {
   .score-col-std,
   .score-col-sf,
@@ -751,7 +757,17 @@ button {
     display: none !important;
   }
 
-  /* Bock-Badge in Spielwert-Zelle ausblenden */
+  /* Spieltyp-Icon Badge kleiner */
+  .mobile-table .game-type-icon-badge {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    border-radius: 0.3rem !important;
+  }
+
+  .mobile-table .game-type-icon-badge .material-symbols-outlined,
+  .mobile-table .game-type-icon-badge span {
+    font-size: 0.8rem !important;
+  }
   .badge-bock {
     display: none !important;
   }
@@ -766,6 +782,7 @@ button {
   .mobile-table th {
     padding: 0.5rem 0.375rem;
     font-size: 0.8rem;
+    white-space: normal;
   }
 
   /* minWidth aufheben damit keine horizontale Scrollbar entsteht */

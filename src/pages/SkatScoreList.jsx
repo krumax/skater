@@ -185,7 +185,7 @@ const SkatScoreList = () => {
         </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
-          <table className="mobile-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '900px' }}>
+          <table className="mobile-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--outline-variant)' }}>
                 <th style={thStyle}>#</th>
@@ -193,7 +193,7 @@ const SkatScoreList = () => {
                 <th style={thStyle}>Typ</th>
                 <th className="col-ansage" style={{ ...thStyle, textAlign: 'right' }}>Ansage</th>
                 <th className="col-modifier" style={{ ...thStyle, textAlign: 'left', paddingLeft: '0.25rem', color: 'var(--outline)', fontSize: '0.6rem' }}>Mod.</th>
-                <th style={{ ...thStyle, textAlign: 'right' }}>Spielwert</th>
+                <th style={{ ...thStyle, textAlign: 'right' }}>Pkt.</th>
                 <th className="score-col-divider" style={thDivider}></th>
                 {players.map(p => (
                   <th key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...thStyle, textAlign: 'right' }}>
@@ -287,7 +287,7 @@ function GameTypeIcon({ round }) {
 
   return (
     <span title={round.typeLabel} style={{ display: 'inline-flex', alignItems: 'center', verticalAlign: 'middle' }}>
-      <span style={{
+      <span className="game-type-icon-badge" style={{
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
         width: '2rem', height: '2rem', borderRadius: '0.4rem',
         backgroundColor: bg, flexShrink: 0,
