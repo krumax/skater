@@ -751,6 +751,11 @@ button {
     display: none !important;
   }
 
+  /* Bock-Badge in Spielwert-Zelle ausblenden */
+  .badge-bock {
+    display: none !important;
+  }
+
   /* STD-Scores auf Mobile sichtbar lassen (überschreibt score-col-std hide) */
   .score-col-std-mobile {
     display: table-cell !important;

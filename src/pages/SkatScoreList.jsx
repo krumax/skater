@@ -346,7 +346,7 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
     </td>
     <td style={{ ...tdStyle, fontWeight: 800, textAlign: 'right', color: r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
       {r.isBock === true && (
-        <span style={{
+        <span className="badge-bock" style={{
           display: 'inline-block',
           fontSize: '0.6rem',
           fontWeight: 800,
