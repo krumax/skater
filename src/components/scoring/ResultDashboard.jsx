@@ -92,15 +92,15 @@ export default function ResultDashboard({ result, outcomeLabel, gameType, isBock
           style={result.won ? {} : { background: 'linear-gradient(135deg, var(--secondary), var(--secondary-container))' }}
         >
           <div className="result-content">
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8 }}>
-              Rundenergebnis — {outcomeLabel}
+            <span style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.8, display: 'block', lineHeight: 1.4 }}>
+              Rundenergebnis<br />{outcomeLabel}
             </span>
 
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', flexWrap: 'wrap' }}>
               <span className="result-value" style={{ color: result.won ? 'var(--on-surface)' : 'var(--on-secondary)' }}>
                 {formatScore(result.gameValue, isBock)}
               </span>
-              <span style={{ fontWeight: 600, opacity: 0.9 }}>Punkte</span>
+              <span style={{ fontWeight: 600, opacity: 0.9, fontSize: '0.9rem' }}>Punkte</span>
             </div>
 
             <div className="result-breakdown">
@@ -112,7 +112,7 @@ export default function ResultDashboard({ result, outcomeLabel, gameType, isBock
               </div>
               <div className="breakdown-row">
                 <span style={{ opacity: 0.8 }}>Multiplikator</span>
-                <span style={{ fontWeight: 800 }}>×{result.multiplier}</span>
+                <span style={{ fontWeight: 800 }}>× {result.multiplier}</span>
               </div>
               {!result.won && (
                 <div className="breakdown-row">

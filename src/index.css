@@ -380,7 +380,7 @@ button {
 .result-dashboard {
   background: linear-gradient(135deg, var(--tertiary), var(--tertiary-container));
   color: var(--on-surface);
-  padding: 2.5rem;
+  padding: 1.5rem;
   border-radius: 1.5rem;
   box-shadow: 0 16px 40px rgba(116, 91, 0, 0.3);
   position: relative;
@@ -393,32 +393,32 @@ button {
 }
 
 .result-value {
-  font-size: 6rem;
+  font-size: 4.5rem;
   font-weight: 800;
   line-height: 1;
-  margin: 1rem 0;
+  margin: 0.75rem 0;
   font-family: 'Manrope', sans-serif;
 }
 
 .result-breakdown {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
   border-top: 1px solid rgba(27, 28, 28, 0.1);
   display: grid;
   grid-template-columns: 1fr 1fr;
-  row-gap: 0.5rem;
-  column-gap: 2rem;
+  row-gap: 0.4rem;
+  column-gap: 1rem;
 }
 
 .breakdown-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
 }
 
 .breakdown-total {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 800;
   padding-top: 0.5rem;
 }
@@ -542,7 +542,7 @@ button {
 
   /* ── Result Dashboard ── */
   .result-value {
-    font-size: 4rem;
+    font-size: 3.5rem;
   }
 
   .result-breakdown {
