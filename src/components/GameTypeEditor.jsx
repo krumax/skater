@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { SUIT_LABELS, calculateGameValue } from '../lib/skatScoring';
 import { useGame } from '../context/GameContext';
+import { SUIT_COLORS, SUIT_TEXT_COLORS } from '../lib/tokens';
 
 // ─── Spieltyp-Konstanten ───
 
@@ -174,9 +175,9 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
         style={dialogStyle}
         onClick={e => e.stopPropagation()}
       >
-        <h2 style={{ margin: '0 0 1.5rem', fontSize: '1.25rem', color: '#1a1a2e' }}>
+        <h2 style={{ margin: '0 0 1.5rem', fontSize: '1.25rem', color: 'var(--on-surface)' }}>
           Spiel bearbeiten
-          <span style={{ color: '#555577', fontWeight: 400, fontSize: '0.9rem', marginLeft: '0.5rem' }}>
+          <span style={{ color: 'var(--outline)', fontWeight: 400, fontSize: '0.9rem', marginLeft: '0.5rem' }}>
             Runde {round?.roundNumber ?? round?.id}
           </span>
         </h2>
@@ -191,7 +192,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
             { key: 'diamond', icon: '♦', label: 'Karo',   color: '#e53935' },
             { key: 'grand',   icon: null, label: 'Grand',  matIcon: 'stars' },
             { key: 'null',    icon: null, label: 'Null',   matIcon: 'block' },
-          ].map(({ key, icon, label, color, matIcon }) => {
+          ].map(({ key, icon, label, matIcon }) => {
             const isActive = gameType === key;
             return (
               <button
@@ -200,13 +201,17 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
                 onClick={() => setGameType(key)}
                 style={{
                   ...gameTypeChipStyle,
-                  ...(isActive ? gameTypeChipActiveStyle : {}),
+                  ...(isActive ? {
+                    background: SUIT_COLORS[key] ?? 'var(--primary)',
+                    borderColor: SUIT_COLORS[key] ?? 'var(--primary)',
+                    color: SUIT_TEXT_COLORS[key] ?? '#ffffff',
+                  } : {}),
                 }}
                 title={label}
               >
                 {icon
-                  ? <span style={{ fontSize: '1.25rem', lineHeight: 1, color: isActive ? '#fff' : (color ?? '#1a1a2e') }}>{icon}</span>
-                  : <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', lineHeight: 1 }}>{matIcon}</span>
+                  ? <span style={{ fontSize: '1.25rem', lineHeight: 1, color: isActive ? (SUIT_TEXT_COLORS[key] ?? '#fff') : (SUIT_COLORS[key] ?? 'var(--on-surface)') }}>{icon}</span>
+                  : <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', lineHeight: 1, color: isActive ? (SUIT_TEXT_COLORS[key] ?? '#fff') : (SUIT_COLORS[key] ?? 'var(--on-surface)') }}>{matIcon}</span>
                 }
                 <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{label}</span>
               </button>
@@ -239,9 +244,9 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
               style={{
                 flex: 1, padding: '0.5rem', borderRadius: '0.4rem', cursor: 'pointer',
                 fontWeight: 700, fontSize: '0.875rem', border: '1.5px solid',
-                borderColor: won ? '#16a34a' : '#c0c0d0',
-                backgroundColor: won ? '#f0fdf4' : 'transparent',
-                color: won ? '#16a34a' : '#1a1a2e',
+                borderColor: won ? 'var(--win-color)' : 'var(--outline-variant)',
+                backgroundColor: won ? 'color-mix(in srgb, var(--win-color) 10%, transparent)' : 'transparent',
+                color: won ? 'var(--win-color)' : 'var(--on-surface)',
               }}
             >
               ✓ Gewonnen
@@ -252,9 +257,9 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
               style={{
                 flex: 1, padding: '0.5rem', borderRadius: '0.4rem', cursor: 'pointer',
                 fontWeight: 700, fontSize: '0.875rem', border: '1.5px solid',
-                borderColor: !won ? '#dc2626' : '#c0c0d0',
-                backgroundColor: !won ? '#fff1f0' : 'transparent',
-                color: !won ? '#dc2626' : '#1a1a2e',
+                borderColor: !won ? 'var(--loss-color)' : 'var(--outline-variant)',
+                backgroundColor: !won ? 'color-mix(in srgb, var(--loss-color) 10%, transparent)' : 'transparent',
+                color: !won ? 'var(--loss-color)' : 'var(--on-surface)',
               }}
             >
               ✗ Verloren
@@ -297,18 +302,18 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '0.75rem 1rem', borderRadius: '0.5rem', marginBottom: '1.25rem',
-            backgroundColor: previewResult.won ? '#f0fdf4' : '#fff1f0',
-            border: `1.5px solid ${previewResult.won ? '#86efac' : '#fca5a5'}`,
+            backgroundColor: previewResult.won ? 'color-mix(in srgb, var(--win-color) 10%, transparent)' : 'color-mix(in srgb, var(--loss-color) 10%, transparent)',
+            border: `1.5px solid ${previewResult.won ? 'color-mix(in srgb, var(--win-color) 50%, transparent)' : 'color-mix(in srgb, var(--loss-color) 50%, transparent)'}`,
           }}>
             <div>
-              <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: previewResult.won ? '#166534' : '#991b1b', display: 'block', marginBottom: '0.1rem' }}>
+              <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: previewResult.won ? 'var(--win-color)' : 'var(--loss-color)', display: 'block', marginBottom: '0.1rem' }}>
                 {previewResult.won ? 'Gewonnen' : 'Verloren'} · Neuer Spielwert
               </span>
-              <span style={{ fontSize: '0.75rem', color: '#555577' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--outline)' }}>
                 {previewResult.baseValue} × {previewResult.multiplier}{isBock ? ' × 2 (Bock)' : ''}
               </span>
             </div>
-            <span style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: previewResult.won ? '#166534' : '#991b1b' }}>
+            <span style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: previewResult.won ? 'var(--win-color)' : 'var(--loss-color)' }}>
               {newGameValue > 0 ? '+' : ''}{newGameValue}
             </span>
           </div>
@@ -342,7 +347,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
 
 function CheckboxField({ label, checked, onChange, disabled = false }) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: disabled ? 'not-allowed' : 'pointer', userSelect: 'none', color: '#1a1a2e', opacity: disabled ? 0.35 : 1 }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: disabled ? 'not-allowed' : 'pointer', userSelect: 'none', color: 'var(--on-surface)', opacity: disabled ? 0.35 : 1 }}>
       <input
         type="checkbox"
         checked={checked}
@@ -368,8 +373,8 @@ const overlayStyle = {
 };
 
 const dialogStyle = {
-  background: '#ffffff',
-  color: '#1a1a2e',
+  background: 'var(--surface)',
+  color: 'var(--on-surface)',
   borderRadius: '0.75rem',
   padding: '1.75rem',
   width: '100%',
@@ -382,7 +387,7 @@ const labelStyle = {
   fontSize: '0.85rem',
   fontWeight: 600,
   marginBottom: '0.4rem',
-  color: '#555577',
+  color: 'var(--outline)',
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
 };
@@ -390,17 +395,17 @@ const labelStyle = {
 const chipStyle = {
   padding: '0.35rem 0.85rem',
   borderRadius: '999px',
-  border: '1.5px solid #c0c0d0',
+  border: '1.5px solid var(--outline-variant)',
   background: 'transparent',
-  color: '#1a1a2e',
+  color: 'var(--on-surface)',
   cursor: 'pointer',
   fontSize: '0.9rem',
   transition: 'background 0.15s, border-color 0.15s',
 };
 
 const chipActiveStyle = {
-  background: '#7c3aed',
-  borderColor: '#7c3aed',
+  background: 'var(--primary)',
+  borderColor: 'var(--primary)',
   color: '#ffffff',
   fontWeight: 600,
 };
@@ -409,9 +414,9 @@ const inputStyle = {
   width: '100%',
   padding: '0.5rem 0.75rem',
   borderRadius: '0.4rem',
-  border: '1.5px solid #c0c0d0',
+  border: '1.5px solid var(--outline-variant)',
   background: '#f5f5fa',
-  color: '#1a1a2e',
+  color: 'var(--on-surface)',
   fontSize: '1rem',
   boxSizing: 'border-box',
 };
@@ -429,9 +434,9 @@ const errorTextStyle = {
 const cancelBtnStyle = {
   padding: '0.5rem 1.25rem',
   borderRadius: '0.4rem',
-  border: '1.5px solid #c0c0d0',
+  border: '1.5px solid var(--outline-variant)',
   background: 'transparent',
-  color: '#1a1a2e',
+  color: 'var(--on-surface)',
   cursor: 'pointer',
   fontSize: '0.95rem',
 };
@@ -440,7 +445,7 @@ const saveBtnStyle = {
   padding: '0.5rem 1.25rem',
   borderRadius: '0.4rem',
   border: 'none',
-  background: '#7c3aed',
+  background: 'var(--primary)',
   color: '#ffffff',
   fontWeight: 600,
   cursor: 'pointer',
@@ -461,26 +466,20 @@ const gameTypeChipStyle = {
   width: '60px',
   height: '60px',
   borderRadius: '0.5rem',
-  border: '1.5px solid #c0c0d0',
+  border: '1.5px solid var(--outline-variant)',
   background: 'transparent',
-  color: '#1a1a2e',
+  color: 'var(--on-surface)',
   cursor: 'pointer',
   transition: 'background 0.15s, border-color 0.15s',
-};
-
-const gameTypeChipActiveStyle = {
-  background: '#7c3aed',
-  borderColor: '#7c3aed',
-  color: '#ffffff',
 };
 
 const spitzenBtnStyle = {
   width: '36px',
   height: '36px',
   borderRadius: '0.4rem',
-  border: '1.5px solid #c0c0d0',
+  border: '1.5px solid var(--outline-variant)',
   background: 'transparent',
-  color: '#1a1a2e',
+  color: 'var(--on-surface)',
   cursor: 'pointer',
   fontSize: '0.9rem',
   fontWeight: 700,
@@ -490,8 +489,8 @@ const spitzenBtnStyle = {
 };
 
 const spitzenBtnActiveStyle = {
-  background: '#7c3aed',
-  borderColor: '#7c3aed',
+  background: 'var(--primary)',
+  borderColor: 'var(--primary)',
   color: '#ffffff',
 };
 

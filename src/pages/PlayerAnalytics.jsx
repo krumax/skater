@@ -9,21 +9,15 @@ import AchievementMatrix from '../components/analytics/AchievementMatrix';
 import DefenseMatrix from '../components/analytics/DefenseMatrix';
 import PlayerRankingCard from '../components/analytics/PlayerRankingCard';
 
-const statLabel = {
-  fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase',
-  letterSpacing: '0.1em', color: 'var(--outline)', marginBottom: '0.25rem',
-};
-const statValue = { fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" };
-
 // ── Stat-Kachel ───────────────────────────────────────────────────────────────
 function StatCard({ label, value, color, tooltip }) {
   return (
     <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-      <p style={{ ...statLabel, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} title={tooltip}>
+      <p className="stat-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} title={tooltip}>
         {label}
         {tooltip && <span className="material-symbols-outlined" style={{ fontSize: '0.8rem', cursor: 'help' }}>info</span>}
       </p>
-      <p style={{ ...statValue, color }}>{value}</p>
+      <p className="stat-value" style={{ color }}>{value}</p>
     </div>
   );
 }
@@ -41,7 +35,7 @@ function StreakCard({ label, streakRounds, color }) {
 
   return (
     <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-      <p style={{ ...statLabel, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+      <p className="stat-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
         {label}
         {tooltip && (
           <span
@@ -53,7 +47,7 @@ function StreakCard({ label, streakRounds, color }) {
           </span>
         )}
       </p>
-      <p style={{ ...statValue, color }}>{streakRounds.length}x</p>
+      <p className="stat-value" style={{ color }}>{streakRounds.length}x</p>
       {streakRounds.length > 0 && (
         <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.5rem' }}>
           {streakRounds.map((r, i) => {
@@ -220,7 +214,7 @@ const PlayerAnalytics = () => {
           </div>
 
           <div className="card" style={{ width: '380px', border: '1px solid var(--outline-variant)' }}>
-            <p style={{ ...statLabel, marginBottom: '0.75rem' }}>Spielart-Verteilung &amp; Gewinnraten</p>
+            <p className="stat-label" style={{ marginBottom: '0.75rem' }}>Spielart-Verteilung &amp; Gewinnraten</p>
             {stats.typeDistribution.length === 0
               ? <p style={{ color: 'var(--outline)' }}>Noch keine Daten.</p>
               : <GameTypePieChart typeDistribution={stats.typeDistribution} rounds={rounds} player={selectedPlayer} />

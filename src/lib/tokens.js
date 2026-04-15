@@ -48,3 +48,18 @@ export const PLAYER_COLORS = [
   '#0b3d2e', '#b52619', '#745b00',
   '#396756', '#ff5c47', '#d0a600',
 ];
+
+/** Unicode suit symbols — used in game type badges and labels */
+export const SUIT_SYMBOLS = {
+  club:    '♣',
+  spade:   '♠',
+  heart:   '♥',
+  diamond: '♦',
+};
+
+/** Material Icons icon names for special game types */
+export const SUIT_MAT_ICONS = {
+  grand:  'stars',
+  null:   'block',
+  passed: 'skip_next',
+};

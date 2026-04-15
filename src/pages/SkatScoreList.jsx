@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS } from '../lib/skatScoring';
 import GameTypeEditor from '../components/GameTypeEditor';
+import SuitBadge from '../components/SuitBadge';
 import { computeRunningTotals } from '../lib/playerStats';
 
 const SkatScoreList = () => {
@@ -41,19 +42,19 @@ const SkatScoreList = () => {
       {/* ── Sitzungsstatistik ── */}
       <div className="stats-grid-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem', gridAutoRows: 'auto' }}>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)', padding: '0.75rem 1rem' }}>
-          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Runden gesamt</p>
+          <p className="stat-label">Runden gesamt</p>
           <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>{rounds.length}</p>
         </div>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)', padding: '0.75rem 1rem' }}>
-          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Gewonnen</p>
+          <p className="stat-label">Gewonnen</p>
           <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>{rounds.filter(r => r.won && r.gameType !== 'passed').length}</p>
         </div>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)', padding: '0.75rem 1rem' }}>
-          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Verloren</p>
+          <p className="stat-label">Verloren</p>
           <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--secondary)' }}>{rounds.filter(r => !r.won && r.gameType !== 'passed').length}</p>
         </div>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)', padding: '0.75rem 1rem' }}>
-          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Eingepasst</p>
+          <p className="stat-label">Eingepasst</p>
           <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--outline)' }}>{rounds.filter(r => r.gameType === 'passed').length}</p>
         </div>
       </div>
@@ -67,25 +68,8 @@ const SkatScoreList = () => {
             Standardwertung
           </h3>
           <div className="ranking-rows" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {standardRank.map((entry, idx) => (
-              <div key={entry.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span className="ranking-badge" style={{
-                    width: '28px', height: '28px', borderRadius: '50%',
-                    backgroundColor: idx === 0 ? 'var(--tertiary-container)' : 'var(--surface-high)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.75rem', fontWeight: 800, flexShrink: 0,
-                  }}>{entry.rank}</span>
-                  <span className="ranking-name" style={{ fontWeight: 600 }}>{entry.name}</span>
-                </div>
-                <span className="ranking-score" style={{
-                  fontWeight: 800, fontSize: '1.5rem',
-                  fontFamily: "'Manrope', sans-serif",
-                  color: entry.score >= 0 ? 'var(--primary)' : 'var(--secondary)',
-                }}>
-                  {entry.score >= 0 ? '+' : ''}{entry.score}
-                </span>
-              </div>
+            {standardRank.map((entry) => (
+              <RankingRow key={entry.name} rank={entry.rank} name={entry.name} score={entry.score} />
             ))}
           </div>
         </div>
@@ -97,25 +81,8 @@ const SkatScoreList = () => {
             Seeger-Fabian
           </h3>
           <div className="ranking-rows" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {seegerRank.map((entry, idx) => (
-              <div key={entry.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span className="ranking-badge" style={{
-                    width: '28px', height: '28px', borderRadius: '50%',
-                    backgroundColor: idx === 0 ? 'var(--tertiary-container)' : 'var(--surface-high)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.75rem', fontWeight: 800, flexShrink: 0,
-                  }}>{entry.rank}</span>
-                  <span className="ranking-name" style={{ fontWeight: 600 }}>{entry.name}</span>
-                </div>
-                <span className="ranking-score" style={{
-                  fontWeight: 800, fontSize: '1.5rem',
-                  fontFamily: "'Manrope', sans-serif",
-                  color: entry.score >= 0 ? 'var(--primary)' : 'var(--secondary)',
-                }}>
-                  {entry.score >= 0 ? '+' : ''}{entry.score}
-                </span>
-              </div>
+            {seegerRank.map((entry) => (
+              <RankingRow key={entry.name} rank={entry.rank} name={entry.name} score={entry.score} />
             ))}
           </div>
         </div>
@@ -133,25 +100,8 @@ const SkatScoreList = () => {
                 .map(p => ({ name: p, score: (standardTotals[p] ?? 0) + (seegerTotals[p] ?? 0) }))
                 .sort((a, b) => b.score - a.score)
                 .map((entry, idx) => ({ ...entry, rank: idx + 1 }));
-              return combined.map((entry, idx) => (
-                <div key={entry.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span className="ranking-badge" style={{
-                      width: '28px', height: '28px', borderRadius: '50%',
-                      backgroundColor: idx === 0 ? 'var(--tertiary-container)' : 'var(--surface-high)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '0.75rem', fontWeight: 800, flexShrink: 0,
-                    }}>{entry.rank}</span>
-                    <span className="ranking-name" style={{ fontWeight: 600 }}>{entry.name}</span>
-                  </div>
-                  <span className="ranking-score" style={{
-                    fontWeight: 800, fontSize: '1.5rem',
-                    fontFamily: "'Manrope', sans-serif",
-                    color: entry.score >= 0 ? 'var(--primary)' : 'var(--secondary)',
-                  }}>
-                    {entry.score >= 0 ? '+' : ''}{entry.score}
-                  </span>
-                </div>
+              return combined.map((entry) => (
+                <RankingRow key={entry.name} rank={entry.rank} name={entry.name} score={entry.score} />
               ));
             })()}
           </div>
@@ -267,47 +217,36 @@ const SkatScoreList = () => {
   );
 };
 
-// ── Game type icon/badge ─────────────────────────────────────────────────────
-const GAME_TYPE_DISPLAY = {
-  grand:   { symbol: null, matIcon: 'stars',    label: 'Grand',  bg: '#0b3d2e', color: '#fff' },
-  club:    { symbol: '♣',  matIcon: null,        label: 'Kreuz',  bg: '#1b1c1c', color: '#fff' },
-  spade:   { symbol: '♠',  matIcon: null,        label: 'Pik',    bg: '#414944', color: '#fff' },
-  heart:   { symbol: '♥',  matIcon: null,        label: 'Herz',   bg: '#b52619', color: '#fff' },
-  diamond: { symbol: '♦',  matIcon: null,        label: 'Karo',   bg: '#d0a600', color: '#1b1c1c' },
-  null:    { symbol: null, matIcon: 'block',     label: 'Null',   bg: '#717974', color: '#fff' },
-  passed:  { symbol: null, matIcon: 'skip_next', label: 'Passen', bg: '#c0c0d0', color: '#555' },
-};
-
-function GameTypeIcon({ round }) {
-  const gt = round.gameType;
-  const display = GAME_TYPE_DISPLAY[gt];
-
-  const bg = display?.bg ?? 'var(--surface-high)';
-  const color = display?.color ?? 'var(--outline)';
-
+// ── RankingRow ───────────────────────────────────────────────────────────────
+function RankingRow({ rank, name, score }) {
   return (
-    <span title={round.typeLabel} style={{ display: 'inline-flex', alignItems: 'center', verticalAlign: 'middle' }}>
-      <span className="game-type-icon-badge" style={{
-        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        width: '2rem', height: '2rem', borderRadius: '0.4rem',
-        backgroundColor: bg, flexShrink: 0,
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <span className="ranking-badge" style={{
+          width: '28px', height: '28px', borderRadius: '50%',
+          backgroundColor: rank === 1 ? 'var(--tertiary-container)' : 'var(--surface-high)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '0.75rem', fontWeight: 800, flexShrink: 0,
+        }}>{rank}</span>
+        <span className="ranking-name" style={{ fontWeight: 600 }}>{name}</span>
+      </div>
+      <span className="ranking-score" style={{
+        fontWeight: 800, fontSize: '1.5rem',
+        fontFamily: "'Manrope', sans-serif",
+        color: score >= 0 ? 'var(--primary)' : 'var(--secondary)',
       }}>
-        {!display
-          ? <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--outline)' }}>?</span>
-          : display.symbol
-            ? <span style={{ fontSize: '1rem', fontWeight: 700, color, lineHeight: 1 }}>{display.symbol}</span>
-            : <span className="material-symbols-outlined" style={{ fontSize: '1rem', color, lineHeight: 1 }}>{display.matIcon}</span>
-        }
+        {score >= 0 ? `+${score}` : `${score}`}
       </span>
-    </span>
+    </div>
   );
 }
+
 const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
   <tr style={{ borderBottom: '1px solid var(--surface-high)', backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)' }}>
     <td className="col-round-nr" style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
     <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
     <td className="col-type" style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
-      <GameTypeIcon round={r} />
+      <SuitBadge gameType={r.gameType} size="md" />
     </td>
     <td className="col-ansage" style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif", paddingRight: '0.25rem' }}>
       {(() => {

@@ -3,37 +3,7 @@
  * sowie den aktuellen Tischstand und den Speichern-Button.
  */
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../../lib/skatScoring';
-
-const SUIT_COLORS = {
-  club: '#1b1c1c', spade: '#3d4040', heart: '#8b1a1a',
-  diamond: '#b5860d', grand: '#1b4332', null: '#6b7280', passed: '#4a4a5a',
-};
-
-function SuitBadge({ gameType }) {
-  const bg = SUIT_COLORS[gameType] ?? 'var(--surface-high)';
-  const style = {
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-    width: '1.25rem', height: '1.25rem', borderRadius: '0.25rem', flexShrink: 0,
-    backgroundColor: bg,
-  };
-  if (gameType === 'grand') {
-    return <span style={style}><span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: '#fff' }}>stars</span></span>;
-  }
-  if (gameType === 'null') {
-    return <span style={style}><span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: '#fff' }}>block</span></span>;
-  }
-  if (gameType === 'passed') {
-    return <span style={style}><span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: '#fff' }}>skip_next</span></span>;
-  }
-  const symbols = { club: '♣', spade: '♠', heart: '♥', diamond: '♦' };
-  return (
-    <span style={style}>
-      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: gameType === 'diamond' ? '#1b1c1c' : '#fff', lineHeight: 1 }}>
-        {symbols[gameType]}
-      </span>
-    </span>
-  );
-}
+import SuitBadge from '../SuitBadge';
 
 export function formatScore(gameValue, isBock) {
   const value = isBock ? gameValue * 2 : gameValue;
@@ -56,12 +26,12 @@ function LastRoundCard({ round }) {
 
   return (
     <div className="card" style={{ padding: '0.875rem 1rem' }}>
-      <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', marginBottom: '0.5rem' }}>
+      <p className="stat-label" style={{ marginBottom: '0.5rem' }}>
         Letzte Runde #{round.id}
       </p>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         {/* Spieltyp-Badge */}
-        <SuitBadge gameType={round.gameType} />
+        <SuitBadge gameType={round.gameType} size="sm" />
 
         {/* Spieler + Typ */}
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -106,7 +76,7 @@ export default function ResultDashboard({ result, outcomeLabel, gameType, isBock
             <div className="result-breakdown">
               <div className="breakdown-row">
                 <span style={{ opacity: 0.8, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  Grundwert <SuitBadge gameType={gameType} />
+                  Grundwert <SuitBadge gameType={gameType} size="sm" />
                 </span>
                 <span style={{ fontWeight: 800 }}>{result.baseValue}</span>
               </div>
@@ -154,7 +124,7 @@ export default function ResultDashboard({ result, outcomeLabel, gameType, isBock
           <span className="material-symbols-outlined">trending_up</span>
         </div>
         <div>
-          <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>
+          <p className="stat-label">
             Aktueller Stand
           </p>
           {rankings.length > 0 && (

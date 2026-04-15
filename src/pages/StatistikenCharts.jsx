@@ -47,15 +47,6 @@ function bucketKey(timestamp, granularity) {
   return String(d.getFullYear());
 }
 
-/* ── Reusable label style constants ── */
-const statLabel = {
-  fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase',
-  letterSpacing: '0.1em', color: 'var(--outline)', marginBottom: '0.25rem',
-};
-const statValue = {
-  fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif",
-};
-
 /* ── Custom Recharts Tooltip ── */
 const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -283,22 +274,22 @@ const StatistikenCharts = () => {
       {/* ── KPI Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-          <p style={statLabel}>Spiele gesamt</p>
-          <p style={statValue}>{kpis.totalGames}</p>
+          <p className="stat-label">Spiele gesamt</p>
+          <p className="stat-value">{kpis.totalGames}</p>
         </div>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-          <p style={statLabel}>Ø Punkte / Spiel</p>
-          <p style={{ ...statValue, color: parseFloat(kpis.avg) >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>{kpis.avg}</p>
+          <p className="stat-label">Ø Punkte / Spiel</p>
+          <p className="stat-value" style={{ color: parseFloat(kpis.avg) >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>{kpis.avg}</p>
         </div>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-          <p style={statLabel}>Gesamt-Score</p>
-          <p style={{ ...statValue, color: kpis.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
+          <p className="stat-label">Gesamt-Score</p>
+          <p className="stat-value" style={{ color: kpis.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
             {kpis.totalPoints >= 0 ? '+' : ''}{kpis.totalPoints}
           </p>
         </div>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
-          <p style={statLabel}>Gewinnrate</p>
-          <p style={{ ...statValue, color: parseFloat(kpis.winRate) >= 50 ? 'var(--primary)' : 'var(--secondary)' }}>{kpis.winRate}%</p>
+          <p className="stat-label">Gewinnrate</p>
+          <p className="stat-value" style={{ color: parseFloat(kpis.winRate) >= 50 ? 'var(--primary)' : 'var(--secondary)' }}>{kpis.winRate}%</p>
         </div>
       </div>
 
@@ -311,8 +302,8 @@ const StatistikenCharts = () => {
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: '#1b1c1c', flexShrink: 0 }}>emoji_events</span>
             <div style={{ flex: 1 }}>
-              <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65, marginBottom: '0.1rem' }}>↑ Spiel</p>
-              <p style={{ ...statValue, color: '#1b1c1c', fontSize: '1.75rem', lineHeight: 1 }}>
+              <p className="stat-label" style={{ color: '#1b1c1c', opacity: 0.65, marginBottom: '0.1rem' }}>↑ Spiel</p>
+              <p className="stat-value" style={{ color: '#1b1c1c', fontSize: '1.75rem', lineHeight: 1 }}>
                 +{kpis.best.value}
                 <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
                   {SUIT_SYMBOLS[kpis.best.type]} {SUIT_LABELS[kpis.best.type]}
@@ -321,16 +312,16 @@ const StatistikenCharts = () => {
             </div>
             <div style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65 }}>Spieler</p>
+                <p className="stat-label" style={{ color: '#1b1c1c', opacity: 0.65 }}>Spieler</p>
                 <p style={{ fontWeight: 800, color: '#1b1c1c' }}>{kpis.best.player}</p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65 }}>Runde</p>
+                <p className="stat-label" style={{ color: '#1b1c1c', opacity: 0.65 }}>Runde</p>
                 <p style={{ fontWeight: 800, color: '#1b1c1c' }}>#{kpis.best.round}</p>
               </div>
               {kpis.best.date && (
                 <div style={{ textAlign: 'right' }}>
-                  <p style={{ ...statLabel, color: '#1b1c1c', opacity: 0.65 }}>Datum</p>
+                  <p className="stat-label" style={{ color: '#1b1c1c', opacity: 0.65 }}>Datum</p>
                   <p style={{ fontWeight: 800, color: '#1b1c1c' }}>{kpis.best.date}</p>
                 </div>
               )}
@@ -344,8 +335,8 @@ const StatistikenCharts = () => {
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--on-secondary)', flexShrink: 0 }}>heart_broken</span>
             <div style={{ flex: 1 }}>
-              <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65, marginBottom: '0.1rem' }}>↓ Niederlage</p>
-              <p style={{ ...statValue, color: 'var(--on-secondary)', fontSize: '1.75rem', lineHeight: 1 }}>
+              <p className="stat-label" style={{ color: 'var(--on-secondary)', opacity: 0.65, marginBottom: '0.1rem' }}>↓ Niederlage</p>
+              <p className="stat-value" style={{ color: 'var(--on-secondary)', fontSize: '1.75rem', lineHeight: 1 }}>
                 {kpis.worst.value}
                 <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
                   {SUIT_SYMBOLS[kpis.worst.type]} {SUIT_LABELS[kpis.worst.type]}
@@ -354,16 +345,16 @@ const StatistikenCharts = () => {
             </div>
             <div style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65 }}>Spieler</p>
+                <p className="stat-label" style={{ color: 'var(--on-secondary)', opacity: 0.65 }}>Spieler</p>
                 <p style={{ fontWeight: 800, color: 'var(--on-secondary)' }}>{kpis.worst.player}</p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65 }}>Runde</p>
+                <p className="stat-label" style={{ color: 'var(--on-secondary)', opacity: 0.65 }}>Runde</p>
                 <p style={{ fontWeight: 800, color: 'var(--on-secondary)' }}>#{kpis.worst.round}</p>
               </div>
               {kpis.worst.date && (
                 <div style={{ textAlign: 'right' }}>
-                  <p style={{ ...statLabel, color: 'var(--on-secondary)', opacity: 0.65 }}>Datum</p>
+                  <p className="stat-label" style={{ color: 'var(--on-secondary)', opacity: 0.65 }}>Datum</p>
                   <p style={{ fontWeight: 800, color: 'var(--on-secondary)' }}>{kpis.worst.date}</p>
                 </div>
               )}
@@ -439,7 +430,7 @@ const StatistikenCharts = () => {
 
                 {/* Erfolgsquoten */}
                 <div className="card" style={{ backgroundColor: 'var(--surface-low)' }}>
-                  <p style={{ ...statLabel, marginBottom: '0.75rem' }}>Erfolgsquoten</p>
+                  <p className="stat-label" style={{ marginBottom: '0.75rem' }}>Erfolgsquoten</p>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
                       <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.2rem' }}>⚔️ Alleinspieler</p>
@@ -460,7 +451,7 @@ const StatistikenCharts = () => {
 
                 {/* Längste Serien */}
                 <div className="card" style={{ backgroundColor: 'var(--surface-low)' }}>
-                  <p style={{ ...statLabel, marginBottom: '0.75rem' }}>Längste Serien am Tisch</p>
+                  <p className="stat-label" style={{ marginBottom: '0.75rem' }}>Längste Serien am Tisch</p>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
                       <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.2rem' }}>🏆 Siegesserie</p>
@@ -483,7 +474,7 @@ const StatistikenCharts = () => {
                 <div className="card" style={{ backgroundColor: 'var(--surface-low)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--primary)', flexShrink: 0 }}>swap_vert</span>
                   <div>
-                    <p style={statLabel}>Führungswechsel</p>
+                    <p className="stat-label">Führungswechsel</p>
                     <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }}>{leaderChanges}×</p>
                     <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>Wechsel der Tabellenführung</p>
                   </div>
@@ -493,7 +484,7 @@ const StatistikenCharts = () => {
                 <div className="card" style={{ backgroundColor: 'var(--surface-low)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--tertiary)', flexShrink: 0 }}>bolt</span>
                   <div>
-                    <p style={statLabel}>Größter Push (5 Runden)</p>
+                    <p className="stat-label">Größter Push (5 Runden)</p>
                     {biggestSwing ? (
                       <>
                         <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }}>±{biggestSwing.swing}</p>
