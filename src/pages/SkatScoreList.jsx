@@ -194,16 +194,16 @@ const SkatScoreList = () => {
                 <th style={{ ...thStyle, textAlign: 'right' }}>Ansage</th>
                 <th style={{ ...thStyle, textAlign: 'left', paddingLeft: '0.25rem', color: 'var(--outline)', fontSize: '0.6rem' }}>Mod.</th>
                 <th style={{ ...thStyle, textAlign: 'right' }}>Spielwert</th>
-                <th style={thDivider}></th>
+                <th className="score-col-divider" style={thDivider}></th>
                 {players.map(p => (
-                  <th key={`std-${p}`} style={{ ...thStyle, textAlign: 'right' }}>
+                  <th key={`std-${p}`} className="score-col-std" style={{ ...thStyle, textAlign: 'right' }}>
                     <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--outline)' }}>STD</span>
                     {p}
                   </th>
                 ))}
-                <th style={thDivider}></th>
+                <th className="score-col-divider" style={thDivider}></th>
                 {players.map(p => (
-                  <th key={`sf-${p}`} style={{ ...thStyle, textAlign: 'right' }}>
+                  <th key={`sf-${p}`} className="score-col-sf" style={{ ...thStyle, textAlign: 'right' }}>
                     <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--tertiary)' }}>S-F</span>
                     {p}
                   </th>
@@ -362,20 +362,20 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
       )}
       {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
     </td>
-    <td style={tdDivider}></td>
+    <td style={tdDivider} className="score-col-divider"></td>
     {players.map(p => (
-      <td key={`std-${p}`} style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: r.player === p ? 1 : 0.4, color: (std[p] ?? 0) >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
+      <td key={`std-${p}`} className="score-col-std" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: r.player === p ? 1 : 0.4, color: (std[p] ?? 0) >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
         {std[p] ?? 0}
       </td>
     ))}
-    <td style={tdDivider}></td>
+    <td style={tdDivider} className="score-col-divider"></td>
     {players.map(p => {
       const prev = sfPrev?.[p] ?? 0;
       const curr = sf[p] ?? 0;
       const delta = curr - prev;
       const color = delta < 0 ? 'var(--secondary)' : 'var(--on-surface)';
       return (
-        <td key={`sf-${p}`} style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: delta !== 0 ? 1 : 0.4, color }}>
+        <td key={`sf-${p}`} className="score-col-sf" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: delta !== 0 ? 1 : 0.4, color }}>
           {curr}
         </td>
       );

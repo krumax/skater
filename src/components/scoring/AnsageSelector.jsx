@@ -21,8 +21,8 @@ export default function AnsageSelector({ mitOhne, setMitOhne, spitzen, setSpitze
                 key={num}
                 disabled={isDisabled}
                 onClick={() => setSpitzen(num)}
-                className={`game-type-card ${spitzen === num && !isDisabled ? 'active' : ''}`}
-                style={{ width: '40px', height: '40px', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: 700, opacity: isDisabled ? 0.25 : 1, pointerEvents: isDisabled ? 'none' : 'auto' }}
+                className={`game-type-card touch-target ${spitzen === num && !isDisabled ? 'active' : ''}`}
+                style={{ width: '44px', height: '44px', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: 700, opacity: isDisabled ? 0.25 : 1, pointerEvents: isDisabled ? 'none' : 'auto' }}
               >
                 {num}
               </button>

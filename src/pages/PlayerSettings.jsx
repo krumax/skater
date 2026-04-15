@@ -87,7 +87,7 @@ function NewTableWizard({ onConfirm, onCancel }) {
         <input
           type="text" value={tableName} placeholder="z. B. Stammtisch, Freitagsrunde…"
           onChange={e => setTableName(e.target.value)}
-          style={{ width: '100%', backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '0.75rem 1rem', fontFamily: 'inherit', fontSize: '0.9375rem', color: 'var(--on-surface)', marginBottom: '1.25rem', boxSizing: 'border-box' }}
+          style={{ width: '100%', backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '0.75rem 1rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)', marginBottom: '1.25rem', boxSizing: 'border-box' }}
         />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', marginBottom: '1.25rem' }}>
@@ -103,7 +103,7 @@ function NewTableWizard({ onConfirm, onCancel }) {
                 type="text" value={seat} placeholder={`Spieler ${i + 1}${i === 0 ? ' (Geber)' : ''}`}
                 onChange={e => updateSeat(i, e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleConfirm()}
-                style={{ flex: 1, backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '0.75rem 1rem', fontFamily: 'inherit', fontSize: '0.9375rem', color: 'var(--on-surface)' }}
+                style={{ flex: 1, backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '0.75rem 1rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)' }}
               />
               {seats.length > 3 && (
                 <button onClick={() => removeSeat(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--secondary)', padding: '0.25rem' }}>
@@ -124,7 +124,7 @@ function NewTableWizard({ onConfirm, onCancel }) {
         {error && <p style={{ color: 'var(--secondary)', fontSize: '0.875rem', marginBottom: '1rem' }}>{error}</p>}
 
         <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-          <button onClick={onCancel} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', background: 'none', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9375rem' }}>
+          <button onClick={onCancel} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', background: 'none', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}>
             Abbrechen
           </button>
           <button onClick={handleConfirm} className="btn-primary" style={{ padding: '0.75rem 1.75rem' }}>
@@ -206,7 +206,7 @@ export default function PlayerSettings() {
 
   return (
     <div>
-      <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <header className="page-header settings-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 className="page-title">Einstellungen</h1>
           <p className="page-subtitle">Reihenfolge per Drag &amp; Drop — Position 1 ist immer Geber.</p>
@@ -223,7 +223,7 @@ export default function PlayerSettings() {
                     if (e.key === 'Escape') setEditingTableName(false);
                   }}
                   placeholder="Tischname…"
-                  style={{ backgroundColor: 'var(--surface-high)', border: '1px solid var(--primary)', borderRadius: '0.5rem', padding: '0.5rem 0.875rem', fontFamily: 'inherit', fontSize: '0.9375rem', color: 'var(--on-surface)', width: '220px' }}
+                  style={{ backgroundColor: 'var(--surface-high)', border: '1px solid var(--primary)', borderRadius: '0.5rem', padding: '0.5rem 0.875rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)', width: '220px' }}
                 />
                 <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
                   onClick={() => { renameTable(tableNameDraft); setEditingTableName(false); }}>
@@ -245,7 +245,7 @@ export default function PlayerSettings() {
             )}
           </div>
         </div>
-        <button className="btn-primary" onClick={() => setShowWizard(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1.5rem', flexShrink: 0 }}>
+        <button className="btn-primary settings-new-table-btn" onClick={() => setShowWizard(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1.5rem', flexShrink: 0 }}>
           <span className="material-symbols-outlined">add_circle</span>
           Neuer Tisch
         </button>
@@ -311,7 +311,7 @@ export default function PlayerSettings() {
         </section>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '3rem', alignItems: 'start' }}>
+      <div className="settings-layout" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '3rem', alignItems: 'start' }}>
 
         {/* ── Left: list ── */}
         <div style={{ maxWidth: '520px' }}>
@@ -388,7 +388,7 @@ export default function PlayerSettings() {
         </div>
 
         {/* ── Right: read-only table ── */}
-        <div style={{ position: 'sticky', top: '2rem', width: '280px' }}>
+        <div className="settings-table-preview" style={{ position: 'sticky', top: '2rem', width: '280px' }}>
           <label className="section-label" style={{ display: 'block', marginBottom: '1rem' }}>Tischansicht</label>
           <div style={{ backgroundColor: 'var(--surface-low)', borderRadius: '1rem', padding: '1.25rem 1rem 1rem' }}>
             <RoundTable seating={players} />

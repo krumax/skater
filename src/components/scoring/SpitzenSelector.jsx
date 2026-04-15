@@ -18,8 +18,8 @@ export default function SpitzenSelector({ gameType, spitzen, setSpitzen }) {
           <button
             key={num}
             onClick={() => setSpitzen(num)}
-            className={`game-type-card ${spitzen === num ? 'active' : ''}`}
-            style={{ width: '40px', height: '40px', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: 700 }}
+            className={`game-type-card touch-target ${spitzen === num ? 'active' : ''}`}
+            style={{ width: '44px', height: '44px', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: 700 }}
           >
             {num}
           </button>

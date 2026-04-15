@@ -658,3 +658,71 @@ button {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ─────────────────────────────────────────────
+   PHASE 1 — MOBILE QUICK WINS
+   ───────────────────────────────────────────── */
+
+/* ── SkatScoreList: STD/SF-Spalten auf Mobile ausblenden ── */
+@media (max-width: 768px) {
+  .score-col-std,
+  .score-col-sf,
+  .score-col-divider {
+    display: none !important;
+  }
+}
+
+/* ── PlayerSettings: rechte Spalte (SVG-Tisch) ausblenden ── */
+.settings-table-preview {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .settings-table-preview {
+    display: none;
+  }
+
+  /* Header-Bereich stacken */
+  .settings-page-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem;
+  }
+
+  /* Neuer-Tisch-Button volle Breite */
+  .settings-new-table-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Hauptlayout: eine Spalte */
+  .settings-layout {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Touch-Targets: min 44px für kleine Buttons ── */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Chips: lange Labels dürfen umbrechen ── */
+@media (max-width: 768px) {
+  .chip {
+    white-space: normal;
+    line-height: 1.3;
+  }
+}
+
+/* ── iOS-Zoom-Fix: alle Text-Inputs mindestens 16px ── */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea {
+  font-size: max(1rem, 16px);
+}
