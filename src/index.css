@@ -539,6 +539,7 @@ button {
     margin-left: 0;
     padding: 1.25rem 1rem 5.5rem; /* unten Platz für Bottom-Nav */
     min-height: 100dvh;
+    overflow-x: hidden;
   }
 
   /* ── Page Header ── */
@@ -845,7 +846,16 @@ button {
     gap: 1rem;
   }
 
-  /* Neuer-Tisch-Button volle Breite */
+  /* Spieler hinzufügen: Button umbrechbar */
+  .settings-layout .form-section > div {
+    flex-wrap: wrap;
+  }
+
+  .settings-add-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
   .settings-new-table-btn {
     width: 100%;
     justify-content: center;
@@ -854,6 +864,30 @@ button {
   /* Hauptlayout: eine Spalte */
   .settings-layout {
     grid-template-columns: 1fr !important;
+  }
+
+  /* Tisch-Switcher: untereinander, volle Breite */
+  .session-switcher {
+    flex-direction: column !important;
+  }
+
+  .session-switcher > div {
+    width: 100% !important;
+  }
+
+  .session-switcher > div > button:first-child {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+
+  /* Spieler-Zeile: Rolle-Badge und Buttons kompakter */
+  .seating-row-role {
+    display: none !important;
+  }
+
+  .seating-reorder-btn {
+    min-width: 32px !important;
+    min-height: 36px !important;
   }
 }
 

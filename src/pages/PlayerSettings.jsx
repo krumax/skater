@@ -255,7 +255,7 @@ export default function PlayerSettings() {
       {!loadingSessions && allSessions.length > 1 && (
         <section style={{ marginBottom: '2.5rem' }}>
           <label className="section-label" style={{ display: 'block', marginBottom: '0.875rem' }}>Tische wechseln</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div className="session-switcher" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
             {allSessions.map(s => {
               const isActive = s.id === sessionId;
               const label = s.table_name || (Array.isArray(s.seating) ? s.seating.join(', ') : s.id.slice(0, 8));
@@ -322,8 +322,8 @@ export default function PlayerSettings() {
             <div style={{ display: 'flex', gap: '1rem' }}>
               <input type="text" value={newName} onChange={e => setNewName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAdd()} placeholder="Spielername…"
-                style={{ flex: 1, backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '1rem 1.25rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)' }} />
-              <button className="btn-primary" onClick={handleAdd} style={{ padding: '1rem 1.75rem' }}>
+                style={{ flex: 1, backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '1rem 1.25rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)', minWidth: 0 }} />
+              <button className="btn-primary settings-add-btn" onClick={handleAdd} style={{ padding: '1rem 1.75rem', flexShrink: 0 }}>
                 <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', marginRight: '0.4rem' }}>person_add</span>
                 Hinzufügen
               </button>
@@ -363,7 +363,7 @@ export default function PlayerSettings() {
                         <span style={{ fontWeight: 600, fontSize: '1rem' }}>{name}</span>
                       )}
                     </div>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', padding: '0.25rem 0.625rem', borderRadius: '999px', color, backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`, textTransform: 'uppercase', flexShrink: 0 }}>
+                    <span className="seating-row-role" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', padding: '0.25rem 0.625rem', borderRadius: '999px', color, backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`, textTransform: 'uppercase', flexShrink: 0 }}>
                       <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>{ROLE_ICONS[ri]}</span>
                       {ROLE_LABELS[ri]}
                     </span>
