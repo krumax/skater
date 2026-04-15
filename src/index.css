@@ -716,7 +716,7 @@ button {
 /* ── SkatScoreList: Stats Grid Mobile ── */
 @media (max-width: 768px) {
   .stats-grid-4 {
-    grid-template-columns: 1fr 1fr !important;
+    grid-template-columns: 1fr !important;
   }
   .ranking-grid-3 {
     grid-template-columns: 1fr !important;
