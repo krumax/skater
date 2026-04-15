@@ -144,10 +144,12 @@ const Sidebar = () => {
 
     {/* ── Top Bar (Mobile only) ── */}
     <header className="top-bar">
-      <img src={logoUrl} alt="Skatastrophe" style={{ height: '28px', width: 'auto' }} />
-      <span style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '0.1em', color: '#d0a600', fontFamily: "'Manrope', sans-serif", textTransform: 'uppercase' }}>
-        Skatastrophe
-      </span>
+      <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
+        <img src={logoUrl} alt="Skatastrophe" style={{ height: '28px', width: 'auto' }} />
+        <span style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '0.1em', color: '#d0a600', fontFamily: "'Manrope', sans-serif", textTransform: 'uppercase' }}>
+          Skatastrophe
+        </span>
+      </a>
     </header>
 
     {/* ── Bottom Navigation (Mobile only) ── */}
