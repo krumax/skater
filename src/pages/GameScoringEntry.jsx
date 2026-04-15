@@ -93,7 +93,7 @@ const GameScoringEntry = () => {
             schneider={form.schneider}               setSchneider={form.setSchneider}
             schneiderAnnounced={form.schneiderAnnounced} setSchneiderAnnounced={form.setSchneiderAnnounced}
             schwarz={form.schwarz}                   setSchwarz={form.setSchwarz}
-            schwarzAnnounced={form.schwarzAnnounced} setSchwarzAnnounced={form.setSchwartzAnnounced}
+            schwarzAnnounced={form.schwarzAnnounced} setSchwarzAnnounced={form.setSchwarzAnnounced}
             ouvert={form.ouvert}                     setOuvert={form.setOuvert}
             isBock={form.isBock}                     setIsBock={form.setIsBock}
             eyeCount={form.eyeCount}                 setEyeCount={form.setEyeCount}

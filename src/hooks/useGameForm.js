@@ -16,12 +16,18 @@ export function useGameForm(initialPlayer = '') {
   const [schneider, setSchneider]       = useState(false);
   const [schneiderAnnounced, setSchneiderAnnounced] = useState(false);
   const [schwarz, setSchwarz]           = useState(false);
-  const [schwarzAnnounced, setSchwartzAnnounced]    = useState(false);
+  const [schwarzAnnounced, setSchwarzAnnounced]    = useState(false);
   const [ouvert, setOuvert]             = useState(false);
   const [mitOhne, setMitOhne]           = useState('mit');
   const [spitzen, setSpitzen]           = useState(1);
   const [eyeCount, setEyeCount]         = useState(61);
   const [isBock, setIsBock]             = useState(false);
+
+  // Handles hand toggle — deactivating hand also clears ouvert for suit/grand games
+  const setHandWithSideEffects = (value) => {
+    setHand(value);
+    if (!value && gameType !== 'null') setOuvert(false);
+  };
 
   // Derived
   const maxSpitzen = ['club', 'spade', 'heart', 'diamond'].includes(gameType)
@@ -70,7 +76,7 @@ export function useGameForm(initialPlayer = '') {
     setSchneider(false);
     setSchneiderAnnounced(false);
     setSchwarz(false);
-    setSchwartzAnnounced(false);
+    setSchwarzAnnounced(false);
     setOuvert(false);
     setMitOhne('mit');
     setSpitzen(1);
@@ -114,11 +120,11 @@ export function useGameForm(initialPlayer = '') {
     // State
     activePlayer, setActivePlayer,
     gameType, setGameType,
-    hand, setHand,
+    hand, setHand: setHandWithSideEffects,
     schneider, setSchneider,
     schneiderAnnounced, setSchneiderAnnounced,
     schwarz, setSchwarz,
-    schwarzAnnounced, setSchwartzAnnounced,
+    schwarzAnnounced, setSchwarzAnnounced,
     ouvert, setOuvert,
     mitOhne, setMitOhne,
     spitzen, setSpitzen,

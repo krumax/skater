@@ -19,11 +19,35 @@ export default function ModifierChips({
 
   const modifiers = [
     { key: 'hand',               label: 'Hand',               state: hand,               setter: setHand,               disabled: isPassed },
-    { key: 'schneider',          label: 'Schneider',          state: schneider,          setter: setSchneider,          disabled: isPassed || isNull },
-    { key: 'schneiderAnnounced', label: 'Schneider angesagt', state: schneiderAnnounced, setter: setSchneiderAnnounced, disabled: isPassed || isNull || !hand },
-    { key: 'schwarz',            label: 'Schwarz',            state: schwarz,            setter: setSchwarz,            disabled: isPassed || isNull },
-    { key: 'schwarzAnnounced',   label: 'Schwarz angesagt',   state: schwarzAnnounced,   setter: setSchwarzAnnounced,   disabled: isPassed || isNull || !hand },
-    { key: 'ouvert',             label: 'Ouvert',             state: ouvert,             setter: setOuvert,             disabled: isPassed },
+    { 
+      key: 'schneider',          
+      label: 'Schneider',          
+      state: schneider,          
+      setter: (val) => { setSchneider(val); if (!val) { setSchwarz(false); setSchwarzAnnounced(false); setSchneiderAnnounced(false); } }, 
+      disabled: isPassed || isNull 
+    },
+    { 
+      key: 'schneiderAnnounced', 
+      label: 'Schneider angesagt', 
+      state: schneiderAnnounced, 
+      setter: (val) => { setSchneiderAnnounced(val); if (val) setSchneider(true); else setSchwarzAnnounced(false); }, 
+      disabled: isPassed || isNull || !hand 
+    },
+    { 
+      key: 'schwarz',            
+      label: 'Schwarz',            
+      state: schwarz,            
+      setter: (val) => { setSchwarz(val); if (val) setSchneider(true); else setSchwarzAnnounced(false); }, 
+      disabled: isPassed || isNull 
+    },
+    { 
+      key: 'schwarzAnnounced',   
+      label: 'Schwarz angesagt',   
+      state: schwarzAnnounced,   
+      setter: (val) => { setSchwarzAnnounced(val); if (val) { setSchwarz(true); setSchneiderAnnounced(true); setSchneider(true); } }, 
+      disabled: isPassed || isNull || !hand 
+    },
+    { key: 'ouvert',             label: 'Ouvert',             state: ouvert,             setter: setOuvert,             disabled: isPassed || (!isNull && !hand) },
   ];
 
   const isVerloren    = isSuitGame && eyeCount < 61 && eyeCount !== 60;
