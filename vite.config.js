@@ -15,7 +15,7 @@ export default defineConfig({
       registerType: 'prompt', // Wir verwenden prompt, da du in Phase 3 einen Update-Prompt integrieren willst
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Skat Zählapp',
+        name: 'Skatastrophe',
         short_name: 'Skat',
         description: 'Moderne Skat Zählapp für Punkte und Statistiken',
         theme_color: '#00261b', /* primary color */
