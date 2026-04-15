@@ -39,7 +39,7 @@ const SkatScoreList = () => {
       </header>
 
       {/* ── Sitzungsstatistik ── */}
-      <div className="stats-grid-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+      <div className="stats-grid-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem', gridAutoRows: 'auto' }}>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)', padding: '0.75rem 1rem' }}>
           <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }}>Runden gesamt</p>
           <p style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: 'var(--primary)' }}>{rounds.length}</p>
@@ -59,26 +59,26 @@ const SkatScoreList = () => {
       </div>
 
       {/* ── Dreifache Wertungsübersicht ── */}
-      <div className="ranking-grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
+      <div className="ranking-grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '3rem' }}>
         {/* Standard */}
-        <div className="card" style={{ backgroundColor: 'var(--surface-low)' }}>
+        <div className="card ranking-card ranking-card-compact" style={{ backgroundColor: 'var(--surface-low)' }}>
           <h3 className="headline" style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>calculate</span>
             Standardwertung
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="ranking-rows" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {standardRank.map((entry, idx) => (
               <div key={entry.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span style={{
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span className="ranking-badge" style={{
                     width: '28px', height: '28px', borderRadius: '50%',
                     backgroundColor: idx === 0 ? 'var(--tertiary-container)' : 'var(--surface-high)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.75rem', fontWeight: 800,
+                    fontSize: '0.75rem', fontWeight: 800, flexShrink: 0,
                   }}>{entry.rank}</span>
-                  <span style={{ fontWeight: 600 }}>{entry.name}</span>
+                  <span className="ranking-name" style={{ fontWeight: 600 }}>{entry.name}</span>
                 </div>
-                <span style={{
+                <span className="ranking-score" style={{
                   fontWeight: 800, fontSize: '1.5rem',
                   fontFamily: "'Manrope', sans-serif",
                   color: entry.score >= 0 ? 'var(--primary)' : 'var(--secondary)',
@@ -91,24 +91,24 @@ const SkatScoreList = () => {
         </div>
 
         {/* Seeger-Fabian */}
-        <div className="card" style={{ backgroundColor: 'var(--surface-low)' }}>
+        <div className="card ranking-card-compact" style={{ backgroundColor: 'var(--surface-low)' }}>
           <h3 className="headline" style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>trophy</span>
             Seeger-Fabian
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="ranking-rows" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {seegerRank.map((entry, idx) => (
               <div key={entry.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span style={{
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span className="ranking-badge" style={{
                     width: '28px', height: '28px', borderRadius: '50%',
                     backgroundColor: idx === 0 ? 'var(--tertiary-container)' : 'var(--surface-high)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.75rem', fontWeight: 800,
+                    fontSize: '0.75rem', fontWeight: 800, flexShrink: 0,
                   }}>{entry.rank}</span>
-                  <span style={{ fontWeight: 600 }}>{entry.name}</span>
+                  <span className="ranking-name" style={{ fontWeight: 600 }}>{entry.name}</span>
                 </div>
-                <span style={{
+                <span className="ranking-score" style={{
                   fontWeight: 800, fontSize: '1.5rem',
                   fontFamily: "'Manrope', sans-serif",
                   color: entry.score >= 0 ? 'var(--primary)' : 'var(--secondary)',
@@ -121,12 +121,12 @@ const SkatScoreList = () => {
         </div>
 
         {/* Kombiniert */}
-        <div className="card" style={{ backgroundColor: 'var(--surface-low)' }}>
+        <div className="card ranking-card-compact" style={{ backgroundColor: 'var(--surface-low)' }}>
           <h3 className="headline" style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>merge</span>
             Kombiniert
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="ranking-rows" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {(() => {
               const combined = players
                 .filter(p => p !== '-')
@@ -135,16 +135,16 @@ const SkatScoreList = () => {
                 .map((entry, idx) => ({ ...entry, rank: idx + 1 }));
               return combined.map((entry, idx) => (
                 <div key={entry.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <span style={{
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span className="ranking-badge" style={{
                       width: '28px', height: '28px', borderRadius: '50%',
                       backgroundColor: idx === 0 ? 'var(--tertiary-container)' : 'var(--surface-high)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '0.75rem', fontWeight: 800,
+                      fontSize: '0.75rem', fontWeight: 800, flexShrink: 0,
                     }}>{entry.rank}</span>
-                    <span style={{ fontWeight: 600 }}>{entry.name}</span>
+                    <span className="ranking-name" style={{ fontWeight: 600 }}>{entry.name}</span>
                   </div>
-                  <span style={{
+                  <span className="ranking-score" style={{
                     fontWeight: 800, fontSize: '1.5rem',
                     fontFamily: "'Manrope', sans-serif",
                     color: entry.score >= 0 ? 'var(--primary)' : 'var(--secondary)',
@@ -184,11 +184,11 @@ const SkatScoreList = () => {
           <p>Starte ein neues Spiel über die Seitenleiste.</p>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
           <table className="mobile-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--outline-variant)' }}>
-                <th style={thStyle}>#</th>
+                <th className="col-round-nr" style={thStyle}>#</th>
                 <th style={thStyle}>Spieler</th>
                 <th className="col-type" style={thStyle}>Typ</th>
                 <th className="col-ansage" style={{ ...thStyle, textAlign: 'right' }}>Ansage</th>
@@ -304,7 +304,7 @@ function GameTypeIcon({ round }) {
 }
 const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
   <tr style={{ borderBottom: '1px solid var(--surface-high)', backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)' }}>
-    <td style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
+    <td className="col-round-nr" style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
     <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
     <td className="col-type" style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
       <GameTypeIcon round={r} />

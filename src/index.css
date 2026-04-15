@@ -716,10 +716,37 @@ button {
 /* ── SkatScoreList: Stats Grid Mobile ── */
 @media (max-width: 768px) {
   .stats-grid-4 {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
   }
   .ranking-grid-3 {
     grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  .ranking-card-compact {
+    padding: 0.6rem 0.75rem !important;
+  }
+  .ranking-card-compact .headline {
+    font-size: 0.8rem !important;
+    margin-bottom: 0.6rem !important;
+  }
+  .ranking-card-compact .headline .material-symbols-outlined {
+    font-size: 0.9rem !important;
+  }
+  .ranking-card-compact .ranking-rows {
+    gap: 0.4rem !important;
+  }
+  .ranking-card-compact .ranking-badge {
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 0.65rem !important;
+  }
+  .ranking-card-compact .ranking-score {
+    font-size: 1rem !important;
+  }
+  .ranking-card-compact .ranking-name {
+    font-size: 0.8rem !important;
   }
 }
 
@@ -754,7 +781,8 @@ button {
   .col-ansage,
   .col-modifier,
   .col-actions,
-  .col-type {
+  .col-type,
+  .col-round-nr {
     display: none !important;
   }
 
