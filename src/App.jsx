@@ -4,6 +4,7 @@ import { GameProvider } from './context/GameContext';
 import Sidebar from './components/Sidebar';
 import AuthGate from './components/AuthGate';
 import AchievementWatcher from './components/AchievementWatcher';
+import UpdatePrompt from './components/UpdatePrompt';
 import GameScoringEntry from './pages/GameScoringEntry';
 import PlayerAnalytics from './pages/PlayerAnalytics';
 import SkatScoreList from './pages/SkatScoreList';
@@ -30,6 +31,7 @@ function App() {
             </main>
           </div>
           <AchievementWatcher />
+          <UpdatePrompt />
         </BrowserRouter>
       </GameProvider>
     </AuthGate>

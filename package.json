@@ -1,7 +1,7 @@
 {
   "name": "temp_app",
   "private": true,
-  "version": "1.1.57",
+  "version": "1.1.58",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,6 +16,7 @@
     "@supabase/supabase-js": "^2.100.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-is": "^19.2.5",
     "react-router-dom": "^7.13.2",
     "recharts": "^3.8.1"
   },
@@ -35,6 +36,7 @@
     "husky": "^9.1.7",
     "jsdom": "^29.0.1",
     "vite": "^8.0.1",
+    "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.1.2"
   }
 }
