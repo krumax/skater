@@ -82,6 +82,7 @@ button {
 .app-container {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Sidebar styling */
@@ -94,6 +95,7 @@ button {
   padding: 2rem 1.5rem;
   position: fixed;
   height: 100vh;
+  height: 100dvh;
   z-index: 10;
 }
 
@@ -536,6 +538,7 @@ button {
   .main-content {
     margin-left: 0;
     padding: 1.25rem 1rem 5.5rem; /* unten Platz für Bottom-Nav */
+    min-height: 100dvh;
   }
 
   /* ── Page Header ── */
@@ -628,6 +631,10 @@ button {
     background-color: var(--primary);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom));
+    /* iOS Safari: verhindert Verschiebung beim Ein-/Ausblenden der Browser-Chrome */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
   }
 
   .bottom-nav-item {

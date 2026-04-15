@@ -15,7 +15,7 @@ const SkatScoreList = () => {
   const standardRank = getPlayerRank(false).filter(e => e.name !== '-');
   const seegerRank = getPlayerRank(true).filter(e => e.name !== '-');
 
-  const VISIBLE_TAIL = 5;
+  const VISIBLE_TAIL = 6;
   const [expanded, setExpanded] = useState(false);
   const [editingRound, setEditingRound] = useState(null);
 
