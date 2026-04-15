@@ -156,10 +156,6 @@ const Sidebar = () => {
         <span className="material-symbols-outlined">group</span>
         Spieler
       </NavLink>
-      <NavLink to="/info" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
-        <span className="material-symbols-outlined">help</span>
-        Regeln
-      </NavLink>
     </nav>
     </>
   );
