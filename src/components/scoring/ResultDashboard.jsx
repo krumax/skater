@@ -83,9 +83,9 @@ function LastRoundCard({ round }) {
   );
 }
 
-export default function ResultDashboard({ result, outcomeLabel, gameType, isBock, rankings, onCommit, lastRound }) {
+export default function ResultDashboard({ result, outcomeLabel, gameType, isBock, rankings, onCommit, lastRound, sticky }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className={sticky ? 'result-dashboard-sticky' : undefined} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       {result && (
         <div
           className="result-dashboard"

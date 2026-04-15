@@ -155,6 +155,7 @@ const GameScoringEntry = () => {
           rankings={rankings}
           onCommit={handleCommit}
           lastRound={rounds.length > 0 ? rounds[rounds.length - 1] : null}
+          sticky
         />
       </div>
     </div>
