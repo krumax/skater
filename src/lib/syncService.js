@@ -1,6 +1,77 @@
 import { supabase } from './supabaseClient';
 import { calculateSeegerFabian } from './skatScoring';
 
+// --- OFFLINE QUEUE LOGIC ---
+const QUEUE_KEY = 'skat_offline_queue';
+
+export function getOfflineQueue() {
+  if (typeof localStorage === 'undefined') return [];
+  try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } 
+  catch(e) { return []; }
+}
+function setOfflineQueue(q) { 
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); 
+  }
+}
+function enqueueAction(action, payload) {
+  const q = getOfflineQueue();
+  q.push({ id: Date.now().toString() + Math.random().toString(), action, payload, timestamp: Date.now() });
+  setOfflineQueue(q);
+}
+
+export async function processOfflineQueue() {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+  const q = getOfflineQueue();
+  if (q.length === 0) return;
+
+  console.log(`Processing ${q.length} offline actions...`);
+  const remaining = [];
+  let failed = false;
+
+  for (const item of q) {
+    if (failed) { remaining.push(item); continue; }
+    try {
+      let err = null;
+      if (item.action === 'insertRound') {
+        const { error } = await _doInsertRound(item.payload.round, item.payload.sessionId);
+        err = error;
+      } else if (item.action === 'updateRound') {
+        // Skip updates on temporary offline items
+        if (item.payload.roundDbId.startsWith('offline_')) continue;
+        const { error } = await _doUpdateRound(item.payload.roundDbId, item.payload.patch);
+        err = error;
+      } else if (item.action === 'deleteRound') {
+        if (item.payload.roundDbId.startsWith('offline_')) continue;
+        const { error } = await _doDeleteRound(item.payload.roundDbId);
+        err = error;
+      } else if (item.action === 'updateSession') {
+        const { error } = await _doUpdateSession(item.payload.sessionId, item.payload.patch);
+        err = error;
+      } else if (item.action === 'updateSeating') {
+        const { error } = await _doUpdateSeating(item.payload.sessionId, item.payload.seating);
+        err = error;
+      }
+
+      if (err && err.message && (err.message.toLowerCase().includes('fetch') || err.message.toLowerCase().includes('network'))) {
+        failed = true;
+        remaining.push(item);
+      }
+    } catch(err) {
+      failed = true;
+      remaining.push(item);
+    }
+  }
+  setOfflineQueue(remaining);
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', processOfflineQueue);
+  // Try to process once on boot
+  setTimeout(processOfflineQueue, 2000);
+}
+// ---------------------------
+
 /** Holt die user_id der aktuellen Session — null wenn nicht eingeloggt */
 async function getUserId() {
   const { data: { session } } = await supabase.auth.getSession();
@@ -11,6 +82,7 @@ async function getUserId() {
  * Creates a new session in Supabase.
  */
 export async function createSession(seating, tableName = '') {
+  // Session creation requires internet
   const user_id = await getUserId();
   const { data, error } = await supabase
     .from('sessions')
@@ -31,10 +103,9 @@ export async function createSession(seating, tableName = '') {
 
 /**
  * Loads a session and all its rounds from Supabase.
- * @param {string} sessionId - UUID of the session
- * @returns {{ data: { session, rounds }, error }}
  */
 export async function loadSession(sessionId) {
+  // Loading also requires internet
   const { data: session, error: sessionError } = await supabase
     .from('sessions')
     .select('*')
@@ -51,8 +122,6 @@ export async function loadSession(sessionId) {
 
   if (roundsError) return { data: null, error: roundsError };
 
-  // Map snake_case DB columns → camelCase fields expected by the UI
-  // seegerScores are recomputed from source data to ensure correctness
   const rounds = rawRounds.map(r => {
     const recomputedSeeger = calculateSeegerFabian({
       declarer:   r.player,
@@ -91,12 +160,17 @@ export async function loadSession(sessionId) {
 }
 
 /**
- * Inserts a round record into Supabase, mapping camelCase fields to snake_case columns.
- * @param {object} round - Round object from local state
- * @param {string} sessionId - UUID of the session
- * @returns {{ data, error }}
+ * Inserts a round record into Supabase (Offline-safeguarded)
  */
 export async function insertRound(round, sessionId) {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    enqueueAction('insertRound', { round, sessionId });
+    return { data: { ...round, session_id: sessionId, _dbId: 'offline_' + Date.now() }, error: null };
+  }
+  return await _doInsertRound(round, sessionId);
+}
+
+export async function _doInsertRound(round, sessionId) {
   const user_id = await getUserId();
   const { data, error } = await supabase
     .from('rounds')
@@ -131,12 +205,17 @@ export async function insertRound(round, sessionId) {
 }
 
 /**
- * Updates a session record with the given patch object.
- * @param {string} sessionId - UUID of the session
- * @param {object} patch - Fields to update (snake_case)
- * @returns {{ data, error }}
+ * Updates a session record (Offline-safeguarded)
  */
 export async function updateSession(sessionId, patch) {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    enqueueAction('updateSession', { sessionId, patch });
+    return { data: patch, error: null };
+  }
+  return await _doUpdateSession(sessionId, patch);
+}
+
+export async function _doUpdateSession(sessionId, patch) {
   const { data, error } = await supabase
     .from('sessions')
     .update(patch)
@@ -147,12 +226,17 @@ export async function updateSession(sessionId, patch) {
 }
 
 /**
- * Updates the seating array for a session in Supabase.
- * @param {string} sessionId - UUID of the session
- * @param {string[]} seating - New seating order
- * @returns {{ data, error }}
+ * Updates the seating array (Offline-safeguarded)
  */
 export async function updateSeating(sessionId, seating) {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    enqueueAction('updateSeating', { sessionId, seating });
+    return { data: { seating }, error: null };
+  }
+  return await _doUpdateSeating(sessionId, seating);
+}
+
+export async function _doUpdateSeating(sessionId, seating) {
   const { data, error } = await supabase
     .from('sessions')
     .update({ seating })
@@ -163,8 +247,7 @@ export async function updateSeating(sessionId, seating) {
 }
 
 /**
- * Lists all sessions ordered by creation date (newest first).
- * @returns {{ data: session[], error }}
+ * Lists all sessions
  */
 export async function listSessions() {
   const user_id = await getUserId();
@@ -177,7 +260,6 @@ export async function listSessions() {
 
   const { data, error } = await query;
 
-  // Fallback: if table_name column doesn't exist yet, retry without it
   if (error && error.message?.includes('table_name')) {
     const fallbackQuery = supabase
       .from('sessions')
@@ -192,12 +274,17 @@ export async function listSessions() {
 }
 
 /**
- * Updates only the game-type-related fields of a round.
- * @param {string} roundDbId - The UUID of the round row (r._dbId)
- * @param {object} patch - { game_type, type_label, hand, ouvert, schneider, schwarz, spitzen }
- * @returns {{ data, error }}
+ * Updates a round (Offline-safeguarded)
  */
 export async function updateRound(roundDbId, patch) {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    enqueueAction('updateRound', { roundDbId, patch });
+    return { data: patch, error: null };
+  }
+  return await _doUpdateRound(roundDbId, patch);
+}
+
+export async function _doUpdateRound(roundDbId, patch) {
   const allowed = ['game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schneider_announced', 'schwarz', 'schwarz_announced', 'spitzen', 'is_bock', 'game_value', 'mit_ohne', 'won'];
   const safePatch = Object.fromEntries(
     Object.entries(patch).filter(([k]) => allowed.includes(k))
@@ -212,11 +299,17 @@ export async function updateRound(roundDbId, patch) {
 }
 
 /**
- * Deletes a single round by its DB UUID.
- * @param {string} roundDbId - The UUID of the round row (r._dbId)
- * @returns {{ error }}
+ * Deletes a round (Offline-safeguarded)
  */
 export async function deleteRound(roundDbId) {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    enqueueAction('deleteRound', { roundDbId });
+    return { error: null };
+  }
+  return await _doDeleteRound(roundDbId);
+}
+
+export async function _doDeleteRound(roundDbId) {
   const { error } = await supabase
     .from('rounds')
     .delete()
@@ -225,9 +318,7 @@ export async function deleteRound(roundDbId) {
 }
 
 /**
- * Deletes a session and all its rounds (ON DELETE CASCADE) from Supabase.
- * @param {string} sessionId
- * @returns {{ error }}
+ * Deletes a session (No offline safeguard as this implies strong intent/sync)
  */
 export async function deleteSession(sessionId) {
   const { error } = await supabase
