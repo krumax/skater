@@ -16,7 +16,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Skatastrophe',
-        short_name: 'Skat',
+        short_name: 'Skatastrophe',
         description: 'Moderne Skat Zählapp für Punkte und Statistiken',
         theme_color: '#00261b', /* primary color */
         background_color: '#fcf9f8', /* bg color */
