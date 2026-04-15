@@ -306,7 +306,12 @@ const StatistikenCharts = () => {
               <p className="stat-value" style={{ color: '#1b1c1c', fontSize: '1.75rem', lineHeight: 1 }}>
                 +{kpis.best.value}
                 <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
-                  {SUIT_SYMBOLS[kpis.best.type]} {SUIT_LABELS[kpis.best.type]}
+                  {['grand', 'null', 'passed'].includes(kpis.best.type)
+                    ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', lineHeight: 1, verticalAlign: 'middle' }}>
+                        {kpis.best.type === 'grand' ? 'stars' : kpis.best.type === 'null' ? 'block' : 'skip_next'}
+                      </span>
+                    : SUIT_SYMBOLS[kpis.best.type]
+                  }{' '}{SUIT_LABELS[kpis.best.type]}
                 </span>
               </p>
             </div>
@@ -339,7 +344,12 @@ const StatistikenCharts = () => {
               <p className="stat-value" style={{ color: 'var(--on-secondary)', fontSize: '1.75rem', lineHeight: 1 }}>
                 {kpis.worst.value}
                 <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
-                  {SUIT_SYMBOLS[kpis.worst.type]} {SUIT_LABELS[kpis.worst.type]}
+                  {['grand', 'null', 'passed'].includes(kpis.worst.type)
+                    ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', lineHeight: 1, verticalAlign: 'middle' }}>
+                        {kpis.worst.type === 'grand' ? 'stars' : kpis.worst.type === 'null' ? 'block' : 'skip_next'}
+                      </span>
+                    : SUIT_SYMBOLS[kpis.worst.type]
+                  }{' '}{SUIT_LABELS[kpis.worst.type]}
                 </span>
               </p>
             </div>

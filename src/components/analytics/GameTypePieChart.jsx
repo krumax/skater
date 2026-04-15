@@ -61,7 +61,7 @@ export default function GameTypePieChart({ typeDistribution, rounds, player }) {
           const labelR = (R + RI) / 2;
           const lx = CX + labelR * Math.cos(midAngle - Math.PI / 2);
           const ly = CY + labelR * Math.sin(midAngle - Math.PI / 2);
-          const label = s.name === 'grand' ? '★' : s.name === 'null' ? '∅' : (SUIT_SYMBOLS[s.name] ?? SUIT_LABELS[s.name] ?? s.name);
+          const label = s.name === 'grand' ? '★' : s.name === 'null' ? '∅' : s.name === 'passed' ? '⏸' : (SUIT_SYMBOLS[s.name] ?? SUIT_LABELS[s.name] ?? s.name);
           return (
             <text key={`lbl-${s.name}`} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fontSize="11" fill="#fff" fontWeight="bold">
               <tspan x={lx} dy="-5">{label}</tspan>
@@ -90,11 +90,11 @@ export default function GameTypePieChart({ typeDistribution, rounds, player }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8125rem' }}>
                 <span style={{ width: '10px', height: '10px', borderRadius: '3px', background: s.color, flexShrink: 0 }} />
                 <span style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                  {s.name === 'grand'
-                    ? <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', lineHeight: 1 }}>stars</span>
-                    : s.name === 'null'
-                      ? <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', lineHeight: 1 }}>block</span>
-                      : SUIT_SYMBOLS[s.name] && <span>{SUIT_SYMBOLS[s.name]}</span>
+                  {s.name === 'grand' || s.name === 'null' || s.name === 'passed'
+                    ? <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {s.name === 'grand' ? 'stars' : s.name === 'null' ? 'block' : 'skip_next'}
+                      </span>
+                    : SUIT_SYMBOLS[s.name] && <span>{SUIT_SYMBOLS[s.name]}</span>
                   }
                   {SUIT_LABELS[s.name] ?? s.name}
                 </span>

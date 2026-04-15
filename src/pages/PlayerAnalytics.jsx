@@ -53,7 +53,8 @@ function StreakCard({ label, streakRounds, color }) {
           {streakRounds.map((r, i) => {
             const bg   = SUIT_COLORS[r.gameType]  ?? '#999';
             const fg   = SUIT_TEXT_COLORS[r.gameType] ?? '#fff';
-            const sym  = SUIT_SYMBOLS[r.gameType] ?? '?';
+            const matIcon = r.gameType === 'grand' ? 'stars' : r.gameType === 'null' ? 'block' : r.gameType === 'passed' ? 'skip_next' : null;
+            const sym  = matIcon ? null : (SUIT_SYMBOLS[r.gameType] ?? '?');
             return (
               <span key={i} title={SUIT_LABELS[r.gameType] ?? r.gameType} style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -61,7 +62,10 @@ function StreakCard({ label, streakRounds, color }) {
                 backgroundColor: bg, color: fg,
                 fontSize: '0.8rem', fontWeight: 700, lineHeight: 1,
               }}>
-                {sym}
+                {matIcon
+                  ? <span className="material-symbols-outlined" style={{ fontSize: '0.8rem', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: fg }}>{matIcon}</span>
+                  : sym
+                }
               </span>
             );
           })}
@@ -88,7 +92,12 @@ function HighlightCard({ icon, gradient, textColor, title, round }) {
           <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: textColor, lineHeight: 1 }}>
             {round.gameValue > 0 ? '+' : ''}{round.gameValue}
             <span style={{ fontSize: '0.9rem', fontWeight: 600, marginLeft: '0.6rem', opacity: 0.8 }}>
-              {SUIT_SYMBOLS[round.gameType]} {SUIT_LABELS[round.gameType]}
+              {['grand', 'null', 'passed'].includes(round.gameType)
+                ? <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', lineHeight: 1, verticalAlign: 'middle' }}>
+                    {round.gameType === 'grand' ? 'stars' : round.gameType === 'null' ? 'block' : 'skip_next'}
+                  </span>
+                : SUIT_SYMBOLS[round.gameType]
+              }{' '}{SUIT_LABELS[round.gameType]}
             </span>
           </p>
         ) : (

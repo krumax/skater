@@ -17,7 +17,7 @@ export const SUIT_COLORS = {
   heart:   '#b52619',
   diamond: '#d0a600',
   null:    '#717974',
-  passed:  '#4a4a5a',
+  passed:  '#9e9e9e',
 };
 
 /** Foreground (text) color on top of SUIT_COLORS backgrounds */
@@ -28,7 +28,7 @@ export const SUIT_TEXT_COLORS = {
   heart:   '#ffffff',
   diamond: '#1b1c1c',
   null:    '#ffffff',
-  passed:  '#ffffff',
+  passed:  '#1b1c1c',
 };
 
 /** Semantic outcome colors — used in charts and win/loss indicators */

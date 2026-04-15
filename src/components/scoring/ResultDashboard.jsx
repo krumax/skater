@@ -39,7 +39,12 @@ function LastRoundCard({ round }) {
             {round.player === '-' ? 'Eingepasst' : round.player}
           </p>
           <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>
-            {SUIT_SYMBOLS[round.gameType]} {SUIT_LABELS[round.gameType] ?? round.gameType}
+            {['grand', 'null', 'passed'].includes(round.gameType)
+              ? <span className="material-symbols-outlined" style={{ fontSize: '0.7rem', lineHeight: 1, verticalAlign: 'middle' }}>
+                  {round.gameType === 'grand' ? 'stars' : round.gameType === 'null' ? 'block' : 'skip_next'}
+                </span>
+              : SUIT_SYMBOLS[round.gameType]
+            }{' '}{SUIT_LABELS[round.gameType] ?? round.gameType}
             {modifiers.length > 0 && <span style={{ marginLeft: '0.4rem', opacity: 0.75 }}>· {modifiers.join(' · ')}</span>}
           </p>
         </div>

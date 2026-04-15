@@ -69,10 +69,15 @@ export default function GameTypeHeatmap({ rounds, players }) {
                 <div style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   width: '1.5rem', height: '1.5rem', borderRadius: '0.3rem',
-                  backgroundColor: SUIT_COLORS[type], fontSize: '0.8rem',
+                  backgroundColor: SUIT_COLORS[type],
                   color: type === 'diamond' ? '#1b1c1c' : '#fff',
                 }}>
-                  {SUIT_SYMBOLS[type]}
+                  {type === 'grand' || type === 'null'
+                    ? <span className="material-symbols-outlined" style={{ fontSize: '0.8rem', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {type === 'grand' ? 'stars' : 'block'}
+                      </span>
+                    : SUIT_SYMBOLS[type]
+                  }
                 </div>
                 <div style={{ fontSize: '0.6rem', color: 'var(--outline)', marginTop: '0.2rem' }}>{SUIT_LABELS[type]}</div>
               </th>

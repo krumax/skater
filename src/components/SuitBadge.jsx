@@ -15,7 +15,14 @@ export default function SuitBadge({ gameType, size = 'md', className }) {
   if (gameType in SUIT_SYMBOLS) {
     icon = SUIT_SYMBOLS[gameType];
   } else if (gameType in SUIT_MAT_ICONS) {
-    icon = <span className="material-symbols-outlined">{SUIT_MAT_ICONS[gameType]}</span>;
+    icon = (
+      <span
+        className="material-symbols-outlined"
+        style={{ fontSize, color: fg, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        {SUIT_MAT_ICONS[gameType]}
+      </span>
+    );
   } else {
     icon = '?';
   }
@@ -34,7 +41,7 @@ export default function SuitBadge({ gameType, size = 'md', className }) {
         flexShrink: 0,
       }}
     >
-      <span style={{ fontSize, color: fg }}>
+      <span style={{ fontSize, color: fg, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {icon}
       </span>
     </span>
