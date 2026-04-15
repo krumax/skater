@@ -546,12 +546,31 @@ button {
 
   /* ── Player Cards: kompakter auf Mobile ── */
   .player-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
     gap: 0.5rem;
   }
 
   .player-card {
-    padding: 0.75rem 0.5rem;
+    padding: 0.75rem 1rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 0.75rem;
+  }
+
+  /* Name + Level links, Scores rechts */
+  .player-card-identity {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+  }
+
+  .player-card-scores {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15rem;
   }
 
   /* ── Result Dashboard ── */
@@ -579,15 +598,6 @@ button {
     font-size: 1.75rem;
   }
 
-  /* ── Game Type Grid: horizontal scroll bleibt, aber kleinere Cards ── */
-  .game-type-card {
-    width: 72px;
-    height: 72px;
-  }
-
-  .game-suit-icon {
-    font-size: 1.375rem;
-  }
 }
 
 /* ─────────────────────────────────────────────
@@ -652,6 +662,35 @@ button {
 
   .scoring-grid > div:first-child {
     grid-column: 1 !important;
+  }
+
+  /* Spielart: 4 Kacheln pro Zeile als Grid, kein horizontaler Scroll */
+  .game-type-grid-wrapper {
+    overflow-x: visible;
+    margin: 0;
+    padding: 0;
+  }
+
+  .game-type-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    width: auto;
+  }
+
+  .game-type-card {
+    width: 100%;
+    height: 64px;
+  }
+
+  .game-suit-icon {
+    font-size: 1.25rem;
+    margin-bottom: 0.2rem;
+  }
+
+  /* Spielstufe: 1 Spalte statt 2 */
+  .chip-grid {
+    grid-template-columns: 1fr;
   }
 }
 

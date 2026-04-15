@@ -39,36 +39,38 @@ export default function PlayerSelector({ players, activePlayer, onSelect, player
               onClick={() => onSelect(name)}
               className={`player-card ${isActive ? 'active' : ''}`}
             >
-              <span style={{ fontWeight: 800, fontSize: '1.5rem', fontFamily: "'Manrope', sans-serif" }}>{name}</span>
-              {lv && (
-                <span style={{
-                  fontSize: '0.7rem', fontWeight: 600, marginTop: '0.1rem',
-                  color: isActive ? 'rgba(255,255,255,0.85)' : 'var(--outline)',
-                }}>
-                  {lv.emoji} {lv.label}
-                </span>
-              )}
+              <span className="player-card-identity">
+                <span style={{ fontWeight: 800, fontSize: '1.25rem', fontFamily: "'Manrope', sans-serif" }}>{name}</span>
+                {lv && (
+                  <span style={{
+                    fontSize: '0.7rem', fontWeight: 600,
+                    color: isActive ? 'rgba(255,255,255,0.85)' : 'var(--outline)',
+                  }}>
+                    {lv.emoji} {lv.label}
+                  </span>
+                )}
+              </span>
               {std !== null && (
-                <div style={{ marginTop: '0.35rem', display: 'flex', flexDirection: 'column', gap: '0.2rem', width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                <span className="player-card-scores">
+                  <span style={{ display: 'flex', gap: '0.4rem', fontSize: '0.75rem' }}>
                     <span style={{ opacity: 0.65, color: isActive ? '#fff' : 'var(--outline)' }}>Std</span>
                     <span style={{ fontWeight: 700, color: scoreColor(std) }}>
                       {fmt(std)}
                       {diffStd !== null && diffStd < 0 && (
-                        <span style={{ fontWeight: 500, opacity: 0.7, marginLeft: '0.3rem' }}>({fmt(diffStd)})</span>
+                        <span style={{ fontWeight: 500, opacity: 0.7, marginLeft: '0.2rem' }}>({fmt(diffStd)})</span>
                       )}
                     </span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                  </span>
+                  <span style={{ display: 'flex', gap: '0.4rem', fontSize: '0.75rem' }}>
                     <span style={{ opacity: 0.65, color: isActive ? '#fff' : 'var(--outline)' }}>Komb</span>
                     <span style={{ fontWeight: 700, color: scoreColor(combined) }}>
                       {fmt(combined)}
                       {diffCombined !== null && diffCombined < 0 && (
-                        <span style={{ fontWeight: 500, opacity: 0.7, marginLeft: '0.3rem' }}>({fmt(diffCombined)})</span>
+                        <span style={{ fontWeight: 500, opacity: 0.7, marginLeft: '0.2rem' }}>({fmt(diffCombined)})</span>
                       )}
                     </span>
-                  </div>
-                </div>
+                  </span>
+                </span>
               )}
             </button>
           );
