@@ -615,6 +615,36 @@ button {
 }
 
 /* ─────────────────────────────────────────────
+   TOP BAR (Mobile)
+   ───────────────────────────────────────────── */
+.top-bar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .top-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background-color: var(--primary);
+    padding: 0.5rem 1rem;
+    padding-top: calc(0.5rem + env(safe-area-inset-top));
+    height: calc(48px + env(safe-area-inset-top));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Main Content: Platz für Top-Bar oben */
+  .main-content {
+    padding-top: calc(48px + env(safe-area-inset-top) + 1.25rem) !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
    BOTTOM NAVIGATION (Mobile)
    ───────────────────────────────────────────── */
 .bottom-nav {

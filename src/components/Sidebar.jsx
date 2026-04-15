@@ -142,6 +142,14 @@ const Sidebar = () => {
       </div>
     </aside>
 
+    {/* ── Top Bar (Mobile only) ── */}
+    <header className="top-bar">
+      <img src={logoUrl} alt="Skatastrophe" style={{ height: '28px', width: 'auto' }} />
+      <span style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '0.1em', color: '#d0a600', fontFamily: "'Manrope', sans-serif", textTransform: 'uppercase' }}>
+        Skatastrophe
+      </span>
+    </header>
+
     {/* ── Bottom Navigation (Mobile only) ── */}
     <nav className="bottom-nav" aria-label="Mobile Navigation">
       <NavLink to="/" end className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
