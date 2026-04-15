@@ -9,8 +9,6 @@ import GameTypeSelector    from '../components/scoring/GameTypeSelector';
 import ModifierChips       from '../components/scoring/ModifierChips';
 import AnsageSelector      from '../components/scoring/AnsageSelector';
 import SpitzenSelector     from '../components/scoring/SpitzenSelector';
-import EyeCountSelector    from '../components/scoring/EyeCountSelector';
-import NullOutcomeSelector from '../components/scoring/NullOutcomeSelector';
 import ResultDashboard     from '../components/scoring/ResultDashboard';
 
 const GameScoringEntry = () => {
@@ -98,6 +96,7 @@ const GameScoringEntry = () => {
             schwarzAnnounced={form.schwarzAnnounced} setSchwarzAnnounced={form.setSchwartzAnnounced}
             ouvert={form.ouvert}                     setOuvert={form.setOuvert}
             isBock={form.isBock}                     setIsBock={form.setIsBock}
+            eyeCount={form.eyeCount}                 setEyeCount={form.setEyeCount}
           />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}
@@ -114,18 +113,6 @@ const GameScoringEntry = () => {
               setSpitzen={form.setSpitzen}
             />
           </div>
-
-          <EyeCountSelector
-            gameType={form.gameType}
-            eyeCount={form.eyeCount}
-            setEyeCount={form.setEyeCount}
-          />
-
-          <NullOutcomeSelector
-            gameType={form.gameType}
-            eyeCount={form.eyeCount}
-            setEyeCount={form.setEyeCount}
-          />
 
           {form.isSpaltarsch && (
             <div style={{

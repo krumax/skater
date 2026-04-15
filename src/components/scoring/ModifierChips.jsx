@@ -1,6 +1,7 @@
 /**
  * ModifierChips — Spielstufe-Chips (Hand, Schneider, Schwarz, Ouvert, Bockrunde).
  * Disabled-Logik basiert auf gameType und hand-Status.
+ * Enthält auch Ergebnis-Chips: Verloren (<61) und Spaltarsch (60).
  */
 export default function ModifierChips({
   gameType, hand, setHand,
@@ -10,9 +11,11 @@ export default function ModifierChips({
   schwarzAnnounced, setSchwarzAnnounced,
   ouvert, setOuvert,
   isBock, setIsBock,
+  eyeCount, setEyeCount,
 }) {
-  const isPassed = gameType === 'passed';
-  const isNull   = gameType === 'null';
+  const isPassed   = gameType === 'passed';
+  const isNull     = gameType === 'null';
+  const isSuitGame = ['club', 'spade', 'heart', 'diamond', 'grand'].includes(gameType);
 
   const modifiers = [
     { key: 'hand',               label: 'Hand',               state: hand,               setter: setHand,               disabled: isPassed },
@@ -22,6 +25,9 @@ export default function ModifierChips({
     { key: 'schwarzAnnounced',   label: 'Schwarz angesagt',   state: schwarzAnnounced,   setter: setSchwarzAnnounced,   disabled: isPassed || isNull || !hand },
     { key: 'ouvert',             label: 'Ouvert',             state: ouvert,             setter: setOuvert,             disabled: isPassed },
   ];
+
+  const isVerloren    = isSuitGame && eyeCount < 61 && eyeCount !== 60;
+  const isSpaltarsch  = isSuitGame && eyeCount === 60;
 
   return (
     <section className="form-section">
@@ -45,6 +51,61 @@ export default function ModifierChips({
           style={{ opacity: isPassed ? 0.4 : 1, pointerEvents: isPassed ? 'none' : 'auto' }}
         >
           Bockrunde
+        </button>
+
+        {/* Ergebnis-Chips — nur bei Farb-/Grand-Spielen */}
+        <button
+          disabled={!isSuitGame}
+          onClick={() => setEyeCount(isVerloren ? 61 : 30)}
+          className={`chip ${isVerloren ? 'active' : ''}`}
+          style={{
+            opacity: isSuitGame ? 1 : 0.4,
+            pointerEvents: isSuitGame ? 'auto' : 'none',
+            ...(isVerloren
+              ? { backgroundColor: 'var(--secondary)', color: '#fff', borderColor: 'var(--secondary)' }
+              : { color: 'var(--secondary)' }),
+          }}
+        >
+          Verloren (&lt;61)
+        </button>
+        <button
+          disabled={!isSuitGame}
+          onClick={() => setEyeCount(isSpaltarsch ? 61 : 60)}
+          className={`chip ${isSpaltarsch ? 'active' : ''}`}
+          title="Spaltarsch: exakt 60 Augen — Spiel verloren, nächste Runden als Bockrunde"
+          style={{
+            opacity: isSuitGame ? 1 : 0.4,
+            pointerEvents: isSuitGame ? 'auto' : 'none',
+            ...(isSpaltarsch
+              ? { backgroundColor: 'var(--secondary)', color: '#fff', borderColor: 'var(--secondary)' }
+              : { color: 'var(--secondary)' }),
+          }}
+        >
+          💥 Spaltarsch (60)
+        </button>
+
+        {/* Null-Ergebnis-Chips — nur bei Null-Spiel */}
+        <button
+          disabled={!isNull}
+          onClick={() => setEyeCount(0)}
+          className={`chip ${isNull && eyeCount === 0 ? 'active' : ''}`}
+          style={{ opacity: isNull ? 1 : 0.4, pointerEvents: isNull ? 'auto' : 'none' }}
+        >
+          Null gewonnen
+        </button>
+        <button
+          disabled={!isNull}
+          onClick={() => setEyeCount(1)}
+          className={`chip ${isNull && eyeCount !== 0 ? 'active' : ''}`}
+          style={{
+            opacity: isNull ? 1 : 0.4,
+            pointerEvents: isNull ? 'auto' : 'none',
+            ...(isNull && eyeCount !== 0
+              ? { backgroundColor: 'var(--secondary)', color: '#fff', borderColor: 'var(--secondary)' }
+              : { color: 'var(--secondary)' }),
+          }}
+        >
+          Null verloren
         </button>
       </div>
     </section>
