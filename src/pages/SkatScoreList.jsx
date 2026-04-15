@@ -190,7 +190,7 @@ const SkatScoreList = () => {
               <tr style={{ borderBottom: '2px solid var(--outline-variant)' }}>
                 <th style={thStyle}>#</th>
                 <th style={thStyle}>Spieler</th>
-                <th style={thStyle}>Typ</th>
+                <th className="col-type" style={thStyle}>Typ</th>
                 <th className="col-ansage" style={{ ...thStyle, textAlign: 'right' }}>Ansage</th>
                 <th className="col-modifier" style={{ ...thStyle, textAlign: 'left', paddingLeft: '0.25rem', color: 'var(--outline)', fontSize: '0.6rem' }}>Mod.</th>
                 <th style={{ ...thStyle, textAlign: 'right' }}>Pkt.</th>
@@ -306,7 +306,7 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
   <tr style={{ borderBottom: '1px solid var(--surface-high)', backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)' }}>
     <td style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
     <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
-    <td style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
+    <td className="col-type" style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
       <GameTypeIcon round={r} />
     </td>
     <td className="col-ansage" style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif", paddingRight: '0.25rem' }}>

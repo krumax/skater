@@ -753,7 +753,8 @@ button {
   /* Ansage, Modifier, Actions ausblenden */
   .col-ansage,
   .col-modifier,
-  .col-actions {
+  .col-actions,
+  .col-type {
     display: none !important;
   }
 
