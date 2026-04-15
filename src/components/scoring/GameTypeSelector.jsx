@@ -18,24 +18,26 @@ export default function GameTypeSelector({ gameType, onSelect }) {
   return (
     <section className="form-section">
       <label className="section-label">Spielart</label>
-      <div className="game-type-grid">
-        {SUIT_OPTIONS.map(suit => {
-          const isActive = gameType === suit.key;
-          return (
-            <button
-              key={suit.key}
-              onClick={() => onSelect(suit.key)}
-              className="game-type-card"
-              style={isActive ? { backgroundColor: suit.color, color: '#fff', boxShadow: `0 8px 24px ${suit.color}66` } : {}}
-            >
-              {suit.icon
-                ? <span className="game-suit-icon">{suit.icon}</span>
-                : <span className="material-symbols-outlined game-suit-icon" style={{ fontSize: '2rem' }}>{suit.matIcon}</span>
-              }
-              <span className="game-type-label">{suit.label}</span>
-            </button>
-          );
-        })}
+      <div className="game-type-grid-wrapper">
+        <div className="game-type-grid">
+          {SUIT_OPTIONS.map(suit => {
+            const isActive = gameType === suit.key;
+            return (
+              <button
+                key={suit.key}
+                onClick={() => onSelect(suit.key)}
+                className="game-type-card"
+                style={isActive ? { backgroundColor: suit.color, color: '#fff', boxShadow: `0 8px 24px ${suit.color}66` } : {}}
+              >
+                {suit.icon
+                  ? <span className="game-suit-icon">{suit.icon}</span>
+                  : <span className="material-symbols-outlined game-suit-icon" style={{ fontSize: '1.75rem' }}>{suit.matIcon}</span>
+                }
+                <span className="game-type-label">{suit.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

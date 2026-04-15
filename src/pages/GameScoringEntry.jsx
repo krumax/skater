@@ -100,7 +100,8 @@ const GameScoringEntry = () => {
             isBock={form.isBock}                     setIsBock={form.setIsBock}
           />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}
+               className="ansage-spitzen-grid">
             <AnsageSelector
               mitOhne={form.mitOhne}   setMitOhne={form.setMitOhne}
               spitzen={form.spitzen}   setSpitzen={form.setSpitzen}
