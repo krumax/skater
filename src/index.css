@@ -736,12 +736,37 @@ button {
    PHASE 1 — MOBILE QUICK WINS
    ───────────────────────────────────────────── */
 
-/* ── SkatScoreList: STD/SF-Spalten auf Mobile ausblenden ── */
+/* ── SkatScoreList: Mobile-Tabelle — nur Kern-Spalten ── */
 @media (max-width: 768px) {
   .score-col-std,
   .score-col-sf,
   .score-col-divider {
     display: none !important;
+  }
+
+  /* Ansage, Modifier, Actions ausblenden */
+  .col-ansage,
+  .col-modifier,
+  .col-actions {
+    display: none !important;
+  }
+
+  /* STD-Scores auf Mobile sichtbar lassen (überschreibt score-col-std hide) */
+  .score-col-std-mobile {
+    display: table-cell !important;
+  }
+
+  /* Kompakteres Padding in der Mobile-Tabelle */
+  .mobile-table td,
+  .mobile-table th {
+    padding: 0.5rem 0.375rem;
+    font-size: 0.8rem;
+  }
+
+  /* minWidth aufheben damit keine horizontale Scrollbar entsteht */
+  .mobile-table {
+    min-width: unset !important;
+    width: 100%;
   }
 }
 

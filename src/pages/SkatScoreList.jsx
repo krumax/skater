@@ -185,18 +185,18 @@ const SkatScoreList = () => {
         </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '900px' }}>
+          <table className="mobile-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '900px' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--outline-variant)' }}>
                 <th style={thStyle}>#</th>
                 <th style={thStyle}>Spieler</th>
                 <th style={thStyle}>Typ</th>
-                <th style={{ ...thStyle, textAlign: 'right' }}>Ansage</th>
-                <th style={{ ...thStyle, textAlign: 'left', paddingLeft: '0.25rem', color: 'var(--outline)', fontSize: '0.6rem' }}>Mod.</th>
+                <th className="col-ansage" style={{ ...thStyle, textAlign: 'right' }}>Ansage</th>
+                <th className="col-modifier" style={{ ...thStyle, textAlign: 'left', paddingLeft: '0.25rem', color: 'var(--outline)', fontSize: '0.6rem' }}>Mod.</th>
                 <th style={{ ...thStyle, textAlign: 'right' }}>Spielwert</th>
                 <th className="score-col-divider" style={thDivider}></th>
                 {players.map(p => (
-                  <th key={`std-${p}`} className="score-col-std" style={{ ...thStyle, textAlign: 'right' }}>
+                  <th key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...thStyle, textAlign: 'right' }}>
                     <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--outline)' }}>STD</span>
                     {p}
                   </th>
@@ -208,7 +208,7 @@ const SkatScoreList = () => {
                     {p}
                   </th>
                 ))}
-                <th style={{ ...thStyle, width: '2.5rem' }}></th>
+                <th className="col-actions" style={{ ...thStyle, width: '2.5rem' }}></th>
               </tr>
             </thead>
             <tbody style={{ fontFamily: 'Work Sans, sans-serif' }}>
@@ -309,7 +309,7 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
     <td style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
       <GameTypeIcon round={r} />
     </td>
-    <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif", paddingRight: '0.25rem' }}>
+    <td className="col-ansage" style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif", paddingRight: '0.25rem' }}>
       {(() => {
         const isNull   = r.gameType === 'null';
         const isPassed = r.gameType === 'passed';
@@ -322,7 +322,7 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
           : <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>;
       })()}
     </td>
-    <td style={{ ...tdStyle, paddingLeft: '0.25rem', paddingRight: '0.5rem' }}>
+    <td className="col-modifier" style={{ ...tdStyle, paddingLeft: '0.25rem', paddingRight: '0.5rem' }}>
       {(() => {
         const badges = [];
         if (r.hand)      badges.push('H');
@@ -364,7 +364,7 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
     </td>
     <td style={tdDivider} className="score-col-divider"></td>
     {players.map(p => (
-      <td key={`std-${p}`} className="score-col-std" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: r.player === p ? 1 : 0.4, color: (std[p] ?? 0) >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
+      <td key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: r.player === p ? 1 : 0.4, color: (std[p] ?? 0) >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
         {std[p] ?? 0}
       </td>
     ))}
@@ -380,7 +380,7 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
         </td>
       );
     })}
-    <td style={{ ...tdStyle, textAlign: 'center', padding: '0.75rem 0.5rem', display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
+    <td className="col-actions" style={{ ...tdStyle, textAlign: 'center', padding: '0.75rem 0.5rem', display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
       <button
         aria-label={`Runde ${r.id} bearbeiten`}
         onClick={() => onEdit(r)}
