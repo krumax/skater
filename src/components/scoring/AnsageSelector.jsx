@@ -8,7 +8,7 @@ export default function AnsageSelector({ mitOhne, setMitOhne, spitzen, setSpitze
   return (
     <section className="form-section">
       <label className="section-label">Ansage</label>
-      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      <div className="ansage-layout" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '0.5rem', opacity: disabled ? 0.25 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
           <button className={`chip ${mitOhne === 'mit'   ? 'active' : ''}`} onClick={() => setMitOhne('mit')}>Mit</button>
           <button className={`chip ${mitOhne === 'ohne'  ? 'active' : ''}`} onClick={() => setMitOhne('ohne')}>Ohne</button>

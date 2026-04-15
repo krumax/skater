@@ -351,7 +351,7 @@ export default function PlayerSettings() {
                       border: `1.5px solid ${isOver ? 'var(--primary)' : 'transparent'}`,
                       cursor: 'grab', userSelect: 'none', transition: 'background 0.15s, border-color 0.15s',
                     }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--outline)', flexShrink: 0 }}>drag_indicator</span>
+                    <span className="material-symbols-outlined drag-handle" style={{ fontSize: '1.25rem', color: 'var(--outline)', flexShrink: 0 }}>drag_indicator</span>
                     <span style={{ width: '26px', height: '26px', borderRadius: '50%', flexShrink: 0, backgroundColor: color, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8125rem', fontWeight: 800 }}>{i + 1}</span>
                     <div style={{ flex: 1 }}>
                       {editingPlayer === name ? (
@@ -375,6 +375,24 @@ export default function PlayerSettings() {
                       <button onClick={e => { e.stopPropagation(); handleRemove(name); }} title="Entfernen" disabled={n <= 3 && name !== '-'}
                         style={{ padding: '0.4rem', borderRadius: '0.375rem', color: (n <= 3 && name !== '-') ? 'var(--outline-variant)' : 'var(--secondary)', background: 'none', border: 'none', cursor: (n <= 3 && name !== '-') ? 'not-allowed' : 'pointer' }}>
                         <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>person_remove</span>
+                      </button>
+                      <button
+                        className="seating-reorder-btn"
+                        onClick={e => { e.stopPropagation(); if (i > 0) reorderSeating(i, i - 1); }}
+                        disabled={i === 0}
+                        title="Nach oben"
+                        aria-label={`${name} nach oben`}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_upward</span>
+                      </button>
+                      <button
+                        className="seating-reorder-btn"
+                        onClick={e => { e.stopPropagation(); if (i < players.length - 1) reorderSeating(i, i + 1); }}
+                        disabled={i === players.length - 1}
+                        title="Nach unten"
+                        aria-label={`${name} nach unten`}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_downward</span>
                       </button>
                     </div>
                   </div>

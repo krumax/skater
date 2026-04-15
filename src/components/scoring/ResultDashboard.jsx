@@ -136,13 +136,13 @@ export default function ResultDashboard({ result, outcomeLabel, gameType, isBock
       )}
 
       <button
-        className="btn-primary"
+        className="btn-primary btn-commit"
         style={{ width: '100%', padding: '1.25rem', fontSize: '1.125rem', letterSpacing: '0.1em' }}
         onClick={onCommit}
       >
         ERGEBNIS SPEICHERN
       </button>
-      <p style={{ textAlign: 'center', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--outline)' }}>
+      <p className="btn-commit-hint" style={{ textAlign: 'center', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--outline)' }}>
         Bitte alle Werte vor dem Speichern überprüfen
       </p>
 

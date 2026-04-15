@@ -165,3 +165,66 @@ describe('RESET_SESSION', () => {
     expect(next.currentRound).toBe(1);
   });
 });
+
+// ── REORDER_SEATING ───────────────────────────────────────────────────────────
+
+describe('REORDER_SEATING', () => {
+  const state = {
+    ...initialState,
+    seating: ['Alice', 'Bob', 'Carol'],
+    geberIndex: 2,
+  };
+
+  it('verschiebt einen Spieler von Index 0 nach Index 1 (nach unten)', () => {
+    const next = gameReducer(state, {
+      type: 'REORDER_SEATING',
+      payload: { fromIndex: 0, toIndex: 1 },
+    });
+    expect(next.seating).toEqual(['Bob', 'Alice', 'Carol']);
+  });
+
+  it('verschiebt einen Spieler von Index 2 nach Index 1 (nach oben)', () => {
+    const next = gameReducer(state, {
+      type: 'REORDER_SEATING',
+      payload: { fromIndex: 2, toIndex: 1 },
+    });
+    expect(next.seating).toEqual(['Alice', 'Carol', 'Bob']);
+  });
+
+  it('setzt geberIndex auf 0 nach Umsortierung', () => {
+    const next = gameReducer(state, {
+      type: 'REORDER_SEATING',
+      payload: { fromIndex: 0, toIndex: 2 },
+    });
+    expect(next.geberIndex).toBe(0);
+  });
+
+  it('Up-Button-Logik: i > 0 → reorderSeating(i, i-1)', () => {
+    // Simuliert: Spieler an Position 1 nach oben
+    const next = gameReducer(state, {
+      type: 'REORDER_SEATING',
+      payload: { fromIndex: 1, toIndex: 0 },
+    });
+    expect(next.seating[0]).toBe('Bob');
+    expect(next.seating[1]).toBe('Alice');
+  });
+
+  it('Down-Button-Logik: i < length-1 → reorderSeating(i, i+1)', () => {
+    // Simuliert: Spieler an Position 1 nach unten
+    const next = gameReducer(state, {
+      type: 'REORDER_SEATING',
+      payload: { fromIndex: 1, toIndex: 2 },
+    });
+    expect(next.seating[1]).toBe('Carol');
+    expect(next.seating[2]).toBe('Bob');
+  });
+
+  it('4-Spieler: Umsortierung funktioniert korrekt', () => {
+    const s4 = { ...initialState, seating: ['Alice', 'Bob', 'Carol', 'Dave'] };
+    const next = gameReducer(s4, {
+      type: 'REORDER_SEATING',
+      payload: { fromIndex: 3, toIndex: 0 },
+    });
+    expect(next.seating).toEqual(['Dave', 'Alice', 'Bob', 'Carol']);
+  });
+});
