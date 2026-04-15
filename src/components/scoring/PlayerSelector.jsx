@@ -52,7 +52,7 @@ export default function PlayerSelector({ players, activePlayer, onSelect, player
               </span>
               {std !== null && (
                 <span className="player-card-scores">
-                  <span style={{ display: 'flex', gap: '0.4rem', fontSize: '0.75rem' }}>
+                  <span style={{ display: 'flex', justifyContent: 'space-between', gap: '0.4rem', fontSize: '0.75rem' }}>
                     <span style={{ opacity: 0.65, color: isActive ? '#fff' : 'var(--outline)' }}>Std</span>
                     <span style={{ fontWeight: 700, color: scoreColor(std) }}>
                       {fmt(std)}
@@ -61,7 +61,7 @@ export default function PlayerSelector({ players, activePlayer, onSelect, player
                       )}
                     </span>
                   </span>
-                  <span style={{ display: 'flex', gap: '0.4rem', fontSize: '0.75rem' }}>
+                  <span style={{ display: 'flex', justifyContent: 'space-between', gap: '0.4rem', fontSize: '0.75rem' }}>
                     <span style={{ opacity: 0.65, color: isActive ? '#fff' : 'var(--outline)' }}>Komb</span>
                     <span style={{ fontWeight: 700, color: scoreColor(combined) }}>
                       {fmt(combined)}

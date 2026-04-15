@@ -378,6 +378,23 @@ button {
   min-width: 0; /* verhindert Overflow aus Grid-Cell */
 }
 
+/* Desktop: Identity und Scores untereinander zentriert */
+.player-card-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  width: 100%;
+}
+
+.player-card-scores {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.2rem;
+  width: 100%;
+}
+
 .player-card.active {
   background-color: var(--primary-container);
   color: var(--on-primary);
@@ -558,19 +575,12 @@ button {
     border-radius: 0.75rem;
   }
 
-  /* Name + Level links, Scores rechts */
   .player-card-identity {
-    display: flex;
-    flex-direction: column;
     align-items: flex-start;
-    gap: 0.1rem;
   }
 
   .player-card-scores {
-    display: flex;
-    flex-direction: column;
     align-items: flex-end;
-    gap: 0.15rem;
   }
 
   /* ── Result Dashboard ── */
