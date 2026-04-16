@@ -39,6 +39,14 @@ export const RANK_THRESHOLDS = {
     { tier: 'diamant', wins: 200 },
     { tier: 'legende', wins: 400 },
   ],
+  gesamt: [
+    { tier: 'bronze',  wins: 50 },
+    { tier: 'silber',  wins: 150 },
+    { tier: 'gold',    wins: 300 },
+    { tier: 'platin',  wins: 600 },
+    { tier: 'diamant', wins: 1000 },
+    { tier: 'legende', wins: 2000 },
+  ],
 };
 
 export const CATEGORY_META = {
@@ -62,6 +70,13 @@ export const CATEGORY_META = {
     color: '#d0a600',
     matIcon: 'stars',
     gameTypes: ['grand'],
+  },
+  gesamt: {
+    label: 'Gesamt',
+    subtitle: 'Alle gespielten Spiele',
+    color: '#7c3aed',
+    matIcon: 'playing_cards',
+    gameTypes: [],
   },
 };
 
@@ -115,6 +130,7 @@ export function computeCategoryRank(wins, category) {
 
 /**
  * Zählt gewonnene Spiele eines Spielers pro Kategorie.
+ * Für 'gesamt' werden alle Spiele gezählt (nicht nur Siege).
  */
 export function computeCategoryWins(rounds, playerName) {
   const won = rounds.filter(r => r.player === playerName && r.won);
@@ -122,5 +138,6 @@ export function computeCategoryWins(rounds, playerName) {
     farbspiel: won.filter(r => ['club', 'spade', 'heart', 'diamond'].includes(r.gameType)).length,
     null:      won.filter(r => r.gameType === 'null').length,
     grand:     won.filter(r => r.gameType === 'grand').length,
+    gesamt:    rounds.filter(r => r.player === playerName && r.gameType !== 'passed').length,
   };
 }

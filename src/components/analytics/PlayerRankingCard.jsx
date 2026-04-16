@@ -48,7 +48,7 @@ function RankRing({ progressPct, color, label, sublabel, wins, totalLabel }) {
 }
 
 // ── Tier-Zeile ────────────────────────────────────────────────────────────────
-function TierRow({ tier, threshold, wins, isActive, isNext, isReached }) {
+function TierRow({ tier, threshold, wins, isActive, isNext, isReached, unit }) {
   let barPct;
   if (isActive) {
     barPct = 100; // vollständig erreicht
@@ -78,7 +78,7 @@ function TierRow({ tier, threshold, wins, isActive, isNext, isReached }) {
             {tier.label}
           </span>
           <span style={{ fontSize: '0.7rem', fontWeight: 700, color: isNext ? tier.color : 'var(--outline)' }}>
-            {threshold.wins} Siege
+            {threshold.wins} {unit ?? 'Siege'}
           </span>
         </div>
         <div style={{ width: '100%', height: '4px', backgroundColor: 'var(--surface-low)', borderRadius: '999px', overflow: 'hidden' }}>
@@ -95,7 +95,7 @@ function TierRow({ tier, threshold, wins, isActive, isNext, isReached }) {
 }
 
 // ── Kategorie-Karte ───────────────────────────────────────────────────────────
-function CategoryCard({ category, wins }) {
+function CategoryCard({ category, wins, unit }) {
   const meta = CATEGORY_META[category];
   const rank = computeCategoryRank(wins, category);
   const thresholds = RANK_THRESHOLDS[category];
@@ -145,7 +145,6 @@ function CategoryCard({ category, wins }) {
           const tier = RANK_TIERS.find(t => t.id === threshold.tier);
           const isReached = wins >= threshold.wins;
           const isActive  = isReached && rank.currentTier?.id === threshold.tier;
-          // isNext = der Tier auf den wir gerade hinarbeiten (noch nicht erreicht, aber nächster)
           const isNext    = !isReached && rank.nextTier?.id === threshold.tier;
           return (
             <TierRow
@@ -156,6 +155,7 @@ function CategoryCard({ category, wins }) {
               isActive={isActive}
               isNext={isNext}
               isReached={isReached}
+              unit={unit}
             />
           );
         })}
@@ -169,10 +169,11 @@ export default function PlayerRankingCard({ rounds, player }) {
   const wins = useMemo(() => computeCategoryWins(rounds, player), [rounds, player]);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1.5rem' }}>
       <CategoryCard category="farbspiel" wins={wins.farbspiel} />
       <CategoryCard category="null"      wins={wins.null} />
       <CategoryCard category="grand"     wins={wins.grand} />
+      <CategoryCard category="gesamt"    wins={wins.gesamt} unit="Spiele" />
     </div>
   );
 }
