@@ -85,6 +85,7 @@ const StatistikenCharts = () => {
   const { rounds, players: allPlayers } = useGame();
   const players = allPlayers.filter(p => p !== '-');
   const [xMode, setXMode] = useState('rounds'); // 'rounds' | 'time'
+  const [timeGranularity, setTimeGranularity] = useState('week'); // 'day' | 'week' | 'month'
 
   /* ── Achievement-Unlocks (muss vor trendByRound stehen) ── */
   const achievementUnlocks = React.useMemo(() =>
@@ -117,21 +118,20 @@ const StatistikenCharts = () => {
   /* ── 1b. Punkteentwicklung nach Zeit ── */
   const trendByTime = React.useMemo(() => {
     if (rounds.length === 0) return [];
-    const granularity = detectTimeGranularity(rounds);
-    const buckets = {};   // key → { label, playerTotals }
+    const buckets = {};
     const running = {};
     players.forEach(p => { running[p] = 0; });
 
     rounds.forEach(r => {
       if (!r.timestamp) return;
       running[r.player] = (running[r.player] || 0) + r.gameValue;
-      const key   = bucketKey(r.timestamp, granularity);
-      const label = formatTimeBucket(r.timestamp, granularity);
+      const key   = bucketKey(r.timestamp, timeGranularity);
+      const label = formatTimeBucket(r.timestamp, timeGranularity);
       buckets[key] = { name: label, ...Object.fromEntries(players.map(p => [p, running[p]])) };
     });
 
     return Object.values(buckets);
-  }, [rounds, players]);
+  }, [rounds, players, timeGranularity]);
 
   const trendData = xMode === 'rounds' ? trendByRound : trendByTime;
 
@@ -386,7 +386,7 @@ const StatistikenCharts = () => {
           <section>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <h3 className="headline" style={{ fontSize: '1.5rem' }}>Punkteentwicklung</h3>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <button
                   onClick={() => setXMode('rounds')}
                   className={`chip ${xMode === 'rounds' ? 'active' : ''}`}
@@ -401,6 +401,25 @@ const StatistikenCharts = () => {
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.25rem' }}>calendar_month</span>
                   Zeit
                 </button>
+                {xMode === 'time' && (
+                  <>
+                    <div style={{ width: '1px', height: '1.5rem', backgroundColor: 'var(--outline-variant)', margin: '0 0.25rem' }} />
+                    {[
+                      { key: 'day',   label: 'Tag' },
+                      { key: 'week',  label: 'KW' },
+                      { key: 'month', label: 'Monat' },
+                    ].map(({ key, label }) => (
+                      <button
+                        key={key}
+                        onClick={() => setTimeGranularity(key)}
+                        className={`chip ${timeGranularity === key ? 'active' : ''}`}
+                        style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </>
+                )}
               </div>
             </div>
             <div className="card">
