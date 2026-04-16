@@ -1152,3 +1152,47 @@ textarea {
 .btn-dismiss:hover {
   background-color: var(--surface-highest);
 }
+
+/* ── PlayerAnalytics: Mobile Layout ── */
+@media (max-width: 768px) {
+
+  /* Level-Karte: nur LevelGauge + Label, Rest ausblenden */
+  .analytics-level-card .card > div > *:not(:first-child) {
+    display: none !important;
+  }
+  .analytics-level-card .card > div {
+    justify-content: center;
+  }
+  .analytics-level-card .card {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Highlight-Grid: einspaltig */
+  .analytics-highlight-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Kacheln + PieChart: einspaltig, PieChart volle Breite */
+  .analytics-stats-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .analytics-pie-card {
+    width: 100% !important;
+  }
+
+  /* 3er-Stat-Grid → 2er */
+  .analytics-stats-row3 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Achievement-Matrizen ausblenden */
+  .analytics-matrix-section {
+    display: none !important;
+  }
+
+  /* Ranking-Karten: 4 Spalten → einspaltig */
+  .analytics-ranking-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -174,15 +174,17 @@ const PlayerAnalytics = () => {
       </div>
 
       {/* Level-Karte */}
-      <AchievementCompletionCard
-        rounds={rounds}
-        player={selectedPlayer}
-        allPlayers={players}
-        getPlayerStats={getPlayerStats}
-      />
+      <div className="analytics-level-card">
+        <AchievementCompletionCard
+          rounds={rounds}
+          player={selectedPlayer}
+          allPlayers={players}
+          getPlayerStats={getPlayerStats}
+        />
+      </div>
 
       {/* ── Höchster Sieg / Höchste Niederlage ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+      <div className="analytics-highlight-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
         <HighlightCard
           icon="emoji_events"
           gradient="linear-gradient(135deg, #d0a600, #a07800)"
@@ -202,10 +204,10 @@ const PlayerAnalytics = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem', marginTop: '3rem' }}>
 
         {/* ── Kacheln + PieChart ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2rem', alignItems: 'start' }}>
+        <div className="analytics-stats-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2rem', alignItems: 'start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {/* Zeile 1: Quoten */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+            <div className="analytics-stats-row3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
               <StatCard label="Siegquote"        value={`${stats.winRate}%`}  color={parseFloat(stats.winRate) >= 50 ? 'var(--primary)' : 'var(--secondary)'} />
               <StatCard label="Spielanteil"      value={`${playShare}%`}      color="var(--on-surface)" tooltip={`${stats.totalGames} von ${rounds.length} Runden`} />
               <StatCard label="Ø Punkte / Spiel" value={stats.avgPoints}      color="var(--on-surface)" />
@@ -222,7 +224,7 @@ const PlayerAnalytics = () => {
             </div>
           </div>
 
-          <div className="card" style={{ width: '380px', border: '1px solid var(--outline-variant)' }}>
+          <div className="analytics-pie-card card" style={{ width: '380px', border: '1px solid var(--outline-variant)' }}>
             <p className="stat-label" style={{ marginBottom: '0.75rem' }}>Spielart-Verteilung &amp; Gewinnraten</p>
             {stats.typeDistribution.length === 0
               ? <p style={{ color: 'var(--outline)' }}>Noch keine Daten.</p>
@@ -232,7 +234,7 @@ const PlayerAnalytics = () => {
         </div>
 
         {/* ── Achievement-Matrizen ── */}
-        <section>
+        <section className="analytics-matrix-section">
           {/* Tab-Leiste */}
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
             <button
@@ -272,7 +274,7 @@ const PlayerAnalytics = () => {
           )}
         </section>
 
-        {/* ── Ranking-Karten: Farbspiel / Null / Grand ── */}
+        {/* ── Ranking-Karten: Farbspiel / Null / Grand / Gesamt ── */}
         <section>
           <PlayerRankingCard rounds={rounds} player={selectedPlayer} />
         </section>

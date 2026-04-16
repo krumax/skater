@@ -169,7 +169,7 @@ export default function PlayerRankingCard({ rounds, player }) {
   const wins = useMemo(() => computeCategoryWins(rounds, player), [rounds, player]);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1.5rem' }}>
+    <div className="analytics-ranking-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1.5rem' }}>
       <CategoryCard category="farbspiel" wins={wins.farbspiel} />
       <CategoryCard category="null"      wins={wins.null} />
       <CategoryCard category="grand"     wins={wins.grand} />

@@ -165,13 +165,17 @@ const Sidebar = () => {
         <span className="material-symbols-outlined">menu_book</span>
         Liste
       </NavLink>
+      <NavLink to="/analytics" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
+        <span className="material-symbols-outlined">leaderboard</span>
+        Spieler
+      </NavLink>
       <NavLink to="/statistiken" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
         <span className="material-symbols-outlined">insights</span>
-        Statistik
+        Tisch
       </NavLink>
       <NavLink to="/players" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
         <span className="material-symbols-outlined">group</span>
-        Spieler
+        Einst.
       </NavLink>
     </nav>
     </>
