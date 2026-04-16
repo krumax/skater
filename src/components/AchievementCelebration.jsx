@@ -112,7 +112,8 @@ const AchievementCelebration = ({ achievement, onClose }) => {
 
   if (!achievement) return null;
 
-  const { playerName, gameTypeName, gameTypeIcon, gameTypeSuit, colLabel, isSpecial, isLevelUp, oldLevel, newLevel, oldCount, newCount, totalPossible, newPercent } = achievement;
+  const { playerName, gameTypeName, gameTypeIcon, gameTypeSuit, colLabel, isSpecial, isLevelUp, oldLevel, newLevel, oldCount, newCount, totalPossible, newPercent,
+          isRankUp, rankCategory, oldTier, newTier, tierColor, tierIcon, rankWins } = achievement;
 
   return (
     <div
@@ -134,10 +135,7 @@ const AchievementCelebration = ({ achievement, onClose }) => {
 
       {/* Modal card */}
       <div
-        onClick={e => {
-          e.stopPropagation();
-          handleClose();
-        }}
+        onClick={e => { e.stopPropagation(); handleClose(); }}
         style={{
           position: 'relative', zIndex: 2,
           backgroundColor: 'var(--surface)',
@@ -151,109 +149,130 @@ const AchievementCelebration = ({ achievement, onClose }) => {
           transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease',
         }}
       >
-        {/* Trophy icon */}
+        {/* Trophy / rank icon */}
         <div style={{
           width: '5rem', height: '5rem', borderRadius: '50%',
-          background: isLevelUp
-            ? 'linear-gradient(135deg, var(--tertiary), var(--tertiary-container))'
-            : 'linear-gradient(135deg, var(--primary), var(--primary-container))',
+          background: isRankUp
+            ? `linear-gradient(135deg, ${tierColor}, ${tierColor}99)`
+            : isLevelUp
+              ? 'linear-gradient(135deg, var(--tertiary), var(--tertiary-container))'
+              : 'linear-gradient(135deg, var(--primary), var(--primary-container))',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           margin: '-5.5rem auto 1.5rem',
-          boxShadow: isLevelUp
-            ? '0 8px 24px rgba(116, 91, 0, 0.4)'
-            : '0 8px 24px rgba(0, 38, 27, 0.4)',
+          boxShadow: isRankUp
+            ? `0 8px 24px ${tierColor}66`
+            : isLevelUp
+              ? '0 8px 24px rgba(116, 91, 0, 0.4)'
+              : '0 8px 24px rgba(0, 38, 27, 0.4)',
           animation: phase === 'visible' ? 'celebPulse 1.2s ease-in-out infinite alternate' : 'none',
         }}>
-          <span className="material-symbols-outlined" style={{
-            fontSize: '2.25rem', color: '#fff',
-            fontVariationSettings: "'FILL' 1",
-          }}>
-            {isLevelUp ? 'workspace_premium' : 'emoji_events'}
-          </span>
+          {isRankUp
+            ? <span style={{ fontSize: '2.25rem', lineHeight: 1 }}>{tierIcon}</span>
+            : <span className="material-symbols-outlined" style={{ fontSize: '2.25rem', color: '#fff', fontVariationSettings: "'FILL' 1" }}>
+                {isLevelUp ? 'workspace_premium' : 'emoji_events'}
+              </span>
+          }
         </div>
 
         {/* Title */}
         <h2 style={{
           fontFamily: "'Manrope', sans-serif", fontWeight: 800,
-          fontSize: isLevelUp ? '1.75rem' : '1.5rem',
-          color: isLevelUp ? 'var(--tertiary)' : 'var(--primary)',
+          fontSize: '1.75rem',
+          color: isRankUp ? tierColor : isLevelUp ? 'var(--tertiary)' : 'var(--primary)',
           marginBottom: '0.5rem',
         }}>
-          {isLevelUp ? '🎉 Level Up!' : '🏆 Achievement Unlocked!'}
+          {isRankUp ? '🏅 Rang erreicht!' : isLevelUp ? '🎉 Level Up!' : '🏆 Achievement Unlocked!'}
         </h2>
 
         {/* Player name */}
-        <p style={{
-          fontSize: '1.125rem', fontWeight: 600,
-          color: 'var(--on-surface)', marginBottom: '1rem',
-        }}>
+        <p style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--on-surface)', marginBottom: '1rem' }}>
           {playerName}
         </p>
 
-        {/* Achievement detail card */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '1rem',
-          backgroundColor: 'var(--surface-low)', borderRadius: '0.75rem',
-          padding: '1rem 1.25rem', marginBottom: '1.5rem',
-          textAlign: 'left',
-        }}>
+        {/* Rank-up detail card */}
+        {isRankUp ? (
           <div style={{
-            width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem', flexShrink: 0,
-            backgroundColor: isSpecial ? 'var(--tertiary-container)' : 'var(--primary-container)',
-            color: isSpecial ? 'var(--primary)' : 'var(--on-primary)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backgroundColor: 'var(--surface-low)', borderRadius: '0.75rem',
+            padding: '1.25rem', marginBottom: '1.5rem',
           }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', fontVariationSettings: "'FILL' 1" }}>
-              {isSpecial ? 'star' : 'military_tech'}
-            </span>
-          </div>
-          <div>
-            <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '0.9375rem', color: 'var(--on-surface)' }}>
-              {gameTypeIcon
-                ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'text-bottom', marginRight: '0.25rem' }}>{gameTypeIcon}</span>
-                : gameTypeSuit
-                ? <span style={{ marginRight: '0.25rem' }}>{gameTypeSuit}</span>
-                : null
-              }
-              {gameTypeName} — {colLabel}
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', marginBottom: '0.75rem' }}>
+              {rankCategory}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+              <span style={{ fontSize: '0.9rem', color: 'var(--outline)', fontWeight: 600 }}>{oldTier}</span>
+              <span className="material-symbols-outlined" style={{ color: tierColor, fontSize: '1.25rem' }}>arrow_forward</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: tierColor }}>{tierIcon} {newTier}</span>
             </div>
             <div style={{ fontSize: '0.8125rem', color: 'var(--on-surface-variant)' }}>
-              Erstmals gewonnen!
+              {rankWins} {rankCategory === 'Gesamt' ? 'Spiele' : 'Siege'} in dieser Kategorie
             </div>
           </div>
-        </div>
-
-        {/* Level-up extra banner */}
-        {isLevelUp && (
-          <div style={{
-            background: 'linear-gradient(135deg, var(--tertiary), var(--tertiary-container))',
-            borderRadius: '0.75rem', padding: '1rem',
-            marginBottom: '1.5rem', color: 'var(--on-surface)',
-          }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.8, marginBottom: '0.25rem' }}>
-              Neues Level erreicht!
-            </div>
-            <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '2rem' }}>
-              Level {oldLevel} → Level {newLevel}
-            </div>
-          </div>
-        )}
-
-        {/* Progress info */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
-          <span style={{ fontSize: '0.8125rem', color: 'var(--on-surface-variant)', fontWeight: 600, whiteSpace: 'nowrap' }}>
-            {oldCount} → {newCount} / {totalPossible}
-          </span>
-          <div style={{ flex: 1, height: '0.5rem', backgroundColor: 'var(--surface-high)', borderRadius: '999px', overflow: 'hidden' }}>
+        ) : (
+          <>
+            {/* Achievement detail card */}
             <div style={{
-              height: '100%', borderRadius: '999px',
-              background: 'linear-gradient(90deg, var(--primary), var(--primary-container))',
-              width: `${newPercent}%`,
-              transition: 'width 1s ease-out',
-            }} />
-          </div>
-          <span style={{ fontSize: '0.8125rem', color: 'var(--primary)', fontWeight: 700 }}>{newPercent}%</span>
-        </div>
+              display: 'flex', alignItems: 'center', gap: '1rem',
+              backgroundColor: 'var(--surface-low)', borderRadius: '0.75rem',
+              padding: '1rem 1.25rem', marginBottom: '1.5rem',
+              textAlign: 'left',
+            }}>
+              <div style={{
+                width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem', flexShrink: 0,
+                backgroundColor: isSpecial ? 'var(--tertiary-container)' : 'var(--primary-container)',
+                color: isSpecial ? 'var(--primary)' : 'var(--on-primary)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', fontVariationSettings: "'FILL' 1" }}>
+                  {isSpecial ? 'star' : 'military_tech'}
+                </span>
+              </div>
+              <div>
+                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '0.9375rem', color: 'var(--on-surface)' }}>
+                  {gameTypeIcon
+                    ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'text-bottom', marginRight: '0.25rem' }}>{gameTypeIcon}</span>
+                    : gameTypeSuit
+                    ? <span style={{ marginRight: '0.25rem' }}>{gameTypeSuit}</span>
+                    : null
+                  }
+                  {gameTypeName} — {colLabel}
+                </div>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--on-surface-variant)' }}>Erstmals gewonnen!</div>
+              </div>
+            </div>
+
+            {/* Level-up extra banner */}
+            {isLevelUp && (
+              <div style={{
+                background: 'linear-gradient(135deg, var(--tertiary), var(--tertiary-container))',
+                borderRadius: '0.75rem', padding: '1rem',
+                marginBottom: '1.5rem', color: 'var(--on-surface)',
+              }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.8, marginBottom: '0.25rem' }}>
+                  Neues Level erreicht!
+                </div>
+                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '2rem' }}>
+                  Level {oldLevel} → Level {newLevel}
+                </div>
+              </div>
+            )}
+
+            {/* Progress info */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--on-surface-variant)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                {oldCount} → {newCount} / {totalPossible}
+              </span>
+              <div style={{ flex: 1, height: '0.5rem', backgroundColor: 'var(--surface-high)', borderRadius: '999px', overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%', borderRadius: '999px',
+                  background: 'linear-gradient(90deg, var(--primary), var(--primary-container))',
+                  width: `${newPercent}%`,
+                  transition: 'width 1s ease-out',
+                }} />
+              </div>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--primary)', fontWeight: 700 }}>{newPercent}%</span>
+            </div>
+          </>
+        )}
 
         {/* Dismiss hint */}
         <p style={{ fontSize: '0.75rem', color: 'var(--outline)', marginTop: '1rem' }}>

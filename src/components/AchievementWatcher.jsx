@@ -4,6 +4,7 @@ import AchievementCelebration from './AchievementCelebration';
 import SkatSpruchToast from './SkatSpruchToast';
 import { MATRIX_ROWS, NULL_ROWS, COL_SPECS } from '../lib/achievementConfig';
 import { getSkatSpruch } from '../lib/skatSprueche';
+import { computeCategoryWins, computeCategoryRank, RANK_TIERS, CATEGORY_META } from '../lib/playerRanking';
 
 function computeUnlockedKeys(rounds, player) {
   const keys = new Set();
@@ -29,10 +30,21 @@ function computeUnlockedKeys(rounds, player) {
   return { keys, count, total };
 }
 
+/** Returns a map of { category -> tierId | null } for a player */
+function computeRankSnapshot(rounds, player) {
+  const wins = computeCategoryWins(rounds, player);
+  const snap = {};
+  for (const cat of ['farbspiel', 'null', 'grand', 'gesamt']) {
+    const rank = computeCategoryRank(wins[cat], cat);
+    snap[cat] = rank.currentTier?.id ?? null;
+  }
+  return snap;
+}
+
 /**
  * AchievementWatcher sits at App-level, outside of any route.
  * It watches `rounds` and detects newly unlocked achievements
- * for the player of the most recently added round.
+ * and rank-up events for the player of the most recently added round.
  */
 const AchievementWatcher = () => {
   const { rounds, players, sessionId } = useGame();
@@ -42,10 +54,10 @@ const AchievementWatcher = () => {
 
   // Snapshot of all players' unlocked keys — updated after each detection cycle
   const snapshotRef = useRef(null);
+  const rankSnapshotRef = useRef(null);
   const prevRoundCountRef = useRef(rounds.length);
   const prevSessionIdRef = useRef(sessionId);
 
-  // We only need one combined effect to watch for changes
   useEffect(() => {
     // 1. If initializing OR session changed OR completely out of sync (bulk load)
     if (
@@ -53,13 +65,15 @@ const AchievementWatcher = () => {
       sessionId !== prevSessionIdRef.current ||
       rounds.length > prevRoundCountRef.current + 1
     ) {
-      // Rebuild snapshot silently
       const snap = {};
+      const rankSnap = {};
       players.forEach(p => {
         const { keys } = computeUnlockedKeys(rounds, p);
         snap[p] = keys;
+        rankSnap[p] = computeRankSnapshot(rounds, p);
       });
       snapshotRef.current = snap;
+      rankSnapshotRef.current = rankSnap;
       prevRoundCountRef.current = rounds.length;
       prevSessionIdRef.current = sessionId;
       return;
@@ -67,7 +81,6 @@ const AchievementWatcher = () => {
 
     // 2. If rounds didn't grow (deletion, reset, or unchanged)
     if (rounds.length <= prevRoundCountRef.current) {
-      // Just update ref
       prevRoundCountRef.current = rounds.length;
       return;
     }
@@ -80,10 +93,33 @@ const AchievementWatcher = () => {
     const prevKeys = snapshotRef.current[player] || new Set();
     const { keys: currentKeys, count: newCount, total: totalPossible } = computeUnlockedKeys(rounds, player);
 
-    // Find newly unlocked
+    // Find newly unlocked achievements
     const newAchievements = [];
     for (const key of currentKeys) {
       if (!prevKeys.has(key)) newAchievements.push(key);
+    }
+
+    // Check for rank-ups across all 4 categories
+    const prevRanks = rankSnapshotRef.current[player] || {};
+    const newRanks = computeRankSnapshot(rounds, player);
+    let rankUpEvent = null;
+    for (const cat of ['farbspiel', 'null', 'grand', 'gesamt']) {
+      if (newRanks[cat] !== prevRanks[cat] && newRanks[cat] !== null) {
+        const newTierObj = RANK_TIERS.find(t => t.id === newRanks[cat]);
+        const oldTierObj = prevRanks[cat] ? RANK_TIERS.find(t => t.id === prevRanks[cat]) : null;
+        const wins = computeCategoryWins(rounds, player);
+        rankUpEvent = {
+          isRankUp: true,
+          playerName: player,
+          rankCategory: CATEGORY_META[cat].label,
+          oldTier: oldTierObj?.label ?? '–',
+          newTier: newTierObj?.label ?? '',
+          tierColor: newTierObj?.color ?? '#d0a600',
+          tierIcon: newTierObj?.icon ?? '🏅',
+          rankWins: wins[cat],
+        };
+        break; // show one at a time
+      }
     }
 
     if (newAchievements.length > 0) {
@@ -110,18 +146,18 @@ const AchievementWatcher = () => {
         totalPossible,
         newPercent,
       });
+    } else if (rankUpEvent) {
+      setCelebration(rankUpEvent);
     }
 
-    // Update snapshot and refs
-    snapshotRef.current = {
-      ...snapshotRef.current,
-      [player]: currentKeys,
-    };
+    // Update snapshots
+    snapshotRef.current = { ...snapshotRef.current, [player]: currentKeys };
+    rankSnapshotRef.current = { ...rankSnapshotRef.current, [player]: newRanks };
     prevRoundCountRef.current = rounds.length;
     prevSessionIdRef.current = sessionId;
 
-    // Skatspruch — nur wenn kein Achievement-Popup erscheint und kein Eingepasst
-    if (newAchievements.length === 0 && latestRound.gameType !== 'passed') {
+    // Skatspruch — nur wenn kein Achievement/Rang-Popup erscheint und kein Eingepasst
+    if (newAchievements.length === 0 && !rankUpEvent && latestRound.gameType !== 'passed') {
       const text = getSkatSpruch(latestRound, rounds);
       if (text) {
         setSpruch(text);
