@@ -1021,6 +1021,42 @@ textarea {
   }
 }
 
+/* ── StatistikenCharts: Mobile Layout ── */
+@media (max-width: 768px) {
+  /* KPI-Grid: 2×2 statt 4×1 */
+  .statistik-kpi-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Highlight-Kacheln: einspaltig */
+  .statistik-highlight-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Highlight-Karte: kompakter, kein overflow */
+  .statistik-highlight-card {
+    gap: 0.75rem !important;
+    padding: 1rem !important;
+    flex-wrap: wrap;
+  }
+
+  /* Meta-Infos (Spieler/Runde/Datum) auf Mobile ausblenden — Platz sparen */
+  .statistik-highlight-meta {
+    display: none !important;
+  }
+
+  /* Punkteentwicklung-Chart auf Mobile ausblenden */
+  .statistik-trend-section {
+    display: none !important;
+  }
+
+  /* Pie + Dynamik: einspaltig */
+  .statistik-two-col {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+}
+
 /* ── Refactoring: Utility-Klassen für duplizierte Typografie-Muster ── */
 .stat-label {
   font-size: 0.65rem;

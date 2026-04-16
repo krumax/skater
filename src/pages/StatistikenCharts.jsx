@@ -272,7 +272,7 @@ const StatistikenCharts = () => {
       </header>
 
       {/* ── KPI Cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="statistik-kpi-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
         <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--surface-low)' }}>
           <p className="stat-label">Spiele gesamt</p>
           <p className="stat-value">{kpis.totalGames}</p>
@@ -294,14 +294,14 @@ const StatistikenCharts = () => {
       </div>
 
       {/* ── Highlight-Kacheln ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '3rem' }}>
+      <div className="statistik-highlight-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '3rem' }}>
         {kpis.best && (
-          <div className="card" style={{
+          <div className="card statistik-highlight-card" style={{
             display: 'flex', alignItems: 'center', gap: '2rem', padding: '1.25rem 2rem',
             background: 'linear-gradient(135deg, #d0a600, #a07800)',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: '#1b1c1c', flexShrink: 0 }}>emoji_events</span>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <p className="stat-label" style={{ color: '#1b1c1c', opacity: 0.65, marginBottom: '0.1rem' }}>↑ Spiel</p>
               <p className="stat-value" style={{ color: '#1b1c1c', fontSize: '1.75rem', lineHeight: 1 }}>
                 +{kpis.best.value}
@@ -315,7 +315,7 @@ const StatistikenCharts = () => {
                 </span>
               </p>
             </div>
-            <div style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
+            <div className="statistik-highlight-meta" style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
               <div style={{ textAlign: 'right' }}>
                 <p className="stat-label" style={{ color: '#1b1c1c', opacity: 0.65 }}>Spieler</p>
                 <p style={{ fontWeight: 800, color: '#1b1c1c' }}>{kpis.best.player}</p>
@@ -334,12 +334,12 @@ const StatistikenCharts = () => {
           </div>
         )}
         {kpis.worst && (
-          <div className="card" style={{
+          <div className="card statistik-highlight-card" style={{
             display: 'flex', alignItems: 'center', gap: '2rem', padding: '1.25rem 2rem',
             background: 'linear-gradient(135deg, var(--secondary), var(--secondary-container))',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--on-secondary)', flexShrink: 0 }}>heart_broken</span>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <p className="stat-label" style={{ color: 'var(--on-secondary)', opacity: 0.65, marginBottom: '0.1rem' }}>↓ Niederlage</p>
               <p className="stat-value" style={{ color: 'var(--on-secondary)', fontSize: '1.75rem', lineHeight: 1 }}>
                 {kpis.worst.value}
@@ -353,7 +353,7 @@ const StatistikenCharts = () => {
                 </span>
               </p>
             </div>
-            <div style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
+            <div className="statistik-highlight-meta" style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
               <div style={{ textAlign: 'right' }}>
                 <p className="stat-label" style={{ color: 'var(--on-secondary)', opacity: 0.65 }}>Spieler</p>
                 <p style={{ fontWeight: 800, color: 'var(--on-secondary)' }}>{kpis.worst.player}</p>
@@ -383,7 +383,7 @@ const StatistikenCharts = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
 
           {/* ── Punkteentwicklung (Line Chart) ── */}
-          <section>
+          <section className="statistik-trend-section">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <h3 className="headline" style={{ fontSize: '1.5rem' }}>Punkteentwicklung</h3>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -442,7 +442,7 @@ const StatistikenCharts = () => {
           </section>
 
           {/* ── Spieltypen-Verteilung + neue Statistiken ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+          <div className="statistik-two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
 
             {/* Pie Chart */}
             <section>
