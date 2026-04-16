@@ -31,7 +31,9 @@
   function goTo(idx) {
     const target = cards[idx];
     if (!target) return;
-    target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+    // Nur horizontal im Track scrollen, nicht die ganze Seite
+    const targetLeft = target.offsetLeft;
+    track.scrollTo({ left: targetLeft, behavior: 'smooth' });
   }
 
   function advance() {
