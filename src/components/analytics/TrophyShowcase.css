@@ -1,0 +1,325 @@
+/* ── TrophyShowcase.css ─────────────────────────────────────────────────────── */
+
+.trophy-showcase-root {
+  container-type: inline-size;
+  width: 100%;
+}
+
+/* ── Vitrine-Rahmen ─────────────────────────────────────────────────────────── */
+
+.trophy-cabinet-frame {
+  position: relative;
+  /* Warmer, heller Hintergrund — wie eine echte Vitrine mit Innenbeleuchtung */
+  background: linear-gradient(170deg, #fdf6e3 0%, #f5ead0 50%, #ede0c4 100%);
+  border: 3px solid #c8a96e;
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  box-shadow:
+    0 0 0 1px #e8d5a8,
+    0 8px 32px rgba(120, 80, 20, 0.18),
+    0 2px 6px rgba(120, 80, 20, 0.12),
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    inset 0 -2px 0 rgba(160, 110, 40, 0.15);
+  overflow: visible;
+}
+
+/* Dekorative Ecken — goldfarben */
+.cabinet-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: #c8a030;
+  border-style: solid;
+  border-width: 0;
+}
+.cabinet-corner-tl { top: -2px; left: -2px; border-top-width: 3px; border-left-width: 3px; border-radius: 1.25rem 0 0 0; }
+.cabinet-corner-tr { top: -2px; right: -2px; border-top-width: 3px; border-right-width: 3px; border-radius: 0 1.25rem 0 0; }
+.cabinet-corner-bl { bottom: -2px; left: -2px; border-bottom-width: 3px; border-left-width: 3px; border-radius: 0 0 0 1.25rem; }
+.cabinet-corner-br { bottom: -2px; right: -2px; border-bottom-width: 3px; border-right-width: 3px; border-radius: 0 0 1.25rem 0; }
+
+.trophy-cabinet-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Spieler-Header ─────────────────────────────────────────────────────────── */
+
+.trophy-cabinet-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid #d4b06a;
+}
+
+.trophy-cabinet-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c8a030, #a07820);
+  border: 3px solid #e8c84a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(160, 120, 20, 0.4);
+}
+
+.trophy-cabinet-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trophy-cabinet-player-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.trophy-cabinet-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #3a2800;
+  margin: 0 0 0.2rem;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trophy-cabinet-level {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #8a6820;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.trophy-level-emoji {
+  font-size: 1rem;
+}
+
+.trophy-cabinet-progress {
+  flex-shrink: 0;
+  text-align: right;
+  min-width: 130px;
+}
+
+.trophy-progress-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #8a6820;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.trophy-progress-pct {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #c8780a;
+  font-family: 'Manrope', sans-serif;
+}
+
+.trophy-progress-bar-track {
+  height: 7px;
+  background: rgba(160, 110, 20, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(160, 110, 20, 0.25);
+}
+
+.trophy-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e8a020, #c8a030, #f0c040);
+  border-radius: 4px;
+  transition: width 0.6s ease;
+  box-shadow: 0 0 6px rgba(232, 160, 32, 0.5);
+}
+
+/* ── Regal-Label ────────────────────────────────────────────────────────────── */
+
+.trophy-shelves-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.trophy-shelf-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.trophy-shelf-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #7a5c18;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+  padding-left: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* ── Holzregal ──────────────────────────────────────────────────────────────── */
+
+.trophy-shelf {
+  position: relative;
+  /* Hintergrund des Regal-Innenraums — leicht dunkler als der Rahmen */
+  background: linear-gradient(180deg, rgba(210,175,110,0.25) 0%, rgba(190,150,80,0.15) 100%);
+  border-radius: 0.5rem 0.5rem 0 0;
+  padding-bottom: 18px;
+}
+
+/* Das Holzregal-Brett */
+.trophy-shelf-board {
+  position: absolute;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
+  height: 14px;
+  background: linear-gradient(180deg,
+    #c8903a 0%,
+    #a06828 40%,
+    #7a4e1a 80%,
+    #5a3810 100%
+  );
+  border-radius: 3px 3px 2px 2px;
+  box-shadow:
+    0 5px 12px rgba(60, 30, 0, 0.45),
+    0 2px 4px rgba(60, 30, 0, 0.3),
+    inset 0 2px 0 rgba(255,255,255,0.2),
+    inset 0 -1px 0 rgba(0,0,0,0.2);
+}
+
+/* Brett-Kante unten (Tiefe) */
+.trophy-shelf-board::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 2px;
+  right: 2px;
+  height: 8px;
+  background: linear-gradient(180deg, rgba(60,30,0,0.4) 0%, transparent 100%);
+  border-radius: 0 0 4px 4px;
+}
+
+/* Brett-Maserung (dekorativ) */
+.trophy-shelf-board::before {
+  content: '';
+  position: absolute;
+  inset: 3px 8px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 18px,
+    rgba(255,255,255,0.06) 18px,
+    rgba(255,255,255,0.06) 20px
+  );
+  border-radius: 1px;
+}
+
+.trophy-shelf-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.75rem 0.5rem 1rem;
+  align-items: flex-end;
+}
+
+/* ── Legende ────────────────────────────────────────────────────────────────── */
+
+.trophy-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding-top: 1rem;
+  border-top: 2px solid #d4b06a;
+}
+
+.trophy-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.trophy-legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.trophy-legend-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #8a6820;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* ── Toggle-Button ──────────────────────────────────────────────────────────── */
+
+.trophy-toggle-locked {
+  margin-top: 0.5rem;
+  background: none;
+  border: 1px solid #d4b06a;
+  border-radius: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #8a6820;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.03em;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.trophy-toggle-locked:hover {
+  background: rgba(200, 160, 48, 0.12);
+}
+
+/* ── Leer-Zustand ───────────────────────────────────────────────────────────── */
+
+.trophy-empty-state {
+  color: #a08040;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2.5rem 0;
+  margin: 0;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+
+@container (max-width: 480px) {
+  .trophy-cabinet-header {
+    flex-wrap: wrap;
+  }
+  .trophy-cabinet-progress {
+    width: 100%;
+    text-align: left;
+    min-width: unset;
+  }
+  .trophy-shelf-items {
+    gap: 0.5rem;
+  }
+}
+
+/* ── Reduced Motion ─────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .trophy-progress-bar-fill {
+    transition: none;
+  }
+}

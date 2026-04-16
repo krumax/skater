@@ -11,6 +11,7 @@ import SkatScoreList from './pages/SkatScoreList';
 import PlayerSettings from './pages/PlayerSettings';
 import StatistikenCharts from './pages/StatistikenCharts';
 import SkatInfo from './pages/SkatInfo';
+import TrophyShowcasePage from './pages/TrophyShowcasePage';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
                 <Route path="/statistiken" element={<StatistikenCharts />} />
                 <Route path="/players" element={<PlayerSettings />} />
                 <Route path="/info" element={<SkatInfo />} />
+                <Route path="/vitrine" element={<TrophyShowcasePage />} />
               </Routes>
             </main>
           </div>

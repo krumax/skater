@@ -8,6 +8,8 @@ import AchievementCompletionCard from '../components/analytics/AchievementComple
 import AchievementMatrix from '../components/analytics/AchievementMatrix';
 import DefenseMatrix from '../components/analytics/DefenseMatrix';
 import PlayerRankingCard from '../components/analytics/PlayerRankingCard';
+import TrophyShowcase from '../components/analytics/TrophyShowcase';
+import { useTrophyData } from '../hooks/useTrophyData';
 
 // ── Stat-Kachel ───────────────────────────────────────────────────────────────
 function StatCard({ label, value, color, tooltip }) {
@@ -129,6 +131,7 @@ const PlayerAnalytics = () => {
   const [searchParams] = useSearchParams();
   const [selectedPlayer, setSelectedPlayer] = useState('');
   const [matrixTab, setMatrixTab] = useState('angriff');
+  const [mainTab, setMainTab] = useState('statistik');
 
   useEffect(() => {
     const fromUrl = searchParams.get('player');
@@ -155,6 +158,9 @@ const PlayerAnalytics = () => {
     ? ((stats.totalGames / rounds.length) * 100).toFixed(1)
     : '0.0';
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { trophies, levelLabel, levelEmoji } = useTrophyData(players, rounds, selectedPlayer);
+
   return (
     <div>
       <header className="page-header">
@@ -172,6 +178,39 @@ const PlayerAnalytics = () => {
           </button>
         ))}
       </div>
+
+      {/* Haupt-Tabs */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
+        <button
+          onClick={() => setMainTab('statistik')}
+          className={`chip ${mainTab === 'statistik' ? 'active' : ''}`}
+          style={{ fontSize: '0.9rem', padding: '0.6rem 1.25rem' }}
+        >
+          📊 Statistik
+        </button>
+        <button
+          onClick={() => setMainTab('vitrine')}
+          className={`chip ${mainTab === 'vitrine' ? 'active' : ''}`}
+          style={{ fontSize: '0.9rem', padding: '0.6rem 1.25rem' }}
+        >
+          🏆 Pokalvitrine
+        </button>
+      </div>
+
+      {/* ── Pokalvitrine ── */}
+      {mainTab === 'vitrine' && (
+        <TrophyShowcase
+          playerName={selectedPlayer}
+          levelLabel={levelLabel}
+          levelEmoji={levelEmoji}
+          trophies={trophies}
+          showLocked={true}
+          groupBy="rarity"
+        />
+      )}
+
+      {/* ── Statistik-Inhalt ── */}
+      {mainTab === 'statistik' && (<>
 
       {/* Level-Karte */}
       <div className="analytics-level-card">
@@ -280,6 +319,7 @@ const PlayerAnalytics = () => {
         </section>
 
       </div>
+      </>)}
     </div>
   );
 };
