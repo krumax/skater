@@ -637,6 +637,7 @@ button {
   .top-bar {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.625rem;
     position: fixed;
     top: 0;

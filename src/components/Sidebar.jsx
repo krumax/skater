@@ -150,6 +150,9 @@ const Sidebar = () => {
           Skatastrophe
         </span>
       </a>
+      <span style={{ fontSize: '0.65rem', fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.05em' }}>
+        v{__APP_VERSION__}
+      </span>
     </header>
 
     {/* ── Bottom Navigation (Mobile only) ── */}
