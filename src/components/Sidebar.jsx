@@ -79,10 +79,6 @@ const Sidebar = () => {
           <span className="material-symbols-outlined">leaderboard</span>
           Spielerstatistik
         </NavLink>
-        <NavLink to="/vitrine" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
-          <span className="material-symbols-outlined">emoji_events</span>
-          Pokalvitrine
-        </NavLink>
         <NavLink to="/statistiken" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
           <span className="material-symbols-outlined">insights</span>
           Tischstatistik
