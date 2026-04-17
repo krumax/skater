@@ -173,13 +173,13 @@ const Sidebar = () => {
         <span className="material-symbols-outlined">leaderboard</span>
         Spieler
       </NavLink>
-      <NavLink to="/vitrine" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
-        <span className="material-symbols-outlined">emoji_events</span>
-        Vitrine
-      </NavLink>
       <NavLink to="/statistiken" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
         <span className="material-symbols-outlined">insights</span>
         Tisch
+      </NavLink>
+      <NavLink to="/players" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
+        <span className="material-symbols-outlined">group</span>
+        Einst.
       </NavLink>
     </nav>
     </>
