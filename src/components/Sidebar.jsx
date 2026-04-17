@@ -35,33 +35,53 @@ const Sidebar = () => {
         backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '0.5rem',
         padding: '0.75rem 0.875rem', marginBottom: '1.5rem',
         display: 'flex', flexDirection: 'column', gap: '0.5rem',
+        minHeight: '140px',
       }}>
-        {tableName && (
+        {tableName ? (
           <Link to="/statistiken" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6, color: '#fff' }}>table_bar</span>
             <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#fff' }}>{tableName}</span>
           </Link>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', height: '21px' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.3, color: '#fff' }}>table_bar</span>
+            <div style={{ width: '80px', height: '14px', background: 'rgba(255,255,255,0.1)', borderRadius: '0.25rem' }} />
+          </div>
         )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-            {seating.filter(p => p !== '-').map(p => {
-              const score = totals[p] ?? 0;
-              return (
-                <Link key={p} to={`/analytics?player=${encodeURIComponent(p)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6, color: '#fff' }}>person</span>
-                    <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)' }}>{p}</span>
+            {seating.filter(p => p !== '-').length > 0 ? (
+              seating.filter(p => p !== '-').map(p => {
+                const score = totals[p] ?? 0;
+                return (
+                  <Link key={p} to={`/analytics?player=${encodeURIComponent(p)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6, color: '#fff' }}>person</span>
+                      <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)' }}>{p}</span>
+                    </div>
+                    <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: score >= 0 ? 'rgba(255,255,255,0.9)' : '#f87171', fontFamily: "'Manrope', sans-serif" }}>
+                      {score >= 0 ? '+' : ''}{score}
+                    </span>
+                  </Link>
+                );
+              })
+            ) : (
+              <>
+                {[1, 2, 3].map(i => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', height: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.3, color: '#fff' }}>person</span>
+                      <div style={{ width: '60px', height: '13px', background: 'rgba(255,255,255,0.1)', borderRadius: '0.25rem' }} />
+                    </div>
+                    <div style={{ width: '36px', height: '13px', background: 'rgba(255,255,255,0.1)', borderRadius: '0.25rem' }} />
                   </div>
-                  <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: score >= 0 ? 'rgba(255,255,255,0.9)' : '#f87171', fontFamily: "'Manrope', sans-serif" }}>
-                    {score >= 0 ? '+' : ''}{score}
-                  </span>
-                </Link>
-              );
-            })}
+                ))}
+              </>
+            )}
           </div>
         <Link to="/history" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', opacity: 0.6, color: '#fff' }}>tag</span>
           <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)' }}>
-            Runde <strong style={{ color: '#fff' }}>{currentRound}</strong>
+            Runde <strong style={{ color: '#fff' }}>{currentRound || '—'}</strong>
           </span>
         </Link>
       </div>

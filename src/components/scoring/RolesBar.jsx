@@ -34,28 +34,43 @@ export default function RolesBar({ seating, step, totalDeals, completedRounds, b
       }}>
         {/* Spieler-Chips */}
         <div style={{ display: 'flex', gap: '0.5rem', flex: 1 }}>
-          {seating.map((name, i) => {
-            const isActive  = i === step;
-            const roleLabel = ROLE_LABELS[i] ?? `Pos ${i + 1}`;
-            return (
+          {seating.length === 0 ? (
+            [0, 1, 2].map(i => (
               <div key={i} style={{
                 flex: '0 1 140px',
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 padding: '0.35rem 0.75rem', borderRadius: '0.5rem',
-                backgroundColor: isActive ? HIGHLIGHT_COLOR : 'transparent',
-                border: `1px solid ${isActive ? HIGHLIGHT_COLOR : 'var(--outline-variant)'}`,
-                transition: 'background-color 0.2s, border-color 0.2s',
-                textAlign: 'center',
+                border: '1px solid var(--outline-variant)',
+                gap: '0.3rem',
               }}>
-                <span style={{ fontSize: '0.55rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', color: isActive ? 'rgba(255,255,255,0.7)' : 'var(--outline)' }}>
-                  {roleLabel}
-                </span>
-                <span style={{ fontWeight: 700, fontSize: '0.875rem', color: isActive ? '#fff' : 'var(--on-surface)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
-                  {name}
-                </span>
+                <span style={{ width: '40px', height: '9px', background: 'var(--outline-variant)', borderRadius: '0.2rem', display: 'block', opacity: 0.6 }} />
+                <span style={{ width: '64px', height: '14px', background: 'var(--outline-variant)', borderRadius: '0.25rem', display: 'block' }} />
               </div>
-            );
-          })}
+            ))
+          ) : (
+            seating.map((name, i) => {
+              const isActive  = i === step;
+              const roleLabel = ROLE_LABELS[i] ?? `Pos ${i + 1}`;
+              return (
+                <div key={i} style={{
+                  flex: '0 1 140px',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  padding: '0.35rem 0.75rem', borderRadius: '0.5rem',
+                  backgroundColor: isActive ? HIGHLIGHT_COLOR : 'transparent',
+                  border: `1px solid ${isActive ? HIGHLIGHT_COLOR : 'var(--outline-variant)'}`,
+                  transition: 'background-color 0.2s, border-color 0.2s',
+                  textAlign: 'center',
+                }}>
+                  <span style={{ fontSize: '0.55rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', color: isActive ? 'rgba(255,255,255,0.7)' : 'var(--outline)' }}>
+                    {roleLabel}
+                  </span>
+                  <span style={{ fontWeight: 700, fontSize: '0.875rem', color: isActive ? '#fff' : 'var(--on-surface)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+                    {name}
+                  </span>
+                </div>
+              );
+            })
+          )}
         </div>
 
         {/* Counter + Reset */}
@@ -85,26 +100,41 @@ export default function RolesBar({ seating, step, totalDeals, completedRounds, b
       <div className="rolesbar-mobile" style={{ backgroundColor: 'var(--surface-low)', borderRadius: '0.75rem', overflow: 'hidden' }}>
         {/* Spieler-Chips: horizontal scrollbar */}
         <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', padding: '0.75rem', scrollbarWidth: 'none' }}>
-          {seating.map((name, i) => {
-            const isActive  = i === step;
-            const roleLabel = ROLE_LABELS[i] ?? `Pos ${i + 1}`;
-            return (
+          {seating.length === 0 ? (
+            [0, 1, 2].map(i => (
               <div key={i} style={{
                 flexShrink: 0,
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 padding: '0.4rem 0.875rem', borderRadius: '0.5rem', minWidth: '72px',
-                backgroundColor: isActive ? HIGHLIGHT_COLOR : 'transparent',
-                border: `1px solid ${isActive ? HIGHLIGHT_COLOR : 'var(--outline-variant)'}`,
+                border: '1px solid var(--outline-variant)',
+                gap: '0.3rem',
               }}>
-                <span style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? 'rgba(255,255,255,0.7)' : 'var(--outline)' }}>
-                  {roleLabel}
-                </span>
-                <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: isActive ? '#fff' : 'var(--on-surface)', whiteSpace: 'nowrap' }}>
-                  {name}
-                </span>
+                <span style={{ width: '36px', height: '8px', background: 'var(--outline-variant)', borderRadius: '0.2rem', display: 'block', opacity: 0.6 }} />
+                <span style={{ width: '52px', height: '13px', background: 'var(--outline-variant)', borderRadius: '0.25rem', display: 'block' }} />
               </div>
-            );
-          })}
+            ))
+          ) : (
+            seating.map((name, i) => {
+              const isActive  = i === step;
+              const roleLabel = ROLE_LABELS[i] ?? `Pos ${i + 1}`;
+              return (
+                <div key={i} style={{
+                  flexShrink: 0,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  padding: '0.4rem 0.875rem', borderRadius: '0.5rem', minWidth: '72px',
+                  backgroundColor: isActive ? HIGHLIGHT_COLOR : 'transparent',
+                  border: `1px solid ${isActive ? HIGHLIGHT_COLOR : 'var(--outline-variant)'}`,
+                }}>
+                  <span style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? 'rgba(255,255,255,0.7)' : 'var(--outline)' }}>
+                    {roleLabel}
+                  </span>
+                  <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: isActive ? '#fff' : 'var(--on-surface)', whiteSpace: 'nowrap' }}>
+                    {name}
+                  </span>
+                </div>
+              );
+            })
+          )}
         </div>
         {/* Counter-Zeile */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0.75rem 0.75rem', borderTop: '1px solid var(--outline-variant)' }}>
