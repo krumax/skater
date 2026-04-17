@@ -251,22 +251,22 @@ export async function _doUpdateSeating(sessionId, seating) {
  */
 export async function listSessions() {
   const user_id = await getUserId();
+  if (!user_id) return { data: [], error: null };
+
   const query = supabase
     .from('sessions')
     .select('id, seating, geber_index, current_round, created_at, table_name')
+    .eq('user_id', user_id)
     .order('created_at', { ascending: false });
-
-  if (user_id) query.eq('user_id', user_id);
 
   const { data, error } = await query;
 
   if (error && error.message?.includes('table_name')) {
-    const fallbackQuery = supabase
+    const { data: fallback, error: fallbackError } = await supabase
       .from('sessions')
       .select('id, seating, geber_index, current_round, created_at')
+      .eq('user_id', user_id)
       .order('created_at', { ascending: false });
-    if (user_id) fallbackQuery.eq('user_id', user_id);
-    const { data: fallback, error: fallbackError } = await fallbackQuery;
     return { data: fallback, error: fallbackError };
   }
 

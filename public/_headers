@@ -1,6 +1,9 @@
 # HTML immer frisch laden
 /*
   Cache-Control: public, max-age=0, must-revalidate
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
 
 # Landing-CSS & JS (kein Hash im Dateinamen → nie lang cachen)
 /landing/css/*
