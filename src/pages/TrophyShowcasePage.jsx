@@ -21,6 +21,14 @@ const TrophyShowcasePage = () => {
     }
   }, [players, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Hook vor Early Return (Rules of Hooks)
+  const {
+    trophies, attackMatrix, defenseMatrix,
+    levelLabel, levelEmoji,
+    unlockedAttack, totalAttack,
+    unlockedDefense, totalDefense,
+  } = useTrophyData(players, rounds, selectedPlayer);
+
   if (players.length === 0) {
     return (
       <div>
@@ -31,14 +39,6 @@ const TrophyShowcasePage = () => {
       </div>
     );
   }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const {
-    trophies, attackMatrix, defenseMatrix,
-    levelLabel, levelEmoji,
-    unlockedAttack, totalAttack,
-    unlockedDefense, totalDefense,
-  } = useTrophyData(players, rounds, selectedPlayer);
 
   return (
     <div>

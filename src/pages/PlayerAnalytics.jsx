@@ -142,6 +142,10 @@ const PlayerAnalytics = () => {
     }
   }, [players, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Hooks müssen vor jedem Early Return stehen (Rules of Hooks)
+  const { trophies, levelLabel, levelEmoji } = useTrophyData(players, rounds, selectedPlayer);
+  const stats = getPlayerStats(selectedPlayer);
+
   if (players.length === 0) {
     return (
       <div>
@@ -153,13 +157,9 @@ const PlayerAnalytics = () => {
     );
   }
 
-  const stats = getPlayerStats(selectedPlayer);
   const playShare = rounds.length > 0
     ? ((stats.totalGames / rounds.length) * 100).toFixed(1)
     : '0.0';
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { trophies, levelLabel, levelEmoji } = useTrophyData(players, rounds, selectedPlayer);
 
   return (
     <div>
