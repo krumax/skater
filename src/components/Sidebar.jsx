@@ -3,7 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { SYNC_COLORS } from '../lib/tokens';
 import { supabase } from '../lib/supabaseClient';
-import logoUrl from '/skatastrophe_logo.png';
+import logoUrl from '/skatastrophe_logo_2.png';
 
 const SYNC_ICON = {
   idle:    { icon: 'cloud_done', color: SYNC_COLORS.idle,    title: 'Synchronisiert' },

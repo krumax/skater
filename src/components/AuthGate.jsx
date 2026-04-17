@@ -6,7 +6,7 @@
  */
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import logoUrl from '/skatastrophe_logo.png';
+import logoUrl from '/skatastrophe_logo_2.png';
 
 export default function AuthGate({ children }) {
   const [user, setUser]       = useState(null);
