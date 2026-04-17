@@ -1,12 +1,32 @@
 /**
- * AuthGate — ersetzt PasswordGate durch Supabase Auth.
+ * AuthGate — Supabase Auth with GSI (Google Identity Services).
  *
  * Zeigt Login-Screen wenn kein User eingeloggt ist.
- * Unterstützt: E-Mail/Passwort, Google OAuth, Registrierung.
+ * Unterstützt: E-Mail/Passwort, Google GSI (signInWithIdToken), Registrierung.
+ *
+ * Google Sign-In läuft über den GSI-Flow (kein OAuth-Redirect):
+ *   1. GSI-Script initialisiert sich mit der Client-ID
+ *   2. User klickt Button → google.accounts.id.prompt() öffnet Popup
+ *   3. Callback erhält credential-Token → supabase.auth.signInWithIdToken()
+ * Das funktioniert sowohl im Browser als auch in einer TWA (Android).
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import logoUrl from '/skatastrophe_logo_2.png';
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+// Nonce-Generierung für GSI (SHA-256 gehasht für Google, plain für Supabase)
+async function generateNonce() {
+  const raw = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));
+  const encoder = new TextEncoder();
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(raw));
+  const hashed = Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+  return { raw, hashed };
+}
+
+let gsiInitialized = false;
 
 export default function AuthGate({ children }) {
   const [user, setUser]       = useState(null);
@@ -17,8 +37,20 @@ export default function AuthGate({ children }) {
   const [error, setError]     = useState('');
   const [info, setInfo]       = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const nonceRef = useState(null); // [0] = { raw, hashed }
 
-  // Session beim Start laden + auf Auth-Änderungen hören
+  // GSI Callback: wird von Google aufgerufen mit einem credential-Token
+  const handleGsiCredential = useCallback(async (response) => {
+    setError('');
+    const { error } = await supabase.auth.signInWithIdToken({
+      provider: 'google',
+      token: response.credential,
+      nonce: nonceRef[0]?.raw,
+    });
+    if (error) setError(error.message);
+  }, [nonceRef]);
+
+  // Session beim Start laden + auf Auth-Änderungen hören + GSI initialisieren
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -27,8 +59,31 @@ export default function AuthGate({ children }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
+
+    const initGsi = async () => {
+      if (!window.google?.accounts?.id || !GOOGLE_CLIENT_ID || gsiInitialized) return;
+      gsiInitialized = true;
+
+      const nonce = await generateNonce();
+      nonceRef[0] = nonce;
+
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGsiCredential,
+        nonce: nonce.hashed,
+        use_fedcm_for_prompt: true,
+      });
+    };
+
+    if (window.google?.accounts?.id) {
+      initGsi();
+    } else {
+      const script = document.querySelector('script[src*="accounts.google.com/gsi/client"]');
+      if (script) script.addEventListener('load', initGsi);
+    }
+
     return () => subscription.unsubscribe();
-  }, []);
+  }, [handleGsiCredential, nonceRef]);
 
   if (loading) return null;
   if (user) return children;
@@ -49,13 +104,17 @@ export default function AuthGate({ children }) {
     setSubmitting(false);
   };
 
-  const handleGoogle = async () => {
+  const handleGoogle = () => {
     setError('');
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + '/app' },
+    if (!window.google?.accounts?.id) {
+      setError('Google Sign-In konnte nicht geladen werden. Bitte Seite neu laden.');
+      return;
+    }
+    window.google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        setError('Google-Anmeldung wurde abgebrochen oder blockiert.');
+      }
     });
-    if (error) setError(error.message);
   };
 
   // ── UI ────────────────────────────────────────────────────────────────────
