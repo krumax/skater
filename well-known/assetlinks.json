@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "de.skatastrophe.app",
+      "sha256_cert_fingerprints": [
+        "D7:EF:62:89:81:61:D0:F5:B5:7B:9C:F3:6F:79:84:09:60:A1:BF:41:FC:3E:D3:D4:AD:B5:02:7D:AF:FC:0B:AE"
+      ]
+    }
+  }
+]
