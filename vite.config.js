@@ -12,8 +12,15 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'prompt', // Wir verwenden prompt, da du in Phase 3 einen Update-Prompt integrieren willst
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png'],
+      workbox: {
+        // App-Shell + alle Assets precachen → App startet offline
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Supabase-Calls nicht cachen — die brauchen Netz
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api\//, /^\/auth\//],
+      },
       manifest: {
         name: 'Skatastrophe',
         short_name: 'Skatastrophe',
@@ -31,7 +38,13 @@ export default defineConfig({
             src: 'android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: 'android-chrome-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       }

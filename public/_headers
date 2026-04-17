@@ -5,6 +5,11 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
+# Digital Asset Links — für TWA/Android Play Store
+/.well-known/assetlinks.json
+  Content-Type: application/json
+  Cache-Control: public, max-age=0, must-revalidate
+
 # Landing-CSS & JS (kein Hash im Dateinamen → nie lang cachen)
 /landing/css/*
   Cache-Control: public, max-age=0, must-revalidate
