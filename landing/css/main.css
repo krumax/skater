@@ -114,9 +114,12 @@ section { padding: 5rem 2rem; }
 
 /* ── Spruch ── */
 .spruch-section { background: var(--cream-dark); text-align: center; }
-.spruch-card { background: var(--gold); color: var(--text-dark); border-radius: var(--radius); padding: 2.5rem 3rem; max-width: 640px; margin: 0 auto; box-shadow: 0 8px 32px rgba(208,166,0,0.3); }
-.spruch-quote { font-family: 'Manrope', sans-serif; font-size: 1.5rem; font-weight: 800; font-style: italic; margin-bottom: 0.75rem; }
-.spruch-meta { font-size: 0.8rem; font-weight: 700; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.1em; }
+.spruch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; max-width: 900px; margin: 0 auto; }
+.spruch-card { background: var(--gold); color: var(--text-dark); border-radius: var(--radius); padding: 2rem 2.25rem; box-shadow: 0 8px 32px rgba(208,166,0,0.25); text-align: left; }
+.spruch-card--dark { background: var(--green-dark); color: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+.spruch-card--dark .spruch-meta { color: rgba(255,255,255,0.6); opacity: 1; }
+.spruch-quote { font-family: 'Manrope', sans-serif; font-size: 1.15rem; font-weight: 800; font-style: italic; margin-bottom: 1rem; line-height: 1.5; }
+.spruch-meta { font-size: 0.75rem; font-weight: 700; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em; }
 
 /* ── FAQ ── */
 .faq-list { max-width: 720px; margin: 0 auto; }
@@ -171,8 +174,9 @@ footer a { color: var(--gold); text-decoration: none; }
   .stat-number { font-size: 2.25rem; }
 
   /* Spruch */
-  .spruch-card { padding: 1.75rem 1.5rem; }
-  .spruch-quote { font-size: 1.125rem; }
+  .spruch-grid { grid-template-columns: 1fr; }
+  .spruch-card { padding: 1.5rem 1.25rem; }
+  .spruch-quote { font-size: 1.05rem; }
 
   /* FAQ */
   .faq-item summary { font-size: 0.9375rem; }
