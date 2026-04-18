@@ -180,20 +180,34 @@ const PlayerAnalytics = () => {
       </div>
 
       {/* Haupt-Tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '2rem', borderBottom: '2px solid var(--outline-variant)', paddingBottom: '0' }}>
         <button
           onClick={() => setMainTab('statistik')}
-          className={`chip ${mainTab === 'statistik' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '0.6rem 1.25rem' }}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: '0.625rem 1.25rem', fontWeight: 700, fontSize: '0.9375rem',
+            fontFamily: 'inherit', color: mainTab === 'statistik' ? 'var(--primary)' : 'var(--outline)',
+            borderBottom: mainTab === 'statistik' ? '2px solid var(--primary)' : '2px solid transparent',
+            marginBottom: '-2px', transition: 'color 0.15s',
+            display: 'flex', alignItems: 'center', gap: '0.4rem',
+          }}
         >
-          📊 Statistik
+          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>bar_chart</span>
+          Statistik
         </button>
         <button
           onClick={() => setMainTab('vitrine')}
-          className={`chip ${mainTab === 'vitrine' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '0.6rem 1.25rem' }}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: '0.625rem 1.25rem', fontWeight: 700, fontSize: '0.9375rem',
+            fontFamily: 'inherit', color: mainTab === 'vitrine' ? 'var(--primary)' : 'var(--outline)',
+            borderBottom: mainTab === 'vitrine' ? '2px solid var(--primary)' : '2px solid transparent',
+            marginBottom: '-2px', transition: 'color 0.15s',
+            display: 'flex', alignItems: 'center', gap: '0.4rem',
+          }}
         >
-          🏆 Pokalvitrine
+          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>emoji_events</span>
+          Pokalvitrine
         </button>
       </div>
 
