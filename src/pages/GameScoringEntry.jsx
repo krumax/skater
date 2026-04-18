@@ -84,22 +84,30 @@ const GameScoringEntry = () => {
 
       {/* Spiellisten UI */}
       {(activeSpiellisten.length > 0 || activeSpiellisteId !== null) && (
-        <SpiellistenSelector
-          spiellisten={activeSpiellisten}
-          activeId={activeSpiellisteId}
-          onSelect={setActiveSpielliste}
-          onCreateNew={() => setShowCreateForm(true)}
-        />
+        <>
+          <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', marginBottom: '0.5rem' }}>
+            Aktuelle Spielserie
+          </p>
+          <SpiellistenSelector
+            spiellisten={activeSpiellisten}
+            activeId={activeSpiellisteId}
+            onSelect={setActiveSpielliste}
+            onCreateNew={() => setShowCreateForm(true)}
+          />
+        </>
       )}
       {activeSpiellisten.length === 0 && activeSpiellisteId === null && (
         <div style={{ marginBottom: '1rem' }}>
+          <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)', marginBottom: '0.5rem' }}>
+            Aktuelle Spielserie
+          </p>
           <button
             onClick={() => setShowCreateForm(true)}
             className="chip"
             style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add_circle</span>
-            Neue Liste starten
+            Neue Serie starten
           </button>
         </div>
       )}
@@ -117,7 +125,7 @@ const GameScoringEntry = () => {
             padding: '1.5rem', width: '100%', maxWidth: '400px',
             boxShadow: '0 16px 48px var(--shadow-color)',
           }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem' }}>Neue Liste erstellen</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem' }}>Neue Serie erstellen</h2>
 
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--outline)' }}>
@@ -127,7 +135,7 @@ const GameScoringEntry = () => {
                 type="text"
                 value={newListeName}
                 onChange={e => setNewListeName(e.target.value)}
-                placeholder={`Liste ${spiellisten.length + 1}`}
+                placeholder={`Serie ${spiellisten.length + 1}`}
                 maxLength={40}
                 style={{
                   width: '100%', padding: '0.625rem 0.875rem',
@@ -171,7 +179,7 @@ const GameScoringEntry = () => {
                 onClick={handleCreateSpielliste}
                 className="chip active"
               >
-                Liste erstellen
+                Serie erstellen
               </button>
             </div>
           </div>

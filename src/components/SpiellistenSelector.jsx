@@ -105,7 +105,7 @@ const SpiellistenSelector = ({ spiellisten, activeId, onSelect, onCreateNew }) =
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add_circle</span>
-            <span>Neue Liste erstellen</span>
+            <span>Neue Serie erstellen</span>
           </button>
         </div>
       )}

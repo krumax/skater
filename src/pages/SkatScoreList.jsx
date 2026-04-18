@@ -71,7 +71,7 @@ const SkatScoreList = () => {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>format_list_numbered</span>
-          Spiellisten
+          Spielserien
           {spiellisten.length > 0 && (
             <span style={{
               fontSize: '0.7rem', fontWeight: 800, minWidth: '1.25rem', height: '1.25rem',
@@ -285,8 +285,8 @@ function SpiellistenTab({ spiellisten, rounds, players, closeSpielliste, selecte
     return (
       <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--outline)' }}>
         <span className="material-symbols-outlined" style={{ fontSize: '3rem', marginBottom: '1rem', display: 'block', opacity: 0.4 }}>format_list_numbered</span>
-        <p style={{ fontSize: '1.125rem', fontWeight: 600 }}>Noch keine Spiellisten vorhanden.</p>
-        <p style={{ marginTop: '0.5rem' }}>Erstelle eine Spielliste über die Einstellungen.</p>
+        <p style={{ fontSize: '1.125rem', fontWeight: 600 }}>Noch keine Spielserien vorhanden.</p>
+        <p style={{ marginTop: '0.5rem' }}>Erstelle eine Spielserie über die Einstellungen.</p>
       </div>
     );
   }
