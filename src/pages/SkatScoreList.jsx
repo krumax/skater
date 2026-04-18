@@ -166,7 +166,7 @@ const SkatScoreList = () => {
               {olderRounds.length > 0 && (
                 <>
                   {expanded && olderRounds.map((r, idx) => (
-                    <RoundRow key={r.id} r={r} idx={idx} players={players}
+                    <RoundRow key={r._dbId ?? `old-${idx}`} r={r} idx={idx} players={players}
                       std={runningStd[idx]} sf={runningSF[idx]}
                       sfPrev={idx > 0 ? runningSF[idx - 1] : null}
                       onEdit={setEditingRound} onDelete={deleteRound} />
@@ -194,7 +194,7 @@ const SkatScoreList = () => {
               {recentRounds.map((r, i) => {
                 const idx = splitAt + i;
                 return (
-                  <RoundRow key={r.id} r={r} idx={idx} players={players}
+                  <RoundRow key={r._dbId ?? `recent-${i}`} r={r} idx={idx} players={players}
                     std={runningStd[idx]} sf={runningSF[idx]}
                     sfPrev={idx > 0 ? runningSF[idx - 1] : null}
                     onEdit={setEditingRound} onDelete={deleteRound} />

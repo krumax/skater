@@ -95,13 +95,13 @@ const Sidebar = () => {
           <span className="material-symbols-outlined">menu_book</span>
           Skatliste
         </NavLink>
-        <NavLink to="/analytics" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
-          <span className="material-symbols-outlined">leaderboard</span>
-          Spielerstatistik
-        </NavLink>
         <NavLink to="/statistiken" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
           <span className="material-symbols-outlined">insights</span>
           Tischstatistik
+        </NavLink>
+        <NavLink to="/analytics" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
+          <span className="material-symbols-outlined">leaderboard</span>
+          Spielerstatistik
         </NavLink>
         <NavLink to="/players" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
           <span className="material-symbols-outlined">group</span>
@@ -183,19 +183,15 @@ const Sidebar = () => {
       </NavLink>
       <NavLink to="/history" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
         <span className="material-symbols-outlined">menu_book</span>
-        Liste
-      </NavLink>
-      <NavLink to="/analytics" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
-        <span className="material-symbols-outlined">leaderboard</span>
-        Spieler
+        Skatliste
       </NavLink>
       <NavLink to="/statistiken" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
         <span className="material-symbols-outlined">insights</span>
         Tisch
       </NavLink>
-      <NavLink to="/players" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
-        <span className="material-symbols-outlined">group</span>
-        Einst.
+      <NavLink to="/analytics" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
+        <span className="material-symbols-outlined">leaderboard</span>
+        Spieler
       </NavLink>
     </nav>
     </>

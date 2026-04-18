@@ -14,6 +14,7 @@
 import { useCallback } from 'react';
 import * as syncService from '../lib/syncService';
 import { SESSION_STORAGE_KEY } from './useSessionInit';
+import { validateSpiellisteName, validateRoundCount, generateDefaultName, computeListWinner } from '../lib/spiellistenUtils';
 
 export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
 
@@ -33,6 +34,13 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
   // ── Round actions ──────────────────────────────────────────────────────────
 
   const addRound = useCallback(async (roundData) => {
+    // Capture spielliste state before dispatch (reducer will mutate it)
+    const activeId = state.activeSpiellisteId;
+    const activeListe = activeId ? state.spiellisten.find(l => l.id === activeId) : null;
+    const listRoundsCountBefore = activeId
+      ? state.rounds.filter(r => r.spiellisteId === activeId).length
+      : 0;
+
     dispatch({ type: 'ADD_ROUND', payload: roundData });
     const sessionId = getSessionId();
     if (!sessionId) return;
@@ -46,6 +54,7 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
       gameValue: roundData.isBock ? roundData.gameValue * 2 : roundData.gameValue,
       isBock: roundData.isBock ?? false,
       timestamp: new Date().toISOString(),
+      spiellisteId: activeId,
     };
 
     const { error: insertError } = await syncService.insertRound(roundWithId, sessionId);
@@ -57,8 +66,17 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
     });
     if (updateError) console.error('updateSession fehlgeschlagen:', updateError);
 
+    // Auto-close list in DB if round count reached
+    if (activeListe && (listRoundsCountBefore + 1) >= activeListe.roundCount) {
+      const allRounds = [...state.rounds, roundWithId];
+      const listRounds = allRounds.filter(r => r.spiellisteId === activeId);
+      const winner = computeListWinner(state.seating, listRounds);
+      const { error: closeError } = await syncService.closeSpielliste(activeId, winner);
+      if (closeError) console.error('closeSpielliste (auto) fehlgeschlagen:', closeError);
+    }
+
     syncOk();
-  }, [state.rounds.length, state.geberIndex, state.seating.length, state.currentRound]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.rounds, state.rounds.length, state.geberIndex, state.seating, state.seating.length, state.currentRound, state.activeSpiellisteId, state.spiellisten]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const deleteRound = useCallback(async (round) => {
     dispatch({ type: 'DELETE_ROUND', payload: round.id });
@@ -168,6 +186,9 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
     const newSeating = state.seating.map(p => p === oldName ? newName : p);
     const { error } = await syncService.updateSeating(sessionId, newSeating);
     if (error) console.error('updateSeating (renamePlayer) fehlgeschlagen:', error);
+    // Update all rounds in DB that reference the old player name
+    const { error: roundsError } = await syncService.renamePlayerInRounds(sessionId, oldName, newName);
+    if (roundsError) console.error('renamePlayerInRounds fehlgeschlagen:', roundsError);
   }, [state.seating]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const reorderSeating = useCallback(async (fromIndex, toIndex) => {
@@ -199,9 +220,82 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
     if (error) console.error('renameTable fehlgeschlagen:', error);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Spiellisten actions ────────────────────────────────────────────────────
+
+  const createSpielliste = useCallback(async (name, roundCount) => {
+    // Guard: session must have players
+    if (state.seating.length === 0) return;
+
+    // Validate
+    const nameValidation = validateSpiellisteName(name);
+    if (!nameValidation.valid) {
+      setSyncError(nameValidation.error);
+      return;
+    }
+    const countValidation = validateRoundCount(roundCount);
+    if (!countValidation.valid) {
+      setSyncError(countValidation.error);
+      return;
+    }
+
+    const sessionId = getSessionId();
+    if (!sessionId) return;
+
+    // Use default name if empty
+    const finalName = (!name || name.trim() === '')
+      ? generateDefaultName(state.spiellisten.length)
+      : name.trim();
+
+    const now = new Date().toISOString();
+    const newSpielliste = {
+      id: crypto.randomUUID(),
+      sessionId,
+      name: finalName,
+      roundCount,
+      status: 'aktiv',
+      winner: null,
+      lastTouchedAt: now,
+      createdAt: now,
+    };
+
+    // Optimistic dispatch
+    dispatch({ type: 'ADD_SPIELLISTE', payload: newSpielliste });
+    setSyncStatus('syncing');
+
+    const { error } = await syncService.createSpielliste(newSpielliste, sessionId);
+    if (error) { syncFail('createSpielliste', error); return; }
+    syncOk();
+  }, [state.seating, state.spiellisten]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const setActiveSpielliste = useCallback(async (id) => {
+    dispatch({ type: 'SET_ACTIVE_SPIELLISTE', payload: id });
+
+    if (id === null) return; // No DB call needed when deselecting
+
+    setSyncStatus('syncing');
+    const { error } = await syncService.setActiveSpiellisteTimestamp(id);
+    if (error) { syncFail('setActiveSpielliste', error); return; }
+    syncOk();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const closeSpielliste = useCallback(async (spiellisteId) => {
+    // Compute winner from current state
+    const listRounds = state.rounds.filter(r => r.spiellisteId === spiellisteId);
+    const winner = computeListWinner(state.seating, listRounds);
+
+    // Optimistic dispatch
+    dispatch({ type: 'CLOSE_SPIELLISTE', payload: spiellisteId });
+    setSyncStatus('syncing');
+
+    const { error } = await syncService.closeSpielliste(spiellisteId, winner);
+    if (error) { syncFail('closeSpielliste', error); return; }
+    syncOk();
+  }, [state.rounds, state.seating]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return {
     addRound, deleteRound, updateRound,
     resetSession, createNewTable, switchSession, refreshFromDB,
     addPlayer, removePlayer, renamePlayer, reorderSeating, setGeberIndex, renameTable,
+    createSpielliste, setActiveSpielliste, closeSpielliste,
   };
 }

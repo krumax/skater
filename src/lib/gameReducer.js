@@ -4,6 +4,7 @@
  * No React imports, no side effects — fully unit-testable.
  */
 import { calculateSeegerFabian } from './skatScoring';
+import { computeListWinner } from './spiellistenUtils';
 
 export const initialState = {
   seating: [],
@@ -12,6 +13,8 @@ export const initialState = {
   currentRound: 1,
   sessionId: Date.now(),
   tableName: '',
+  spiellisten: [],
+  activeSpiellisteId: null,
 };
 
 export function getRoles(seating, geberIndex) {
@@ -41,6 +44,7 @@ export function gameReducer(state, action) {
         isBock: action.payload.isBock ?? false,
         mitOhne: action.payload.mitOhne ?? 'mit',
         timestamp: new Date().toISOString(),
+        spiellisteId: state.activeSpiellisteId,
       };
       const roles = getRoles(state.seating, state.geberIndex);
       round.roles = { geber: roles.geber, hoeren: roles.hoeren, sagen: roles.sagen };
@@ -50,11 +54,46 @@ export function gameReducer(state, action) {
         gameValue: round.gameValue,
         won: round.won,
       });
+
+      const newRounds = [...state.rounds, round];
+      const now = new Date().toISOString();
+
+      // Update lastTouchedAt of active list
+      let newSpiellisten = state.spiellisten;
+      let newActiveSpiellisteId = state.activeSpiellisteId;
+
+      if (state.activeSpiellisteId) {
+        const activeListe = state.spiellisten.find(l => l.id === state.activeSpiellisteId);
+        if (activeListe) {
+          const listRounds = newRounds.filter(r => r.spiellisteId === state.activeSpiellisteId);
+
+          if (listRounds.length >= activeListe.roundCount) {
+            // Auto-close the list
+            const winner = computeListWinner(state.seating, listRounds);
+            newSpiellisten = state.spiellisten.map(l =>
+              l.id === state.activeSpiellisteId
+                ? { ...l, status: 'abgeschlossen', winner, lastTouchedAt: now }
+                : l
+            );
+            newActiveSpiellisteId = null;
+          } else {
+            // Just update lastTouchedAt
+            newSpiellisten = state.spiellisten.map(l =>
+              l.id === state.activeSpiellisteId
+                ? { ...l, lastTouchedAt: now }
+                : l
+            );
+          }
+        }
+      }
+
       return {
         ...state,
-        rounds: [...state.rounds, round],
+        rounds: newRounds,
         currentRound: state.currentRound + 1,
         geberIndex: (state.geberIndex + 1) % state.seating.length,
+        spiellisten: newSpiellisten,
+        activeSpiellisteId: newActiveSpiellisteId,
       };
     }
 
@@ -71,6 +110,8 @@ export function gameReducer(state, action) {
         rounds,
         sessionId: session.id,
         tableName: session.table_name ?? '',
+        spiellisten: action.payload.spiellisten ?? [],
+        activeSpiellisteId: action.payload.activeSpiellisteId ?? null,
       };
     }
 
@@ -155,6 +196,45 @@ export function gameReducer(state, action) {
 
     case 'SET_TABLE_NAME':
       return { ...state, tableName: action.payload };
+
+    case 'ADD_SPIELLISTE': {
+      return {
+        ...state,
+        spiellisten: [...state.spiellisten, action.payload],
+        activeSpiellisteId: action.payload.id,
+      };
+    }
+
+    case 'SET_ACTIVE_SPIELLISTE': {
+      const id = action.payload;
+      if (id !== null) {
+        const liste = state.spiellisten.find(l => l.id === id);
+        if (!liste || liste.status === 'abgeschlossen') return state;
+      }
+      const now = new Date().toISOString();
+      return {
+        ...state,
+        activeSpiellisteId: id,
+        spiellisten: id === null ? state.spiellisten : state.spiellisten.map(l =>
+          l.id === id ? { ...l, lastTouchedAt: now } : l
+        ),
+      };
+    }
+
+    case 'CLOSE_SPIELLISTE': {
+      const spiellisteId = action.payload;
+      const listRounds = state.rounds.filter(r => r.spiellisteId === spiellisteId);
+      const winner = computeListWinner(state.seating, listRounds);
+      return {
+        ...state,
+        spiellisten: state.spiellisten.map(l =>
+          l.id === spiellisteId
+            ? { ...l, status: 'abgeschlossen', winner }
+            : l
+        ),
+        activeSpiellisteId: state.activeSpiellisteId === spiellisteId ? null : state.activeSpiellisteId,
+      };
+    }
 
     default:
       return state;

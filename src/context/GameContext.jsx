@@ -43,6 +43,10 @@ export function GameProvider({ children }) {
     computePlayerStats(state.rounds, playerName),
   [state.rounds]);
 
+  const getActiveSpiellistenForSession = useCallback(() =>
+    state.spiellisten.filter(l => l.status === 'aktiv'),
+  [state.spiellisten]);
+
   return (
     <GameContext.Provider value={{
       // State
@@ -54,6 +58,8 @@ export function GameProvider({ children }) {
       geberIndex: state.geberIndex,
       tableName: state.tableName,
       currentRoles,
+      spiellisten: state.spiellisten,
+      activeSpiellisteId: state.activeSpiellisteId,
       // Sync
       syncStatus,
       syncError,
@@ -65,6 +71,7 @@ export function GameProvider({ children }) {
       getSeegerTotals,
       getPlayerRank,
       getPlayerStats,
+      getActiveSpiellistenForSession,
     }}>
       {children}
     </GameContext.Provider>
