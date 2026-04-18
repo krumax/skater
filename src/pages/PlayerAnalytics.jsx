@@ -169,7 +169,7 @@ const PlayerAnalytics = () => {
       </header>
 
       {/* Spieler-Auswahl */}
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem' }}>
         {players.map(name => (
           <button key={name} onClick={() => setSelectedPlayer(name)}
             className={`chip ${selectedPlayer === name ? 'active' : ''}`}
@@ -178,6 +178,12 @@ const PlayerAnalytics = () => {
           </button>
         ))}
       </div>
+
+      {/* Spieler-Überschrift */}
+      <h2 className="headline" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>{selectedPlayer}</h2>
+      <p className="page-subtitle" style={{ marginBottom: '0' }}>
+        {stats.totalGames} Spiele · {playShare}% Spielanteil
+      </p>
 
       {/* Haupt-Tabs */}
       <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '2rem', borderBottom: '2px solid var(--outline-variant)', paddingBottom: '0' }}>

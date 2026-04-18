@@ -291,24 +291,18 @@ function SpiellistenTab({ spiellisten, rounds, players, closeSpielliste, selecte
     );
   }
 
-  const selectedListe = spiellisten.find(l => l.id === selectedSpiellisteId) ?? null;
-  const selListRounds = selectedListe ? rounds.filter(r => r.spiellisteId === selectedSpiellisteId) : [];
-  const selStats = selectedListe ? computeListStats(players, selListRounds) : null;
-  const selProgress = selectedListe ? computeListProgress(selectedListe, selListRounds) : null;
-
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: selectedListe ? '1fr 1fr' : '1fr', gap: '1.5rem', alignItems: 'start' }}
-         className="spiellisten-grid">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {spiellisten.map((liste, idx) => {
+        const lRounds = rounds.filter(r => r.spiellisteId === liste.id);
+        const lProgress = computeListProgress(liste, lRounds);
+        const isSelected = liste.id === selectedSpiellisteId;
+        const lStats = isSelected ? computeListStats(players, lRounds) : null;
 
-      {/* List cards */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {spiellisten.map((liste, idx) => {
-          const lRounds = rounds.filter(r => r.spiellisteId === liste.id);
-          const lProgress = computeListProgress(liste, lRounds);
-          const isSelected = liste.id === selectedSpiellisteId;
-          return (
+        return (
+          <div key={liste.id} style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+            {/* Row */}
             <div
-              key={liste.id}
               className="card"
               onClick={() => setSelectedSpiellisteId(isSelected ? null : liste.id)}
               style={{
@@ -316,6 +310,7 @@ function SpiellistenTab({ spiellisten, rounds, players, closeSpielliste, selecte
                 border: isSelected ? '2px solid var(--primary)' : '2px solid transparent',
                 backgroundColor: 'var(--surface-low)',
                 transition: 'border-color 0.15s',
+                borderRadius: isSelected ? '0.75rem 0.75rem 0 0' : '0.75rem',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -359,72 +354,73 @@ function SpiellistenTab({ spiellisten, rounds, players, closeSpielliste, selecte
                 </span>
               </div>
             </div>
-          );
-        })}
-      </div>
 
-      {/* Drill-down */}
-      {selectedListe && selStats && (
-        <div className="card" style={{ position: 'sticky', top: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <div>
-              <h4 style={{ fontSize: '1.125rem', fontWeight: 800 }}>{selectedListe.name}</h4>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--outline)' }}>
-                {selStats.playedRounds} von {selectedListe.roundCount} Runden gespielt
-              </p>
-            </div>
-            {selectedListe.status === 'aktiv' && (
-              <button
-                onClick={() => closeSpielliste(selectedListe.id)}
-                className="chip"
-                style={{ color: 'var(--secondary)', borderColor: 'var(--secondary)', flexShrink: 0 }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.25rem' }}>stop_circle</span>
-                Abschließen
-              </button>
-            )}
-          </div>
-          {selProgress && (
-            <div style={{ marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--outline)', marginBottom: '0.3rem' }}>
-                <span>Fortschritt</span>
-                <span>Runde {selProgress.current} von {selProgress.total}</span>
-              </div>
-              <div style={{ height: '6px', backgroundColor: 'var(--outline-variant)', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${Math.min((selProgress.current / selProgress.total) * 100, 100)}%`, backgroundColor: 'var(--primary)', borderRadius: '3px', transition: 'width 0.3s ease' }} />
-              </div>
-            </div>
-          )}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {selStats.sortedPlayers.map((p, rank) => {
-              const isWinner = selectedListe.status === 'abgeschlossen' && selectedListe.winner?.includes(p.name);
-              return (
-                <div key={p.name} style={{
-                  display: 'flex', alignItems: 'center', gap: '0.75rem',
-                  padding: '0.625rem 0.875rem', borderRadius: '0.5rem',
-                  backgroundColor: isWinner ? 'rgba(208,166,0,0.12)' : 'var(--surface-low)',
-                  border: isWinner ? '1px solid rgba(208,166,0,0.4)' : '1px solid transparent',
-                }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--outline)', width: '1.25rem', textAlign: 'center', flexShrink: 0 }}>{rank + 1}.</span>
-                  <span style={{ flex: 1, fontWeight: 600, fontSize: '0.9375rem' }}>{isWinner && '🏆 '}{p.name}</span>
-                  <div style={{ textAlign: 'right' }}>
-                    <p style={{ fontSize: '0.9375rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: (p.seeger + p.raw) >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
-                      {(p.seeger + p.raw) >= 0 ? '+' : ''}{p.seeger + p.raw}
-                    </p>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>Gesamt</p>
-                  </div>
-                  <div style={{ textAlign: 'right', minWidth: '60px' }}>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 700, fontFamily: "'Manrope', sans-serif", color: p.raw >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
-                      {p.raw >= 0 ? '+' : ''}{p.raw}
-                    </p>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>Rohpunkte</p>
+            {/* Inline drill-down */}
+            {isSelected && lStats && (
+              <div style={{
+                border: '2px solid var(--primary)', borderTop: 'none',
+                borderRadius: '0 0 0.75rem 0.75rem',
+                backgroundColor: 'var(--surface)',
+                padding: '1rem 1.25rem',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.875rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--outline)' }}>
+                    {lStats.playedRounds} von {liste.roundCount} Runden gespielt
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    {lProgress && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{ width: '80px', height: '5px', backgroundColor: 'var(--outline-variant)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${Math.min((lProgress.current / lProgress.total) * 100, 100)}%`, backgroundColor: 'var(--primary)', borderRadius: '3px', transition: 'width 0.3s ease' }} />
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--outline)' }}>{lProgress.current}/{lProgress.total}</span>
+                      </div>
+                    )}
+                    {liste.status === 'aktiv' && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); closeSpielliste(liste.id); }}
+                        className="chip"
+                        style={{ color: 'var(--secondary)', borderColor: 'var(--secondary)', flexShrink: 0, fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', verticalAlign: 'middle', marginRight: '0.25rem' }}>stop_circle</span>
+                        Abschließen
+                      </button>
+                    )}
                   </div>
                 </div>
-              );
-            })}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  {lStats.sortedPlayers.map((p, rank) => {
+                    const isWinner = liste.status === 'abgeschlossen' && liste.winner?.includes(p.name);
+                    return (
+                      <div key={p.name} style={{
+                        display: 'flex', alignItems: 'center', gap: '0.75rem',
+                        padding: '0.5rem 0.75rem', borderRadius: '0.5rem',
+                        backgroundColor: isWinner ? 'rgba(208,166,0,0.12)' : 'var(--surface-low)',
+                        border: isWinner ? '1px solid rgba(208,166,0,0.4)' : '1px solid transparent',
+                      }}>
+                        <span style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--outline)', width: '1.25rem', textAlign: 'center', flexShrink: 0 }}>{rank + 1}.</span>
+                        <span style={{ flex: 1, fontWeight: 600, fontSize: '0.9375rem' }}>{isWinner && '🏆 '}{p.name}</span>
+                        <div style={{ textAlign: 'right', minWidth: '60px' }}>
+                          <p style={{ fontSize: '0.875rem', fontWeight: 700, fontFamily: "'Manrope', sans-serif", color: p.raw >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
+                            {p.raw >= 0 ? '+' : ''}{p.raw}
+                          </p>
+                          <p style={{ fontSize: '0.65rem', color: 'var(--outline)' }}>Rohpunkte</p>
+                        </div>
+                        <div style={{ textAlign: 'right', minWidth: '60px' }}>
+                          <p style={{ fontSize: '0.9375rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: (p.seeger + p.raw) >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
+                            {(p.seeger + p.raw) >= 0 ? '+' : ''}{p.seeger + p.raw}
+                          </p>
+                          <p style={{ fontSize: '0.65rem', color: 'var(--outline)' }}>Gesamt</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })}
     </div>
   );
 }
