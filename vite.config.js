@@ -15,11 +15,9 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png'],
       workbox: {
-        // App-Shell + alle Assets precachen → App startet offline
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        // Supabase-Calls nicht cachen — die brauchen Netz
-        navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/^\/api\//, /^\/auth\//],
+        navigateFallback: '/app/index.html',
+        navigateFallbackDenylist: [/^\/api\//, /^\/auth\//, /^\/.well-known\//],
       },
       manifest: {
         name: 'Skatastrophe',
