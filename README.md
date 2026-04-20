@@ -58,7 +58,18 @@ cp .env.local.example .env.local
 
 Trage deine Supabase-Zugangsdaten in `.env.local` ein (wird via `.gitignore` ignoriert).
 
-### 3. App starten
+### 3. Edge Functions deployen
+
+Die Funktion `delete-account` ermöglicht Nutzern das Löschen ihres Accounts aus der App heraus (DSGVO / Google Play Anforderung).
+
+```bash
+npx supabase login
+npx supabase functions deploy delete-account
+```
+
+> **Wichtig:** Nach dem Deploy im Supabase Dashboard unter **Edge Functions → delete-account → Settings** die Option **"Verify JWT" deaktivieren**. Die Funktion verifiziert das JWT selbst — die doppelte Gateway-Verifikation schlägt wegen eines Algorithmus-Konflikts (ES256) fehl.
+
+### 4. App starten
 
 ```bash
 npm run dev
@@ -72,6 +83,23 @@ npm run dev
 npx vitest run        # einmaliger Run
 npm test              # Watch-Modus
 ```
+
+---
+
+## Google Play Release (TWA)
+
+Die Android-App ist eine TWA (Trusted Web Activity) und wird mit [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap) gebaut.
+
+### Neuen Release erstellen
+
+```bash
+bubblewrap update   # aktualisiert TWA-Konfiguration + inkrementiert appVersionCode
+bubblewrap build    # erzeugt app-release-signed.aab
+```
+
+> `bubblewrap build` alleine reicht **nicht** — es baut immer mit der Versionsnummer aus `twa-manifest.json` ohne sie zu erhöhen. Immer zuerst `update` ausführen, sonst lehnt die Play Console die AAB mit "Versionscode wurde bereits verwendet" ab.
+
+Die fertige AAB unter **Play Console → Testen → Geschlossener Test → Neuen Release erstellen** hochladen.
 
 ---
 
