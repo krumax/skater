@@ -107,6 +107,9 @@ export default function AuthGate({ children }) {
   const handleGoogle = async () => {
     setError('');
 
+    // Always redirect back to /app, not just the origin (which would land on the landing page)
+    const appUrl = `${window.location.origin}/app`;
+
     // If GSI is available, try the FedCM/One-Tap prompt first
     if (window.google?.accounts?.id) {
       let promptHandled = false;
@@ -116,7 +119,7 @@ export default function AuthGate({ children }) {
           promptHandled = true;
           supabase.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.origin },
+            options: { redirectTo: appUrl },
           });
         } else {
           promptHandled = true;
@@ -127,7 +130,7 @@ export default function AuthGate({ children }) {
         if (!promptHandled) {
           supabase.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.origin },
+            options: { redirectTo: appUrl },
           });
         }
       }, 3000);
@@ -137,7 +140,7 @@ export default function AuthGate({ children }) {
     // GSI script not loaded at all — go straight to OAuth redirect
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: appUrl },
     });
     if (error) setError(error.message);
   };
