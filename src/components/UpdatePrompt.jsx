@@ -7,7 +7,7 @@ export default function UpdatePrompt() {
     updateServiceWorker,
   } = useRegisterSW({
     onRegistered(r) {
-      console.log('SW Registered:', r);
+      if (r) console.log('SW Registered:', r.scope);
     },
     onRegisterError(error) {
       console.log('SW registration error', error);
