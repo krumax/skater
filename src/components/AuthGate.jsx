@@ -71,7 +71,7 @@ export default function AuthGate({ children }) {
         client_id: GOOGLE_CLIENT_ID,
         callback: handleGsiCredential,
         nonce: nonce.hashed,
-        use_fedcm_for_prompt: true,
+        use_fedcm_for_prompt: false,
       });
     };
 
@@ -104,17 +104,42 @@ export default function AuthGate({ children }) {
     setSubmitting(false);
   };
 
-  const handleGoogle = () => {
+  const handleGoogle = async () => {
     setError('');
-    if (!window.google?.accounts?.id) {
-      setError('Google Sign-In konnte nicht geladen werden. Bitte Seite neu laden.');
+
+    // If GSI is available, try the FedCM/One-Tap prompt first
+    if (window.google?.accounts?.id) {
+      let promptHandled = false;
+      window.google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // FedCM prompt was blocked or skipped — fall back to OAuth redirect
+          promptHandled = true;
+          supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin },
+          });
+        } else {
+          promptHandled = true;
+        }
+      });
+      // If the callback never fires (script issue), fall back after a short delay
+      setTimeout(() => {
+        if (!promptHandled) {
+          supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin },
+          });
+        }
+      }, 3000);
       return;
     }
-    window.google.accounts.id.prompt((notification) => {
-      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        setError('Google-Anmeldung wurde abgebrochen oder blockiert.');
-      }
+
+    // GSI script not loaded at all — go straight to OAuth redirect
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
     });
+    if (error) setError(error.message);
   };
 
   // ── UI ────────────────────────────────────────────────────────────────────
