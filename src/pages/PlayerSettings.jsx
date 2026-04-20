@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import * as syncService from '../lib/syncService';
+import { supabase } from '../lib/supabaseClient';
 // ── Role helpers ─────────────────────────────────────────────────────────────
 const ROLE_LABELS  = ['Geben', 'Hören', 'Sagen', 'Aussetzt'];
 const ROLE_ICONS   = ['style', 'hearing', 'record_voice_over', 'pause_circle'];
@@ -200,6 +201,28 @@ export default function PlayerSettings() {
     if (!window.confirm(`Tisch „${label}" und alle zugehörigen Runden löschen?`)) return;
     await syncService.deleteSession(id);
     setAllSessions(prev => prev.filter(s => s.id !== id));
+  };
+
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    setDeleteError('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`,
+        { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}` } },
+      );
+      if (!res.ok) throw new Error(await res.text());
+      await supabase.auth.signOut();
+    } catch (e) {
+      setDeleteError(e.message ?? 'Unbekannter Fehler');
+      setDeletingAccount(false);
+    }
   };
 
   const n = players.length;
@@ -427,6 +450,64 @@ export default function PlayerSettings() {
 
       {showWizard && (
         <NewTableWizard onConfirm={handleCreateTable} onCancel={() => setShowWizard(false)} />
+      )}
+
+      {/* ── Account löschen ── */}
+      <section style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--outline-variant)' }}>
+        <label className="section-label" style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--secondary)' }}>
+          Gefahrenzone
+        </label>
+        <p style={{ fontSize: '0.875rem', color: 'var(--outline)', marginBottom: '1rem' }}>
+          Löscht deinen Account und alle gespeicherten Daten unwiderruflich.
+        </p>
+        <button
+          onClick={() => { setShowDeleteAccount(true); setDeleteConfirmText(''); setDeleteError(''); }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', borderRadius: '0.75rem', border: '1px solid var(--secondary)', background: 'none', color: 'var(--secondary)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9375rem', fontWeight: 700 }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>delete_forever</span>
+          Account löschen
+        </button>
+      </section>
+
+      {/* ── Delete account modal ── */}
+      {showDeleteAccount && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: 'var(--surface)', borderRadius: '1rem', padding: '2rem', width: '100%', maxWidth: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.35)' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--secondary)' }}>Account wirklich löschen?</h2>
+            <p style={{ fontSize: '0.875rem', color: 'var(--outline)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+              Alle deine Tische, Runden und Statistiken werden <strong>unwiderruflich</strong> gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.
+            </p>
+            <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem', fontWeight: 600 }}>
+              Tippe <strong>LÖSCHEN</strong> zur Bestätigung:
+            </p>
+            <input
+              type="text"
+              value={deleteConfirmText}
+              onChange={e => setDeleteConfirmText(e.target.value)}
+              placeholder="LÖSCHEN"
+              style={{ width: '100%', boxSizing: 'border-box', padding: '0.75rem 1rem', borderRadius: '0.75rem', border: '1px solid var(--outline-variant)', backgroundColor: 'var(--surface-low)', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)', marginBottom: '1rem' }}
+            />
+            {deleteError && (
+              <p style={{ fontSize: '0.8rem', color: 'var(--secondary)', marginBottom: '1rem' }}>{deleteError}</p>
+            )}
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowDeleteAccount(false)}
+                disabled={deletingAccount}
+                style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', background: 'none', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmText !== 'LÖSCHEN' || deletingAccount}
+                style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', backgroundColor: deleteConfirmText === 'LÖSCHEN' ? 'var(--secondary)' : 'var(--outline-variant)', color: 'white', border: 'none', cursor: deleteConfirmText === 'LÖSCHEN' ? 'pointer' : 'not-allowed', fontFamily: 'inherit', fontSize: '1rem', fontWeight: 700, opacity: deletingAccount ? 0.6 : 1 }}
+              >
+                {deletingAccount ? '…' : 'Endgültig löschen'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
