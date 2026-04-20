@@ -172,7 +172,7 @@ export default function AuthGate({ children }) {
         </p>
 
         <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.25rem' }}>
-          {mode === 'login' ? 'Willkommen zurück' : 'Account erstellen'}
+          {mode === 'login' ? 'Teil aus das Ding!!' : 'Account erstellen'}
         </h2>
         <p style={{ fontSize: '0.8125rem', color: 'var(--outline)', marginBottom: '1.75rem' }}>
           {mode === 'login' ? 'Melde dich an, um weiterzuspielen.' : 'Erstelle deinen kostenlosen Account.'}
