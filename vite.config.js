@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import webfontDownload from 'vite-plugin-webfont-dl'
 import pkg from './package.json'
 
 // https://vite.dev/config/
@@ -11,6 +12,10 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    webfontDownload([
+      'https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Work+Sans:wght@400;500;600;700&display=swap',
+      'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap',
+    ]),
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png'],
