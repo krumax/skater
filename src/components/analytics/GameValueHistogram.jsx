@@ -1,5 +1,5 @@
 /**
- * GameValueHistogram — Histogramm der Spielwerte.
+ * GameValueHistogram - Histogramm der Spielwerte.
  * Zeigt die Verteilung aller Spielwerte in Bins.
  * Positive Werte (Siege) grün, negative (Niederlagen) rot.
  */

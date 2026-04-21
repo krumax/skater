@@ -1,5 +1,5 @@
 /**
- * ModifierChips — Spielstufe-Chips (Hand, Schneider, Schwarz, Ouvert, Bockrunde).
+ * ModifierChips - Spielstufe-Chips (Hand, Schneider, Schwarz, Ouvert, Bockrunde).
  * Disabled-Logik basiert auf gameType und hand-Status.
  * Enthält auch Ergebnis-Chips: Verloren (<61) und Spaltarsch (60).
  */
@@ -77,7 +77,7 @@ export default function ModifierChips({
           Bockrunde
         </button>
 
-        {/* Ergebnis-Chips — nur bei Farb-/Grand-Spielen */}
+        {/* Ergebnis-Chips - nur bei Farb-/Grand-Spielen */}
         <button
           disabled={!isSuitGame}
           onClick={() => setEyeCount(isVerloren ? 61 : 30)}
@@ -96,7 +96,7 @@ export default function ModifierChips({
           disabled={!isSuitGame}
           onClick={() => setEyeCount(isSpaltarsch ? 61 : 60)}
           className={`chip ${isSpaltarsch ? 'active' : ''}`}
-          title="Spaltarsch: exakt 60 Augen — Spiel verloren, nächste Runden als Bockrunde"
+          title="Spaltarsch: exakt 60 Augen - Spiel verloren, nächste Runden als Bockrunde"
           style={{
             opacity: isSuitGame ? 1 : 0.4,
             pointerEvents: isSuitGame ? 'auto' : 'none',
@@ -108,7 +108,7 @@ export default function ModifierChips({
           💥 Spaltarsch (60)
         </button>
 
-        {/* Null-Ergebnis-Chips — nur bei Null-Spiel */}
+        {/* Null-Ergebnis-Chips - nur bei Null-Spiel */}
         <button
           disabled={!isNull}
           onClick={() => setEyeCount(0)}

@@ -232,7 +232,7 @@ export default function PlayerSettings() {
       <header className="page-header settings-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 className="page-title">Einstellungen</h1>
-          <p className="page-subtitle">Reihenfolge per Drag &amp; Drop — Position 1 ist immer Geber.</p>
+          <p className="page-subtitle">Reihenfolge per Drag &amp; Drop - Position 1 ist immer Geber.</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
             {editingTableName ? (
               <>
@@ -442,7 +442,7 @@ export default function PlayerSettings() {
               ))}
             </div>
             <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--outline)', marginTop: '0.875rem', lineHeight: 1.5 }}>
-              Nur zur Ansicht — Reihenfolge links ändern.
+              Nur zur Ansicht - Reihenfolge links ändern.
             </p>
           </div>
         </div>

@@ -24,7 +24,7 @@ const SkatScoreList = () => {
   const [activeTab, setActiveTab] = useState('liste'); // 'liste' | 'spiellisten'
   const [selectedSpiellisteId, setSelectedSpiellisteId] = useState(null);
 
-  // Running totals per round — memoized, pure function
+  // Running totals per round - memoized, pure function
   const { runningStd, runningSF } = useMemo(
     () => computeRunningTotals(players, rounds),
     [players, rounds]

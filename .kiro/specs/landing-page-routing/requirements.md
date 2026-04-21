@@ -19,7 +19,7 @@ Skatastrophe ist eine React/Vite SPA, die aktuell auf der Root-URL `/` läuft. Z
 
 ## Requirements
 
-### Requirement 1: URL-Routing — Landing Page auf Root, React App unter /app
+### Requirement 1: URL-Routing - Landing Page auf Root, React App unter /app
 
 **User Story:** Als Besucher von skatastrophe.de möchte ich auf der Root-URL `/` die Landing Page sehen und die React-App unter `/app` aufrufen können, damit ich einen klaren Einstiegspunkt zur App habe.
 
@@ -65,11 +65,11 @@ Skatastrophe ist eine React/Vite SPA, die aktuell auf der Root-URL `/` läuft. Z
 
 1. WHEN ein Nutzer die Google-OAuth-Anmeldung in AuthGate initiiert, THEN THE AuthGate SHALL den `redirectTo`-Parameter auf `window.location.origin + '/app'` setzen.
 2. WHEN die OAuth-Authentifizierung erfolgreich abgeschlossen ist, THEN THE AuthGate SHALL den Nutzer auf den Pfad `/app` weiterleiten.
-3. IF der `redirectTo`-Parameter auf `window.location.origin` (ohne `/app`) gesetzt ist, THEN THE AuthGate SHALL den Nutzer auf die Landing_Page statt auf die React_App weiterleiten — dieser Zustand ist unerwünscht und muss verhindert werden.
+3. IF der `redirectTo`-Parameter auf `window.location.origin` (ohne `/app`) gesetzt ist, THEN THE AuthGate SHALL den Nutzer auf die Landing_Page statt auf die React_App weiterleiten - dieser Zustand ist unerwünscht und muss verhindert werden.
 
 ---
 
-### Requirement 5: Post-Build-Script — Landing Page in dist/ kopieren
+### Requirement 5: Post-Build-Script - Landing Page in dist/ kopieren
 
 **User Story:** Als Entwickler möchte ich, dass die Landing-Page-Dateien nach jedem Build automatisch in das `dist/`-Verzeichnis kopiert werden, damit Cloudflare_Pages die Landing_Page auf `/` ausliefern kann.
 

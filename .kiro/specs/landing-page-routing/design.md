@@ -1,4 +1,4 @@
-# Design Document — landing-page-routing
+# Design Document - landing-page-routing
 
 ## Overview
 
@@ -56,7 +56,7 @@ Request URL
 
 ## Components and Interfaces
 
-### 1. `vite.config.js` — Build-Basispfad
+### 1. `vite.config.js` - Build-Basispfad
 
 **Änderung:** `base` und `build.outDir` werden gesetzt.
 
@@ -73,7 +73,7 @@ export default defineConfig({
 - `base: '/app/'` bewirkt, dass alle generierten Asset-Referenzen in `dist/app/index.html` mit `/app/assets/...` prefixiert werden.
 - `outDir: 'dist/app'` schreibt den Vite-Output in das Unterverzeichnis `dist/app/` statt in `dist/`.
 
-### 2. `src/App.jsx` — BrowserRouter basename
+### 2. `src/App.jsx` - BrowserRouter basename
 
 **Änderung:** `BrowserRouter` erhält `basename="/app"`.
 
@@ -83,9 +83,9 @@ export default defineConfig({
 </BrowserRouter>
 ```
 
-React Router interpretiert alle `path`-Werte relativ zum `basename`. Die internen Route-Definitionen (`/`, `/analytics`, `/history` etc.) bleiben unverändert — React Router hängt den Basename automatisch voran.
+React Router interpretiert alle `path`-Werte relativ zum `basename`. Die internen Route-Definitionen (`/`, `/analytics`, `/history` etc.) bleiben unverändert - React Router hängt den Basename automatisch voran.
 
-### 3. `src/components/AuthGate.jsx` — OAuth-Redirect
+### 3. `src/components/AuthGate.jsx` - OAuth-Redirect
 
 **Änderung:** `redirectTo` in `handleGoogle` wird auf `window.location.origin + '/app'` gesetzt.
 
@@ -98,7 +98,7 @@ const { error } = await supabase.auth.signInWithOAuth({
 
 Nach erfolgreichem OAuth-Flow leitet Supabase den Browser auf `https://skatastrophe.de/app` weiter, wo die React SPA läuft und die Auth-Session aufnimmt.
 
-### 4. `scripts/copy-landing.js` — Post-Build-Script
+### 4. `scripts/copy-landing.js` - Post-Build-Script
 
 Neues Node.js-Script, das nach dem Vite-Build ausgeführt wird. Es kopiert alle Dateien aus dem Landing-Page-Quellverzeichnis rekursiv in `dist/`.
 
@@ -116,7 +116,7 @@ copyLanding(srcDir: string, destDir: string): void
 
 **Implementierungsansatz:** `fs.cpSync(src, dest, { recursive: true })` (Node.js ≥ 16.7)
 
-### 5. `package.json` — postbuild-Script
+### 5. `package.json` - postbuild-Script
 
 **Änderung:** Neues `postbuild`-Script, das npm automatisch nach `build` ausführt.
 
@@ -127,7 +127,7 @@ copyLanding(srcDir: string, destDir: string): void
 }
 ```
 
-### 6. `public/_redirects` — Cloudflare Pages Routing
+### 6. `public/_redirects` - Cloudflare Pages Routing
 
 **Änderung:** Die bestehende Catch-All-Regel wird durch zwei spezifische Regeln ersetzt.
 
@@ -136,10 +136,10 @@ copyLanding(srcDir: string, destDir: string): void
 ```
 
 - Regel 1: Alle Anfragen unter `/app/*` werden auf `/app/index.html` mit Status 200 (SPA-Fallback) weitergeleitet.
-- Keine Regel für `/` — Cloudflare Pages liefert `dist/index.html` standardmäßig für die Root-URL aus.
+- Keine Regel für `/` - Cloudflare Pages liefert `dist/index.html` standardmäßig für die Root-URL aus.
 - Keine Catch-All-Regel mehr, die `/` auf die React App routen würde.
 
-### 7. `public/landing/index.html` — CTA-Links
+### 7. `public/landing/index.html` - CTA-Links
 
 **Änderung:** Alle `href="/"` in CTA-Links werden auf `href="/app"` aktualisiert.
 
@@ -149,9 +149,9 @@ Betroffene Stellen:
 - Finaler CTA „Jetzt kostenlos starten ↗": `href="/"` → `href="/app"`
 - Footer-Link „App öffnen": `href="/"` → `href="/app"`
 
-Der Footer-Link `href="/info"` zeigt auf eine Seite innerhalb der React App — dieser wird zu `href="/app/info"` aktualisiert.
+Der Footer-Link `href="/info"` zeigt auf eine Seite innerhalb der React App - dieser wird zu `href="/app/info"` aktualisiert.
 
-### 8. `landing/` — Neuer Top-Level-Ordner
+### 8. `landing/` - Neuer Top-Level-Ordner
 
 **Änderung:** Die Landing-Page-Quelldateien werden von `public/landing/` nach `landing/` (Root-Ebene) verschoben.
 
@@ -167,7 +167,7 @@ landing/
 
 Das Build-Script wird nach der Migration auf `landing/` als Quellverzeichnis umgestellt. Während der Migration liest es aus `public/landing/`.
 
-### 9. `netlify.toml` — Löschen
+### 9. `netlify.toml` - Löschen
 
 Die Datei `netlify.toml` wird gelöscht, da das Deployment auf Cloudflare Pages erfolgt und `netlify.toml` nicht mehr relevant ist.
 
@@ -190,7 +190,7 @@ Dieses Feature enthält keine neuen Datenmodelle. Die relevanten Konfigurationsw
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+*A property is a characteristic or behavior that should hold true across all valid executions of a system - essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
 
 Die meisten Acceptance Criteria dieses Features betreffen statische Konfigurationsdateien (SMOKE) oder externes Infrastrukturverhalten (INTEGRATION). Nur das rekursive Kopier-Script in `copy-landing.js` enthält eigene Logik, die sinnvoll mit Property-Based Testing geprüft werden kann.
 
@@ -210,9 +210,9 @@ Die meisten Acceptance Criteria dieses Features betreffen statische Konfiguratio
 |---------------|-----------|
 | `srcDir` existiert nicht | Script bricht mit `Error: Landing-Page-Quellverzeichnis nicht gefunden: <pfad>` ab (Exit-Code ≠ 0) |
 | `destDir` existiert nicht | `fs.cpSync` mit `recursive: true` erstellt fehlende Verzeichnisse automatisch |
-| Fehlende Schreibrechte | Node.js wirft nativen `EACCES`-Fehler — wird nicht abgefangen, da Build-Umgebung kontrolliert ist |
+| Fehlende Schreibrechte | Node.js wirft nativen `EACCES`-Fehler - wird nicht abgefangen, da Build-Umgebung kontrolliert ist |
 
-### AuthGate — OAuth-Fehler
+### AuthGate - OAuth-Fehler
 
 Bestehende Fehlerbehandlung (`if (error) setError(error.message)`) bleibt unverändert. Der `redirectTo`-Wert beeinflusst nur das Redirect-Ziel nach erfolgreichem Login, nicht die Fehlerbehandlung.
 
@@ -234,7 +234,7 @@ Die meisten Änderungen dieses Features sind Konfigurationsänderungen (SMOKE) o
 
 Bibliothek: **fast-check** (bereits im Projekt vorhanden)
 
-**Property Test — Property 1: Rekursives Kopieren**
+**Property Test - Property 1: Rekursives Kopieren**
 
 ```
 // Feature: landing-page-routing, Property 1: Rekursives Kopieren erhält Verzeichnisstruktur
@@ -248,7 +248,7 @@ fc.assert(fc.property(
 ), { numRuns: 100 })
 ```
 
-**Unit Test — Fehlerfall: Quellverzeichnis fehlt**
+**Unit Test - Fehlerfall: Quellverzeichnis fehlt**
 
 ```js
 it('wirft Fehler wenn srcDir nicht existiert', () => {
@@ -257,7 +257,7 @@ it('wirft Fehler wenn srcDir nicht existiert', () => {
 })
 ```
 
-**Unit Test — index.html wird überschrieben**
+**Unit Test - index.html wird überschrieben**
 
 ```js
 it('überschreibt vorhandene dist/index.html', () => {

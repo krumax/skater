@@ -1,5 +1,5 @@
 /**
- * useRoundCounter — lokaler Orientierungszähler für die Sitzordnung.
+ * useRoundCounter - lokaler Orientierungszähler für die Sitzordnung.
  *
  * Rein localStorage-basiert, keinerlei Verbindung zur DB oder Spiellogik.
  * Wird NUR durch expliziten increment(seatingSize)-Aufruf weitergeschaltet.

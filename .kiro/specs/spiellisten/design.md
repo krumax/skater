@@ -69,7 +69,7 @@ Wenn nach dem Hinzufügen einer Runde die Anzahl der Listenrunden die
 | Datei | Zweck |
 |-------|-------|
 | `src/lib/spiellistenUtils.js` | Pure Hilfsfunktionen: Sieger-Berechnung, Validierung, Statistik |
-| `src/pages/SpiellistenPage.jsx` | Route `/spiellisten` — Listenübersicht + Drill-down |
+| `src/pages/SpiellistenPage.jsx` | Route `/spiellisten` - Listenübersicht + Drill-down |
 | `src/components/SpiellistenSelector.jsx` | Dropdown/Modal zur Listenauswahl in „Aktuelle Runde" |
 | `src/components/ListenFortschritt.jsx` | Fortschrittsanzeige „Runde X von Y" in GameScoringEntry |
 | `supabase/migrations/YYYYMMDD_spiellisten.sql` | DB-Migration |
@@ -86,7 +86,7 @@ Wenn nach dem Hinzufügen einer Runde die Anzahl der Listenrunden die
 | `src/pages/StatistikenCharts.jsx` | Listen-Übersicht + Drill-down ergänzen |
 | `src/components/Sidebar.jsx` | Navigationseintrag „Spiellisten" |
 
-### `spiellistenUtils.js` — Public API
+### `spiellistenUtils.js` - Public API
 
 ```js
 // Validierung
@@ -113,7 +113,7 @@ computeListProgress(spielliste: Spielliste, listRounds: Round[]): {
 } | null
 ```
 
-### `SpiellistenSelector` — Props
+### `SpiellistenSelector` - Props
 
 ```jsx
 <SpiellistenSelector
@@ -124,7 +124,7 @@ computeListProgress(spielliste: Spielliste, listRounds: Round[]): {
 />
 ```
 
-### `ListenFortschritt` — Props
+### `ListenFortschritt` - Props
 
 ```jsx
 <ListenFortschritt
@@ -209,11 +209,11 @@ CREATE INDEX idx_rounds_spielliste_id   ON rounds(spielliste_id);
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+*A property is a characteristic or behavior that should hold true across all valid executions of a system - essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
 
 ### Property 1: Erstellte Liste hat korrekte Felder und wird aktiv gesetzt
 
-*For any* gültigen Namen (1–40 Zeichen) und gültiger Rundenzahl (Vielfaches von 3 im Bereich 3–36), muss eine neu erstellte Spielliste den Status `aktiv` haben, den übergebenen Namen und die übergebene Rundenzahl enthalten — und die `activeSpiellisteId` im State muss auf die neue Liste zeigen.
+*For any* gültigen Namen (1–40 Zeichen) und gültiger Rundenzahl (Vielfaches von 3 im Bereich 3–36), muss eine neu erstellte Spielliste den Status `aktiv` haben, den übergebenen Namen und die übergebene Rundenzahl enthalten - und die `activeSpiellisteId` im State muss auf die neue Liste zeigen.
 
 **Validates: Requirements 1.1, 1.2**
 
@@ -237,7 +237,7 @@ CREATE INDEX idx_rounds_spielliste_id   ON rounds(spielliste_id);
 
 ### Property 4: Rundenzuordnung folgt dem aktiven Listen-State
 
-*For any* Spielzustand, muss eine neu hinzugefügte Runde genau dann eine `spiellisteId` erhalten, wenn `activeSpiellisteId` nicht null ist — und der Wert muss gleich `activeSpiellisteId` sein.
+*For any* Spielzustand, muss eine neu hinzugefügte Runde genau dann eine `spiellisteId` erhalten, wenn `activeSpiellisteId` nicht null ist - und der Wert muss gleich `activeSpiellisteId` sein.
 
 **Validates: Requirements 2.1, 2.2**
 
@@ -285,7 +285,7 @@ CREATE INDEX idx_rounds_spielliste_id   ON rounds(spielliste_id);
 
 ### Property 10: Listenstatistik filtert korrekt nach spiellisteId
 
-*For any* Menge von Runden mit gemischten `spiellisteId`-Werten, muss `computeListStats` für eine gegebene Liste ausschließlich die Runden berücksichtigen, deren `spiellisteId` mit der Listen-ID übereinstimmt — und die Seeger-Fabian- sowie Rohpunkte korrekt summieren.
+*For any* Menge von Runden mit gemischten `spiellisteId`-Werten, muss `computeListStats` für eine gegebene Liste ausschließlich die Runden berücksichtigen, deren `spiellisteId` mit der Listen-ID übereinstimmt - und die Seeger-Fabian- sowie Rohpunkte korrekt summieren.
 
 **Validates: Requirements 8.1, 8.3**
 

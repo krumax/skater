@@ -1,5 +1,5 @@
 /**
- * useSyncActions — all async Supabase sync operations for game state.
+ * useSyncActions - all async Supabase sync operations for game state.
  *
  * Each action follows the pattern: optimistic local dispatch → sync to DB.
  * Sync status is surfaced via setSyncStatus / setSyncError.

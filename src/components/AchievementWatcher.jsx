@@ -52,7 +52,7 @@ const AchievementWatcher = () => {
   const [spruch, setSpruch] = useState(null);
   const [spruchWon, setSpruchWon] = useState(true);
 
-  // Snapshot of all players' unlocked keys — updated after each detection cycle
+  // Snapshot of all players' unlocked keys - updated after each detection cycle
   const snapshotRef = useRef(null);
   const rankSnapshotRef = useRef(null);
   const prevRoundCountRef = useRef(rounds.length);
@@ -156,7 +156,7 @@ const AchievementWatcher = () => {
     prevRoundCountRef.current = rounds.length;
     prevSessionIdRef.current = sessionId;
 
-    // Skatspruch — nur wenn kein Achievement/Rang-Popup erscheint und kein Eingepasst
+    // Skatspruch - nur wenn kein Achievement/Rang-Popup erscheint und kein Eingepasst
     if (newAchievements.length === 0 && !rankUpEvent && latestRound.gameType !== 'passed') {
       const text = getSkatSpruch(latestRound, rounds);
       if (text) {

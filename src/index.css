@@ -804,15 +804,15 @@ button {
   position: sticky;
   top: 2rem;
   align-self: start;
-  /* align-self: start ist zwingend — ohne es dehnt das Grid-Item
+  /* align-self: start ist zwingend - ohne es dehnt das Grid-Item
      auf volle Höhe und sticky hat keinen Scroll-Raum */
 }
 
 /* ─────────────────────────────────────────────
-   PHASE 1 — MOBILE QUICK WINS
+   PHASE 1 - MOBILE QUICK WINS
    ───────────────────────────────────────────── */
 
-/* ── SkatScoreList: Mobile-Tabelle — nur Kern-Spalten ── */
+/* ── SkatScoreList: Mobile-Tabelle - nur Kern-Spalten ── */
 @media (min-width: 769px) {
   .mobile-table {
     min-width: 900px;
@@ -951,7 +951,7 @@ textarea {
 }
 
 /* ─────────────────────────────────────────────
-   PHASE 2 — STRUKTURELLE MOBILE-FIXES
+   PHASE 2 - STRUKTURELLE MOBILE-FIXES
    ───────────────────────────────────────────── */
 
 /* ── ResultDashboard: Speichern-Button sticky am Bottom auf Mobile ── */
@@ -1038,7 +1038,7 @@ textarea {
     flex-wrap: wrap;
   }
 
-  /* Meta-Infos (Spieler/Runde/Datum) auf Mobile ausblenden — Platz sparen */
+  /* Meta-Infos (Spieler/Runde/Datum) auf Mobile ausblenden - Platz sparen */
   .statistik-highlight-meta {
     display: none !important;
   }

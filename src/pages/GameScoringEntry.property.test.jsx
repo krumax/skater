@@ -20,7 +20,7 @@ import * as fc from 'fast-check';
 // ── Pure model of GameScoringEntry form state ─────────────────────────────────
 
 /**
- * Default form state — mirrors the useState initialisers in GameScoringEntry.
+ * Default form state - mirrors the useState initialisers in GameScoringEntry.
  */
 const DEFAULT_FORM_STATE = {
   gameType: 'spade',
@@ -77,7 +77,7 @@ describe('Property 4: Formular-Reset setzt Bock-Toggle zurück (Requirements 1.6
   it('resetForm() setzt isBock=true korrekt auf false zurück', { timeout: 30000 }, () => {
     fc.assert(
       fc.property(
-        // Only generate states where isBock was true — ensures the reset
+        // Only generate states where isBock was true - ensures the reset
         // actually changes the value (not just a no-op on already-false state)
         arbitraryFormState.filter(s => s.isBock === true),
         (prevState) => {

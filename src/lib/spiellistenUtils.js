@@ -1,7 +1,7 @@
 /**
  * spiellistenUtils.js
  * Pure helper functions for the Spiellisten feature.
- * No React imports, no side effects — fully unit-testable.
+ * No React imports, no side effects - fully unit-testable.
  */
 
 // ─── Validation ───
@@ -84,7 +84,7 @@ export function computeListWinner(players, listRounds) {
     }
     // Raw points: gameValue is the numeric game value for the declarer;
     // for list stats we accumulate gameValue per player (declarer gets signed value,
-    // opponents get 0 from gameValue — seegerScores handles their bonus separately).
+    // opponents get 0 from gameValue - seegerScores handles their bonus separately).
     // For tiebreaker we use the same raw accumulation as computeListStats.
     if (round.gameValue !== undefined && round.player) {
       if (rawTotals[round.player] !== undefined) {

@@ -1,5 +1,5 @@
 /**
- * achievementConfig.js — Single Source of Truth für die Achievement-Matrix.
+ * achievementConfig.js - Single Source of Truth für die Achievement-Matrix.
  *
  * Wird verwendet von:
  *   - src/hooks/useMatrixData.js

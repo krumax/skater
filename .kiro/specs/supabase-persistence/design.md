@@ -32,7 +32,7 @@ sequenceDiagram
     participant DB as Supabase
 
     UI->>GC: addRound(roundData)
-    GC->>GC: dispatch(ADD_ROUND) — Optimistic Update
+    GC->>GC: dispatch(ADD_ROUND) - Optimistic Update
     GC->>SS: syncRound(round, sessionId)
     SS->>DB: INSERT INTO rounds (...)
     SS->>DB: UPDATE sessions SET geber_index, current_round

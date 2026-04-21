@@ -16,9 +16,9 @@ Schrittweise Implementierung des Spiellisten-Features: DB-Migration → pure Log
 
 - [x] 2. Pure Hilfsfunktionen in `src/lib/spiellistenUtils.js` implementieren
   - [x] 2.1 Validierungs- und Hilfsfunktionen schreiben
-    - `validateSpiellisteName(name)` — leer → kein Fehler (Standardname), > 40 Zeichen → Fehlermeldung auf Deutsch
-    - `validateRoundCount(n)` — kein Vielfaches von 3 oder außerhalb [3, 36] → Fehlermeldung auf Deutsch
-    - `generateDefaultName(existingCount)` — gibt `"Liste " + (existingCount + 1)` zurück
+    - `validateSpiellisteName(name)` - leer → kein Fehler (Standardname), > 40 Zeichen → Fehlermeldung auf Deutsch
+    - `validateRoundCount(n)` - kein Vielfaches von 3 oder außerhalb [3, 36] → Fehlermeldung auf Deutsch
+    - `generateDefaultName(existingCount)` - gibt `"Liste " + (existingCount + 1)` zurück
     - _Requirements: 1.3, 1.4_
 
   - [ ]* 2.2 Property-Test für `validateRoundCount` schreiben
@@ -61,7 +61,7 @@ Schrittweise Implementierung des Spiellisten-Features: DB-Migration → pure Log
     - **Property 11: Fortschrittsberechnung ist korrekt**
     - **Validates: Requirements 4.1**
 
-- [x] 3. Checkpoint — Alle Tests für `spiellistenUtils.js` müssen grün sein
+- [x] 3. Checkpoint - Alle Tests für `spiellistenUtils.js` müssen grün sein
   - Alle Tests ausführen, bei Fragen den Nutzer ansprechen.
 
 - [x] 4. `gameReducer.js` um Spiellisten-State erweitern
@@ -111,7 +111,7 @@ Schrittweise Implementierung des Spiellisten-Features: DB-Migration → pure Log
     - **Property 12: getActiveSpiellistenForSession gibt nur aktive Listen zurück**
     - **Validates: Requirements 3.4**
 
-- [x] 5. Checkpoint — Alle Reducer-Tests müssen grün sein
+- [x] 5. Checkpoint - Alle Reducer-Tests müssen grün sein
   - Alle Tests ausführen, bei Fragen den Nutzer ansprechen.
 
 - [x] 6. `syncService.js` um Spiellisten-Operationen erweitern
@@ -222,7 +222,7 @@ Schrittweise Implementierung des Spiellisten-Features: DB-Migration → pure Log
   - Gesamtübersicht bleibt unverändert (alle Runden inkl. Listenrunden)
   - _Requirements: 9.1, 9.2, 9.3_
 
-- [x] 14. Finaler Checkpoint — Alle Tests müssen grün sein
+- [x] 14. Finaler Checkpoint - Alle Tests müssen grün sein
   - `npm test` ausführen, alle Fehler beheben, bei Fragen den Nutzer ansprechen.
 
 ## Hinweise

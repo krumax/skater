@@ -7,11 +7,11 @@ Fundament zuerst, dann neue Komponente, dann Konsumenten, zuletzt der isolierte 
 
 ## Tasks
 
-- [x] 1. Fundament legen — `tokens.js` und `index.css` erweitern
+- [x] 1. Fundament legen - `tokens.js` und `index.css` erweitern
   - [x] 1.1 `SUIT_SYMBOLS` und `SUIT_MAT_ICONS` in `src/lib/tokens.js` ergänzen
     - `SUIT_SYMBOLS` exportieren: `{ club: '♣', spade: '♠', heart: '♥', diamond: '♦' }`
     - `SUIT_MAT_ICONS` exportieren: `{ grand: 'stars', null: 'block', passed: 'skip_next' }`
-    - Hinweis: `SUIT_SYMBOLS` in `skatScoring.js` bleibt unberührt — andere Zwecke, andere Werte
+    - Hinweis: `SUIT_SYMBOLS` in `skatScoring.js` bleibt unberührt - andere Zwecke, andere Werte
     - _Anforderungen: 4.1, 4.5_
 
   - [x] 1.2 Utility-Klassen `.stat-label` und `.stat-value` in `src/index.css` hinzufügen
@@ -28,21 +28,21 @@ Fundament zuerst, dann neue Komponente, dann Konsumenten, zuletzt der isolierte 
     - Icon-Logik: `gameType` in `SUIT_SYMBOLS` → Unicode-Zeichen; `gameType` in `SUIT_MAT_ICONS` → `<span className="material-symbols-outlined">`; unbekannt → `'?'`
     - _Anforderungen: 2.1, 2.2, 2.3, 2.6_
 
-  - [ ]* 2.2 Property-Test für `SuitBadge` — Property 1: Farbkonsistenz
+  - [ ]* 2.2 Property-Test für `SuitBadge` - Property 1: Farbkonsistenz
     - **Property 1: SuitBadge verwendet `SUIT_COLORS[gameType]` als `backgroundColor` für alle bekannten Spieltypen**
     - Datei: `src/components/SuitBadge.property.test.jsx`
     - `fc.constantFrom(...Object.keys(SUIT_COLORS))` → render → `container.firstChild.style.backgroundColor === SUIT_COLORS[gameType]`
     - Tag: `// Feature: inline-style-refactoring, Property 1: SuitBadge Farbkonsistenz`
     - **Validates: Anforderungen 2.2, 4.1, 4.5**
 
-  - [ ]* 2.3 Property-Test für `SuitBadge` — Property 2: Fallback für unbekannte Spieltypen
+  - [ ]* 2.3 Property-Test für `SuitBadge` - Property 2: Fallback für unbekannte Spieltypen
     - **Property 2: Für jeden String außerhalb `Object.keys(SUIT_COLORS)` rendert `SuitBadge` `'?'` und `var(--surface-high)` als Hintergrund**
     - Datei: `src/components/SuitBadge.property.test.jsx` (gleiche Datei wie 2.2)
     - `fc.string().filter(s => !KNOWN_TYPES.includes(s))` → render → `textContent === '?'` und `backgroundColor === 'var(--surface-high)'`
     - Tag: `// Feature: inline-style-refactoring, Property 2: SuitBadge Fallback`
     - **Validates: Anforderung 2.3**
 
-- [x] 3. Checkpoint — Fundament und SuitBadge verifizieren
+- [x] 3. Checkpoint - Fundament und SuitBadge verifizieren
   - Sicherstellen dass alle bisherigen Tests grün sind, bei Fragen den Nutzer ansprechen.
 
 - [x] 4. `ResultDashboard.jsx` migrieren
@@ -72,7 +72,7 @@ Fundament zuerst, dann neue Komponente, dann Konsumenten, zuletzt der isolierte 
     - Alle drei Ranking-Karten (Standardwertung, Seeger-Fabian, Kombiniert) auf `RankingRow` umstellen
     - _Anforderungen: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-  - [ ]* 5.3 Property-Test für `RankingRow` — Property 3: Score-Farb-Invariante
+  - [ ]* 5.3 Property-Test für `RankingRow` - Property 3: Score-Farb-Invariante
     - **Property 3: Für beliebige ganzzahlige Scores rendert `RankingRow` `var(--primary)` bei `score >= 0` und `var(--secondary)` bei `score < 0`**
     - Datei: `src/pages/SkatScoreList.property.test.jsx`
     - `fc.integer()` → render `<RankingRow rank={1} name="Test" score={n} />` → Score-Element-Farbe prüfen
@@ -107,7 +107,7 @@ Fundament zuerst, dann neue Komponente, dann Konsumenten, zuletzt der isolierte 
     - Kontextabhängige Ergänzungen als Inline-Style beibehalten
     - _Anforderungen: 1.3, 1.8_
 
-- [x] 9. Checkpoint — Konsumenten-Migration verifizieren
+- [x] 9. Checkpoint - Konsumenten-Migration verifizieren
   - Sicherstellen dass alle bisherigen Tests grün sind, bei Fragen den Nutzer ansprechen.
 
 - [x] 10. `GameTypeEditor.jsx` ins Design-Token-System integrieren
@@ -154,13 +154,13 @@ Fundament zuerst, dann neue Komponente, dann Konsumenten, zuletzt der isolierte 
     - _Anforderungen: 5.3_
 
 - [x] 11. Property-Tests für `tokens.js` erstellen
-  - [x] 11.1 `src/lib/tokens.property.test.js` erstellen — Property 4: Symmetrie-Invariante
+  - [x] 11.1 `src/lib/tokens.property.test.js` erstellen - Property 4: Symmetrie-Invariante
     - **Property 4: `Object.keys(SUIT_COLORS).sort()` === `Object.keys(SUIT_TEXT_COLORS).sort()`**
     - Alle sieben bekannten Spieltypen (`club`, `spade`, `heart`, `diamond`, `grand`, `null`, `passed`) sind in beiden Objekten vorhanden
     - Tag: `// Feature: inline-style-refactoring, Property 4: tokens.js Symmetrie`
     - **Validates: Anforderung 4.5**
 
-- [x] 12. Abschluss-Checkpoint — Alle Tests grün
+- [x] 12. Abschluss-Checkpoint - Alle Tests grün
   - `npm test` ausführen und sicherstellen dass alle Tests (bestehende + neue) ohne Fehler durchlaufen.
   - Bei Fehlern in bestehenden Tests (`GameTypeEditor.test.jsx`, `ResultDashboard.test.js` etc.) prüfen ob Assertions durch Token-Änderungen betroffen sind; bei Fragen den Nutzer ansprechen.
 
@@ -169,5 +169,5 @@ Fundament zuerst, dann neue Komponente, dann Konsumenten, zuletzt der isolierte 
 - Tasks mit `*` sind optional und können für ein schnelleres MVP übersprungen werden
 - Jeder Task referenziert spezifische Anforderungen für Rückverfolgbarkeit
 - Die Migrationsreihenfolge (Fundament → SuitBadge → Konsumenten → GameTypeEditor) stellt sicher, dass keine hängenden Abhängigkeiten entstehen
-- `rgba(0, 0, 0, 0.55)` im Overlay von `GameTypeEditor` bleibt als Inline-Style — kein Token-Wert
+- `rgba(0, 0, 0, 0.55)` im Overlay von `GameTypeEditor` bleibt als Inline-Style - kein Token-Wert
 - Einmalige Layout-Styles (`gridTemplateColumns`, spezifische `margin`/`padding`) bleiben als Inline-Styles

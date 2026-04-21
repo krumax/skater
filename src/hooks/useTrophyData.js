@@ -1,5 +1,5 @@
 /**
- * useTrophyData.js — Leitet TrophyItem-Daten aus echten Spielrunden ab.
+ * useTrophyData.js - Leitet TrophyItem-Daten aus echten Spielrunden ab.
  *
  * Trophäen (Vitrine): Serien, Level, Sonder-Achievements
  * Matrix-Daten (kompakte Dot-Ansicht): Angriff + Abwehr

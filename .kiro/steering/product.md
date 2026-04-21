@@ -1,4 +1,4 @@
-# Skatastrophe — Product Overview
+# Skatastrophe - Product Overview
 
 Skatastrophe is a German-language web app for tracking Skat card game sessions at the table. It replaces pen-and-paper scorekeeping with automated, rule-compliant scoring and cloud sync.
 

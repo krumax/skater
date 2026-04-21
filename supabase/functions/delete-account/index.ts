@@ -1,4 +1,4 @@
-// @ts-nocheck — runs in Supabase Deno runtime, not Node; Deno globals are not available in local TS config
+// @ts-nocheck - runs in Supabase Deno runtime, not Node; Deno globals are not available in local TS config
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {

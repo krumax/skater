@@ -71,7 +71,7 @@ describe('useGameForm', () => {
 
   it('buildRoundPayload returns null when result is null', () => {
     const { result } = renderHook(() => useGameForm());
-    // passed game has gameValue 0 but result is not null — test with invalid state
+    // passed game has gameValue 0 but result is not null - test with invalid state
     // We can't easily force result to null, so test the passed case instead
     act(() => result.current.setGameType('passed'));
     const payload = result.current.buildRoundPayload();

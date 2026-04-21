@@ -1,20 +1,20 @@
 /**
- * skatSprueche.js — Skatsprüche Matching-Logik.
+ * skatSprueche.js - Skatsprüche Matching-Logik.
  *
- * Sprüche erscheinen nicht bei jeder Runde — nur mit einer
+ * Sprüche erscheinen nicht bei jeder Runde - nur mit einer
  * Wahrscheinlichkeit von 35%, um Gewöhnungseffekte zu vermeiden.
  * Bei spezifischen Bedingungen (Spaltarsch, Serien, etc.) steigt
  * die Wahrscheinlichkeit auf 70%.
  */
 
 const SPRUECHE = [
-  // Sieg — allgemein
+  // Sieg - allgemein
   { situation: 'Sieg', bedingung: null,              spruch: 'Well played {{player}}! Der Sack ist zu Leute!' },
   { situation: 'Sieg', bedingung: null,              spruch: 'Glück muss man haben, ne {{player}}?' },
   { situation: 'Sieg', bedingung: null,              spruch: 'Auf das magerste Pferd setzen sich die meisten Fliegen' },
   { situation: 'Sieg', bedingung: null,              spruch: '{{player}} so: Das genügt, sagt der Staatsanwalt' },
   { situation: 'Sieg', bedingung: null,              spruch: 'Die ersten Pflaumen sind immer madig' },
-  // Sieg — Spieltyp
+  // Sieg - Spieltyp
   { situation: 'Sieg', bedingung: 'schneider',       spruch: 'Schneider sind auch Menschen' },
   { situation: 'Sieg', bedingung: 'schneider',       spruch: 'Oma-Blatt' },
   { situation: 'Sieg', bedingung: 'schneider',       spruch: 'Alle Gewehre auf\'s Rathaus' },
@@ -31,11 +31,11 @@ const SPRUECHE = [
   { situation: 'Sieg', bedingung: 'null',            spruch: 'Null auf dem Pferde' },
   { situation: 'Sieg', bedingung: 'mit3',            spruch: 'Wer die Buben hat, hat die Macht! Hart gespielt {{player}}!' },
   { situation: 'Sieg', bedingung: 'mit3',            spruch: 'Das Spiel gewinnt meine Großmutter in der Narkose' },
-  // Sieg — Serien
+  // Sieg - Serien
   { situation: 'Sieg', bedingung: 'serie3',          spruch: 'Heute läuft\'s' },
   { situation: 'Sieg', bedingung: 'serie4',          spruch: '{{player}} hat sich dicke vollgesogen! Widerlich' },
   { situation: 'Sieg', bedingung: 'serie5',          spruch: '{{player}} hat sich wohl am Schweinestall gescheuert' },
-  // Niederlage — allgemein
+  // Niederlage - allgemein
   { situation: 'Niederlage', bedingung: null,        spruch: 'Jetzt ist der Drops für {{player}} gelutscht' },
   { situation: 'Niederlage', bedingung: null,        spruch: 'Skat ist wie das Leben - mal hat man Glück, mal nicht' },
   { situation: 'Niederlage', bedingung: null,        spruch: 'Dem Alleinspieler nichts schenken' },
@@ -49,14 +49,14 @@ const SPRUECHE = [
   { situation: 'Niederlage', bedingung: null,        spruch: 'Die Beerdigung findet vom Trauerhaus aus statt' },
   { situation: 'Niederlage', bedingung: null,        spruch: 'Ein richtiger Skatspieler gewinnt mit 59…' },
   { situation: 'Niederlage', bedingung: null,        spruch: 'Gute Nacht {{player}}' },
-  // Niederlage — Spieltyp / Bedingung
+  // Niederlage - Spieltyp / Bedingung
   { situation: 'Niederlage', bedingung: 'schneider', spruch: 'Boah! {{player}}!! Abgestochen wie eine Sau' },
   { situation: 'Niederlage', bedingung: 'schneider', spruch: 'Da bist du aber fein davon gekommen' },
   { situation: 'Niederlage', bedingung: 'schneider', spruch: 'Da war kein Blumentopf zu gewinnen' },
   { situation: 'Niederlage', bedingung: 'schneider', spruch: 'Der sitzt im Keller' },
   { situation: 'Niederlage', bedingung: 'ohnetrumpf', spruch: 'Ohne Trumpf kein Kampf' },
   { situation: 'Niederlage', bedingung: 'passed',    spruch: 'Raupenfraß' },
-  // Niederlage — Serien
+  // Niederlage - Serien
   { situation: 'Niederlage', bedingung: 'serie3',    spruch: 'Das wird aber ein kalter Winter für {{player}}! Man ey!' },
   { situation: 'Niederlage', bedingung: 'serie4',    spruch: 'Jetzt kann {{player}} wohl das Licht ausmachen' },
   { situation: 'Niederlage', bedingung: 'serie5',    spruch: 'Kein Abend für Künstler' },
@@ -108,7 +108,7 @@ export function getSkatSpruch(round, allRounds) {
     candidates.push(...SPRUECHE.filter(s => s.bedingung === 'spaltarsch'));
   }
 
-  // Serien (ab 5, 4, 3 — höchste zuerst)
+  // Serien (ab 5, 4, 3 - höchste zuerst)
   if (serie >= 5) candidates.push(...SPRUECHE.filter(s => s.situation === situation && s.bedingung === 'serie5'));
   if (serie >= 4) candidates.push(...SPRUECHE.filter(s => s.situation === situation && s.bedingung === 'serie4'));
   if (serie >= 3) candidates.push(...SPRUECHE.filter(s => s.situation === situation && s.bedingung === 'serie3'));

@@ -1,7 +1,7 @@
 /**
- * gameReducer.js — Pure reducer for game state.
+ * gameReducer.js - Pure reducer for game state.
  *
- * No React imports, no side effects — fully unit-testable.
+ * No React imports, no side effects - fully unit-testable.
  */
 import { calculateSeegerFabian } from './skatScoring';
 import { computeListWinner } from './spiellistenUtils';

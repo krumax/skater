@@ -8,7 +8,7 @@ ohne das visuelle Erscheinungsbild zu verändern. Der Ansatz ist bewusst moderat
 1. **Utility-CSS-Klassen** in `src/index.css` für die zwei häufigsten Typografie-Muster
 2. **Eine kanonische `SuitBadge`-Komponente** als einzige Implementierung des Spieltyp-Badges
 3. **`RankingRow`-Hilfskomponente** lokal in `SkatScoreList.jsx` für das dreifach duplizierte Ranking-Muster
-4. **`tokens.js` als Single Source of Truth** — alle lokalen Farbduplikate werden entfernt
+4. **`tokens.js` als Single Source of Truth** - alle lokalen Farbduplikate werden entfernt
 5. **`GameTypeEditor.jsx`** wird ins Design-Token-System integriert
 
 ---
@@ -67,7 +67,7 @@ graph TD
 
 ## Components and Interfaces
 
-### 1. `SuitBadge` — Kanonische Spieltyp-Badge-Komponente
+### 1. `SuitBadge` - Kanonische Spieltyp-Badge-Komponente
 
 **Datei:** `src/components/SuitBadge.jsx`
 
@@ -135,7 +135,7 @@ Da beide Werte eng mit der `size`-Prop korrelieren, wird `border-radius` intern 
 
 ---
 
-### 2. `RankingRow` — Lokale Hilfskomponente in `SkatScoreList.jsx`
+### 2. `RankingRow` - Lokale Hilfskomponente in `SkatScoreList.jsx`
 
 Bleibt als lokale Komponente in `SkatScoreList.jsx` (kein separates File, da nur dort verwendet).
 
@@ -177,7 +177,7 @@ Score-Anzeige:
 
 ## Data Models
 
-### `tokens.js` — Ergänzungen
+### `tokens.js` - Ergänzungen
 
 `SUIT_SYMBOLS` und `SUIT_MAT_ICONS` werden in `tokens.js` neu definiert.
 
@@ -196,7 +196,7 @@ export const SUIT_SYMBOLS = {
   spade:   '♠',
   heart:   '♥',
   diamond: '♦',
-  // grand, null, passed: kein Unicode — stattdessen Material Symbol (siehe SUIT_MAT_ICONS)
+  // grand, null, passed: kein Unicode - stattdessen Material Symbol (siehe SUIT_MAT_ICONS)
 };
 
 /** Material Symbol Icons für nicht-Farb-Spieltypen */
@@ -275,7 +275,7 @@ Ebenso bei `statLabel` mit abweichender Farbe (z. B. auf farbigem Hintergrund):
 
 ## Token-Mapping-Tabelle
 
-### `GameTypeEditor.jsx` — Vollständiges Mapping
+### `GameTypeEditor.jsx` - Vollständiges Mapping
 
 | Hardcoded Wert | Kontext | Token / Ersatz |
 |---|---|---|
@@ -295,7 +295,7 @@ Ebenso bei `statLabel` mit abweichender Farbe (z. B. auf farbigem Hintergrund):
 | `#ffffff` (dialogStyle bg) | Dialog-Hintergrund | `var(--surface)` |
 | `rgba(0, 0, 0, 0.55)` | Overlay-Hintergrund | bleibt als Inline-Style (kein Token) |
 
-### `ResultDashboard.jsx` — Lokales `SUIT_COLORS` entfernen
+### `ResultDashboard.jsx` - Lokales `SUIT_COLORS` entfernen
 
 Das lokale `SUIT_COLORS` in `ResultDashboard.jsx` weicht von `tokens.js` ab:
 
@@ -318,35 +318,35 @@ Die Reihenfolge berücksichtigt Abhängigkeiten: Fundament zuerst, Konsumenten d
 
 ### Schritt 1: Fundament legen (keine Abhängigkeiten)
 
-1. **`src/lib/tokens.js`** — `SUIT_SYMBOLS` und `SUIT_MAT_ICONS` ergänzen
-2. **`src/index.css`** — `.stat-label` und `.stat-value` hinzufügen
+1. **`src/lib/tokens.js`** - `SUIT_SYMBOLS` und `SUIT_MAT_ICONS` ergänzen
+2. **`src/index.css`** - `.stat-label` und `.stat-value` hinzufügen
 
 ### Schritt 2: Neue Komponente erstellen
 
-3. **`src/components/SuitBadge.jsx`** — Neue Komponente, importiert aus `tokens.js`
+3. **`src/components/SuitBadge.jsx`** - Neue Komponente, importiert aus `tokens.js`
 
 ### Schritt 3: Konsumenten migrieren (unabhängig voneinander)
 
-4. **`src/components/scoring/ResultDashboard.jsx`** — Lokales `SUIT_COLORS` entfernen, `SuitBadge` importieren, `statLabel`-Muster → `.stat-label`
-5. **`src/pages/SkatScoreList.jsx`** — `GAME_TYPE_DISPLAY` entfernen, `GameTypeIcon` → `SuitBadge`, `RankingRow` extrahieren, `statLabel`-Muster → `.stat-label`
-6. **`src/pages/StatistikenCharts.jsx`** — `statLabel`/`statValue`-Konstanten → CSS-Klassen
-7. **`src/pages/PlayerAnalytics.jsx`** — `statLabel`/`statValue`-Konstanten → CSS-Klassen
-8. **`src/pages/PlayerSettings.jsx`** — `statLabel`-Muster → `.stat-label`
+4. **`src/components/scoring/ResultDashboard.jsx`** - Lokales `SUIT_COLORS` entfernen, `SuitBadge` importieren, `statLabel`-Muster → `.stat-label`
+5. **`src/pages/SkatScoreList.jsx`** - `GAME_TYPE_DISPLAY` entfernen, `GameTypeIcon` → `SuitBadge`, `RankingRow` extrahieren, `statLabel`-Muster → `.stat-label`
+6. **`src/pages/StatistikenCharts.jsx`** - `statLabel`/`statValue`-Konstanten → CSS-Klassen
+7. **`src/pages/PlayerAnalytics.jsx`** - `statLabel`/`statValue`-Konstanten → CSS-Klassen
+8. **`src/pages/PlayerSettings.jsx`** - `statLabel`-Muster → `.stat-label`
 
 ### Schritt 4: GameTypeEditor (isoliert, höchstes Risiko)
 
-9. **`src/components/GameTypeEditor.jsx`** — Alle Hardcoded-Hex-Werte → CSS Custom Properties + `tokens.js`
+9. **`src/components/GameTypeEditor.jsx`** - Alle Hardcoded-Hex-Werte → CSS Custom Properties + `tokens.js`
 
 ### Schritt 5: Tests
 
-10. **`src/lib/tokens.property.test.js`** — Property-Tests für `tokens.js`-Invarianten
-11. **`src/components/SuitBadge.property.test.jsx`** — Property-Tests für `SuitBadge`
+10. **`src/lib/tokens.property.test.js`** - Property-Tests für `tokens.js`-Invarianten
+11. **`src/components/SuitBadge.property.test.jsx`** - Property-Tests für `SuitBadge`
 
 ---
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+*A property is a characteristic or behavior that should hold true across all valid executions of a system - essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
 
 Die meisten Anforderungen dieses Refactorings sind struktureller Natur (Code-Organisation, Datei-Existenz,
 Klassen-Verwendung) und eignen sich nicht für Property-Based Testing. Die folgenden vier Eigenschaften
@@ -358,28 +358,28 @@ Eigenschaft kombiniert werden. Da sie jedoch unterschiedliche Farbwerte testen (
 sie testen komplementäre Hälften des Zahlenraums. Anforderungen 2.2 und 2.3 (SuitBadge bekannt/unbekannt)
 sind ebenfalls komplementär und bleiben getrennt.
 
-### Property 1: SuitBadge — Farbkonsistenz mit tokens.js
+### Property 1: SuitBadge - Farbkonsistenz mit tokens.js
 
 *For any* `gameType` in `Object.keys(SUIT_COLORS)`, muss `SuitBadge` als `backgroundColor`
 exakt `SUIT_COLORS[gameType]` verwenden.
 
 **Validates: Requirements 2.2, 4.1, 4.5**
 
-### Property 2: SuitBadge — Fallback für unbekannte Spieltypen
+### Property 2: SuitBadge - Fallback für unbekannte Spieltypen
 
 *For any* String, der nicht in `Object.keys(SUIT_COLORS)` enthalten ist, muss `SuitBadge`
 das Fragezeichen-Fallback rendern und `var(--surface-high)` als Hintergrundfarbe verwenden.
 
 **Validates: Requirements 2.3**
 
-### Property 3: RankingRow — Score-Farb-Invariante
+### Property 3: RankingRow - Score-Farb-Invariante
 
 *For any* ganzzahligen Score-Wert `score >= 0` muss `RankingRow` den Score mit `var(--primary)`
 darstellen; *for any* `score < 0` muss `var(--secondary)` verwendet werden.
 
 **Validates: Requirements 3.2, 3.3**
 
-### Property 4: tokens.js — Symmetrie zwischen SUIT_COLORS und SUIT_TEXT_COLORS
+### Property 4: tokens.js - Symmetrie zwischen SUIT_COLORS und SUIT_TEXT_COLORS
 
 *For any* Schlüssel in `SUIT_COLORS` muss ein identischer Schlüssel in `SUIT_TEXT_COLORS`
 existieren, und umgekehrt. Beide Objekte müssen exakt dieselbe Menge an Schlüsseln haben.
@@ -392,18 +392,18 @@ existieren, und umgekehrt. Beide Objekte müssen exakt dieselbe Menge an Schlüs
 
 Da dieses Refactoring keine neue Geschäftslogik einführt, sind die Fehlerszenarien begrenzt:
 
-### SuitBadge — Unbekannter gameType
+### SuitBadge - Unbekannter gameType
 
 - **Szenario:** `gameType` ist `undefined`, `null`, oder ein unbekannter String
 - **Verhalten:** Fallback auf `?`-Symbol, `var(--surface-high)` als Hintergrund, `var(--outline)` als Textfarbe
 - **Kein Crash:** Die Komponente wirft keine Exception
 
-### GameTypeEditor — color-mix Browser-Support
+### GameTypeEditor - color-mix Browser-Support
 
 - **Szenario:** Älterer Browser ohne `color-mix()`-Support
 - **Verhalten:** Transparenter Hintergrund (kein Fallback-Wert nötig, da der Effekt dekorativ ist)
 - **Akzeptiert:** `color-mix()` ist seit Chrome 111, Firefox 113, Safari 16.2 unterstützt (Stand 2023)
-- **Risiko:** Gering — Skatastrophe ist eine moderne Web-App, ältere Browser sind kein Ziel
+- **Risiko:** Gering - Skatastrophe ist eine moderne Web-App, ältere Browser sind kein Ziel
 
 ### CSS Custom Properties in Inline-Styles
 
@@ -491,9 +491,9 @@ test('Property 2: SuitBadge zeigt Fallback für unbekannte Spieltypen', () => {
 ### Bestehende Tests
 
 Alle bestehenden Tests müssen nach dem Refactoring weiterhin bestehen:
-- `GameTypeEditor.test.jsx` und `GameTypeEditor.property.test.jsx` — keine inhaltlichen Änderungen
-- `ResultDashboard.test.js` — prüft Rendering, nicht Farbwerte; bleibt unverändert
-- Alle anderen `*.test.js`-Dateien — nicht betroffen
+- `GameTypeEditor.test.jsx` und `GameTypeEditor.property.test.jsx` - keine inhaltlichen Änderungen
+- `ResultDashboard.test.js` - prüft Rendering, nicht Farbwerte; bleibt unverändert
+- Alle anderen `*.test.js`-Dateien - nicht betroffen
 
 ---
 
@@ -511,7 +511,7 @@ richtet sich an aktuelle Browser. Falls nötig, kann ein statischer Fallback-Wer
 ### 2. Farbabweichungen durch ResultDashboard-Migration
 
 **Risiko:** Das lokale `SUIT_COLORS` in `ResultDashboard.jsx` weicht von `tokens.js` ab (z. B.
-`spade: '#3d4040'` vs. `'#414944'`). Die Migration korrigiert diese Abweichungen — das ist
+`spade: '#3d4040'` vs. `'#414944'`). Die Migration korrigiert diese Abweichungen - das ist
 gewollt, aber eine sichtbare Änderung.
 
 **Mitigation:** Die Abweichungen sind minimal (dunkle Farbtöne, kaum wahrnehmbar). Das Ziel
@@ -540,7 +540,7 @@ mit `color: '#1b1c1c'` überschrieben. Die CSS-Klasse `.stat-label` setzt `color
 ```jsx
 <p className="stat-label" style={{ color: '#1b1c1c', opacity: 0.65 }}>
 ```
-CSS-Spezifität: Inline-Style überschreibt Klasse — kein Problem.
+CSS-Spezifität: Inline-Style überschreibt Klasse - kein Problem.
 
 ### 5. `marginBottom` in statLabel-Verwendungen
 
@@ -552,13 +552,13 @@ CSS-Spezifität: Inline-Style überschreibt Klasse — kein Problem.
 ```jsx
 <p className="stat-label" style={{ marginBottom: '0.75rem' }}>
 ```
-Das ist korrekt — `margin-bottom` ist kontextabhängig und gehört nicht in eine Utility-Klasse.
+Das ist korrekt - `margin-bottom` ist kontextabhängig und gehört nicht in eine Utility-Klasse.
 
-### 6. GameTypeEditor — Spieltyp-Buttons mit SUIT_COLORS
+### 6. GameTypeEditor - Spieltyp-Buttons mit SUIT_COLORS
 
 **Risiko:** `GameTypeEditor.jsx` rendert Spieltyp-Buttons mit eigenen Farben. Nach dem Refactoring
 sollen diese aus `SUIT_COLORS`/`SUIT_TEXT_COLORS` kommen. Die aktuelle Implementierung hat
-`heart` und `diamond` mit `color: '#e53935'` für das Icon — das weicht von `SUIT_TEXT_COLORS`
+`heart` und `diamond` mit `color: '#e53935'` für das Icon - das weicht von `SUIT_TEXT_COLORS`
 ab.
 
 **Mitigation:** Im aktiven Zustand (`isActive`) wird `SUIT_TEXT_COLORS[key]` verwendet.

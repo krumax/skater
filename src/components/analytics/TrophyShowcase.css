@@ -9,7 +9,7 @@
 
 .trophy-cabinet-frame {
   position: relative;
-  /* Warmer, heller Hintergrund — wie eine echte Vitrine mit Innenbeleuchtung */
+  /* Warmer, heller Hintergrund - wie eine echte Vitrine mit Innenbeleuchtung */
   background: linear-gradient(170deg, #fdf6e3 0%, #f5ead0 50%, #ede0c4 100%);
   border: 3px solid #c8a96e;
   border-radius: 1.25rem;
@@ -23,7 +23,7 @@
   overflow: visible;
 }
 
-/* Dekorative Ecken — goldfarben */
+/* Dekorative Ecken - goldfarben */
 .cabinet-corner {
   position: absolute;
   width: 22px;
@@ -175,7 +175,7 @@
 
 .trophy-shelf {
   position: relative;
-  /* Hintergrund des Regal-Innenraums — leicht dunkler als der Rahmen */
+  /* Hintergrund des Regal-Innenraums - leicht dunkler als der Rahmen */
   background: linear-gradient(180deg, rgba(210,175,110,0.25) 0%, rgba(190,150,80,0.15) 100%);
   border-radius: 0.5rem 0.5rem 0 0;
   padding-bottom: 18px;

@@ -1,5 +1,5 @@
 /**
- * GameTypeHeatmap — Heatmap: Spieler × Spieltyp.
+ * GameTypeHeatmap - Heatmap: Spieler × Spieltyp.
  * Zeigt die Gewinnrate jedes Spielers pro Spieltyp als Farbintensität.
  */
 import { useMemo } from 'react';

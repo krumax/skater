@@ -1,4 +1,4 @@
-// Feature: game-type-editing — Unit-Tests für GameTypeEditor
+// Feature: game-type-editing - Unit-Tests für GameTypeEditor
 // Validates: Anforderungen 1.4, 2.1, 2.2, 2.3, 2.4, 2.6, 3.5
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { buildTypeLabel, GAME_TYPES, SPITZEN_RANGES } from './GameTypeEditor.jsx';

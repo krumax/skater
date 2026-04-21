@@ -81,7 +81,7 @@ if (typeof window !== 'undefined') {
 }
 // ---------------------------
 
-/** Holt die user_id der aktuellen Session — null wenn nicht eingeloggt */
+/** Holt die user_id der aktuellen Session - null wenn nicht eingeloggt */
 async function getUserId() {
   const { data: { session } } = await supabase.auth.getSession();
   return session?.user?.id ?? null;

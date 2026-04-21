@@ -167,7 +167,7 @@ const StatistikenCharts = () => {
       .sort((a, b) => b.count - a.count);
   }, [rounds]);
 
-  /* ── 3. Gewinnraten nach Typ — entfernt, ersetzt durch neue Statistiken ── */
+  /* ── 3. Gewinnraten nach Typ - entfernt, ersetzt durch neue Statistiken ── */
 
   /* ── 3. Erfolgsquoten Alleinspieler vs. Gegenspieler ── */
   const successRates = React.useMemo(() => {
@@ -533,7 +533,7 @@ const StatistikenCharts = () => {
           <section>
             <h3 className="headline" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Verteilung der Spielwerte</h3>
             <div className="card">
-              <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.75rem' }}>Häufigkeit der Spielwerte in 24-Punkte-Bins — grün = Siege, rot = Niederlagen</p>
+              <p style={{ fontSize: '0.7rem', color: 'var(--outline)', marginBottom: '0.75rem' }}>Häufigkeit der Spielwerte in 24-Punkte-Bins - grün = Siege, rot = Niederlagen</p>
               <GameValueHistogram rounds={rounds} />
             </div>
           </section>

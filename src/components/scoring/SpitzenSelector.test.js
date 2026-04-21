@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 /**
- * SpitzenSelector — Logik-Tests.
+ * SpitzenSelector - Logik-Tests.
  * Prüft welche Spielarten den Spitzen-Selector aktivieren.
  */
 

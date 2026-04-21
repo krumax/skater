@@ -1,5 +1,5 @@
 /**
- * WinRateTrendChart — Gleitender Durchschnitt der Gewinnquote je Spieltyp.
+ * WinRateTrendChart - Gleitender Durchschnitt der Gewinnquote je Spieltyp.
  * Zeigt ob die Runde bestimmte Spielarten im Laufe der Zeit besser spielt.
  * Fenster: 10 Runden gleitend.
  */

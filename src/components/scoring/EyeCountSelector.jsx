@@ -1,5 +1,5 @@
 /**
- * EyeCountSelector — Augen-Eingabe mit Schnellauswahl-Buttons.
+ * EyeCountSelector - Augen-Eingabe mit Schnellauswahl-Buttons.
  * Wird bei Null und Passen deaktiviert.
  */
 
@@ -34,7 +34,7 @@ export default function EyeCountSelector({ gameType, eyeCount, setEyeCount }) {
                 ? { backgroundColor: 'var(--secondary)', color: '#fff', borderColor: 'var(--secondary)' }
                 : { color: 'var(--secondary)' }),
             }}
-            title="Spaltarsch: exakt 60 Augen — Spiel verloren, nächste Runden als Bockrunde"
+            title="Spaltarsch: exakt 60 Augen - Spiel verloren, nächste Runden als Bockrunde"
           >
             💥 Spaltarsch (60)
           </button>

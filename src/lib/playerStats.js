@@ -1,5 +1,5 @@
 /**
- * playerStats.js — Pure player statistics calculations.
+ * playerStats.js - Pure player statistics calculations.
  *
  * All functions are pure: they take rounds/seating as input and return
  * derived data. No React, no side effects, easy to unit-test.

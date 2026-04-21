@@ -1,5 +1,5 @@
 /**
- * AnsageSelector — Mit/Ohne-Toggle und Spitzen 1–4.
+ * AnsageSelector - Mit/Ohne-Toggle und Spitzen 1–4.
  * Wird bei Null/Passen deaktiviert (maxSpitzen === 0).
  */
 export default function AnsageSelector({ mitOhne, setMitOhne, spitzen, setSpitzen, maxSpitzen }) {

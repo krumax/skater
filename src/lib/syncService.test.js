@@ -45,7 +45,7 @@ function makeBuilder(table) {
       _isSingle = true;
       return builder;
     },
-    // Thenable — resolves when awaited
+    // Thenable - resolves when awaited
     then(resolve) {
       let result;
       try {
@@ -133,7 +133,7 @@ describe('Property 2: Runden-Persistenz-Round-Trip', () => {
   });
 
   it(
-    'Validates: Anforderungen 3.1, 4.2 — ' +
+    'Validates: Anforderungen 3.1, 4.2 - ' +
     'Für jede Runde: nach insertRound und loadSession ist die Runde im State vorhanden und inhaltlich identisch',
     async () => {
       await fc.assert(
@@ -228,7 +228,7 @@ describe('updateRound – Anforderungen 3.1, 4.1', () => {
       spitzen: 3,
       is_bock: true,
       game_value: 96,  // allowed since bockrunden feature (Task 2.2)
-      player: 'Bob',   // must be stripped — not in allowed list
+      player: 'Bob',   // must be stripped - not in allowed list
     };
 
     await updateRound(roundId, patch);

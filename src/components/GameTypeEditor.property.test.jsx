@@ -32,7 +32,7 @@ const SUIT_LABELS_MAP = {
 // Validates: Requirements 2.1
 
 /**
- * Minimal round shape for Property 5 — only isBock matters here.
+ * Minimal round shape for Property 5 - only isBock matters here.
  * We include the minimum fields required to render the component without errors.
  */
 const arbitraryRoundWithBock = fc.record({
@@ -91,7 +91,7 @@ const arbitraryRound = fc.record({
   _dbId:       fc.uuid(),
 }).map(round => ({
   ...round,
-  // Grand erlaubt max 4 Spitzen — auf gültigen Bereich begrenzen
+  // Grand erlaubt max 4 Spitzen - auf gültigen Bereich begrenzen
   spitzen: round.gameType === 'grand' ? Math.min(round.spitzen, 4) : round.spitzen,
 }));
 
@@ -153,7 +153,7 @@ describe('Property 2: Dialog öffnet korrekte Runde (Anforderungen 1.2, 2.1)', (
           expect(schwarzCheckbox.disabled).toBe(false);
 
           // ── Spitzen-Auswahl (Buttons 1–11 bei Farb-/Grand-Spielen) ──
-          // Grand erlaubt max 4 Spitzen — Komponente zeigt nur 1–4 aktiv
+          // Grand erlaubt max 4 Spitzen - Komponente zeigt nur 1–4 aktiv
           const maxSpitzen = round.gameType === 'grand' ? 4 : 11;
           const expectedSpitzen = Math.min(round.spitzen, maxSpitzen);
           const spitzenButtons = screen.getAllByRole('button').filter(b =>

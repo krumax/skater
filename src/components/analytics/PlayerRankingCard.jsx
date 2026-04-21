@@ -1,6 +1,6 @@
 /**
- * PlayerRankingCard — zeigt das kategorie-basierte Ranking eines Spielers.
- * Drei Kategorien: Farbspiel, Null, Grand — je mit Ring-Fortschritt und Tier-Liste.
+ * PlayerRankingCard - zeigt das kategorie-basierte Ranking eines Spielers.
+ * Drei Kategorien: Farbspiel, Null, Grand - je mit Ring-Fortschritt und Tier-Liste.
  */
 import { useMemo } from 'react';
 import {

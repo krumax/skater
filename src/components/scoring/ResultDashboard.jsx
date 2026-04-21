@@ -1,5 +1,5 @@
 /**
- * ResultDashboard — zeigt das berechnete Rundenergebnis mit Aufschlüsselung
+ * ResultDashboard - zeigt das berechnete Rundenergebnis mit Aufschlüsselung
  * sowie den aktuellen Tischstand und den Speichern-Button.
  */
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../../lib/skatScoring';

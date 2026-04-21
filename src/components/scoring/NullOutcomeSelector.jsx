@@ -1,5 +1,5 @@
 /**
- * NullOutcomeSelector — Gewonnen/Verloren-Auswahl für Null-Spiele.
+ * NullOutcomeSelector - Gewonnen/Verloren-Auswahl für Null-Spiele.
  * Wird bei allen anderen Spielarten deaktiviert.
  */
 export default function NullOutcomeSelector({ gameType, eyeCount, setEyeCount }) {

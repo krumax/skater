@@ -1,4 +1,4 @@
-# SEO & GEO Analyse — Skatastrophe
+# SEO & GEO Analyse - Skatastrophe
 
 > Stand: April 2026  
 > Erstellt als Grundlage für die Planung einer Landing-Page und Content-Strategie.
@@ -15,12 +15,12 @@
 
 ### 1.1 Passwortschutz blockiert alles
 
-**Problem:** Der `PasswordGate`-Wrapper schützt die gesamte App. Google sieht ausschließlich den Login-Screen — keinen Inhalt, keine H1, keine Meta-Tags.
+**Problem:** Der `PasswordGate`-Wrapper schützt die gesamte App. Google sieht ausschließlich den Login-Screen - keinen Inhalt, keine H1, keine Meta-Tags.
 
 **Empfehlung:**
 - Eine öffentliche Landing-Page (`/`) ohne Passwortschutz erstellen
 - Die eigentliche App unter `/app` oder einem Subdomain (`app.skatastrophe.de`) betreiben
-- Alternativ: `/info` (Regelwerk) aus dem Passwortschutz herausnehmen — das ist der einzige Inhalt mit echtem redaktionellem Wert
+- Alternativ: `/info` (Regelwerk) aus dem Passwortschutz herausnehmen - das ist der einzige Inhalt mit echtem redaktionellem Wert
 
 ---
 
@@ -57,14 +57,14 @@ Sitemap: https://skatastrophe.de/sitemap.xml
 
 ### 1.4 Statischer `<title>` für alle Routen
 
-**Problem:** `index.html` hat `<title>Skatastrophe</title>` — identisch für alle Seiten. Google sieht `/analytics` und `/history` mit demselben Titel.
+**Problem:** `index.html` hat `<title>Skatastrophe</title>` - identisch für alle Seiten. Google sieht `/analytics` und `/history` mit demselben Titel.
 
 **Empfehlung:** React Helmet oder `document.title` per Route setzen:
 
 ```jsx
 // In jeder Page-Komponente:
 useEffect(() => {
-  document.title = 'Spielerstatistik — Skatastrophe';
+  document.title = 'Spielerstatistik - Skatastrophe';
 }, []);
 ```
 
@@ -74,14 +74,14 @@ Oder besser: `react-helmet-async` installieren und pro Seite `<title>` + `<meta 
 
 ### 1.5 Keine Meta-Description
 
-**Problem:** Fehlt komplett. Google generiert dann selbst einen Snippet — meist suboptimal.
+**Problem:** Fehlt komplett. Google generiert dann selbst einen Snippet - meist suboptimal.
 
 **Empfehlung:** Pro Seite eine Meta-Description setzen (150–160 Zeichen):
 
 | Seite | Vorschlag |
 |-------|-----------|
 | Landing | "Skatastrophe: Die digitale Skat-Zählapp. Regelkonforme Punkteberechnung, Seeger-Fabian, Cloud-Sync und Spielerstatistiken für deinen Spielabend." |
-| /info | "Alle Skat-Regeln auf einen Blick: Spieltypen, Punkteberechnung, Seeger-Fabian-System und Reiztabelle — kompakt erklärt." |
+| /info | "Alle Skat-Regeln auf einen Blick: Spieltypen, Punkteberechnung, Seeger-Fabian-System und Reiztabelle - kompakt erklärt." |
 
 ---
 
@@ -92,7 +92,7 @@ Oder besser: `react-helmet-async` installieren und pro Seite `<title>` + `<meta 
 **Empfehlung:** In `index.html` ergänzen:
 
 ```html
-<meta property="og:title" content="Skatastrophe — Digitale Skat-Zählapp" />
+<meta property="og:title" content="Skatastrophe - Digitale Skat-Zählapp" />
 <meta property="og:description" content="Regelkonforme Punkteberechnung, Seeger-Fabian, Cloud-Sync und Spielerstatistiken." />
 <meta property="og:image" content="https://skatastrophe.de/og-image.png" />
 <meta property="og:type" content="website" />
@@ -116,7 +116,7 @@ Google rankt keine Keywords, sondern **Suchintentionen**. Für Skatastrophe gibt
 ### Haupt-Intent
 > *"Ich spiele regelmäßig Skat und will nicht mehr mit Stift und Papier zählen"*
 
-Das ist ein **Tool-Intent** — jemand sucht ein Werkzeug, kein Wissen. Google rankt dafür Seiten, die das Tool direkt anbieten oder klar beschreiben.
+Das ist ein **Tool-Intent** - jemand sucht ein Werkzeug, kein Wissen. Google rankt dafür Seiten, die das Tool direkt anbieten oder klar beschreiben.
 
 ### Nebenintents
 1. **Informations-Intent:** *"Wie funktioniert Seeger-Fabian?"* → führt zur App über den Regelwerk-Inhalt
@@ -128,7 +128,7 @@ Das ist ein **Tool-Intent** — jemand sucht ein Werkzeug, kein Wissen. Google r
 ### Empfohlene Landing-Page-Struktur
 
 ```
-H1: Skat digital zählen — regelkonform, ohne Papier
+H1: Skat digital zählen - regelkonform, ohne Papier
 H2: Was Skatastrophe kann
   H3: Alle Spieltypen automatisch berechnet (Grand, Null, Kreuz, Pik, Herz, Karo)
   H3: Seeger-Fabian-Turnierwertung inklusive
@@ -176,7 +176,7 @@ Die App hat bereits gute interne Verlinkung für eingeloggte Nutzer:
 
 ## 4. Topical Authority (Content-Cluster)
 
-**Topical Authority** bedeutet: Google vertraut einer Domain als Experte für ein Thema, wenn sie *mehrere zusammenhängende Seiten* zu diesem Thema hat — nicht nur eine einzelne.
+**Topical Authority** bedeutet: Google vertraut einer Domain als Experte für ein Thema, wenn sie *mehrere zusammenhängende Seiten* zu diesem Thema hat - nicht nur eine einzelne.
 
 ### Aktueller Zustand
 Keine öffentlichen Inhalte → keine Topical Authority.
@@ -195,9 +195,9 @@ Skat (Kern-Thema)
 
 ### Empfehlungen
 
-1. **`/info` öffentlich machen** — das ist der wertvollste bestehende Inhalt
-2. **Einen Blogpost zu Seeger-Fabian** schreiben — sehr spezifisches Thema, kaum Konkurrenz, hohe Relevanz für die Zielgruppe
-3. **FAQ-Sektion** auf der Landing-Page mit strukturierten Daten (`FAQPage` Schema) — das ist ein direkter GEO-Hebel
+1. **`/info` öffentlich machen** - das ist der wertvollste bestehende Inhalt
+2. **Einen Blogpost zu Seeger-Fabian** schreiben - sehr spezifisches Thema, kaum Konkurrenz, hohe Relevanz für die Zielgruppe
+3. **FAQ-Sektion** auf der Landing-Page mit strukturierten Daten (`FAQPage` Schema) - das ist ein direkter GEO-Hebel
 
 ---
 

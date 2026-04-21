@@ -27,7 +27,7 @@ in `src/index.css` + Extraktion kleiner Hilfskomponenten + `tokens.js` als einzi
   steht, anstatt aus `tokens.js` oder einer CSS Custom Property zu stammen.
 - **SUIT_COLORS**: Das Objekt in `src/lib/tokens.js`, das Hintergrundfarben pro Spieltyp definiert.
 - **GAME_TYPE_DISPLAY**: Ein lokales Objekt in `SkatScoreList.jsx`, das Farben und Symbole pro
-  Spieltyp definiert — aktuell eine Duplikation von `SUIT_COLORS`.
+  Spieltyp definiert - aktuell eine Duplikation von `SUIT_COLORS`.
 - **statLabel_Muster**: Das Style-Objekt `{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--outline)' }`, das in 5 Dateien dupliziert ist.
 - **statValue_Muster**: Das Style-Objekt `{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif" }`, das in 3 Dateien dupliziert ist.
 
@@ -47,7 +47,7 @@ in `src/index.css` + Extraktion kleiner Hilfskomponenten + `tokens.js` als einzi
 ### Token-Duplizierung und Inkonsistenz
 
 - `GameTypeEditor.jsx` verwendet ein vollständig eigenes Farbsystem mit Hardcoded-Hex-Werten
-  (`#7c3aed`, `#1a1a2e`, `#166534`, `#991b1b`, `#c0c0d0`) — diese Farben existieren nicht im
+  (`#7c3aed`, `#1a1a2e`, `#166534`, `#991b1b`, `#c0c0d0`) - diese Farben existieren nicht im
   Design-Token-System und weichen vom Rest der App ab.
 - `ResultDashboard.jsx` definiert ein lokales `SUIT_COLORS`-Objekt mit leicht abweichenden Werten
   gegenüber `tokens.js` (z. B. `spade: '#3d4040'` vs. `'#414944'`).
@@ -56,14 +56,14 @@ in `src/index.css` + Extraktion kleiner Hilfskomponenten + `tokens.js` als einzi
 
 ### Betroffene Dateien
 
-- `src/pages/SkatScoreList.jsx` — sehr stark betroffen
-- `src/pages/StatistikenCharts.jsx` — stark betroffen
-- `src/pages/PlayerAnalytics.jsx` — stark betroffen
-- `src/pages/PlayerSettings.jsx` — stark betroffen
-- `src/pages/GameScoringEntry.jsx` — moderat betroffen
-- `src/components/Sidebar.jsx` — moderat betroffen
-- `src/components/scoring/ResultDashboard.jsx` — stark betroffen
-- `src/components/GameTypeEditor.jsx` — stark betroffen, eigenes Farbsystem
+- `src/pages/SkatScoreList.jsx` - sehr stark betroffen
+- `src/pages/StatistikenCharts.jsx` - stark betroffen
+- `src/pages/PlayerAnalytics.jsx` - stark betroffen
+- `src/pages/PlayerSettings.jsx` - stark betroffen
+- `src/pages/GameScoringEntry.jsx` - moderat betroffen
+- `src/components/Sidebar.jsx` - moderat betroffen
+- `src/components/scoring/ResultDashboard.jsx` - stark betroffen
+- `src/components/GameTypeEditor.jsx` - stark betroffen, eigenes Farbsystem
 
 ---
 
@@ -71,20 +71,20 @@ in `src/index.css` + Extraktion kleiner Hilfskomponenten + `tokens.js` als einzi
 
 1. Duplizierte Style-Muster (`statLabel`, `statValue`) als Utility-CSS-Klassen in `src/index.css` definieren.
 2. Duplizierte JSX-Muster (Ranking-Zeile, Spieltyp-Badge) als Hilfskomponenten extrahieren.
-3. `tokens.js` zur einzigen Quelle für JS-Farbwerte machen — keine lokalen Farbduplikate mehr.
+3. `tokens.js` zur einzigen Quelle für JS-Farbwerte machen - keine lokalen Farbduplikate mehr.
 4. `GameTypeEditor.jsx` ins Design-Token-System integrieren.
 5. Die visuelle Darstellung der App bleibt nach dem Refactoring identisch.
 
 ## Nicht-Ziele (Abgrenzung)
 
-- **Kein CSS Modules** — alle Styles bleiben in `src/index.css` oder als Inline-Styles.
+- **Kein CSS Modules** - alle Styles bleiben in `src/index.css` oder als Inline-Styles.
 - **Kein Tailwind** oder andere Utility-CSS-Frameworks.
-- **Keine neuen Features** — ausschließlich strukturelle Verbesserungen.
-- **Keine Änderung der Spiellogik** — `src/lib/` bleibt unberührt.
-- **Einmalige Layout-Inline-Styles dürfen bleiben** — `gridTemplateColumns`, spezifische `margin`-
+- **Keine neuen Features** - ausschließlich strukturelle Verbesserungen.
+- **Keine Änderung der Spiellogik** - `src/lib/` bleibt unberührt.
+- **Einmalige Layout-Inline-Styles dürfen bleiben** - `gridTemplateColumns`, spezifische `margin`-
   und `padding`-Werte, die nur einmal vorkommen und keinen Sinn als Klasse ergeben.
-- **Keine Änderung der Datenbankschicht** — `syncService.js` und Supabase-Migrationen sind nicht betroffen.
-- **Keine Änderung der Testlogik** — bestehende Tests müssen weiterhin bestehen, aber ihre Assertions
+- **Keine Änderung der Datenbankschicht** - `syncService.js` und Supabase-Migrationen sind nicht betroffen.
+- **Keine Änderung der Testlogik** - bestehende Tests müssen weiterhin bestehen, aber ihre Assertions
   werden nicht inhaltlich verändert.
 
 ---
@@ -204,7 +204,7 @@ verwendet wie der Rest der App, damit der Editor visuell konsistent ist.
 
 ---
 
-### Anforderung 6: Visuelle Regression — Keine sichtbaren Änderungen
+### Anforderung 6: Visuelle Regression - Keine sichtbaren Änderungen
 
 **User Story:** Als Nutzer möchte ich, dass die App nach dem Refactoring exakt gleich aussieht,
 damit das Refactoring keine unbeabsichtigten visuellen Änderungen einführt.
@@ -237,10 +237,10 @@ verwenden wie `SUIT_COLORS[gameType]` aus `tokens.js`.
 
 **Testdatei:** `src/components/SuitBadge.property.test.jsx`
 
-### Eigenschaft 2: RankingRow — Score-Farb-Invariante
+### Eigenschaft 2: RankingRow - Score-Farb-Invariante
 
 **Invariante:** Für beliebige ganzzahlige Score-Werte muss `RankingRow` die korrekte Farbe
-verwenden — unabhängig vom konkreten Wert.
+verwenden - unabhängig vom konkreten Wert.
 
 ```
 ∀ score ∈ Integer:
@@ -250,7 +250,7 @@ verwenden — unabhängig vom konkreten Wert.
 
 **Testdatei:** `src/pages/SkatScoreList.property.test.jsx` (oder neben der extrahierten Komponente)
 
-### Eigenschaft 3: RankingRow — Badge-Farb-Invariante
+### Eigenschaft 3: RankingRow - Badge-Farb-Invariante
 
 **Invariante:** Für beliebige Rang-Werte muss `RankingRow` den Badge korrekt einfärben.
 
@@ -260,7 +260,7 @@ verwenden — unabhängig vom konkreten Wert.
   rank > 1   → Badge-Hintergrund ist var(--surface-high)
 ```
 
-### Eigenschaft 4: SuitBadge — Vollständigkeit der Spieltypen
+### Eigenschaft 4: SuitBadge - Vollständigkeit der Spieltypen
 
 **Invariante:** `SuitBadge` darf für keinen der definierten Spieltypen den Fallback-Zustand
 (Fragezeichen) rendern.
@@ -270,7 +270,7 @@ verwenden — unabhängig vom konkreten Wert.
   SuitBadge(gameType) rendert KEIN Fragezeichen-Fallback
 ```
 
-### Eigenschaft 5: tokens.js — Symmetrie zwischen SUIT_COLORS und SUIT_TEXT_COLORS
+### Eigenschaft 5: tokens.js - Symmetrie zwischen SUIT_COLORS und SUIT_TEXT_COLORS
 
 **Invariante:** Für jeden Schlüssel in `SUIT_COLORS` muss ein entsprechender Schlüssel in
 `SUIT_TEXT_COLORS` existieren (und umgekehrt).
@@ -294,7 +294,7 @@ verwenden — unabhängig vom konkreten Wert.
 | CSS Modules einführen | Erhöht Komplexität ohne klaren Mehrwert für dieses Projekt |
 | Tailwind oder andere Utility-Frameworks | Nicht im Tech-Stack, würde Build-Konfiguration ändern |
 | Spiellogik in `src/lib/` anfassen | Außerhalb des Scope; Logik ist bereits gut isoliert |
-| Einmalige Layout-Styles entfernen | `gridTemplateColumns`, spezifische Margins — kein Duplikationsproblem |
+| Einmalige Layout-Styles entfernen | `gridTemplateColumns`, spezifische Margins - kein Duplikationsproblem |
 | Visuelle Änderungen am Design | Refactoring, kein Redesign |
 | Neue Komponenten für Seiten ohne Duplikation | Nur Dateien mit nachgewiesener Duplikation werden angefasst |
 | Supabase-Schema oder Migrationen | Nicht betroffen |

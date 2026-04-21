@@ -1,5 +1,5 @@
 /**
- * trophyData.js — Datenmodell und Beispieldaten für die Pokalvitrine.
+ * trophyData.js - Datenmodell und Beispieldaten für die Pokalvitrine.
  */
 
 /**
@@ -20,7 +20,7 @@
  */
 
 export const RARITY_CONFIG = {
-  // Warme, satte Farben — gut lesbar auf hellem Hintergrund
+  // Warme, satte Farben - gut lesbar auf hellem Hintergrund
   common:    { label: 'Gewöhnlich', color: '#6b7a8d', glow: 'rgba(107,122,141,0.3)', bg: '#f0ece4', border: '#c8c0b0', textColor: '#3a3530' },
   rare:      { label: 'Selten',     color: '#1a6abf', glow: 'rgba(26,106,191,0.35)', bg: '#e8f0fa', border: '#90b8e8', textColor: '#0d3a70' },
   epic:      { label: 'Episch',     color: '#7c3aed', glow: 'rgba(124,58,237,0.4)',  bg: '#f0eafc', border: '#c4a0f0', textColor: '#4a1a90' },

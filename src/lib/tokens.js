@@ -1,5 +1,5 @@
 /**
- * tokens.js — Design tokens for JS/JSX usage.
+ * tokens.js - Design tokens for JS/JSX usage.
  *
  * CSS variables (defined in index.css :root) are the source of truth for
  * runtime theming. These JS constants mirror the suit/game-type colors
@@ -9,7 +9,7 @@
  * For all other colors, prefer var(--token-name) in inline styles.
  */
 
-/** Background color per game type — used in badges, matrix cells, charts */
+/** Background color per game type - used in badges, matrix cells, charts */
 export const SUIT_COLORS = {
   grand:   '#0b3d2e',
   club:    '#1b1c1c',
@@ -31,7 +31,7 @@ export const SUIT_TEXT_COLORS = {
   passed:  '#1b1c1c',
 };
 
-/** Semantic outcome colors — used in charts and win/loss indicators */
+/** Semantic outcome colors - used in charts and win/loss indicators */
 export const WIN_COLOR  = '#2e7d32';
 export const LOSS_COLOR = '#d84315';
 
@@ -49,7 +49,7 @@ export const PLAYER_COLORS = [
   '#396756', '#ff5c47', '#d0a600',
 ];
 
-/** Unicode suit symbols — used in game type badges and labels */
+/** Unicode suit symbols - used in game type badges and labels */
 export const SUIT_SYMBOLS = {
   club:    '♣',
   spade:   '♠',

@@ -7,7 +7,7 @@ Skatastrophe ist eine moderne Web-App für Skat-Runden am echten Kartentisch. Si
 ## Was kann die App?
 
 ### 🧮 Punkteberechnung
-Alle Spieltypen (Kreuz, Pik, Herz, Karo, Grand, Null, Eingepasst) werden vollständig unterstützt — inklusive Spitzen (Mit/Ohne), Hand, Schneider, Schwarz, Ouvert und Bockrunden. Neben der Standardwertung berechnet die App automatisch das **Seeger-Fabian-Turniersystem** (+50/−50 für den Alleinspieler, +40 für Gegenspieler bei Niederlage).
+Alle Spieltypen (Kreuz, Pik, Herz, Karo, Grand, Null, Eingepasst) werden vollständig unterstützt - inklusive Spitzen (Mit/Ohne), Hand, Schneider, Schwarz, Ouvert und Bockrunden. Neben der Standardwertung berechnet die App automatisch das **Seeger-Fabian-Turniersystem** (+50/−50 für den Alleinspieler, +40 für Gegenspieler bei Niederlage).
 
 ### 👥 Tischverwaltung
 - Sitzordnung mit 3 oder 4 Spielern, automatische Geber-Rotation
@@ -21,7 +21,7 @@ Alle Spieltypen (Kreuz, Pik, Herz, Karo, Grand, Null, Eingepasst) werden vollst�
 - **Ranking-System:** Kategorie-basierte Ränge (Bronze → Legende) für Farbspiel, Null und Grand
 
 ### 🏆 Achievements
-Jeder Spieler füllt eine persönliche Erfolgsmatrix — für Angriff (als Alleinspieler) und Abwehr (als Gegenspieler). Neue Kombinationen werden mit einem Konfetti-Popup gefeiert. Ein Level-System (Anfänger → Unsterblicher) motiviert langfristig.
+Jeder Spieler füllt eine persönliche Erfolgsmatrix - für Angriff (als Alleinspieler) und Abwehr (als Gegenspieler). Neue Kombinationen werden mit einem Konfetti-Popup gefeiert. Ein Level-System (Anfänger → Unsterblicher) motiviert langfristig.
 
 ### ☁️ Cloud-Sync
 Alle Daten werden in Echtzeit über **Supabase** (PostgreSQL) synchronisiert. Jedes Gerät am Tisch kann die Session im Browser öffnen und mitverfolgen.
@@ -67,7 +67,7 @@ npx supabase login
 npx supabase functions deploy delete-account
 ```
 
-> **Wichtig:** Nach dem Deploy im Supabase Dashboard unter **Edge Functions → delete-account → Settings** die Option **"Verify JWT" deaktivieren**. Die Funktion verifiziert das JWT selbst — die doppelte Gateway-Verifikation schlägt wegen eines Algorithmus-Konflikts (ES256) fehl.
+> **Wichtig:** Nach dem Deploy im Supabase Dashboard unter **Edge Functions → delete-account → Settings** die Option **"Verify JWT" deaktivieren**. Die Funktion verifiziert das JWT selbst - die doppelte Gateway-Verifikation schlägt wegen eines Algorithmus-Konflikts (ES256) fehl.
 
 ### 4. App starten
 
@@ -97,7 +97,7 @@ bubblewrap update   # aktualisiert TWA-Konfiguration + inkrementiert appVersionC
 bubblewrap build    # erzeugt app-release-signed.aab
 ```
 
-> `bubblewrap build` alleine reicht **nicht** — es baut immer mit der Versionsnummer aus `twa-manifest.json` ohne sie zu erhöhen. Immer zuerst `update` ausführen, sonst lehnt die Play Console die AAB mit "Versionscode wurde bereits verwendet" ab.
+> `bubblewrap build` alleine reicht **nicht** - es baut immer mit der Versionsnummer aus `twa-manifest.json` ohne sie zu erhöhen. Immer zuerst `update` ausführen, sonst lehnt die Play Console die AAB mit "Versionscode wurde bereits verwendet" ab.
 
 Die fertige AAB unter **Play Console → Testen → Geschlossener Test → Neuen Release erstellen** hochladen.
 

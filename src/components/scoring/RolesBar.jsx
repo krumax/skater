@@ -1,5 +1,5 @@
 /**
- * RolesBar — zeigt die initiale Sitzordnung wie in den Einstellungen konfiguriert.
+ * RolesBar - zeigt die initiale Sitzordnung wie in den Einstellungen konfiguriert.
  */
 import { Link } from 'react-router-dom';
 

@@ -4,7 +4,7 @@ import { calculateGameValue, getOutcomeLabel, SUIT_LABELS } from '../lib/skatSco
 const DEFAULT_GAME_TYPE = 'spade';
 
 /**
- * useGameForm — encapsulates all form state and derived values
+ * useGameForm - encapsulates all form state and derived values
  * for the GameScoringEntry page.
  *
  * Returns state, setters, derived values, and action handlers.
@@ -23,7 +23,7 @@ export function useGameForm(initialPlayer = '') {
   const [eyeCount, setEyeCount]         = useState(61);
   const [isBock, setIsBock]             = useState(false);
 
-  // Handles hand toggle — deactivating hand also clears ouvert for suit/grand games
+  // Handles hand toggle - deactivating hand also clears ouvert for suit/grand games
   const setHandWithSideEffects = (value) => {
     setHand(value);
     if (!value && gameType !== 'null') setOuvert(false);

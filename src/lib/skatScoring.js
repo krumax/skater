@@ -224,7 +224,7 @@ export function getOutcomeLabel(eyeCount) {
 /**
  * Calculates Seeger-Fabian tournament scores for all players in a round.
  *
- * Pure tournament bonus — independent of game value:
+ * Pure tournament bonus - independent of game value:
  *   Declarer won:  +50
  *   Declarer lost: −50
  *   Each opponent when declarer loses: +40

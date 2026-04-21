@@ -3,7 +3,7 @@
 // Validates: Requirements 3.1, 3.2, 3.3
 
 /**
- * Mock-based property test — no real DB calls.
+ * Mock-based property test - no real DB calls.
  *
  * Strategy:
  *   1. Simulate insertRound by capturing the snake_case payload it would send.
@@ -110,17 +110,17 @@ const arbitrarySessionId = fc.uuid();
 
 // ── Property 3: Bock-Persistenz Round-Trip (insert path) ─────────────────────
 
-describe('Property 3: Bock-Persistenz Round-Trip — insertRound → loadSession (Requirements 3.1, 3.3)', () => {
+describe('Property 3: Bock-Persistenz Round-Trip - insertRound → loadSession (Requirements 3.1, 3.3)', () => {
   it('isBock bleibt nach insert + load identisch', { timeout: 30000 }, () => {
     fc.assert(
       fc.property(
         arbitraryRound,
         arbitrarySessionId,
         (round, sessionId) => {
-          // Step 1: simulate insertRound — build the DB payload
+          // Step 1: simulate insertRound - build the DB payload
           const dbRow = buildInsertPayload(round, sessionId);
 
-          // Step 2: simulate loadSession mapping — convert back to camelCase
+          // Step 2: simulate loadSession mapping - convert back to camelCase
           const loaded = mapDbRowToRound(dbRow);
 
           // Assert: isBock survives the round-trip unchanged
@@ -134,7 +134,7 @@ describe('Property 3: Bock-Persistenz Round-Trip — insertRound → loadSession
 
 // ── Property 3: Bock-Persistenz Round-Trip (update path) ─────────────────────
 
-describe('Property 3: Bock-Persistenz Round-Trip — updateRound → loadSession (Requirements 3.2, 3.3)', () => {
+describe('Property 3: Bock-Persistenz Round-Trip - updateRound → loadSession (Requirements 3.2, 3.3)', () => {
   it('is_bock und game_value überleben den update-Patch-Filter', { timeout: 30000 }, () => {
     fc.assert(
       fc.property(
@@ -150,8 +150,8 @@ describe('Property 3: Bock-Persistenz Round-Trip — updateRound → loadSession
           const snakePatch = {
             is_bock:   patch.isBock,
             game_value: patch.gameValue,
-            player:    patch.player,     // not in allowed list — should be dropped
-            session_id: patch.session_id, // not in allowed list — should be dropped
+            player:    patch.player,     // not in allowed list - should be dropped
+            session_id: patch.session_id, // not in allowed list - should be dropped
           };
 
           // Step 1: simulate updateRound allowed-list filter
@@ -204,7 +204,7 @@ describe('Property 3: Bock-Persistenz Round-Trip — updateRound → loadSession
 
 // ── Edge case: missing is_bock field defaults to false ────────────────────────
 
-describe('Property 3: Altdaten-Kompatibilität — fehlendes is_bock wird zu false', () => {
+describe('Property 3: Altdaten-Kompatibilität - fehlendes is_bock wird zu false', () => {
   it('Runden ohne is_bock-Feld erhalten isBock=false nach dem Mapping', { timeout: 30000 }, () => {
     fc.assert(
       fc.property(

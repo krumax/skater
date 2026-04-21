@@ -26,11 +26,11 @@ function TrophySvg({ color, locked }) {
       <rect x="18" y="63" width="28" height="5" rx="2" fill={dark} />
       {/* Sockel-Hals */}
       <polygon points="24,54 40,54 38,63 26,63" fill={shadeColor(dark, 15)} />
-      {/* Pokal-Körper — Hauptfläche */}
+      {/* Pokal-Körper - Hauptfläche */}
       <polygon points="32,10 46,16 42,44 32,50 22,44 18,16" fill={c} />
-      {/* Pokal-Körper — helle Seite (links) */}
+      {/* Pokal-Körper - helle Seite (links) */}
       <polygon points="32,10 18,16 22,30 32,28" fill={light} />
-      {/* Pokal-Körper — dunkle Seite (rechts) */}
+      {/* Pokal-Körper - dunkle Seite (rechts) */}
       <polygon points="32,50 42,44 40,32 32,34" fill={shadeColor(c, -20)} />
       {/* Henkel links */}
       <path d="M18,20 Q7,24 9,34 Q11,42 22,40" stroke={dark} strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
@@ -55,11 +55,11 @@ function MedalSvg({ color, locked }) {
       <polygon points="22,2 32,16 42,2 38,0 26,0" fill={bandA} />
       <polygon points="22,2 32,16 27,20 18,6" fill={bandB} />
       <polygon points="42,2 32,16 37,20 46,6" fill={bandA} />
-      {/* Medaille — Außenring */}
+      {/* Medaille - Außenring */}
       <circle cx="32" cy="46" r="21" fill={dark} />
-      {/* Medaille — Hauptfläche */}
+      {/* Medaille - Hauptfläche */}
       <circle cx="32" cy="46" r="18" fill={c} />
-      {/* Medaille — helle Seite */}
+      {/* Medaille - helle Seite */}
       <path d="M20,34 A18,18 0 0,1 44,34" fill={light} opacity="0.5" />
       {/* Stern */}
       <polygon
@@ -78,13 +78,13 @@ function BadgeSvg({ color, locked }) {
   const dark  = locked ? '#8a8278' : shadeColor(color, -45);
   return (
     <svg viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      {/* Schild — Schatten */}
+      {/* Schild - Schatten */}
       <polygon points="34,68 58,40 58,18 34,8" fill={dark} opacity="0.3" />
-      {/* Schild — Hauptfläche */}
+      {/* Schild - Hauptfläche */}
       <polygon points="32,8 56,18 56,40 32,66 8,40 8,18" fill={c} />
-      {/* Schild — helle Seite */}
+      {/* Schild - helle Seite */}
       <polygon points="32,8 8,18 8,36 20,50 32,40" fill={light} opacity="0.45" />
-      {/* Schild — dunkle Seite */}
+      {/* Schild - dunkle Seite */}
       <polygon points="32,66 56,40 48,38 32,58 16,38 8,40" fill={dark} opacity="0.5" />
       {/* Innerer Stern */}
       <polygon
@@ -105,11 +105,11 @@ function StarSvg({ color, locked }) {
       {/* Sockel */}
       <rect x="22" y="60" width="20" height="6" rx="2" fill={dark} />
       <rect x="27" y="52" width="10" height="10" fill={shadeColor(dark, 10)} />
-      {/* Stern — Hauptfläche */}
+      {/* Stern - Hauptfläche */}
       <polygon points="32,4 37,20 54,20 41,30 46,46 32,37 18,46 23,30 10,20 27,20" fill={c} />
-      {/* Stern — helle Seite (oben links) */}
+      {/* Stern - helle Seite (oben links) */}
       <polygon points="32,4 27,20 10,20 23,30 18,46 32,37" fill={light} opacity="0.4" />
-      {/* Stern — dunkle Seite (unten rechts) */}
+      {/* Stern - dunkle Seite (unten rechts) */}
       <polygon points="32,37 46,46 41,30 54,20 37,20" fill={dark} opacity="0.35" />
       {!locked && <polygon points="20,16 26,20 24,12" fill="rgba(255,255,255,0.35)" />}
     </svg>

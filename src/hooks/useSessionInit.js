@@ -1,5 +1,5 @@
 /**
- * useSessionInit — handles session loading on app mount.
+ * useSessionInit - handles session loading on app mount.
  *
  * Tries to restore the last session from localStorage, falls back to the
  * most recent session in the DB, and marks loading as complete either way.
@@ -38,7 +38,7 @@ export function useSessionInit(dispatch, setSyncStatus, setSyncError, setSession
         if (!isNetworkError) {
           localStorage.removeItem(SESSION_STORAGE_KEY);
         } else {
-          // Offline at startup — mark as loaded so the app shell renders
+          // Offline at startup - mark as loaded so the app shell renders
           setSessionLoaded(true);
           setSyncStatus('error');
           setSyncError('Keine Verbindung. Daten werden geladen sobald du wieder online bist.');

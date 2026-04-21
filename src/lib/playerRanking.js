@@ -1,5 +1,5 @@
 /**
- * playerRanking.js — Kategorie-basiertes Ranking-System.
+ * playerRanking.js - Kategorie-basiertes Ranking-System.
  *
  * Drei Kategorien: Farbspiel (Kreuz/Pik/Herz/Karo), Null, Grand.
  * Jede Kategorie hat 6 Ränge basierend auf gewonnenen Spielen.

@@ -11,7 +11,7 @@ import { calculateGameValue } from '../lib/skatScoring';
 // Validates: Requirements 1.2, 1.4, 2.3, 5.3
 
 /**
- * Minimal reducer for ADD_ROUND — mirrors the logic in GameContext.jsx.
+ * Minimal reducer for ADD_ROUND - mirrors the logic in GameContext.jsx.
  * Only the bock-doubling logic is relevant here.
  */
 function addRoundReducer(rounds, payload) {

@@ -110,7 +110,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
         schwarz,
         schwarzAnnounced,
         ouvert,
-        // eyeCount nur für Grundwert/Multiplikator-Berechnung — won überschreiben wir manuell
+        // eyeCount nur für Grundwert/Multiplikator-Berechnung - won überschreiben wir manuell
         eyeCount: won ? 61 : 0,
       });
       // won aus State übernehmen, Spielwert entsprechend anpassen

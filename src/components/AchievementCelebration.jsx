@@ -234,7 +234,7 @@ const AchievementCelebration = ({ achievement, onClose }) => {
                     ? <span style={{ marginRight: '0.25rem' }}>{gameTypeSuit}</span>
                     : null
                   }
-                  {gameTypeName} — {colLabel}
+                  {gameTypeName} - {colLabel}
                 </div>
                 <div style={{ fontSize: '0.8125rem', color: 'var(--on-surface-variant)' }}>Erstmals gewonnen!</div>
               </div>

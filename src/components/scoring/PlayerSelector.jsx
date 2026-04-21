@@ -1,5 +1,5 @@
 /**
- * PlayerSelector — Auswahl des Alleinspielers.
+ * PlayerSelector - Auswahl des Alleinspielers.
  * Zeigt Level, Gesamtscore und kombinierten Score je Spieler.
  */
 
@@ -45,7 +45,7 @@ export default function PlayerSelector({ players, activePlayer, onSelect, player
         style={{ opacity: disabled ? 0.4 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
       >
         {players.length === 0 ? (
-          // Skeleton — 3 Platzhalter-Karten während Daten laden
+          // Skeleton - 3 Platzhalter-Karten während Daten laden
           <>
             <PlayerCardSkeleton />
             <PlayerCardSkeleton />

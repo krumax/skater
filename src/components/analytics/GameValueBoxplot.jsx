@@ -1,5 +1,5 @@
 /**
- * GameValueBoxplot — Boxplot der Spielwerte pro Spieltyp.
+ * GameValueBoxplot - Boxplot der Spielwerte pro Spieltyp.
  * Zeigt Median, Q1/Q3, Whisker und Ausreißer als SVG.
  */
 import { useMemo } from 'react';

@@ -1,5 +1,5 @@
 /**
- * LevelGauge — segmentierter Ring-Fortschrittsanzeiger für das Spieler-Level.
+ * LevelGauge - segmentierter Ring-Fortschrittsanzeiger für das Spieler-Level.
  *
  * Der Ring besteht aus N Segmenten (eines pro Level-Stufe).
  * Vollständig erreichte Level sind voll gefärbt, das aktuelle Level
@@ -20,7 +20,7 @@ const R_OUTER     = 72;
 const R_INNER     = 54;
 const GAP_DEG     = 4;
 const START_DEG   = 200;   // Beginn unten-links
-const END_DEG     = 340;   // Ende unten-rechts — Lücke = 40° unten
+const END_DEG     = 340;   // Ende unten-rechts - Lücke = 40° unten
 const TOTAL_ARC   = 320;   // 360 - 40° Lücke
 
 function toRad(deg) { return (deg * Math.PI) / 180; }

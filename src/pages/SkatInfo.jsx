@@ -64,7 +64,7 @@ export default function SkatInfo() {
     <div>
       <header className="page-header">
         <h1 className="page-title">Regelwerk</h1>
-        <p className="page-subtitle">Nachschlagewerk — Reiztabelle und Spielwerte auf einen Blick.</p>
+        <p className="page-subtitle">Nachschlagewerk - Reiztabelle und Spielwerte auf einen Blick.</p>
       </header>
 
       {/* ── Reiztabelle ── */}

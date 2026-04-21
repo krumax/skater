@@ -19,7 +19,7 @@ Verschiebt die React SPA von `/` nach `/app` und platziert die statische Landing
     - In `handleGoogle` den `redirectTo`-Wert in `signInWithOAuth` aktualisieren
     - _Requirements: 4.1, 4.2, 4.3_
 
-- [x] 2. Checkpoint — Konfiguration prüfen
+- [x] 2. Checkpoint - Konfiguration prüfen
   - Sicherstellen dass `vite.config.js`, `App.jsx` und `AuthGate.jsx` korrekt geändert sind. Bei Fragen nachfragen.
 
 - [x] 3. Build-Infrastruktur (copy-landing.js, package.json, _redirects)
@@ -49,12 +49,12 @@ Verschiebt die React SPA von `/` nach `/app` und platziert die statische Landing
     - Bestehende `/*  /index.html  200`-Regel entfernen, neue Regel eintragen
     - _Requirements: 1.3, 1.4, 1.5_
 
-- [x] 4. Checkpoint — Build-Infrastruktur prüfen
+- [x] 4. Checkpoint - Build-Infrastruktur prüfen
   - Sicherstellen dass `npm run build` durchläuft, `dist/app/index.html` erzeugt wird und `dist/index.html` die Landing Page enthält. Bei Fragen nachfragen.
 
 - [x] 5. Content-Änderungen (public/landing/index.html)
   - [x] 5.1 `public/landing/index.html`: alle `href="/"` CTA-Links auf `href="/app"` aktualisieren
-    - Nav-Link „App starten →", Hero-CTA „Sabbel nich - Teil aus! ↗", finaler CTA „Jetzt kostenlos starten ↗", Footer-Link „App öffnen" — alle vier Stellen ändern
+    - Nav-Link „App starten →", Hero-CTA „Sabbel nich - Teil aus! ↗", finaler CTA „Jetzt kostenlos starten ↗", Footer-Link „App öffnen" - alle vier Stellen ändern
     - Footer-Link `href="/info"` → `href="/app/info"` aktualisieren
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
 
@@ -72,7 +72,7 @@ Verschiebt die React SPA von `/` nach `/app` und platziert die statische Landing
   - [x] 7.1 `netlify.toml` aus dem Repository löschen
     - Datei entfernen, da Deployment auf Cloudflare Pages erfolgt
 
-- [x] 8. Finaler Checkpoint — Alle Tests bestehen
+- [x] 8. Finaler Checkpoint - Alle Tests bestehen
   - Sicherstellen dass alle Tests bestehen (`npm test`). Bei Fragen nachfragen.
 
 ## Notes
@@ -81,4 +81,4 @@ Verschiebt die React SPA von `/` nach `/app` und platziert die statische Landing
 - Die Reihenfolge ist wichtig: Konfiguration vor Build-Infrastruktur vor Content vor Migration vor Cleanup
 - `copy-landing.js` nutzt ESM (`export`), da `package.json` `"type": "module"` hat
 - Property-Test (3.2) und Unit-Tests (3.3) können in dieselbe Datei `scripts/copy-landing.test.js` geschrieben werden
-- Vitest läuft mit `environment: 'node'` — Node.js `fs`-Operationen in Tests sind direkt nutzbar
+- Vitest läuft mit `environment: 'node'` - Node.js `fs`-Operationen in Tests sind direkt nutzbar

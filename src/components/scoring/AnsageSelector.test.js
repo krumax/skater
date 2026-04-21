@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 /**
- * maxSpitzen-Logik aus useGameForm — hier als pure Funktion testbar.
+ * maxSpitzen-Logik aus useGameForm - hier als pure Funktion testbar.
  */
 function getMaxSpitzen(gameType) {
   if (['club', 'spade', 'heart', 'diamond'].includes(gameType)) return 11;

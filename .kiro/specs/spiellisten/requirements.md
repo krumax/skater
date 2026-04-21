@@ -24,9 +24,9 @@ gestarteten/angefassten Liste zugeordnet. Das Spielen ohne Liste bleibt der Norm
 - **Seeger-Fabian-Punkte**: Turnierwertung (+50/−50 für Alleinspieler, +40 für Gegenspieler bei Niederlage des Alleinspielers).
 - **Rohpunkte**: Standardspielwert ohne Seeger-Fabian-Bonus.
 - **Fortschrittsanzeige**: UI-Element in „Aktuelle Runde", das den Stand der aktiven Liste zeigt (z. B. „Runde 7 von 12").
-- **SyncService**: `src/lib/syncService.js` — einzige Schicht für Supabase-Operationen.
-- **GameReducer**: `src/lib/gameReducer.js` — reiner Reducer für den Spielzustand.
-- **GameContext**: `src/context/GameContext.jsx` — App-weiter Zustandskontext.
+- **SyncService**: `src/lib/syncService.js` - einzige Schicht für Supabase-Operationen.
+- **GameReducer**: `src/lib/gameReducer.js` - reiner Reducer für den Spielzustand.
+- **GameContext**: `src/context/GameContext.jsx` - App-weiter Zustandskontext.
 
 ---
 

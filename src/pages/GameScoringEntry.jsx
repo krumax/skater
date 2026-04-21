@@ -79,7 +79,7 @@ const GameScoringEntry = () => {
     <div>
       <header className="page-header">
         <h1 className="page-title">Aktuelle Runde</h1>
-        <p className="page-subtitle">Runde {currentRound} — Ergebnis dieser Runde erfassen.</p>
+        <p className="page-subtitle">Runde {currentRound} - Ergebnis dieser Runde erfassen.</p>
       </header>
 
       {/* Spiellisten UI */}
@@ -254,7 +254,7 @@ const GameScoringEntry = () => {
                   Spaltarsch!
                 </p>
                 <p style={{ fontSize: '0.8125rem', color: 'var(--on-secondary-container)', opacity: 0.85 }}>
-                  Der Alleinspieler hat exakt 60 Augen — Spiel verloren.
+                  Der Alleinspieler hat exakt 60 Augen - Spiel verloren.
                   Die nächsten <strong>{seating.length}</strong> Runden müssen als Bockrunde gespielt werden.
                 </p>
               </div>

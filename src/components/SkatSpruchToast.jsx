@@ -1,5 +1,5 @@
 /**
- * SkatSpruchToast — erscheint kurz nach dem Speichern einer Runde.
+ * SkatSpruchToast - erscheint kurz nach dem Speichern einer Runde.
  * Dunkel, schmal, unten rechts. Verschwindet nach 4 Sekunden automatisch.
  */
 import { useEffect, useState } from 'react';

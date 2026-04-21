@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './AchievementMatrixPanel.css';
 
 /**
- * AchievementMatrixPanel — Kompakte Dot-Matrix für Angriff oder Abwehr.
+ * AchievementMatrixPanel - Kompakte Dot-Matrix für Angriff oder Abwehr.
  * Jede Zeile = ein Spieltyp, jede Zelle = eine Kombination (Dot).
  * Hover zeigt den Namen der Kombination.
  */

@@ -147,7 +147,7 @@ describe('computePlayerStats', () => {
     const rounds = [
       makeRound({ player: 'Bob',   won: true }),
       makeRound({ player: 'Bob',   won: true }),
-      makeRound({ player: 'Alice', won: true }), // Alice plays — resets streak
+      makeRound({ player: 'Alice', won: true }), // Alice plays - resets streak
       makeRound({ player: 'Bob',   won: true }),
       makeRound({ player: 'Bob',   won: true }),
       makeRound({ player: 'Bob',   won: true }),

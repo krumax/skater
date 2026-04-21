@@ -47,7 +47,7 @@ Schrittweise Integration des Bockrunden-Features in die bestehende Skat-Scoring-
     - Generator: zufällige Mengen von Runden mit und ohne Bock; Assertion: `getPlayerTotals()` = Summe aller gespeicherten `game_value`-Felder
     - `// Feature: bockrunden, Property 7: Gesamtpunkte berücksichtigen Bock-Spielwert korrekt`
 
-- [x] 4. Checkpoint — Alle Tests ausführen
+- [x] 4. Checkpoint - Alle Tests ausführen
   - Sicherstellen, dass alle bisherigen Tests weiterhin grün sind. Bei Fragen den Nutzer ansprechen.
 
 - [x] 5. GameScoringEntry: Bockrunden-Toggle und Vorschau
@@ -92,7 +92,7 @@ Schrittweise Integration des Bockrunden-Features in die bestehende Skat-Scoring-
     - Generator: zufällige Listen von Runden mit gemischten `isBock`-Werten; Assertion: Badge genau bei `isBock = true`
     - `// Feature: bockrunden, Property 6: Bock-Badge wird für alle Bockrunden gerendert`
 
-- [x] 8. Finaler Checkpoint — Alle Tests ausführen
+- [x] 8. Finaler Checkpoint - Alle Tests ausführen
   - Sicherstellen, dass alle Tests grün sind. Bei Fragen den Nutzer ansprechen.
 
 ## Hinweise
@@ -100,4 +100,4 @@ Schrittweise Integration des Bockrunden-Features in die bestehende Skat-Scoring-
 - Tasks mit `*` sind optional und können für ein schnelles MVP übersprungen werden
 - Jeder Task referenziert spezifische Requirements für Rückverfolgbarkeit
 - Property-Tests verwenden **fast-check** mit mind. 100 Iterationen
-- Der gespeicherte `game_value` bei Bockrunden ist bereits verdoppelt — alle bestehenden Berechnungen bleiben unverändert
+- Der gespeicherte `game_value` bei Bockrunden ist bereits verdoppelt - alle bestehenden Berechnungen bleiben unverändert

@@ -1,4 +1,4 @@
-// Feature: supabase-persistence — Sidebar Render-Tests
+// Feature: supabase-persistence - Sidebar Render-Tests
 // Validates: Anforderungen 4.1, 6.5
 import { describe, it, expect } from 'vitest';
 

@@ -1,5 +1,5 @@
 /**
- * GameTypeSelector — Spielart-Grid (Kreuz/Pik/Herz/Karo/Grand/Null/Passen).
+ * GameTypeSelector - Spielart-Grid (Kreuz/Pik/Herz/Karo/Grand/Null/Passen).
  */
 
 const SUIT_OPTIONS = [

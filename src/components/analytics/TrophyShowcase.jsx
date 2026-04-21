@@ -109,7 +109,7 @@ export default function TrophyShowcase({
     SHELF_CONFIG
       .map(cfg => ({
         ...cfg,
-        // Unlocked first, then locked — within each group sort by rarity desc
+        // Unlocked first, then locked - within each group sort by rarity desc
         items: visible
           .filter(t => t.category === cfg.key)
           .sort((a, b) => {

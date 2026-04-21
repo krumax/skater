@@ -1,5 +1,5 @@
 /**
- * SpitzenSelector — Spitzen 5–11 (nur für Farbspiele aktiv).
+ * SpitzenSelector - Spitzen 5–11 (nur für Farbspiele aktiv).
  */
 
 const SUIT_GAMES = ['club', 'spade', 'heart', 'diamond'];

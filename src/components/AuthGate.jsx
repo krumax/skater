@@ -1,5 +1,5 @@
 /**
- * AuthGate — Supabase Auth with GSI (Google Identity Services).
+ * AuthGate - Supabase Auth with GSI (Google Identity Services).
  *
  * Zeigt Login-Screen wenn kein User eingeloggt ist.
  * Unterstützt: E-Mail/Passwort, Google GSI (signInWithIdToken), Registrierung.
@@ -115,7 +115,7 @@ export default function AuthGate({ children }) {
       let promptHandled = false;
       window.google.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // FedCM prompt was blocked or skipped — fall back to OAuth redirect
+          // FedCM prompt was blocked or skipped - fall back to OAuth redirect
           promptHandled = true;
           supabase.auth.signInWithOAuth({
             provider: 'google',
@@ -137,7 +137,7 @@ export default function AuthGate({ children }) {
       return;
     }
 
-    // GSI script not loaded at all — go straight to OAuth redirect
+    // GSI script not loaded at all - go straight to OAuth redirect
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: appUrl },
