@@ -157,6 +157,12 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
     syncOk();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const clearSession = useCallback(() => {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+    dispatch({ type: 'CLEAR_SESSION' });
+    setSyncStatus('idle');
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Seating actions ────────────────────────────────────────────────────────
 
   const addPlayer = useCallback(async (name) => {
@@ -294,7 +300,7 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
 
   return {
     addRound, deleteRound, updateRound,
-    resetSession, createNewTable, switchSession, refreshFromDB,
+    resetSession, createNewTable, switchSession, refreshFromDB, clearSession,
     addPlayer, removePlayer, renamePlayer, reorderSeating, setGeberIndex, renameTable,
     createSpielliste, setActiveSpielliste, closeSpielliste,
   };

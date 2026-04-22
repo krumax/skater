@@ -123,6 +123,9 @@ export function gameReducer(state, action) {
         sessionId: Date.now(),
       };
 
+    case 'CLEAR_SESSION':
+      return { ...initialState };
+
     case 'SET_SEATING':
       return { ...state, seating: action.payload, geberIndex: 0 };
 

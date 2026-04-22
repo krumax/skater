@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { computePlayerLevel } from '../lib/playerLevel';
 import { useGameForm } from '../hooks/useGameForm';
@@ -74,6 +75,50 @@ const GameScoringEntry = () => {
 
   const rankings = getPlayerRank();
   const activePlayers = currentRoles.activePlayers.filter(n => n !== '-');
+
+  // Empty state: no table set up yet (fewer than 3 players in seating)
+  if (seating.length < 3) {
+    return (
+      <div>
+        <header className="page-header">
+          <h1 className="page-title">Aktuelle Runde</h1>
+          <p className="page-subtitle">Noch kein Tisch eingerichtet.</p>
+        </header>
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          textAlign: 'center', padding: '3rem 1.5rem', gap: '2rem',
+          backgroundColor: 'var(--surface-low)', borderRadius: '1rem',
+          border: '1px dashed var(--outline-variant)',
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline)', opacity: 0.5 }}>table_bar</span>
+          <div>
+            <p style={{ fontSize: '1.125rem', fontWeight: 800, marginBottom: '0.5rem' }}>Kein Tisch eingerichtet</p>
+            <p style={{ fontSize: '0.9rem', color: 'var(--outline)', lineHeight: 1.6, maxWidth: '340px' }}>
+              Lege zuerst einen Tisch mit 3–4 Spielern an. Danach kannst du hier Runden erfassen und Punkte tracken.
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', maxWidth: '280px' }}>
+            {[
+              { step: '1', label: 'Tisch & Spieler anlegen', icon: 'group_add', color: 'var(--primary)' },
+              { step: '2', label: 'Runden hier erfassen', icon: 'edit_note', color: 'var(--tertiary)' },
+              { step: '3', label: 'Statistiken & Achievements', icon: 'bar_chart', color: '#52B788' },
+            ].map(({ step, label, icon, color }) => (
+              <div key={step} style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.75rem 1rem', backgroundColor: 'var(--surface)', borderRadius: '0.75rem', textAlign: 'left' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color }}>{icon}</span>
+                </div>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{label}</span>
+              </div>
+            ))}
+          </div>
+          <Link to="/players" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 2rem', textDecoration: 'none', borderRadius: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>add_circle</span>
+            Tisch einrichten
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import * as syncService from '../lib/syncService';
 import { supabase } from '../lib/supabaseClient';
@@ -58,17 +59,26 @@ function NewTableWizard({ onConfirm, onCancel }) {
   const [tableName, setTableName] = useState('');
   const [seats, setSeats] = useState(['', '', '']);
   const [error, setError] = useState('');
+  const [step, setStep] = useState(1); // 1 = Eingabe, 2 = Bestätigung
 
   const addSeat = () => { if (seats.length < 4) setSeats([...seats, '']); };
   const removeSeat = (i) => { if (seats.length > 3) setSeats(seats.filter((_, idx) => idx !== i)); };
   const updateSeat = (i, val) => setSeats(seats.map((s, idx) => idx === i ? val : s));
 
-  const handleConfirm = () => {
+  const handleNext = () => {
     const filled = seats.map(s => s.trim()).filter(Boolean);
     if (filled.length < 3) { setError('Mindestens 3 Spielernamen eingeben.'); return; }
     if (new Set(filled).size !== filled.length) { setError('Spielernamen müssen eindeutig sein.'); return; }
+    setError('');
+    setStep(2);
+  };
+
+  const handleConfirm = () => {
+    const filled = seats.map(s => s.trim()).filter(Boolean);
     onConfirm(filled, tableName.trim());
   };
+
+  const filledSeats = seats.map(s => s.trim()).filter(Boolean);
 
   return (
     <div style={{
@@ -79,59 +89,132 @@ function NewTableWizard({ onConfirm, onCancel }) {
         backgroundColor: 'var(--surface)', borderRadius: '1rem', padding: '2rem',
         width: '100%', maxWidth: '420px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
       }}>
-        <h2 style={{ fontSize: '1.375rem', fontWeight: 800, marginBottom: '0.5rem' }}>Neuer Tisch</h2>
-        <p style={{ fontSize: '0.875rem', color: 'var(--outline)', marginBottom: '1.5rem' }}>
-          3–4 Spieler festlegen. Position 1 ist der erste Geber.
-        </p>
-
-        <label className="section-label" style={{ display: 'block', marginBottom: '0.4rem' }}>Tischname (optional)</label>
-        <input
-          type="text" value={tableName} placeholder="z. B. Stammtisch, Freitagsrunde…"
-          onChange={e => setTableName(e.target.value)}
-          style={{ width: '100%', backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '0.75rem 1rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)', marginBottom: '1.25rem', boxSizing: 'border-box' }}
-        />
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', marginBottom: '1.25rem' }}>
-          {seats.map((seat, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{
-                width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
-                backgroundColor: ROLE_COLORS[roleIndex(i, seats.length)],
-                color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '0.8rem', fontWeight: 800,
-              }}>{i + 1}</span>
-              <input
-                type="text" value={seat} placeholder={`Spieler ${i + 1}${i === 0 ? ' (Geber)' : ''}`}
-                onChange={e => updateSeat(i, e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleConfirm()}
-                style={{ flex: 1, backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '0.75rem 1rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)' }}
-              />
-              {seats.length > 3 && (
-                <button onClick={() => removeSeat(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--secondary)', padding: '0.25rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>remove_circle</span>
-                </button>
-              )}
+        {/* Step indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+          {[1, 2].map(s => (
+            <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{
+                width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.75rem', fontWeight: 800,
+                backgroundColor: step >= s ? 'var(--primary)' : 'var(--surface-high)',
+                color: step >= s ? '#fff' : 'var(--outline)',
+              }}>{s}</div>
+              {s < 2 && <div style={{ width: '32px', height: '2px', backgroundColor: step > s ? 'var(--primary)' : 'var(--outline-variant)', borderRadius: '1px' }} />}
             </div>
           ))}
+          <span style={{ fontSize: '0.75rem', color: 'var(--outline)', marginLeft: '0.25rem' }}>
+            {step === 1 ? 'Spieler festlegen' : 'Bereit zum Spielen'}
+          </span>
         </div>
 
-        {seats.length < 4 && (
-          <button onClick={addSeat} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: '1px dashed var(--outline-variant)', borderRadius: '0.5rem', padding: '0.625rem 1rem', color: 'var(--outline)', cursor: 'pointer', fontSize: '0.875rem', width: '100%', justifyContent: 'center', marginBottom: '1.25rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>add</span>
-            4. Spieler hinzufügen
-          </button>
+        {step === 1 ? (
+          <>
+            <h2 style={{ fontSize: '1.375rem', fontWeight: 800, marginBottom: '0.5rem' }}>Neuer Tisch</h2>
+            <p style={{ fontSize: '0.875rem', color: 'var(--outline)', marginBottom: '1.5rem' }}>
+              3–4 Spieler festlegen. Position 1 ist der erste Geber.
+            </p>
+
+            <label className="section-label" style={{ display: 'block', marginBottom: '0.4rem' }}>Tischname (optional)</label>
+            <input
+              type="text" value={tableName} placeholder="z. B. Stammtisch, Freitagsrunde…"
+              onChange={e => setTableName(e.target.value)}
+              style={{ width: '100%', backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '0.75rem 1rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)', marginBottom: '1.25rem', boxSizing: 'border-box' }}
+            />
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', marginBottom: '1.25rem' }}>
+              {seats.map((seat, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{
+                    width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+                    backgroundColor: ROLE_COLORS[roleIndex(i, seats.length)],
+                    color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.8rem', fontWeight: 800,
+                  }}>{i + 1}</span>
+                  <input
+                    type="text" value={seat} placeholder={`Spieler ${i + 1}${i === 0 ? ' (Geber)' : ''}`}
+                    onChange={e => updateSeat(i, e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleNext()}
+                    style={{ flex: 1, backgroundColor: 'var(--surface-high)', border: '1px solid transparent', borderRadius: '0.5rem', padding: '0.75rem 1rem', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--on-surface)' }}
+                  />
+                  {seats.length > 3 && (
+                    <button onClick={() => removeSeat(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--secondary)', padding: '0.25rem' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>remove_circle</span>
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {seats.length < 4 && (
+              <button onClick={addSeat} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: '1px dashed var(--outline-variant)', borderRadius: '0.5rem', padding: '0.625rem 1rem', color: 'var(--outline)', cursor: 'pointer', fontSize: '0.875rem', width: '100%', justifyContent: 'center', marginBottom: '1.25rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>add</span>
+                4. Spieler hinzufügen
+              </button>
+            )}
+
+            {error && <p style={{ color: 'var(--secondary)', fontSize: '0.875rem', marginBottom: '1rem' }}>{error}</p>}
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button onClick={onCancel} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', background: 'none', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}>
+                Abbrechen
+              </button>
+              <button onClick={handleNext} className="btn-primary" style={{ padding: '0.75rem 1.75rem' }}>
+                Weiter
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2 style={{ fontSize: '1.375rem', fontWeight: 800, marginBottom: '0.5rem' }}>Bereit zum Spielen!</h2>
+            <p style={{ fontSize: '0.875rem', color: 'var(--outline)', marginBottom: '1.5rem' }}>
+              {tableName ? `„${tableName}" ist eingerichtet.` : 'Dein Tisch ist eingerichtet.'} So geht es weiter:
+            </p>
+
+            {/* Spieler-Vorschau */}
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+              {filledSeats.map((name, i) => (
+                <span key={name} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                  padding: '0.3rem 0.75rem', borderRadius: '999px', fontSize: '0.8125rem', fontWeight: 700,
+                  backgroundColor: `color-mix(in srgb, ${ROLE_COLORS[roleIndex(i, filledSeats.length)]} 15%, transparent)`,
+                  color: ROLE_COLORS[roleIndex(i, filledSeats.length)],
+                }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>{ROLE_ICONS[roleIndex(i, filledSeats.length)]}</span>
+                  {name}
+                </span>
+              ))}
+            </div>
+
+            {/* 3-Schritt-Erklärung */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', marginBottom: '1.75rem' }}>
+              {[
+                { icon: 'person', color: 'var(--primary)', title: 'Alleinspieler wählen', desc: 'Wer spielt allein gegen die anderen? Tippe auf den Namen.' },
+                { icon: 'style', color: 'var(--tertiary)', title: 'Spieltyp & Modifikatoren', desc: 'Kreuz, Pik, Herz, Karo, Grand oder Null — plus Hand, Schneider, Schwarz usw.' },
+                { icon: 'save', color: '#52B788', title: 'Ergebnis speichern', desc: 'Punkte werden automatisch berechnet und der Tischstand aktualisiert.' },
+              ].map(({ icon, color, title, desc }) => (
+                <div key={title} style={{ display: 'flex', gap: '0.875rem', alignItems: 'flex-start' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '0.5rem', backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color }}>{icon}</span>
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem', marginBottom: '0.15rem' }}>{title}</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--outline)', lineHeight: 1.5 }}>{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button onClick={() => setStep(1)} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', background: 'none', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}>
+                Zurück
+              </button>
+              <button onClick={handleConfirm} className="btn-primary" style={{ padding: '0.75rem 1.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>play_arrow</span>
+                Los geht's!
+              </button>
+            </div>
+          </>
         )}
-
-        {error && <p style={{ color: 'var(--secondary)', fontSize: '0.875rem', marginBottom: '1rem' }}>{error}</p>}
-
-        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-          <button onClick={onCancel} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', background: 'none', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}>
-            Abbrechen
-          </button>
-          <button onClick={handleConfirm} className="btn-primary" style={{ padding: '0.75rem 1.75rem' }}>
-            Tisch erstellen
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -142,8 +225,10 @@ export default function PlayerSettings() {
   const {
     players, geberIndex, sessionId,
     addPlayer, removePlayer, renamePlayer, reorderSeating,
-    rounds, switchSession, createNewTable, tableName, renameTable,
+    rounds, switchSession, createNewTable, tableName, renameTable, clearSession,
   } = useGame();
+
+  const navigate = useNavigate();
 
   const [newName, setNewName]             = useState('');
   const [editingPlayer, setEditingPlayer] = useState(null);
@@ -195,13 +280,31 @@ export default function PlayerSettings() {
   const handleCreateTable = async (seating, name) => {
     setShowWizard(false);
     await createNewTable(seating, name);
+    navigate('/');
   };
 
   const handleDeleteSession = async (id, label) => {
-    if (!window.confirm(`Tisch „${label}" und alle zugehörigen Runden löschen?`)) return;
-    await syncService.deleteSession(id);
-    setAllSessions(prev => prev.filter(s => s.id !== id));
+    setDeleteSessionTarget({ id, label });
   };
+
+  const confirmDeleteSession = async () => {
+    if (!deleteSessionTarget) return;
+    const { id } = deleteSessionTarget;
+    setDeletingSession(true);
+    await syncService.deleteSession(id);
+    const remaining = allSessions.filter(s => s.id !== id);
+    setAllSessions(remaining);
+    setDeleteSessionTarget(null);
+    setDeletingSession(false);
+    // If we deleted the active session or the last session, clear all state and navigate
+    if (id === sessionId || remaining.length === 0) {
+      clearSession();
+      navigate('/');
+    }
+  };
+
+  const [deleteSessionTarget, setDeleteSessionTarget] = useState(null); // { id, label }
+  const [deletingSession, setDeletingSession] = useState(false);
 
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -275,7 +378,7 @@ export default function PlayerSettings() {
       </header>
 
       {/* ── Table switcher ── */}
-      {!loadingSessions && allSessions.length > 1 && (
+      {!loadingSessions && allSessions.length > 0 && (
         <section style={{ marginBottom: '2.5rem' }}>
           <label className="section-label" style={{ display: 'block', marginBottom: '0.875rem' }}>Tische wechseln</label>
           <div className="session-switcher" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -289,7 +392,7 @@ export default function PlayerSettings() {
                   <button onClick={() => !isActive && switchSession(s.id)}
                     style={{
                       display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-                      padding: '0.875rem 1.25rem', paddingRight: isActive ? '1.25rem' : '2.75rem',
+                      padding: '0.875rem 2.75rem 0.875rem 1.25rem',
                       borderRadius: '0.75rem', cursor: isActive ? 'default' : 'pointer',
                       border: `2px solid ${isActive ? 'var(--primary)' : 'var(--outline-variant)'}`,
                       backgroundColor: isActive ? 'var(--primary-container)' : 'var(--surface-low)',
@@ -313,20 +416,18 @@ export default function PlayerSettings() {
                       </span>
                     )}
                   </button>
-                  {!isActive && (
-                    <button
+                  <button
                       onClick={() => handleDeleteSession(s.id, label)}
                       title="Tisch löschen"
                       style={{
                         position: 'absolute', top: '0.5rem', right: '0.5rem',
                         background: 'none', border: 'none', cursor: 'pointer',
-                        color: 'var(--outline)', padding: '0.2rem', borderRadius: '0.25rem',
+                        color: isActive ? 'rgba(255,255,255,0.6)' : 'var(--outline)', padding: '0.2rem', borderRadius: '0.25rem',
                         lineHeight: 1,
                       }}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>delete</span>
                     </button>
-                  )}
                 </div>
               );
             })}
@@ -456,6 +557,45 @@ export default function PlayerSettings() {
 
       {showWizard && (
         <NewTableWizard onConfirm={handleCreateTable} onCancel={() => setShowWizard(false)} />
+      )}
+
+      {/* ── Tisch löschen Modal ── */}
+      {deleteSessionTarget && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: 'var(--surface)', borderRadius: '1rem', padding: '2rem', width: '100%', maxWidth: '420px', boxShadow: '0 8px 32px rgba(0,0,0,0.35)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '0.75rem', backgroundColor: 'color-mix(in srgb, var(--secondary) 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--secondary)', fontSize: '1.25rem' }}>delete_forever</span>
+              </div>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--secondary)' }}>Tisch löschen?</h2>
+            </div>
+            <p style={{ fontSize: '0.9rem', color: 'var(--on-surface)', marginBottom: '0.75rem', lineHeight: 1.6 }}>
+              <strong>„{deleteSessionTarget.label}"</strong> wird unwiderruflich gelöscht.
+            </p>
+            <ul style={{ fontSize: '0.8125rem', color: 'var(--outline)', marginBottom: '1.5rem', paddingLeft: '1.25rem', lineHeight: 1.8 }}>
+              <li>Alle Rundendaten und die komplette Spielhistorie</li>
+              <li>Statistiken und Achievements dieses Tisches</li>
+              <li>Alle Spielserien, die diesem Tisch zugeordnet sind</li>
+            </ul>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setDeleteSessionTarget(null)}
+                disabled={deletingSession}
+                style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', background: 'none', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={confirmDeleteSession}
+                disabled={deletingSession}
+                style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', backgroundColor: 'var(--secondary)', color: 'white', border: 'none', cursor: deletingSession ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontSize: '1rem', fontWeight: 700, opacity: deletingSession ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>delete_forever</span>
+                {deletingSession ? 'Wird gelöscht…' : 'Endgültig löschen'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ── Account löschen ── */}

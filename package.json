@@ -1,7 +1,7 @@
 {
   "name": "skatastrophe",
   "private": true,
-  "version": "1.4.32",
+  "version": "1.5.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
