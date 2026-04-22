@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "Post-Feature Checklist",
+  "description": "After completing a task, checks and updates: (1) README accuracy, (2) initial DB setup script to reflect any migrations changes, (3) landing page description if features were added, changed, or removed",
+  "version": "1",
+  "when": {
+    "type": "postTaskExecution"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A task was just completed. Please check and update the following three things if necessary:\n\n1. **README.md** - Review if the completed work introduced changes that affect the README (new features, changed behavior, updated setup steps, etc.). Update it to reflect the current state of the app.\n\n2. **Initial DB script** - Check the `supabase/migrations/` folder for any recent migrations (ALTER TABLE, new tables, new columns, RLS policies, etc.). If found, make sure these changes are reflected in the initial database setup script so the app can be set up from scratch. The initial script should always represent the full current DB schema.\n\n3. **Landing page** - If significant features were added, changed, or removed, update the landing page (`landing/index.html` and related files) to accurately describe the current feature set of the app.\n\nOnly make changes where something is actually outdated or missing. Skip sections that are already up to date."
+  },
+  "workspaceFolderName": "skater",
+  "shortName": "post-feature-checklist"
+}
