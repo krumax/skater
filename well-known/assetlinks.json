@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "com.skatastrophe.app",
       "sha256_cert_fingerprints": [
-        "D7:EF:62:89:81:61:D0:F5:B5:7B:9C:F3:6F:79:84:09:60:A1:BF:41:FC:3E:D3:D4:AD:B5:02:7D:AF:FC:0B:AE"
+        "D7:EF:62:89:81:61:D0:F5:B5:7B:9C:F3:6F:79:84:09:60:A1:BF:41:FC:3E:D3:D4:AD:B5:02:7D:AF:FC:0B:AE",
+        "B2:84:4D:75:1E:C0:96:1C:EF:17:4E:96:21:F4:CD:AF:DC:B1:D2:85:09:14:26:20:99:03:59:1A:88:90:AB:06"
       ]
     }
   }
