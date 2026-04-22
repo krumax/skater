@@ -67,7 +67,27 @@ export default function SkatInfo() {
         <p className="page-subtitle">Nachschlagewerk - Reiztabelle und Spielwerte auf einen Blick.</p>
       </header>
 
-      {/* ── Reiztabelle ── */}
+      {/* ── Was ist Skat? ── */}
+      <section style={{ marginBottom: '3rem' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Hintergrund</span>
+          <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Was ist Skat?</h3>
+        </div>
+        <div style={{ backgroundColor: 'var(--surface)', borderRadius: '0.75rem', padding: '1.5rem 1.75rem', border: '1px solid rgba(192,200,195,0.3)', lineHeight: 1.75, color: 'var(--on-surface-variant)', fontSize: '0.9375rem' }}>
+          <p style={{ marginBottom: '1rem' }}>
+            Skat ist das bekannteste deutsche Kartenspiel und gilt als das <strong style={{ color: 'var(--on-surface)' }}>Nationalkartenspiel Deutschlands</strong>. Es entstand Anfang des 19. Jahrhunderts in <strong style={{ color: 'var(--on-surface)' }}>Altenburg (Thüringen)</strong> - einer Stadt, die bis heute als Wiege des Skats gilt. Der Name leitet sich vom lateinischen <em>scartare</em> (beiseitelegen) ab und bezeichnet die zwei Karten, die zu Beginn jeder Runde verdeckt auf den Tisch gelegt werden.
+          </p>
+          <p style={{ marginBottom: '1rem' }}>
+            Gespielt wird zu <strong style={{ color: 'var(--on-surface)' }}>dritt</strong> - auch wenn vier Personen am Tisch sitzen, setzt immer einer aus. Ein Spieler (der <em>Alleinspieler</em>) tritt gegen die beiden anderen (<em>Gegenspieler</em>) an. Ziel des Alleinspielers ist es, mehr als 60 Augen zu sammeln und damit das angesagte Spiel zu gewinnen.
+          </p>
+          <p style={{ marginBottom: '1rem' }}>
+            Der Spielwert ergibt sich aus <strong style={{ color: 'var(--on-surface)' }}>Grundwert × Gewinnstufe</strong>. Die Gewinnstufe hängt von den Spitzen (lückenlose Trumpffolge vom Kreuz-Buben) und den gewählten Modifikatoren ab. Verliert der Alleinspieler, wird der Spielwert doppelt abgezogen.
+          </p>
+          <p>
+            Seit 1927 gibt es den <strong style={{ color: 'var(--on-surface)' }}>Deutschen Skatverband</strong>, der die offiziellen Regeln festlegt. Skat wird heute weltweit gespielt - von gemütlichen Stammtischrunden bis zu internationalen Turnieren.
+          </p>
+        </div>
+      </section>
       <section style={{ marginBottom: '3rem' }}>
         <div style={{ marginBottom: '1.5rem' }}>
           <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Offizielle Werte</span>

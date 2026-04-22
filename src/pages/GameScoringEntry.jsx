@@ -270,6 +270,7 @@ const GameScoringEntry = () => {
           rankings={rankings}
           onCommit={handleCommit}
           lastRound={rounds.length > 0 ? rounds[rounds.length - 1] : null}
+          activePlayer={form.gameType === 'passed' ? null : form.activePlayer}
           sticky
         />
       </div>

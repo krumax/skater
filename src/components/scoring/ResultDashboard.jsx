@@ -2,6 +2,7 @@
  * ResultDashboard - zeigt das berechnete Rundenergebnis mit Aufschlüsselung
  * sowie den aktuellen Tischstand und den Speichern-Button.
  */
+import { Link } from 'react-router-dom';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../../lib/skatScoring';
 import SuitBadge from '../SuitBadge';
 
@@ -58,7 +59,7 @@ function LastRoundCard({ round }) {
   );
 }
 
-export default function ResultDashboard({ result, outcomeLabel, gameType, isBock, rankings, onCommit, lastRound, sticky }) {
+export default function ResultDashboard({ result, outcomeLabel, gameType, isBock, rankings, onCommit, lastRound, sticky, activePlayer }) {
   return (
     <div className={sticky ? 'result-dashboard-sticky' : undefined} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       {result && (
@@ -68,7 +69,18 @@ export default function ResultDashboard({ result, outcomeLabel, gameType, isBock
         >
           <div className="result-content">
             <span style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.8, display: 'block', lineHeight: 1.4 }}>
-              Rundenergebnis<br />{outcomeLabel}
+              {activePlayer ? (
+                <>
+                  <Link
+                    to={`/analytics?player=${encodeURIComponent(activePlayer)}`}
+                    style={{ color: 'inherit', textDecoration: 'underline', textDecorationColor: 'rgba(255,255,255,0.4)', textUnderlineOffset: '2px' }}
+                  >
+                    {activePlayer}
+                  </Link>
+                  {' '}· Rundenergebnis
+                </>
+              ) : 'Rundenergebnis'}
+              <br />{outcomeLabel}
             </span>
 
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -124,21 +136,30 @@ export default function ResultDashboard({ result, outcomeLabel, gameType, isBock
       <LastRoundCard round={lastRound} />
 
       {/* Aktueller Stand */}
-      <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-        <div style={{ backgroundColor: 'var(--surface-high)', padding: '1rem', borderRadius: '1rem', color: 'var(--primary)' }}>
-          <span className="material-symbols-outlined">trending_up</span>
-        </div>
-        <div>
-          <p className="stat-label">
-            Aktueller Stand
-          </p>
-          {rankings.length > 0 && (
-            <p style={{ fontSize: '1.125rem', fontWeight: 700 }}>
-              {rankings[0].name} führt ({rankings[0].score >= 0 ? '+' : ''}{rankings[0].score})
+      <Link
+        to={rankings.length > 0 ? `/analytics?player=${encodeURIComponent(rankings[0].name)}` : '/analytics'}
+        style={{ textDecoration: 'none', color: 'inherit' }}
+      >
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', cursor: 'pointer', transition: 'background 0.15s' }}
+          onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--surface-high)'}
+          onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+        >
+          <div style={{ backgroundColor: 'var(--surface-high)', padding: '1rem', borderRadius: '1rem', color: 'var(--primary)' }}>
+            <span className="material-symbols-outlined">trending_up</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <p className="stat-label">
+              Aktueller Stand
             </p>
-          )}
+            {rankings.length > 0 && (
+              <p style={{ fontSize: '1.125rem', fontWeight: 700 }}>
+                {rankings[0].name} führt ({rankings[0].score >= 0 ? '+' : ''}{rankings[0].score})
+              </p>
+            )}
+          </div>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--outline)', flexShrink: 0 }}>chevron_right</span>
         </div>
-      </div>
+      </Link>
     </div>
   );
 }
