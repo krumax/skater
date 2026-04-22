@@ -72,7 +72,13 @@ export default function SkatInfo() {
         <div style={{ marginBottom: '1.5rem' }}>
           <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Offizielle Werte</span>
           <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Reiztabelle</h3>
-          <p style={{ color: 'var(--on-surface-variant)' }}>Spielwert = Grundwert × Gewinnstufe. Die Gewinnstufe ergibt sich aus Mit/Ohne Spitzen + Spielstufen-Modifikatoren.</p>
+          <p style={{ color: 'var(--on-surface-variant)' }}>Spielwert = Grundwert × Gewinnstufe. Die Gewinnstufe ergibt sich aus Mit/Ohne Spitzen + Spielstufen-Modifikatoren.
+            <span
+              className="material-symbols-outlined"
+              title="Gewinnstufe = Anzahl Spitzen (mit oder ohne) + 1 (Grundstufe) + je 1 für Hand, Schneider, Schneider angesagt, Schwarz, Schwarz angesagt, Ouvert. Spalten 1–5 = nur Spitzen, Spalten 6–11 = mit Modifikatoren."
+              style={{ fontSize: '0.85rem', cursor: 'help', opacity: 0.6, verticalAlign: 'middle', marginLeft: '0.35rem', fontVariationSettings: "'FILL' 0" }}
+            >info</span>
+          </p>
         </div>
 
         <div style={{ backgroundColor: 'var(--surface)', borderRadius: '0.75rem', boxShadow: '0 8px 32px var(--shadow-color)', overflow: 'hidden', border: '1px solid rgba(192,200,195,0.3)' }}>

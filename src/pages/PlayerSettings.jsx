@@ -355,7 +355,13 @@ export default function PlayerSettings() {
 
           {/* Drag list */}
           <section className="form-section" style={{ marginTop: '2rem' }}>
-            <label className="section-label">Sitzreihenfolge ({n} Spieler)</label>
+            <label className="section-label">Sitzreihenfolge ({n} Spieler)
+              <span
+                className="material-symbols-outlined"
+                title="Die Sitzreihenfolge bestimmt die Rollen: Position 1 = Geber (teilt aus), Position 2 = Hören, Position 3 = Sagen. Bei 4 Spielern setzt Position 1 aus. Nach jeder Runde rotieren die Rollen automatisch."
+                style={{ fontSize: '0.85rem', cursor: 'help', opacity: 0.6, verticalAlign: 'middle', marginLeft: '0.35rem', fontVariationSettings: "'FILL' 0" }}
+              >info</span>
+            </label>
             <p style={{ fontSize: '0.8125rem', color: 'var(--outline)', marginBottom: '1rem', lineHeight: 1.5 }}>
               Ziehe die Spieler in die gewünschte Reihenfolge.{n === 4 && ' Bei 4 Spielern setzt Position 1 aus.'}
             </p>

@@ -32,11 +32,20 @@ function arcPath(startAngle, endAngle) {
   return `M ${CX} ${CY} L ${x1} ${y1} A ${R} ${R} 0 ${largeArc} 1 ${x2} ${y2} Z`;
 }
 
-function PieChart({ slices, title }) {
+function PieChart({ slices, title, tooltip }) {
   if (slices.length === 0) {
     return (
       <div className="pie-chart-container">
-        <h3 className="pie-chart-title">{title}</h3>
+        <h3 className="pie-chart-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
+          {title}
+          {tooltip && (
+            <span
+              className="material-symbols-outlined"
+              title={tooltip}
+              style={{ fontSize: '0.85rem', cursor: 'help', opacity: 0.6, fontVariationSettings: "'FILL' 0" }}
+            >info</span>
+          )}
+        </h3>
         <p className="pie-chart-empty">Keine positiven Punkte vorhanden</p>
       </div>
     );
@@ -53,7 +62,16 @@ function PieChart({ slices, title }) {
 
   return (
     <div className="pie-chart-container">
-      <h3 className="pie-chart-title">{title}</h3>
+      <h3 className="pie-chart-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
+        {title}
+        {tooltip && (
+          <span
+            className="material-symbols-outlined"
+            title={tooltip}
+            style={{ fontSize: '0.85rem', cursor: 'help', opacity: 0.6, fontVariationSettings: "'FILL' 0" }}
+          >info</span>
+        )}
+      </h3>
       <svg viewBox="0 0 200 200" width="200" height="200" aria-label={title}>
         {isSingle ? (
           <circle cx={CX} cy={CY} r={R} fill={slices[0].color} />
@@ -112,8 +130,8 @@ export default function ScoreDistributionChart() {
   return (
     <div className="score-distribution-chart">
       <PieChart slices={computeShares(standardScores, playerColors)} title="Gesamtpunkte" />
-      <PieChart slices={computeShares(seegerScores, playerColors)} title="Seeger-Fabian" />
-      <PieChart slices={computeShares(combinedScores, playerColors)} title="Kombiniert" />
+      <PieChart slices={computeShares(seegerScores, playerColors)} title="Seeger-Fabian" tooltip="Turnierwertung nach Seeger-Fabian: Alleinspieler gewinnt/verliert ±50 Punkte, jeder Gegner ±40 Punkte – unabhängig vom Spielwert." />
+      <PieChart slices={computeShares(combinedScores, playerColors)} title="Kombiniert" tooltip="Summe aus Standardpunkten und Seeger-Fabian-Punkten." />
     </div>
   );
 }

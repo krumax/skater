@@ -55,7 +55,14 @@ export default function ModifierChips({
 
   return (
     <section className="form-section">
-      <label className="section-label">Spielstufe</label>
+      <label className="section-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+      Spielstufe
+      <span
+        className="material-symbols-outlined"
+        title="Jeder aktive Modifikator erhöht die Gewinnstufe um 1. Hand = ohne Skat gespielt. Schneider = Gegner unter 30 Augen. Schwarz = Gegner ohne Stich. Ouvert = Karten offen gelegt."
+        style={{ fontSize: '0.85rem', cursor: 'help', opacity: 0.6, fontVariationSettings: "'FILL' 0" }}
+      >info</span>
+    </label>
       <div className="chip-grid">
         {modifiers.map(mod => (
           <button
@@ -73,6 +80,7 @@ export default function ModifierChips({
           onClick={() => setIsBock(!isBock)}
           className={`chip ${isBock && !isPassed ? 'active' : ''}`}
           style={{ opacity: isPassed ? 0.4 : 1, pointerEvents: isPassed ? 'none' : 'auto' }}
+          title="Bockrunde: Der Spielwert wird verdoppelt. Wird ausgelöst durch Spaltarsch (60 Augen), Ramsch oder andere Sonderregeln."
         >
           Bockrunde
         </button>

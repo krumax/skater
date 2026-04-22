@@ -30,6 +30,12 @@ const SpiellistenSelector = ({ spiellisten, activeId, onSelect, onCreateNew }) =
         <span style={{ flex: 1, fontWeight: 600 }}>
           {activeListe ? activeListe.name : 'Ohne Liste'}
         </span>
+        <span
+          className="material-symbols-outlined"
+          title="Spielserie: Gruppiert eine festgelegte Anzahl Runden zu einer Serie. Nützlich für Turniere oder Abende mit mehreren Durchgängen."
+          style={{ fontSize: '0.85rem', cursor: 'help', opacity: 0.5, fontVariationSettings: "'FILL' 0" }}
+          onClick={e => e.stopPropagation()}
+        >info</span>
         <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--outline)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
           expand_more
         </span>
