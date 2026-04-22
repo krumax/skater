@@ -598,6 +598,21 @@ export default function PlayerSettings() {
         </div>
       )}
 
+      {/* ── Abmelden ── */}
+      <section style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--outline-variant)' }}>
+        <label className="section-label" style={{ display: 'block', marginBottom: '0.5rem' }}>Account</label>
+        <p style={{ fontSize: '0.875rem', color: 'var(--outline)', marginBottom: '1rem' }}>
+          Meldet dich ab. Deine Daten bleiben gespeichert.
+        </p>
+        <button
+          onClick={() => supabase.auth.signOut()}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', borderRadius: '0.75rem', border: '1px solid var(--outline-variant)', background: 'none', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9375rem', fontWeight: 700 }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>logout</span>
+          Abmelden
+        </button>
+      </section>
+
       {/* ── Account löschen ── */}
       <section style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--outline-variant)' }}>
         <label className="section-label" style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--secondary)' }}>
