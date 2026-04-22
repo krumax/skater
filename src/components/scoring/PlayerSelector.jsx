@@ -39,7 +39,7 @@ export default function PlayerSelector({ players, activePlayer, onSelect, player
 
   return (
     <section className="form-section">
-      <label className="section-label">Wer ist der Alleinspieler?</label>
+      <label className="section-label">Wer ist der Alleinspieler der aktuellen Runde?</label>
       <div
         className="player-grid"
         style={{ opacity: disabled ? 0.4 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
