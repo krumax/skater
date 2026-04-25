@@ -310,6 +310,13 @@ export default function PlayerSettings() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setCurrentUserEmail(session?.user?.email ?? '');
+    });
+  }, []);
 
   const handleDeleteAccount = async () => {
     setDeletingAccount(true);
@@ -604,6 +611,12 @@ export default function PlayerSettings() {
         <p style={{ fontSize: '0.875rem', color: 'var(--outline)', marginBottom: '1rem' }}>
           Meldet dich ab. Deine Daten bleiben gespeichert.
         </p>
+        {currentUserEmail && (
+          <p style={{ fontSize: '0.8125rem', color: 'var(--on-surface)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--outline)' }}>account_circle</span>
+            {currentUserEmail}
+          </p>
+        )}
         <button
           onClick={() => supabase.auth.signOut()}
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', borderRadius: '0.75rem', border: '1px solid var(--outline-variant)', background: 'none', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9375rem', fontWeight: 700 }}
