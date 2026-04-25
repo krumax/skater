@@ -1,0 +1,315 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1160" width="1200" height="1160" font-family="'Segoe UI', Arial, sans-serif">
+  <defs/>
+
+  <!-- Background -->
+  <rect width="1200" height="1160" fill="#f8fafc" rx="12"/>
+
+  <!-- Title -->
+  <text x="600" y="38" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">Skatastrophe — Systemarchitektur</text>
+  <text x="600" y="58" text-anchor="middle" font-size="12" fill="#64748b">React 19 · Vite 8 · Supabase · Cloudflare Pages · TWA (Google Play)</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ZONE: DEV ENVIRONMENT -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="20" y="75" width="340" height="310" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <text x="36" y="96" font-size="11" font-weight="700" fill="#16a34a" letter-spacing="0.08em">DEV ENVIRONMENT</text>
+
+  <!-- Source Code box -->
+  <rect x="36" y="106" width="308" height="80" rx="8" fill="#ffffff" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text x="190" y="126" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">Source Code</text>
+  <text x="56" y="146" font-size="10" fill="#374151">src/  (React JSX, hooks, context, pages)</text>
+  <text x="56" y="160" font-size="10" fill="#374151">landing/  (Static HTML/CSS/JS)</text>
+  <text x="56" y="174" font-size="10" fill="#374151">supabase/migrations/  · public/  · scripts/</text>
+
+  <!-- Vite Dev Server -->
+  <rect x="36" y="200" width="140" height="60" rx="8" fill="#ffffff" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text x="106" y="222" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">Vite Dev Server</text>
+  <text x="106" y="238" text-anchor="middle" font-size="10" fill="#374151">npm run dev</text>
+  <text x="106" y="252" text-anchor="middle" font-size="10" fill="#374151">HMR · localhost:5173</text>
+
+  <!-- ESLint + Vitest -->
+  <rect x="192" y="200" width="152" height="60" rx="8" fill="#ffffff" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text x="268" y="222" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">Tests &amp; Lint</text>
+  <text x="268" y="238" text-anchor="middle" font-size="10" fill="#374151">Vitest + fast-check (PBT)</text>
+  <text x="268" y="252" text-anchor="middle" font-size="10" fill="#374151">ESLint 9 · npm test</text>
+
+  <!-- Husky -->
+  <rect x="36" y="276" width="308" height="50" rx="8" fill="#ffffff" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text x="190" y="297" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">Husky pre-commit hook</text>
+  <text x="190" y="313" text-anchor="middle" font-size="10" fill="#374151">npm version patch → auto-bump package.json → git add</text>
+
+  <!-- Vite Build -->
+  <rect x="36" y="340" width="308" height="30" rx="8" fill="#dcfce7" stroke="#86efac" stroke-width="1.5"/>
+  <text x="190" y="360" text-anchor="middle" font-size="11" font-weight="700" fill="#15803d">npm run build  →  vite build  +  postbuild (copy-landing.js)</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ZONE: BUILD OUTPUT / dist/ -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="20" y="400" width="380" height="220" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <text x="36" y="421" font-size="11" font-weight="700" fill="#2563eb" letter-spacing="0.08em">BUILD OUTPUT  dist/</text>
+
+  <rect x="36" y="430" width="150" height="70" rx="8" fill="#ffffff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <text x="111" y="450" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">dist/app/</text>
+  <text x="111" y="466" text-anchor="middle" font-size="10" fill="#374151">React SPA (base: /app/)</text>
+  <text x="111" y="480" text-anchor="middle" font-size="10" fill="#374151">Hashed JS/CSS chunks</text>
+  <text x="111" y="494" text-anchor="middle" font-size="10" fill="#374151">SW (Workbox PWA)</text>
+
+  <rect x="202" y="430" width="168" height="70" rx="8" fill="#ffffff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <text x="286" y="450" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">dist/landing/</text>
+  <text x="286" y="466" text-anchor="middle" font-size="10" fill="#374151">Static HTML landing page</text>
+  <text x="286" y="480" text-anchor="middle" font-size="10" fill="#374151">CSS · JS carousel</text>
+  <text x="286" y="494" text-anchor="middle" font-size="10" fill="#374151">impressum.html</text>
+
+  <rect x="36" y="514" width="340" height="64" rx="8" fill="#ffffff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <text x="206" y="534" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">dist/  (root)</text>
+  <text x="206" y="550" text-anchor="middle" font-size="10" fill="#374151">_redirects · _headers · .well-known/assetlinks.json</text>
+  <text x="206" y="566" text-anchor="middle" font-size="10" fill="#374151">robots.txt · sitemap.xml · public/_headers</text>
+
+  <rect x="36" y="592" width="340" height="14" rx="4" fill="#dbeafe"/>
+  <text x="206" y="603" text-anchor="middle" font-size="9" fill="#1d4ed8">Fonts self-hosted via vite-plugin-webfont-dl (no Google CDN at runtime)</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ZONE: NETLIFY -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="400" y="75" width="280" height="310" rx="10" fill="#fdf4ff" stroke="#d8b4fe" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <text x="416" y="96" font-size="11" font-weight="700" fill="#7c3aed" letter-spacing="0.08em">CLOUDFLARE PAGES  (CDN + Hosting)</text>
+
+  <!-- Routes -->
+  <rect x="416" y="106" width="248" height="130" rx="8" fill="#ffffff" stroke="#e9d5ff" stroke-width="1.5"/>
+  <text x="540" y="126" text-anchor="middle" font-size="12" font-weight="700" fill="#6d28d9">URL Routing  (_redirects)</text>
+  <text x="432" y="146" font-size="10" fill="#374151">skatastrophe.de/  →  dist/index.html</text>
+  <text x="432" y="162" font-size="10" fill="#374151">skatastrophe.de/app/*  →  dist/app/index.html</text>
+  <text x="432" y="178" font-size="10" fill="#374151">skatastrophe.de/landing/*  →  dist/landing/</text>
+  <text x="432" y="194" font-size="10" fill="#374151">/.well-known/assetlinks.json  →  TWA</text>
+  <text x="432" y="214" font-size="10" fill="#64748b">Cache-Control per Pfad (_headers)</text>
+  <text x="432" y="228" font-size="10" fill="#64748b">Security headers (X-Frame, CSP…)</text>
+
+  <!-- CDN Edge -->
+  <rect x="416" y="250" width="248" height="50" rx="8" fill="#ffffff" stroke="#e9d5ff" stroke-width="1.5"/>
+  <text x="540" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#6d28d9">CDN Edge Nodes</text>
+  <text x="540" y="286" text-anchor="middle" font-size="10" fill="#374151">Global · HTTPS · Brotli/Gzip · HTTP/2</text>
+
+  <!-- Deploy trigger -->
+  <rect x="416" y="316" width="264" height="50" rx="8" fill="#f3e8ff" stroke="#d8b4fe" stroke-width="1.5"/>
+  <text x="548" y="336" text-anchor="middle" font-size="12" font-weight="700" fill="#6d28d9">Deploy</text>
+  <text x="548" y="352" text-anchor="middle" font-size="10" fill="#374151">Manual: wrangler pages deploy dist/  (Cloudflare CLI)</text>
+
+  <!-- PWA Service Worker -->
+  <rect x="416" y="380" width="248" height="60" rx="8" fill="#ffffff" stroke="#e9d5ff" stroke-width="1.5"/>
+  <text x="540" y="400" text-anchor="middle" font-size="12" font-weight="700" fill="#6d28d9">PWA / Service Worker</text>
+  <text x="540" y="416" text-anchor="middle" font-size="10" fill="#374151">Workbox · Cache-first assets</text>
+  <text x="540" y="430" text-anchor="middle" font-size="10" fill="#374151">Offline-fähig · Update-Prompt</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ZONE: SUPABASE -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="720" y="75" width="320" height="380" rx="10" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <text x="736" y="96" font-size="11" font-weight="700" fill="#ea580c" letter-spacing="0.08em">SUPABASE  (BaaS)</text>
+
+  <!-- PostgreSQL -->
+  <rect x="736" y="106" width="288" height="110" rx="8" fill="#ffffff" stroke="#fed7aa" stroke-width="1.5"/>
+  <text x="880" y="126" text-anchor="middle" font-size="12" font-weight="700" fill="#c2410c">PostgreSQL</text>
+  <text x="752" y="146" font-size="10" fill="#374151">sessions  (id, seating, geber_index, table_name…)</text>
+  <text x="752" y="162" font-size="10" fill="#374151">rounds    (id, session_id, game_type, won, …)</text>
+  <text x="752" y="178" font-size="10" fill="#374151">spiellisten (id, session_id, round_count, status…)</text>
+  <text x="752" y="196" font-size="10" fill="#64748b">RLS: anon + authenticated policies on all tables</text>
+
+  <!-- Auth -->
+  <rect x="736" y="230" width="288" height="70" rx="8" fill="#ffffff" stroke="#fed7aa" stroke-width="1.5"/>
+  <text x="880" y="250" text-anchor="middle" font-size="12" font-weight="700" fill="#c2410c">Auth</text>
+  <text x="752" y="268" font-size="10" fill="#374151">E-Mail / Passwort  +  Google OAuth (GSI)</text>
+  <text x="752" y="284" font-size="10" fill="#374151">JWT · signInWithIdToken · signInWithOAuth</text>
+
+  <!-- Edge Functions -->
+  <rect x="736" y="314" width="288" height="60" rx="8" fill="#ffffff" stroke="#fed7aa" stroke-width="1.5"/>
+  <text x="880" y="334" text-anchor="middle" font-size="12" font-weight="700" fill="#c2410c">Edge Function</text>
+  <text x="752" y="352" font-size="10" fill="#374151">delete-account  (Deno/TypeScript)</text>
+  <text x="752" y="368" font-size="10" fill="#374151">DSGVO-konformes Account-Löschen · JWT self-verify</text>
+
+  <!-- Realtime -->
+  <rect x="736" y="388" width="288" height="50" rx="8" fill="#ffffff" stroke="#fed7aa" stroke-width="1.5"/>
+  <text x="880" y="408" text-anchor="middle" font-size="12" font-weight="700" fill="#c2410c">Realtime / REST API</text>
+  <text x="752" y="424" font-size="10" fill="#374151">PostgREST · anon key · camelCase↔snake_case in syncService.js</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ZONE: CLIENTS -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="20" y="620" width="700" height="220" rx="10" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <text x="36" y="641" font-size="11" font-weight="700" fill="#0369a1" letter-spacing="0.08em">CLIENTS</text>
+
+  <!-- Browser -->
+  <rect x="36" y="650" width="200" height="170" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="1.5"/>
+  <text x="136" y="672" text-anchor="middle" font-size="12" font-weight="700" fill="#0369a1">Browser (Web)</text>
+  <text x="136" y="690" text-anchor="middle" font-size="10" fill="#374151">React SPA @ /app/</text>
+  <text x="136" y="706" text-anchor="middle" font-size="10" fill="#374151">React Router v7 (client-side)</text>
+  <text x="136" y="722" text-anchor="middle" font-size="10" fill="#374151">Recharts · CSS custom props</text>
+  <text x="136" y="738" text-anchor="middle" font-size="10" fill="#374151">localStorage: skatSessionId</text>
+  <text x="136" y="754" text-anchor="middle" font-size="10" fill="#374151">Optimistic updates → DB sync</text>
+  <text x="136" y="770" text-anchor="middle" font-size="10" fill="#374151">AuthGate (Supabase Auth)</text>
+  <text x="136" y="786" text-anchor="middle" font-size="10" fill="#374151">PWA installierbar</text>
+
+  <!-- Android TWA -->
+  <rect x="256" y="650" width="200" height="170" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="1.5"/>
+  <text x="356" y="672" text-anchor="middle" font-size="12" font-weight="700" fill="#0369a1">Android App (TWA)</text>
+  <text x="356" y="690" text-anchor="middle" font-size="10" fill="#374151">Trusted Web Activity</text>
+  <text x="356" y="706" text-anchor="middle" font-size="10" fill="#374151">Bubblewrap build → .aab</text>
+  <text x="356" y="722" text-anchor="middle" font-size="10" fill="#374151">twa-manifest.json</text>
+  <text x="356" y="738" text-anchor="middle" font-size="10" fill="#374151">bubblewrap update (version++)</text>
+  <text x="356" y="754" text-anchor="middle" font-size="10" fill="#374151">bubblewrap build → signed AAB</text>
+  <text x="356" y="770" text-anchor="middle" font-size="10" fill="#374151">assetlinks.json @ /.well-known/</text>
+  <text x="356" y="786" text-anchor="middle" font-size="10" fill="#374151">→ Google Play Console</text>
+
+  <!-- Google Play -->
+  <rect x="476" y="650" width="224" height="170" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="1.5"/>
+  <text x="588" y="672" text-anchor="middle" font-size="12" font-weight="700" fill="#0369a1">Google Play Store</text>
+  <text x="588" y="690" text-anchor="middle" font-size="10" fill="#374151">Closed / Open Test Track</text>
+  <text x="588" y="706" text-anchor="middle" font-size="10" fill="#374151">AAB Upload → Review</text>
+  <text x="588" y="722" text-anchor="middle" font-size="10" fill="#374151">Rollout → Production</text>
+  <text x="588" y="742" text-anchor="middle" font-size="10" fill="#64748b">TWA lädt skatastrophe.de/app/</text>
+  <text x="588" y="758" text-anchor="middle" font-size="10" fill="#64748b">im Chrome Custom Tab (kein Browser-UI)</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ZONE: GOOGLE AUTH -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="740" y="480" width="280" height="100" rx="10" fill="#fefce8" stroke="#fde68a" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <text x="756" y="501" font-size="11" font-weight="700" fill="#b45309" letter-spacing="0.08em">GOOGLE SERVICES</text>
+  <rect x="756" y="510" width="248" height="56" rx="8" fill="#ffffff" stroke="#fde68a" stroke-width="1.5"/>
+  <text x="880" y="530" text-anchor="middle" font-size="12" font-weight="700" fill="#b45309">Google Identity Services (GSI)</text>
+  <text x="880" y="548" text-anchor="middle" font-size="10" fill="#374151">FedCM One-Tap · signInWithIdToken</text>
+  <text x="880" y="562" text-anchor="middle" font-size="10" fill="#374151">Fallback: OAuth Redirect → /app</text>
+
+  <!-- Husky → version bump label -->
+  <text x="36" y="398" font-size="9" fill="#15803d">↑ pre-commit: version patch</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- LEGEND -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="740" y="600" width="440" height="240" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="756" y="622" font-size="11" font-weight="700" fill="#475569" letter-spacing="0.06em">LEGENDE &amp; SCHLÜSSELKONZEPTE</text>
+
+  <text x="756" y="644" font-size="10" font-weight="700" fill="#15803d">■</text>
+  <text x="770" y="644" font-size="10" fill="#374151">Dev: Quellcode, lokaler Dev-Server, Tests, Lint, Husky-Hook</text>
+
+  <text x="756" y="662" font-size="10" font-weight="700" fill="#2563eb">■</text>
+  <text x="770" y="662" font-size="10" fill="#374151">Build: vite build → dist/app/ (SPA) + postbuild → dist/landing/ + dist/.well-known/</text>
+
+  <text x="756" y="680" font-size="10" font-weight="700" fill="#7c3aed">■</text>
+  <text x="770" y="680" font-size="10" fill="#374151">Cloudflare Pages: CDN-Hosting, URL-Routing per _redirects, Cache-Headers per _headers</text>
+
+  <text x="756" y="698" font-size="10" font-weight="700" fill="#ea580c">■</text>
+  <text x="770" y="698" font-size="10" fill="#374151">Supabase: PostgreSQL + RLS, Auth (Email/Google), Edge Function (delete-account)</text>
+
+  <text x="756" y="716" font-size="10" font-weight="700" fill="#0369a1">■</text>
+  <text x="770" y="716" font-size="10" fill="#374151">Clients: Browser-PWA + Android TWA (Bubblewrap) → Google Play Store</text>
+
+  <line x1="756" y1="730" x2="1160" y2="730" stroke="#e2e8f0" stroke-width="1"/>
+
+  <text x="756" y="748" font-size="10" font-weight="600" fill="#475569">Optimistic Updates:</text>
+  <text x="870" y="748" font-size="10" fill="#374151">Reducer-Dispatch sofort → async Supabase-Sync im Hintergrund</text>
+
+  <text x="756" y="764" font-size="10" font-weight="600" fill="#475569">DB-Mapping:</text>
+  <text x="830" y="764" font-size="10" fill="#374151">camelCase (App-State) ↔ snake_case (DB) — nur in syncService.js</text>
+
+  <text x="756" y="780" font-size="10" font-weight="600" fill="#475569">Session-ID:</text>
+  <text x="830" y="780" font-size="10" fill="#374151">localStorage key "skatSessionId" — kein Login für Basis-Nutzung nötig</text>
+
+  <text x="756" y="796" font-size="10" font-weight="600" fill="#475569">TWA-Verknüpfung:</text>
+  <text x="848" y="796" font-size="10" fill="#374151">assetlinks.json @ /.well-known/ — Domain-Ownership für Play Store</text>
+
+  <text x="756" y="812" font-size="10" font-weight="600" fill="#475569">Versioning:</text>
+  <text x="820" y="812" font-size="10" fill="#374151">Husky pre-commit → npm version patch · bubblewrap update vor AAB-Build</text>
+
+  <text x="756" y="828" font-size="10" font-weight="600" fill="#475569">Fonts:</text>
+  <text x="790" y="828" font-size="10" fill="#374151">Self-hosted via vite-plugin-webfont-dl — kein Google CDN zur Laufzeit</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ZONE: KIRO AI WORKFLOW -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="20" y="860" width="1160" height="280" rx="10" fill="#fdf2f8" stroke="#f0abfc" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <text x="36" y="881" font-size="11" font-weight="700" fill="#a21caf" letter-spacing="0.08em">KIRO AI — ENTWICKLUNGSWORKFLOW (Spec-Driven Development)</text>
+
+  <!-- Phase boxes -->
+  <!-- 1: Steering -->
+  <rect x="36" y="892" width="148" height="218" rx="8" fill="#ffffff" stroke="#f0abfc" stroke-width="1.5"/>
+  <rect x="36" y="892" width="148" height="22" rx="8" fill="#fae8ff"/>
+  <rect x="36" y="906" width="148" height="8" fill="#fae8ff"/>
+  <text x="110" y="907" text-anchor="middle" font-size="11" font-weight="800" fill="#a21caf">① Steering</text>
+  <text x="56" y="928" font-size="10" font-weight="700" fill="#374151">.kiro/steering/</text>
+  <text x="56" y="944" font-size="10" fill="#64748b">tech.md</text>
+  <text x="56" y="958" font-size="10" fill="#64748b">structure.md</text>
+  <text x="56" y="972" font-size="10" fill="#64748b">product.md</text>
+  <line x1="56" y1="982" x2="168" y2="982" stroke="#f0abfc" stroke-width="1"/>
+  <text x="56" y="996" font-size="9" fill="#94a3b8">Persistente Kontext-</text>
+  <text x="56" y="1008" font-size="9" fill="#94a3b8">regeln für alle</text>
+  <text x="56" y="1020" font-size="9" fill="#94a3b8">Kiro-Interaktionen</text>
+  <text x="56" y="1036" font-size="9" fill="#94a3b8">Stack · Struktur · Produkt</text>
+  <text x="56" y="1050" font-size="9" fill="#94a3b8">immer im Kontext</text>
+  <text x="56" y="1068" font-size="9" font-weight="700" fill="#a21caf">auto-inclusion</text>
+
+  <!-- 2: Spec -->
+  <rect x="200" y="892" width="200" height="218" rx="8" fill="#ffffff" stroke="#f0abfc" stroke-width="1.5"/>
+  <rect x="200" y="892" width="200" height="22" rx="8" fill="#fae8ff"/>
+  <rect x="200" y="906" width="200" height="8" fill="#fae8ff"/>
+  <text x="300" y="907" text-anchor="middle" font-size="11" font-weight="800" fill="#a21caf">② Spec-Session</text>
+  <text x="220" y="928" font-size="10" font-weight="700" fill="#374151">.kiro/specs/</text>
+  <text x="220" y="944" font-size="10" fill="#64748b">requirements.md  ← iterativ</text>
+  <text x="220" y="958" font-size="10" fill="#64748b">design.md         ← iterativ</text>
+  <text x="220" y="972" font-size="10" fill="#64748b">tasks.md          ← generiert</text>
+  <line x1="220" y1="982" x2="384" y2="982" stroke="#f0abfc" stroke-width="1"/>
+  <text x="220" y="996" font-size="9" fill="#94a3b8">Mensch + KI erarbeiten</text>
+  <text x="220" y="1008" font-size="9" fill="#94a3b8">Requirements gemeinsam,</text>
+  <text x="220" y="1020" font-size="9" fill="#94a3b8">dann Design, dann Tasks</text>
+
+  <!-- 3: Specs list -->
+  <rect x="416" y="892" width="220" height="218" rx="8" fill="#ffffff" stroke="#f0abfc" stroke-width="1.5"/>
+  <rect x="416" y="892" width="220" height="22" rx="8" fill="#fae8ff"/>
+  <rect x="416" y="906" width="220" height="8" fill="#fae8ff"/>
+  <text x="526" y="907" text-anchor="middle" font-size="11" font-weight="800" fill="#a21caf">③ Umgesetzte Specs</text>
+  <text x="436" y="928" font-size="10" font-weight="700" fill="#374151">supabase-persistence</text>
+  <text x="436" y="941" font-size="9" fill="#94a3b8">Cloud-Sync, RLS, optimistic updates</text>
+  <text x="436" y="957" font-size="10" font-weight="700" fill="#374151">bockrunden</text>
+  <text x="436" y="970" font-size="9" fill="#94a3b8">Spielwert ×2, DB-Feld is_bock</text>
+  <text x="436" y="986" font-size="10" font-weight="700" fill="#374151">game-type-editing</text>
+  <text x="436" y="999" font-size="9" fill="#94a3b8">Modal-Editor für Spieltyp-Nachpflege</text>
+  <text x="436" y="1015" font-size="10" font-weight="700" fill="#374151">landing-page-routing</text>
+  <text x="436" y="1028" font-size="9" fill="#94a3b8">/ vs /app Split, Cloudflare _redirects</text>
+  <text x="436" y="1044" font-size="10" font-weight="700" fill="#374151">spiellisten</text>
+  <text x="436" y="1057" font-size="9" fill="#94a3b8">Spielserien mit Rundenzahl + Sieger</text>
+  <text x="436" y="1073" font-size="10" font-weight="700" fill="#374151">inline-style-refactoring</text>
+  <text x="436" y="1086" font-size="9" fill="#94a3b8">tokens.js, SuitBadge, CSS-Klassen</text>
+
+  <!-- 4: Task execution -->
+  <rect x="652" y="892" width="200" height="218" rx="8" fill="#ffffff" stroke="#f0abfc" stroke-width="1.5"/>
+  <rect x="652" y="892" width="200" height="22" rx="8" fill="#fae8ff"/>
+  <rect x="652" y="906" width="200" height="8" fill="#fae8ff"/>
+  <text x="752" y="907" text-anchor="middle" font-size="11" font-weight="800" fill="#a21caf">④ Task-Ausführung</text>
+  <text x="672" y="928" font-size="10" fill="#374151">Kiro arbeitet Tasks ab</text>
+  <text x="672" y="944" font-size="10" fill="#64748b">Supervised / Autopilot</text>
+  <text x="672" y="960" font-size="10" fill="#64748b">Datei-Änderungen revertierbar</text>
+  <line x1="672" y1="972" x2="836" y2="972" stroke="#f0abfc" stroke-width="1"/>
+  <text x="672" y="988" font-size="10" font-weight="700" fill="#374151">Hooks (automatisch):</text>
+  <text x="672" y="1004" font-size="10" fill="#64748b">postTaskExecution →</text>
+  <text x="672" y="1018" font-size="10" fill="#64748b">README · DB-Script</text>
+  <text x="672" y="1032" font-size="10" fill="#64748b">Landing Page prüfen</text>
+  <text x="672" y="1050" font-size="9" fill="#94a3b8">pre-commit: version patch</text>
+  <text x="672" y="1064" font-size="9" fill="#94a3b8">via Husky (git hook)</text>
+
+  <!-- 5: Chat / ad-hoc -->
+  <rect x="868" y="892" width="292" height="218" rx="8" fill="#ffffff" stroke="#f0abfc" stroke-width="1.5"/>
+  <rect x="868" y="892" width="292" height="22" rx="8" fill="#fae8ff"/>
+  <rect x="868" y="906" width="292" height="8" fill="#fae8ff"/>
+  <text x="1014" y="907" text-anchor="middle" font-size="11" font-weight="800" fill="#a21caf">⑤ Chat &amp; Ad-hoc-Änderungen</text>
+  <text x="888" y="928" font-size="10" fill="#374151">Direkte Änderungen ohne Spec</text>
+  <text x="888" y="944" font-size="10" fill="#64748b">Bugfixes · kleine Features</text>
+  <text x="888" y="960" font-size="10" fill="#64748b">Refactoring · UI-Tweaks</text>
+  <line x1="888" y1="972" x2="1144" y2="972" stroke="#f0abfc" stroke-width="1"/>
+  <text x="888" y="988" font-size="10" font-weight="700" fill="#374151">Kontext-Tools:</text>
+  <text x="888" y="1004" font-size="10" fill="#64748b">#File · #Folder · #Git Diff</text>
+  <text x="888" y="1020" font-size="10" fill="#64748b">#Problems · #Terminal</text>
+  <text x="888" y="1036" font-size="10" fill="#64748b">context-gatherer sub-agent</text>
+  <line x1="888" y1="1048" x2="1144" y2="1048" stroke="#f0abfc" stroke-width="1"/>
+  <text x="888" y="1064" font-size="9" fill="#94a3b8">Beispiele in diesem Projekt:</text>
+  <text x="888" y="1078" font-size="9" fill="#94a3b8">Account-E-Mail in Settings · SVG-Architekturdiagramm</text>
+  <text x="888" y="1092" font-size="9" fill="#94a3b8">DB-Script sync · Cloudflare-Korrektur</text>
+
+</svg>
