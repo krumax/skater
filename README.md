@@ -14,6 +14,7 @@ Alle Spieltypen (Kreuz, Pik, Herz, Karo, Grand, Null, Eingepasst) werden vollst�
 - Spieler hinzufügen, umbenennen, umsortieren
 - Runden nachträglich bearbeiten oder löschen
 - Mehrere Sessions verwalten und wechseln
+- **Spiellisten**: Definierte Rundenblöcke (3–36 Runden) mit Fortschrittsanzeige, Sieger-Ermittlung und Abschluss-Funktion
 
 ### 📊 Statistiken
 - **Tischstatistik:** Punkteentwicklung über Zeit, Spieltypen-Verteilung, Gewinnrate-Heatmap, Führungswechsel, längste Serien
@@ -46,9 +47,10 @@ Die SQL-Migrationsdateien liegen unter [`supabase/migrations/`](./supabase/migra
 
 | Datei | Inhalt |
 |-------|--------|
-| `001_initial_schema.sql` | Tabellen `sessions` und `rounds` mit RLS-Policies |
+| `001_initial_schema.sql` | Tabellen `sessions`, `spiellisten` und `rounds` mit RLS-Policies |
 | `002_historical_import.sql` | Optionale Testdaten |
 | `003` – `006` | Erweiterungen (Bock-Feld, Mit/Ohne, Ansagen, Tischname) |
+| `20260418_spiellisten.sql` | Spiellisten-Tabelle + `spielliste_id` auf `rounds` |
 
 #### Umgebungsvariablen setzen
 

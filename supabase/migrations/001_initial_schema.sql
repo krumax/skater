@@ -1,5 +1,5 @@
 -- Migration: 001_initial_schema
--- Vollständiges Schema inkl. aller späteren Erweiterungen (003–006).
+-- Vollständiges Schema inkl. aller späteren Erweiterungen (003–006, 20260418).
 -- Für eine Neuinstallation reicht es, nur dieses Skript auszuführen.
 -- Führe es im Supabase SQL-Editor aus.
 
@@ -11,6 +11,19 @@ CREATE TABLE IF NOT EXISTS sessions (
   current_round integer NOT NULL DEFAULT 1,
   created_at    timestamptz NOT NULL DEFAULT now(),
   table_name    text                                  -- 006: optionaler Tischname
+);
+
+-- spiellisten (20260418: Spiellisten-Feature)
+CREATE TABLE IF NOT EXISTS spiellisten (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id      UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  name            TEXT NOT NULL CHECK (char_length(name) <= 40),
+  round_count     INTEGER NOT NULL CHECK (round_count >= 3 AND round_count <= 36 AND round_count % 3 = 0),
+  status          TEXT NOT NULL DEFAULT 'aktiv' CHECK (status IN ('aktiv', 'abgeschlossen')),
+  winner          TEXT[] DEFAULT NULL,
+  last_touched_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  user_id         UUID REFERENCES auth.users(id)
 );
 
 -- rounds
@@ -37,12 +50,14 @@ CREATE TABLE IF NOT EXISTS rounds (
   mit_ohne             text    NOT NULL DEFAULT 'mit', -- 004
   roles                jsonb,
   seeger_scores        jsonb,
-  timestamp            timestamptz NOT NULL DEFAULT now()
+  timestamp            timestamptz NOT NULL DEFAULT now(),
+  spielliste_id        uuid REFERENCES spiellisten(id) ON DELETE SET NULL -- 20260418
 );
 
 -- RLS aktivieren
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rounds ENABLE ROW LEVEL SECURITY;
+ALTER TABLE spiellisten ENABLE ROW LEVEL SECURITY;
 
 -- Policies für anonymen Lese-/Schreibzugriff
 CREATE POLICY "Anon read/write sessions"
@@ -52,3 +67,15 @@ CREATE POLICY "Anon read/write sessions"
 CREATE POLICY "Anon read/write rounds"
   ON rounds FOR ALL TO anon
   USING (true) WITH CHECK (true);
+
+CREATE POLICY "Anon read/write spiellisten"
+  ON spiellisten FOR ALL TO anon
+  USING (true) WITH CHECK (true);
+
+CREATE POLICY "Auth read/write spiellisten"
+  ON spiellisten FOR ALL TO authenticated
+  USING (true) WITH CHECK (true);
+
+-- Indizes
+CREATE INDEX IF NOT EXISTS idx_spiellisten_session_id ON spiellisten(session_id);
+CREATE INDEX IF NOT EXISTS idx_rounds_spielliste_id ON rounds(spielliste_id);
