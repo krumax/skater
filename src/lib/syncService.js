@@ -323,7 +323,7 @@ export async function updateRound(roundDbId, patch) {
 }
 
 export async function _doUpdateRound(roundDbId, patch) {
-  const allowed = ['game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schneider_announced', 'schwarz', 'schwarz_announced', 'spitzen', 'is_bock', 'game_value', 'mit_ohne', 'won'];
+  const allowed = ['player', 'game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schneider_announced', 'schwarz', 'schwarz_announced', 'spitzen', 'is_bock', 'game_value', 'mit_ohne', 'won'];
   const safePatch = Object.fromEntries(
     Object.entries(patch).filter(([k]) => allowed.includes(k))
   );

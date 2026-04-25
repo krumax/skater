@@ -46,9 +46,11 @@ export function buildTypeLabel(gameType, { hand = false, ouvert = false } = {}) 
  *   onSaved – wird nach erfolgreichem Speichern aufgerufen
  */
 export default function GameTypeEditor({ round, onClose, onSaved }) {
-  const { updateRound } = useGame();
+  const { updateRound, players: allPlayers } = useGame();
+  const players = allPlayers.filter(p => p !== '-');
 
   // Interner State – vorbelegt mit den aktuellen Werten der Runde
+  const [player, setPlayer]         = useState(round?.player ?? players[0] ?? '');
   const [gameType, setGameType]     = useState(
     GAME_TYPES.includes(round?.gameType) ? round.gameType : 'null'
   );
@@ -135,6 +137,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
     setErrors(prev => ({ ...prev, general: undefined }));
 
     const patch = {
+      player,
       gameType,
       typeLabel: buildTypeLabel(gameType, { hand, ouvert }),
       hand,
@@ -181,6 +184,32 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
             Runde {round?.roundNumber ?? round?.id}
           </span>
         </h2>
+
+        {/* Alleinspieler-Auswahl */}
+        {players.length > 0 && (
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label style={labelStyle}>Alleinspieler</label>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              {players.map(p => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPlayer(p)}
+                  style={{
+                    padding: '0.4rem 1rem', borderRadius: '999px', cursor: 'pointer',
+                    fontSize: '0.9rem', fontWeight: 700, border: '1.5px solid',
+                    borderColor: player === p ? 'var(--primary)' : 'var(--outline-variant)',
+                    backgroundColor: player === p ? 'var(--primary)' : 'transparent',
+                    color: player === p ? '#fff' : 'var(--on-surface)',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Spieltyp-Auswahl */}
         <label style={labelStyle}>Spieltyp</label>

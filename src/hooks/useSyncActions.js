@@ -98,6 +98,7 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
 
   const updateRound = useCallback(async (round, patch) => {
     const snakePatch = {
+      ...(patch.player              !== undefined && { player:               patch.player }),
       ...(patch.gameType            !== undefined && { game_type:            patch.gameType }),
       ...(patch.typeLabel           !== undefined && { type_label:           patch.typeLabel }),
       ...(patch.hand                !== undefined && { hand:                 patch.hand }),
