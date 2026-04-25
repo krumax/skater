@@ -868,6 +868,11 @@ button {
     min-width: unset !important;
     width: 100%;
   }
+
+  /* Tappable row hint on mobile */
+  .mobile-table tbody tr:active {
+    background-color: var(--surface-high) !important;
+  }
 }
 
 /* ── PlayerSettings: rechte Spalte (SVG-Tisch) ausblenden ── */

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS } from '../lib/skatScoring';
@@ -449,106 +450,212 @@ function RankingRow({ rank, name, score }) {
   );
 }
 
-const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => (
-  <tr style={{ borderBottom: '1px solid var(--surface-high)', backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)' }}>
-    <td className="col-round-nr" style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
-    <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
-    <td className="col-type" style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
-      <SuitBadge gameType={r.gameType} size="md" />
-    </td>
-    <td className="col-ansage" style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif", paddingRight: '0.25rem' }}>
-      {(() => {
-        const isNull   = r.gameType === 'null';
-        const isPassed = r.gameType === 'passed';
-        if (isPassed) return <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>;
-        if (isNull)   return <span style={{ color: 'var(--outline)', opacity: 0.6 }}>—</span>;
-        return r.spitzen != null
-          ? <span style={{ color: 'var(--on-surface)' }}>
-              {(r.mitOhne ?? 'mit') === 'ohne' ? '−' : '+'}{r.spitzen}
-            </span>
-          : <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>;
-      })()}
-    </td>
-    <td className="col-modifier" style={{ ...tdStyle, paddingLeft: '0.25rem', paddingRight: '0.5rem' }}>
-      {(() => {
-        const badges = [];
-        if (r.hand)      badges.push('H');
-        if (r.schneider) badges.push('S');
-        if (r.schwarz)   badges.push('Sz');
-        if (r.ouvert)    badges.push('O');
-        if (badges.length === 0) return null;
-        return (
-          <span style={{ display: 'inline-flex', gap: '0.15rem', flexWrap: 'nowrap' }}>
-            {badges.map(b => (
-              <span key={b} style={{
-                fontSize: '0.55rem', fontWeight: 800, letterSpacing: '0.02em',
-                backgroundColor: 'var(--surface-high)', color: 'var(--on-surface-variant)',
-                padding: '0.1rem 0.3rem', borderRadius: '0.25rem', lineHeight: 1.4,
-                whiteSpace: 'nowrap',
-              }}>{b}</span>
-            ))}
-          </span>
-        );
-      })()}
-    </td>
-    <td style={{ ...tdStyle, fontWeight: 800, textAlign: 'right', color: r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
-      {r.isBock === true && (
-        <span className="badge-bock" style={{
-          display: 'inline-block',
-          fontSize: '0.6rem',
-          fontWeight: 800,
-          letterSpacing: '0.05em',
-          textTransform: 'uppercase',
-          backgroundColor: 'var(--tertiary-container)',
-          color: 'var(--on-tertiary-container, #fff)',
-          padding: '0.1rem 0.35rem',
-          borderRadius: '0.25rem',
-          marginRight: '0.4rem',
-          verticalAlign: 'middle',
-        }}>Bock</span>
-      )}
-      {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
-    </td>
-    <td style={tdDivider} className="score-col-divider"></td>
-    {players.map(p => (
-      <td key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: r.player === p ? 1 : 0.4, color: (std[p] ?? 0) >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
-        {std[p] ?? 0}
-      </td>
-    ))}
-    <td style={tdDivider} className="score-col-divider"></td>
-    {players.map(p => {
-      const prev = sfPrev?.[p] ?? 0;
-      const curr = sf[p] ?? 0;
-      const delta = curr - prev;
-      const color = delta < 0 ? 'var(--secondary)' : 'var(--on-surface)';
-      return (
-        <td key={`sf-${p}`} className="score-col-sf" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: delta !== 0 ? 1 : 0.4, color }}>
-          {curr}
-        </td>
-      );
-    })}
-    <td className="col-actions" style={{ ...tdStyle, textAlign: 'center', padding: '0.75rem 0.5rem', display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
-      <button
-        aria-label={`Runde ${r.id} bearbeiten`}
-        onClick={() => onEdit(r)}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', verticalAlign: 'middle', color: 'var(--outline)', lineHeight: 1, borderRadius: '0.25rem' }}
-      >
-        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>edit</span>
-      </button>
-      <button
-        aria-label={`Runde ${r.id} löschen`}
-        onClick={() => {
-          if (window.confirm('Bist du sicher, dass du diese Runde wirklich löschen möchtest?')) {
-            onDelete(r);
-          }
+const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => {
+  const [showActions, setShowActions] = React.useState(false);
+
+  const handleRowClick = (e) => {
+    // Only trigger on mobile (touch devices / narrow screens)
+    if (window.innerWidth > 768) return;
+    // Don't trigger if clicking the desktop action buttons
+    if (e.target.closest('.col-actions')) return;
+    setShowActions(true);
+  };
+
+  return (
+    <>
+      <tr
+        onClick={handleRowClick}
+        style={{
+          borderBottom: '1px solid var(--surface-high)',
+          backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)',
+          cursor: window.innerWidth <= 768 ? 'pointer' : 'default',
         }}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', verticalAlign: 'middle', color: 'var(--secondary)', lineHeight: 1, borderRadius: '0.25rem' }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>delete</span>
-      </button>
-    </td>
-  </tr>
-);
+        <td className="col-round-nr" style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
+        <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
+        <td className="col-type" style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
+          <SuitBadge gameType={r.gameType} size="md" />
+        </td>
+        <td className="col-ansage" style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif", paddingRight: '0.25rem' }}>
+          {(() => {
+            const isNull   = r.gameType === 'null';
+            const isPassed = r.gameType === 'passed';
+            if (isPassed) return <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>;
+            if (isNull)   return <span style={{ color: 'var(--outline)', opacity: 0.6 }}>—</span>;
+            return r.spitzen != null
+              ? <span style={{ color: 'var(--on-surface)' }}>
+                  {(r.mitOhne ?? 'mit') === 'ohne' ? '−' : '+'}{r.spitzen}
+                </span>
+              : <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>;
+          })()}
+        </td>
+        <td className="col-modifier" style={{ ...tdStyle, paddingLeft: '0.25rem', paddingRight: '0.5rem' }}>
+          {(() => {
+            const badges = [];
+            if (r.hand)      badges.push('H');
+            if (r.schneider) badges.push('S');
+            if (r.schwarz)   badges.push('Sz');
+            if (r.ouvert)    badges.push('O');
+            if (badges.length === 0) return null;
+            return (
+              <span style={{ display: 'inline-flex', gap: '0.15rem', flexWrap: 'nowrap' }}>
+                {badges.map(b => (
+                  <span key={b} style={{
+                    fontSize: '0.55rem', fontWeight: 800, letterSpacing: '0.02em',
+                    backgroundColor: 'var(--surface-high)', color: 'var(--on-surface-variant)',
+                    padding: '0.1rem 0.3rem', borderRadius: '0.25rem', lineHeight: 1.4,
+                    whiteSpace: 'nowrap',
+                  }}>{b}</span>
+                ))}
+              </span>
+            );
+          })()}
+        </td>
+        <td style={{ ...tdStyle, fontWeight: 800, textAlign: 'right', color: r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
+          {r.isBock === true && (
+            <span className="badge-bock" style={{
+              display: 'inline-block',
+              fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase',
+              backgroundColor: 'var(--tertiary-container)', color: 'var(--on-tertiary-container, #fff)',
+              padding: '0.1rem 0.35rem', borderRadius: '0.25rem', marginRight: '0.4rem', verticalAlign: 'middle',
+            }}>Bock</span>
+          )}
+          {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
+        </td>
+        <td style={tdDivider} className="score-col-divider"></td>
+        {players.map(p => (
+          <td key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: r.player === p ? 1 : 0.4, color: (std[p] ?? 0) >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
+            {std[p] ?? 0}
+          </td>
+        ))}
+        <td style={tdDivider} className="score-col-divider"></td>
+        {players.map(p => {
+          const prev = sfPrev?.[p] ?? 0;
+          const curr = sf[p] ?? 0;
+          const delta = curr - prev;
+          const color = delta < 0 ? 'var(--secondary)' : 'var(--on-surface)';
+          return (
+            <td key={`sf-${p}`} className="score-col-sf" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: delta !== 0 ? 1 : 0.4, color }}>
+              {curr}
+            </td>
+          );
+        })}
+        <td className="col-actions" style={{ ...tdStyle, textAlign: 'center', padding: '0.75rem 0.5rem', display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
+          <button
+            aria-label={`Runde ${r.id} bearbeiten`}
+            onClick={() => onEdit(r)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', verticalAlign: 'middle', color: 'var(--outline)', lineHeight: 1, borderRadius: '0.25rem' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>edit</span>
+          </button>
+          <button
+            aria-label={`Runde ${r.id} löschen`}
+            onClick={() => {
+              if (window.confirm('Bist du sicher, dass du diese Runde wirklich löschen möchtest?')) {
+                onDelete(r);
+              }
+            }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', verticalAlign: 'middle', color: 'var(--secondary)', lineHeight: 1, borderRadius: '0.25rem' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>delete</span>
+          </button>
+        </td>
+      </tr>
+
+      {/* Mobile action bottom sheet */}
+      {showActions && (
+        <RoundActionSheet
+          r={r}
+          onEdit={() => { setShowActions(false); onEdit(r); }}
+          onDelete={() => {
+            setShowActions(false);
+            if (window.confirm('Bist du sicher, dass du diese Runde wirklich löschen möchtest?')) {
+              onDelete(r);
+            }
+          }}
+          onClose={() => setShowActions(false)}
+        />
+      )}
+    </>
+  );
+};
+
+// ── Mobile action bottom sheet ───────────────────────────────────────────────
+function RoundActionSheet({ r, onEdit, onDelete, onClose }) {
+  const label = SUIT_LABELS[r.gameType] ?? r.gameType;
+  const scoreColor = r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)';
+
+  return ReactDOM.createPortal(
+    <>
+      {/* Overlay */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)',
+          zIndex: 500,
+        }}
+      />
+      {/* Sheet */}
+      <div style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0,
+        backgroundColor: 'var(--surface)', borderRadius: '1rem 1rem 0 0',
+        padding: '0.75rem 1.25rem 2rem',
+        boxShadow: '0 -8px 32px rgba(0,0,0,0.25)',
+        zIndex: 501,
+      }}>
+        {/* Drag handle */}
+        <div style={{ width: '40px', height: '4px', borderRadius: '2px', backgroundColor: 'var(--outline-variant)', margin: '0 auto 1.25rem' }} />
+
+        {/* Round summary */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '1.25rem', padding: '0.75rem 1rem', backgroundColor: 'var(--surface-low)', borderRadius: '0.75rem' }}>
+          <div>
+            <p style={{ fontWeight: 800, fontSize: '0.9375rem' }}>
+              Runde {r.id} · {r.player}
+            </p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--outline)', marginTop: '0.1rem' }}>
+              {label}{r.hand ? ' · Hand' : ''}{r.isBock ? ' · Bock' : ''}
+            </p>
+          </div>
+          <span style={{ marginLeft: 'auto', fontSize: '1.25rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: scoreColor }}>
+            {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
+          </span>
+        </div>
+
+        {/* Actions */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <button
+            onClick={onEdit}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.875rem',
+              width: '100%', padding: '0.875rem 1rem', borderRadius: '0.75rem',
+              backgroundColor: 'var(--surface-low)', border: 'none', cursor: 'pointer',
+              fontFamily: 'inherit', fontSize: '1rem', fontWeight: 600, color: 'var(--on-surface)',
+              textAlign: 'left',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--primary)' }}>edit</span>
+            Runde bearbeiten
+          </button>
+          <button
+            onClick={onDelete}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.875rem',
+              width: '100%', padding: '0.875rem 1rem', borderRadius: '0.75rem',
+              backgroundColor: 'color-mix(in srgb, var(--secondary) 8%, transparent)',
+              border: 'none', cursor: 'pointer',
+              fontFamily: 'inherit', fontSize: '1rem', fontWeight: 600, color: 'var(--secondary)',
+              textAlign: 'left',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>delete</span>
+            Runde löschen
+          </button>
+        </div>
+      </div>
+    </>,
+    document.body
+  );
+}
 
 const thStyle = {  padding: '0.75rem 1rem',
   textTransform: 'uppercase',

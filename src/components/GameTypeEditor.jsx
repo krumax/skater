@@ -178,26 +178,26 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
         style={dialogStyle}
         onClick={e => e.stopPropagation()}
       >
-        <h2 style={{ margin: '0 0 1.5rem', fontSize: '1.25rem', color: 'var(--on-surface)' }}>
+        <h2 style={{ margin: '0 0 1rem', fontSize: '1.125rem', color: 'var(--on-surface)' }}>
           Spiel bearbeiten
-          <span style={{ color: 'var(--outline)', fontWeight: 400, fontSize: '0.9rem', marginLeft: '0.5rem' }}>
+          <span style={{ color: 'var(--outline)', fontWeight: 400, fontSize: '0.85rem', marginLeft: '0.5rem' }}>
             Runde {round?.roundNumber ?? round?.id}
           </span>
         </h2>
 
         {/* Alleinspieler-Auswahl */}
         {players.length > 0 && (
-          <div style={{ marginBottom: '1.25rem' }}>
+          <div style={{ marginBottom: '0.75rem' }}>
             <label style={labelStyle}>Alleinspieler</label>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
               {players.map(p => (
                 <button
                   key={p}
                   type="button"
                   onClick={() => setPlayer(p)}
                   style={{
-                    padding: '0.4rem 1rem', borderRadius: '999px', cursor: 'pointer',
-                    fontSize: '0.9rem', fontWeight: 700, border: '1.5px solid',
+                    padding: '0.3rem 0.875rem', borderRadius: '999px', cursor: 'pointer',
+                    fontSize: '0.8125rem', fontWeight: 700, border: '1.5px solid',
                     borderColor: player === p ? 'var(--primary)' : 'var(--outline-variant)',
                     backgroundColor: player === p ? 'var(--primary)' : 'transparent',
                     color: player === p ? '#fff' : 'var(--on-surface)',
@@ -213,7 +213,7 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
 
         {/* Spieltyp-Auswahl */}
         <label style={labelStyle}>Spieltyp</label>
-        <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '0.5rem', marginBottom: '1.25rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '0.375rem', marginBottom: '0.75rem' }}>
           {[
             { key: 'club',    icon: '♣', label: 'Kreuz',  color: null },
             { key: 'spade',   icon: '♠', label: 'Pik',    color: null },
@@ -239,40 +239,36 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
                 title={label}
               >
                 {icon
-                  ? <span style={{ fontSize: '1.25rem', lineHeight: 1, color: isActive ? (SUIT_TEXT_COLORS[key] ?? '#fff') : (SUIT_COLORS[key] ?? 'var(--on-surface)') }}>{icon}</span>
-                  : <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', lineHeight: 1, color: isActive ? (SUIT_TEXT_COLORS[key] ?? '#fff') : (SUIT_COLORS[key] ?? 'var(--on-surface)') }}>{matIcon}</span>
+                  ? <span style={{ fontSize: '1.1rem', lineHeight: 1, color: isActive ? (SUIT_TEXT_COLORS[key] ?? '#fff') : (SUIT_COLORS[key] ?? 'var(--on-surface)') }}>{icon}</span>
+                  : <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', lineHeight: 1, color: isActive ? (SUIT_TEXT_COLORS[key] ?? '#fff') : (SUIT_COLORS[key] ?? 'var(--on-surface)') }}>{matIcon}</span>
                 }
-                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{label}</span>
+                <span style={{ fontSize: '0.65rem', fontWeight: 600 }}>{label}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Checkboxen */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 1.5rem', marginBottom: '1.25rem' }}>
-          <CheckboxField label="Hand"                  checked={hand}                onChange={setHand} />
-          <CheckboxField label="Ouvert"                checked={ouvert}              onChange={setOuvert} />
-          <CheckboxField label="Schneider"             checked={schneider}           onChange={setSchneider}           disabled={isNullGame} />
-          <CheckboxField label="Schneider angesagt"    checked={schneiderAnnounced}  onChange={setSchneiderAnnounced}  disabled={isNullGame} />
-          <CheckboxField label="Schwarz"               checked={schwarz}             onChange={setSchwarz}             disabled={isNullGame} />
-          <CheckboxField label="Schwarz angesagt"      checked={schwarzAnnounced}    onChange={setSchwartzAnnounced}   disabled={isNullGame} />
-        </div>
-
-        {/* Bockrunde */}
-        <div style={{ marginBottom: '1.25rem' }}>
-          <CheckboxField label="Bockrunde" checked={isBock} onChange={setIsBock} />
+        {/* Checkboxen — 2 Spalten */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.375rem 0.75rem', marginBottom: '0.75rem' }}>
+          <CheckboxField label="Hand"               checked={hand}               onChange={setHand} />
+          <CheckboxField label="Ouvert"             checked={ouvert}             onChange={setOuvert} />
+          <CheckboxField label="Bockrunde"          checked={isBock}             onChange={setIsBock} />
+          <CheckboxField label="Schneider"          checked={schneider}          onChange={setSchneider}          disabled={isNullGame} />
+          <CheckboxField label="Schn. angesagt"     checked={schneiderAnnounced} onChange={setSchneiderAnnounced} disabled={isNullGame} />
+          <CheckboxField label="Schwarz"            checked={schwarz}            onChange={setSchwarz}            disabled={isNullGame} />
+          <CheckboxField label="Schw. angesagt"     checked={schwarzAnnounced}   onChange={setSchwartzAnnounced}  disabled={isNullGame} />
         </div>
 
         {/* Ergebnis */}
-        <div style={{ marginBottom: '1.25rem' }}>
+        <div style={{ marginBottom: '0.75rem' }}>
           <label style={labelStyle}>Ergebnis</label>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
               type="button"
               onClick={() => setWon(true)}
               style={{
-                flex: 1, padding: '0.5rem', borderRadius: '0.4rem', cursor: 'pointer',
-                fontWeight: 700, fontSize: '0.875rem', border: '1.5px solid',
+                flex: 1, padding: '0.4rem', borderRadius: '0.4rem', cursor: 'pointer',
+                fontWeight: 700, fontSize: '0.8125rem', border: '1.5px solid',
                 borderColor: won ? 'var(--win-color)' : 'var(--outline-variant)',
                 backgroundColor: won ? 'color-mix(in srgb, var(--win-color) 10%, transparent)' : 'transparent',
                 color: won ? 'var(--win-color)' : 'var(--on-surface)',
@@ -284,8 +280,8 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
               type="button"
               onClick={() => setWon(false)}
               style={{
-                flex: 1, padding: '0.5rem', borderRadius: '0.4rem', cursor: 'pointer',
-                fontWeight: 700, fontSize: '0.875rem', border: '1.5px solid',
+                flex: 1, padding: '0.4rem', borderRadius: '0.4rem', cursor: 'pointer',
+                fontWeight: 700, fontSize: '0.8125rem', border: '1.5px solid',
                 borderColor: !won ? 'var(--loss-color)' : 'var(--outline-variant)',
                 backgroundColor: !won ? 'color-mix(in srgb, var(--loss-color) 10%, transparent)' : 'transparent',
                 color: !won ? 'var(--loss-color)' : 'var(--on-surface)',
@@ -296,14 +292,14 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
           </div>
         </div>
 
-        {/* Spitzen-Eingabe (immer sichtbar bei Farb-/Grand-Spielen, ausgegraut wenn nicht erlaubt) */}
-        <div style={{ marginBottom: '1.25rem', opacity: hasSuiteGame ? 1 : 0.35, pointerEvents: hasSuiteGame ? 'auto' : 'none' }}>
+        {/* Spitzen-Eingabe */}
+        <div style={{ marginBottom: '0.75rem', opacity: hasSuiteGame ? 1 : 0.35, pointerEvents: hasSuiteGame ? 'auto' : 'none' }}>
           <label style={labelStyle}>Ansage</label>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <button type="button" onClick={() => setMitOhne('mit')} className={`chip${mitOhne === 'mit' ? ' active' : ''}`}>Mit</button>
-            <button type="button" onClick={() => setMitOhne('ohne')} className={`chip${mitOhne === 'ohne' ? ' active' : ''}`}>Ohne</button>
+          <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center', marginBottom: '0.375rem' }}>
+            <button type="button" onClick={() => setMitOhne('mit')} className={`chip${mitOhne === 'mit' ? ' active' : ''}`} style={{ fontSize: '0.8125rem', padding: '0.25rem 0.75rem' }}>Mit</button>
+            <button type="button" onClick={() => setMitOhne('ohne')} className={`chip${mitOhne === 'ohne' ? ' active' : ''}`} style={{ fontSize: '0.8125rem', padding: '0.25rem 0.75rem' }}>Ohne</button>
           </div>
-          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'nowrap' }}>
             {Array.from({ length: 11 }, (_, i) => i + 1).map(num => {
               const maxAllowed = hasSuiteGame ? SPITZEN_RANGES[gameType]?.max ?? 0 : 0;
               const disabled = num > maxAllowed;
@@ -330,19 +326,19 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
         {previewResult && (
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '0.75rem 1rem', borderRadius: '0.5rem', marginBottom: '1.25rem',
+            padding: '0.5rem 0.875rem', borderRadius: '0.5rem', marginBottom: '0.75rem',
             backgroundColor: previewResult.won ? 'color-mix(in srgb, var(--win-color) 10%, transparent)' : 'color-mix(in srgb, var(--loss-color) 10%, transparent)',
             border: `1.5px solid ${previewResult.won ? 'color-mix(in srgb, var(--win-color) 50%, transparent)' : 'color-mix(in srgb, var(--loss-color) 50%, transparent)'}`,
           }}>
             <div>
-              <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: previewResult.won ? 'var(--win-color)' : 'var(--loss-color)', display: 'block', marginBottom: '0.1rem' }}>
+              <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: previewResult.won ? 'var(--win-color)' : 'var(--loss-color)', display: 'block', marginBottom: '0.1rem' }}>
                 {previewResult.won ? 'Gewonnen' : 'Verloren'} · Neuer Spielwert
               </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--outline)' }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>
                 {previewResult.baseValue} × {previewResult.multiplier}{isBock ? ' × 2 (Bock)' : ''}
               </span>
             </div>
-            <span style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: previewResult.won ? 'var(--win-color)' : 'var(--loss-color)' }}>
+            <span style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: previewResult.won ? 'var(--win-color)' : 'var(--loss-color)' }}>
               {newGameValue > 0 ? '+' : ''}{newGameValue}
             </span>
           </div>
@@ -350,11 +346,11 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
 
         {/* Allgemeiner Fehler */}
         {errors.general && (
-          <p role="alert" style={{ ...errorTextStyle, marginBottom: '1rem' }}>{errors.general}</p>
+          <p role="alert" style={{ ...errorTextStyle, marginBottom: '0.75rem' }}>{errors.general}</p>
         )}
 
         {/* Aktions-Buttons */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.25rem' }}>
           <button type="button" onClick={onClose} style={cancelBtnStyle}>
             Abbrechen
           </button>
@@ -376,13 +372,38 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
 
 function CheckboxField({ label, checked, onChange, disabled = false }) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: disabled ? 'not-allowed' : 'pointer', userSelect: 'none', color: 'var(--on-surface)', opacity: disabled ? 0.35 : 1 }}>
+    <label style={{
+      display: 'flex', alignItems: 'center', gap: '0.4rem',
+      cursor: disabled ? 'not-allowed' : 'pointer',
+      userSelect: 'none', color: 'var(--on-surface)',
+      opacity: disabled ? 0.35 : 1,
+      fontSize: '0.8125rem', fontWeight: 500,
+      lineHeight: 1.2,
+    }}>
+      <span style={{
+        width: '15px', height: '15px', flexShrink: 0,
+        borderRadius: '3px',
+        border: `1.5px solid ${checked && !disabled ? 'var(--primary)' : 'var(--outline-variant)'}`,
+        backgroundColor: checked && !disabled ? 'var(--primary)' : 'transparent',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'background 0.1s, border-color 0.1s',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+      }}
+        onClick={() => !disabled && onChange(!checked)}
+      >
+        {checked && !disabled && (
+          <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+            <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        )}
+      </span>
       <input
         type="checkbox"
         checked={checked}
         onChange={e => onChange(e.target.checked)}
         disabled={disabled}
-        style={{ width: '1rem', height: '1rem', cursor: disabled ? 'not-allowed' : 'pointer' }}
+        style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+        tabIndex={-1}
       />
       {label}
     </label>
@@ -399,26 +420,29 @@ const overlayStyle = {
   alignItems: 'center',
   justifyContent: 'center',
   zIndex: 1000,
+  padding: '1rem',
 };
 
 const dialogStyle = {
   background: 'var(--surface)',
   color: 'var(--on-surface)',
   borderRadius: '0.75rem',
-  padding: '1.75rem',
+  padding: '1.25rem',
   width: '100%',
-  maxWidth: '560px',
+  maxWidth: '520px',
+  maxHeight: '92dvh',
+  overflowY: 'auto',
   boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
 };
 
 const labelStyle = {
   display: 'block',
-  fontSize: '0.85rem',
-  fontWeight: 600,
-  marginBottom: '0.4rem',
+  fontSize: '0.7rem',
+  fontWeight: 700,
+  marginBottom: '0.3rem',
   color: 'var(--outline)',
   textTransform: 'uppercase',
-  letterSpacing: '0.05em',
+  letterSpacing: '0.06em',
 };
 
 const chipStyle = {
@@ -467,7 +491,7 @@ const cancelBtnStyle = {
   background: 'transparent',
   color: 'var(--on-surface)',
   cursor: 'pointer',
-  fontSize: '0.95rem',
+  fontSize: '0.875rem',
 };
 
 const saveBtnStyle = {
@@ -478,7 +502,7 @@ const saveBtnStyle = {
   color: '#ffffff',
   fontWeight: 600,
   cursor: 'pointer',
-  fontSize: '0.95rem',
+  fontSize: '0.875rem',
 };
 
 const saveBtnDisabledStyle = {
@@ -491,9 +515,10 @@ const gameTypeChipStyle = {
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: '0.2rem',
-  width: '60px',
-  height: '60px',
+  gap: '0.15rem',
+  flex: '1 1 0',
+  minWidth: 0,
+  height: '52px',
   borderRadius: '0.5rem',
   border: '1.5px solid var(--outline-variant)',
   background: 'transparent',
@@ -503,18 +528,19 @@ const gameTypeChipStyle = {
 };
 
 const spitzenBtnStyle = {
-  width: '36px',
-  height: '36px',
+  width: '30px',
+  height: '30px',
   borderRadius: '0.4rem',
   border: '1.5px solid var(--outline-variant)',
   background: 'transparent',
   color: 'var(--on-surface)',
   cursor: 'pointer',
-  fontSize: '0.9rem',
+  fontSize: '0.8rem',
   fontWeight: 700,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  flexShrink: 0,
 };
 
 const spitzenBtnActiveStyle = {

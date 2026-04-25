@@ -68,20 +68,29 @@ export default function ResultDashboard({ result, outcomeLabel, gameType, isBock
           style={result.won ? {} : { background: 'linear-gradient(135deg, var(--secondary), var(--secondary-container))' }}
         >
           <div className="result-content">
-            <span style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.8, display: 'block', lineHeight: 1.4 }}>
-              {activePlayer ? (
-                <>
-                  <Link
-                    to={`/analytics?player=${encodeURIComponent(activePlayer)}`}
-                    style={{ color: 'inherit', textDecoration: 'underline', textDecorationColor: 'rgba(255,255,255,0.4)', textUnderlineOffset: '2px' }}
-                  >
-                    {activePlayer}
-                  </Link>
-                  {' '}· Rundenergebnis
-                </>
-              ) : 'Rundenergebnis'}
-              <br />{outcomeLabel}
-            </span>
+            {activePlayer ? (
+              <div style={{ marginBottom: '0.25rem' }}>
+                <Link
+                  to={`/analytics?player=${encodeURIComponent(activePlayer)}`}
+                  style={{
+                    color: 'inherit', textDecoration: 'none',
+                    fontSize: '1.375rem', fontWeight: 900,
+                    fontFamily: "'Manrope', sans-serif",
+                    letterSpacing: '0.02em', display: 'block', lineHeight: 1.1,
+                    textShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                  }}
+                >
+                  {activePlayer}
+                </Link>
+                <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.7, display: 'block', marginTop: '0.2rem' }}>
+                  Rundenergebnis · {outcomeLabel}
+                </span>
+              </div>
+            ) : (
+              <span style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.8, display: 'block', lineHeight: 1.4, marginBottom: '0.25rem' }}>
+                Rundenergebnis<br />{outcomeLabel}
+              </span>
+            )}
 
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', flexWrap: 'wrap' }}>
               <span className="result-value" style={{ color: result.won ? 'var(--on-surface)' : 'var(--on-secondary)' }}>
