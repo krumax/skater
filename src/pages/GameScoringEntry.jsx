@@ -195,18 +195,47 @@ const GameScoringEntry = () => {
               <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--outline)' }}>
                 Rundenzahl (3–36, Vielfaches von 3)
               </label>
-              <input
-                type="number"
-                value={newListeRoundCount}
-                onChange={e => setNewListeRoundCount(Number(e.target.value))}
-                min={3} max={36} step={3}
-                style={{
-                  width: '100%', padding: '0.625rem 0.875rem',
-                  backgroundColor: 'var(--surface-low)', border: '1px solid var(--outline-variant)',
-                  borderRadius: '0.5rem', color: 'var(--on-surface)',
-                  fontFamily: 'inherit', fontSize: '0.9375rem', boxSizing: 'border-box',
-                }}
-              />
+              <div style={{
+                display: 'flex', alignItems: 'center',
+                backgroundColor: 'var(--surface-low)', border: '1px solid var(--outline-variant)',
+                borderRadius: '0.5rem', overflow: 'hidden',
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setNewListeRoundCount(v => Math.max(3, v - 3))}
+                  disabled={newListeRoundCount <= 3}
+                  style={{
+                    padding: '0.625rem 0.875rem', background: 'none', border: 'none',
+                    color: newListeRoundCount <= 3 ? 'var(--outline-variant)' : 'var(--on-surface)',
+                    cursor: newListeRoundCount <= 3 ? 'default' : 'pointer',
+                    fontSize: '1.25rem', lineHeight: 1, flexShrink: 0,
+                  }}
+                  aria-label="Rundenzahl verringern"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', display: 'block' }}>keyboard_arrow_down</span>
+                </button>
+                <span style={{
+                  flex: 1, textAlign: 'center', fontFamily: 'inherit',
+                  fontSize: '1rem', fontWeight: 700, color: 'var(--on-surface)',
+                  userSelect: 'none',
+                }}>
+                  {newListeRoundCount}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setNewListeRoundCount(v => Math.min(36, v + 3))}
+                  disabled={newListeRoundCount >= 36}
+                  style={{
+                    padding: '0.625rem 0.875rem', background: 'none', border: 'none',
+                    color: newListeRoundCount >= 36 ? 'var(--outline-variant)' : 'var(--on-surface)',
+                    cursor: newListeRoundCount >= 36 ? 'default' : 'pointer',
+                    fontSize: '1.25rem', lineHeight: 1, flexShrink: 0,
+                  }}
+                  aria-label="Rundenzahl erhöhen"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', display: 'block' }}>keyboard_arrow_up</span>
+                </button>
+              </div>
             </div>
 
             {createError && (
