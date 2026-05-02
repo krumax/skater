@@ -7,6 +7,7 @@ import GameTypePieChart from '../components/analytics/GameTypePieChart';
 import AchievementCompletionCard from '../components/analytics/AchievementCompletionCard';
 import AchievementMatrix from '../components/analytics/AchievementMatrix';
 import DefenseMatrix from '../components/analytics/DefenseMatrix';
+import DefeatMatrix from '../components/analytics/DefeatMatrix';
 import PlayerRankingCard from '../components/analytics/PlayerRankingCard';
 import TrophyShowcase from '../components/analytics/TrophyShowcase';
 import { useTrophyData } from '../hooks/useTrophyData';
@@ -310,9 +311,16 @@ const PlayerAnalytics = () => {
             >
               🛡️ Abwehr
             </button>
+            <button
+              onClick={() => setMatrixTab('niederlagen')}
+              className={`chip ${matrixTab === 'niederlagen' ? 'active' : ''}`}
+              style={{ fontSize: '0.9rem', padding: '0.6rem 1.25rem' }}
+            >
+              💀 Niederlagen
+            </button>
           </div>
 
-          {matrixTab === 'angriff' ? (
+          {matrixTab === 'angriff' && (
             <>
               <div style={{ marginBottom: '1.5rem' }}>
                 <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>⚔️ Angriff</span>
@@ -321,7 +329,8 @@ const PlayerAnalytics = () => {
               </div>
               <AchievementMatrix rounds={rounds} player={selectedPlayer} />
             </>
-          ) : (
+          )}
+          {matrixTab === 'abwehr' && (
             <>
               <div style={{ marginBottom: '1.5rem' }}>
                 <span style={{ color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>🛡️ Abwehr</span>
@@ -329,6 +338,16 @@ const PlayerAnalytics = () => {
                 <p style={{ color: 'var(--on-surface-variant)' }}>Wie oft hat {selectedPlayer} als Gegenspieler einen Alleinspieler gestoppt - aufgeschlüsselt nach Spieltyp und Gewinnstufe.</p>
               </div>
               <DefenseMatrix rounds={rounds} player={selectedPlayer} />
+            </>
+          )}
+          {matrixTab === 'niederlagen' && (
+            <>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>💀 Niederlagen</span>
+                <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Niederlagen</h3>
+                <p style={{ color: 'var(--on-surface-variant)' }}>Wie oft hat {selectedPlayer} als Alleinspieler verloren - aufgeschlüsselt nach Spieltyp und Gewinnstufe.</p>
+              </div>
+              <DefeatMatrix rounds={rounds} player={selectedPlayer} />
             </>
           )}
         </section>
