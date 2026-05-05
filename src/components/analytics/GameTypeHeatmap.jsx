@@ -5,6 +5,8 @@
 import { useMemo } from 'react';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../../lib/skatScoring';
 import { SUIT_COLORS } from '../../lib/tokens';
+import SuitIcon from '../SuitIcon';
+import { useSuitLabel } from '../../hooks/useSuitLabel';
 
 const GAME_TYPES = ['grand', 'club', 'spade', 'heart', 'diamond', 'null'];
 
@@ -40,6 +42,7 @@ function rateToColor(rate) {
 }
 
 export default function GameTypeHeatmap({ rounds, players }) {
+  const getSuitLabel = useSuitLabel();
   const data = useMemo(() => {
     return players.map(player => {
       const row = { player };
@@ -72,14 +75,9 @@ export default function GameTypeHeatmap({ rounds, players }) {
                   backgroundColor: SUIT_COLORS[type],
                   color: type === 'diamond' ? '#1b1c1c' : '#fff',
                 }}>
-                  {type === 'grand' || type === 'null'
-                    ? <span className="material-symbols-outlined" style={{ fontSize: '0.8rem', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {type === 'grand' ? 'stars' : 'block'}
-                      </span>
-                    : SUIT_SYMBOLS[type]
-                  }
+                  <SuitIcon gameType={type} size="sm" />
                 </div>
-                <div style={{ fontSize: '0.6rem', color: 'var(--outline)', marginTop: '0.2rem' }}>{SUIT_LABELS[type]}</div>
+                <div style={{ fontSize: '0.6rem', color: 'var(--outline)', marginTop: '0.2rem' }}>{getSuitLabel(type)}</div>
               </th>
             ))}
           </tr>

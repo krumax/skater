@@ -2,6 +2,15 @@ import React, { useMemo } from 'react';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../../lib/skatScoring';
 import { computeShares } from '../ScoreDistributionChart';
 import { SUIT_COLORS } from '../../lib/tokens';
+import SuitIcon from '../SuitIcon';
+import { useIconset } from '../../context/IconsetContext';
+
+const ALTENBURG_LABELS = {
+  club:    'Eichel',
+  spade:   'Grün',
+  heart:   'Rot',
+  diamond: 'Schellen',
+};
 
 const CX = 110, CY = 110, R = 100, RI = 52;
 
@@ -19,6 +28,12 @@ function donutArcPath(startAngle, endAngle) {
 }
 
 export default function GameTypePieChart({ typeDistribution, rounds, player }) {
+  const { iconset } = useIconset();
+  const getSuitLabel = (type) =>
+    iconset === 'altenburg' && type in ALTENBURG_LABELS
+      ? ALTENBURG_LABELS[type]
+      : (SUIT_LABELS[type] ?? type);
+
   const scores   = Object.fromEntries(typeDistribution.map(({ type, count }) => [type, count]));
   const colorMap = Object.fromEntries(typeDistribution.map(({ type }) => [type, SUIT_COLORS[type] ?? '#999']));
   const slices   = computeShares(scores, colorMap);
@@ -90,13 +105,8 @@ export default function GameTypePieChart({ typeDistribution, rounds, player }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8125rem' }}>
                 <span style={{ width: '10px', height: '10px', borderRadius: '3px', background: s.color, flexShrink: 0 }} />
                 <span style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                  {s.name === 'grand' || s.name === 'null' || s.name === 'passed'
-                    ? <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {s.name === 'grand' ? 'stars' : s.name === 'null' ? 'block' : 'skip_next'}
-                      </span>
-                    : SUIT_SYMBOLS[s.name] && <span>{SUIT_SYMBOLS[s.name]}</span>
-                  }
-                  {SUIT_LABELS[s.name] ?? s.name}
+                  <SuitIcon gameType={s.name} size="sm" />
+                  {getSuitLabel(s.name)}
                 </span>
                 <span style={{ marginLeft: 'auto', fontWeight: 800, fontSize: '0.75rem' }}>{s.share}%</span>
               </div>

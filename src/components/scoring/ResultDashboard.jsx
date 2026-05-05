@@ -5,6 +5,8 @@
 import { Link } from 'react-router-dom';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../../lib/skatScoring';
 import SuitBadge from '../SuitBadge';
+import SuitIcon from '../SuitIcon';
+import { useSuitLabel } from '../../hooks/useSuitLabel';
 
 export function formatScore(gameValue, isBock) {
   const value = isBock ? gameValue * 2 : gameValue;
@@ -13,6 +15,7 @@ export function formatScore(gameValue, isBock) {
 
 // ── Letzte Runde ──────────────────────────────────────────────────────────────
 function LastRoundCard({ round }) {
+  const getSuitLabel = useSuitLabel();
   if (!round) return null;
 
   const modifiers = [
@@ -45,7 +48,7 @@ function LastRoundCard({ round }) {
                   {round.gameType === 'grand' ? 'stars' : round.gameType === 'null' ? 'block' : 'skip_next'}
                 </span>
               : SUIT_SYMBOLS[round.gameType]
-            }{' '}{SUIT_LABELS[round.gameType] ?? round.gameType}
+            }{' '}{getSuitLabel(round.gameType) ?? round.gameType}
             {modifiers.length > 0 && <span style={{ marginLeft: '0.4rem', opacity: 0.75 }}>· {modifiers.join(' · ')}</span>}
           </p>
         </div>

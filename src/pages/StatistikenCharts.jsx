@@ -4,6 +4,7 @@ import { SUIT_LABELS } from '../lib/skatScoring';
 import SuitIcon from '../components/SuitIcon';
 import { PLAYER_COLORS } from '../lib/tokens';
 import { computeAchievementUnlocks } from '../lib/playerStats';
+import { useSuitLabel } from '../hooks/useSuitLabel';
 import GameTypePieChart      from '../components/analytics/GameTypePieChart';
 import GameValueHistogram    from '../components/analytics/GameValueHistogram';
 import GameTypeHeatmap       from '../components/analytics/GameTypeHeatmap';
@@ -87,6 +88,7 @@ const StatistikenCharts = () => {
   const players = allPlayers.filter(p => p !== '-');
   const [xMode, setXMode] = useState('rounds'); // 'rounds' | 'time'
   const [timeGranularity, setTimeGranularity] = useState('week'); // 'day' | 'week' | 'month'
+  const getSuitLabel = useSuitLabel();
 
   /* ── Achievement-Unlocks (muss vor trendByRound stehen) ── */
   const achievementUnlocks = React.useMemo(() =>
@@ -307,7 +309,7 @@ const StatistikenCharts = () => {
               <p className="stat-value" style={{ color: '#1b1c1c', fontSize: '1.75rem', lineHeight: 1 }}>
                 +{kpis.best.value}
                 <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
-                  <SuitIcon gameType={kpis.best.type} size="md" />{' '}{SUIT_LABELS[kpis.best.type]}
+                  <SuitIcon gameType={kpis.best.type} size="md" />{' '}{getSuitLabel(kpis.best.type)}
                 </span>
               </p>
             </div>
@@ -340,7 +342,7 @@ const StatistikenCharts = () => {
               <p className="stat-value" style={{ color: 'var(--on-secondary)', fontSize: '1.75rem', lineHeight: 1 }}>
                 {kpis.worst.value}
                 <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
-                  <SuitIcon gameType={kpis.worst.type} size="md" />{' '}{SUIT_LABELS[kpis.worst.type]}
+                  <SuitIcon gameType={kpis.worst.type} size="md" />{' '}{getSuitLabel(kpis.worst.type)}
                 </span>
               </p>
             </div>

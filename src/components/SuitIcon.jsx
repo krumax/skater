@@ -27,7 +27,7 @@ const SIZE_MAP = {
   xl: '1.75rem',
 };
 
-export default function SuitIcon({ gameType, size = 'md', className, forceIconset }) {
+export default function SuitIcon({ gameType, size = 'md', className, forceIconset, color }) {
   const { iconset: contextIconset } = useIconset();
   const iconset = forceIconset ?? contextIconset;
   const [imgError, setImgError] = useState(false);
@@ -38,7 +38,7 @@ export default function SuitIcon({ gameType, size = 'md', className, forceIconse
     return (
       <span
         className={`material-symbols-outlined ${className || ''}`}
-        style={{ fontSize, lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+        style={{ fontSize, lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', ...(color ? { color } : {}) }}
       >
         {SUIT_MAT_ICONS[gameType]}
       </span>
@@ -62,7 +62,7 @@ export default function SuitIcon({ gameType, size = 'md', className, forceIconse
   return (
     <span
       className={className}
-      style={{ fontSize, lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+      style={{ fontSize, lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', ...(color ? { color } : {}) }}
     >
       {SUIT_SYMBOLS[gameType] || '?'}
     </span>

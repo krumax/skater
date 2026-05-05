@@ -8,6 +8,7 @@ import SuitBadge from '../components/SuitBadge';
 import { computeRunningTotals } from '../lib/playerStats';
 import { PLAYER_COLORS } from '../lib/tokens';
 import { computeListStats, computeListProgress } from '../lib/spiellistenUtils';
+import { useSuitLabel } from '../hooks/useSuitLabel';
 
 const SkatScoreList = () => {
   const navigate = useNavigate();
@@ -582,7 +583,8 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => {
 
 // ── Mobile action bottom sheet ───────────────────────────────────────────────
 function RoundActionSheet({ r, onEdit, onDelete, onClose }) {
-  const label = SUIT_LABELS[r.gameType] ?? r.gameType;
+  const getSuitLabel = useSuitLabel();
+  const label = getSuitLabel(r.gameType) ?? r.gameType;
   const scoreColor = r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)';
 
   return ReactDOM.createPortal(

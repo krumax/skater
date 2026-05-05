@@ -1,4 +1,6 @@
 import React from 'react';
+import SuitIcon from '../SuitIcon';
+import { useSuitLabel } from '../../hooks/useSuitLabel';
 
 /**
  * Wiederverwendbare Zelle für Achievement- und Defense-Matrix.
@@ -68,6 +70,7 @@ export function ColHeader({ col }) {
 
 /** Zeilen-Label-Zelle für Farb-/Trumpf-Spieltypen */
 export function RowLabel({ row }) {
+  const getSuitLabel = useSuitLabel();
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
       <div style={{
@@ -77,11 +80,11 @@ export function RowLabel({ row }) {
       }}>
         {row.matIcon
           ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: row.textColor }}>{row.matIcon}</span>
-          : <span style={{ fontSize: '1rem', fontWeight: 700, color: row.textColor }}>{row.suit}</span>
+          : <SuitIcon gameType={row.type} size="md" />
         }
       </div>
       <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem', whiteSpace: 'normal', wordBreak: 'break-word' }}>
-        {row.name}
+        {row.matIcon ? row.name : getSuitLabel(row.type)}
       </div>
     </div>
   );

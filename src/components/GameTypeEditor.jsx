@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { SUIT_LABELS, calculateGameValue } from '../lib/skatScoring';
 import { useGame } from '../context/GameContext';
 import { SUIT_COLORS, SUIT_TEXT_COLORS } from '../lib/tokens';
+import { useSuitLabel } from '../hooks/useSuitLabel';
 
 // ─── Spieltyp-Konstanten ───
 
@@ -48,6 +49,7 @@ export function buildTypeLabel(gameType, { hand = false, ouvert = false } = {}) 
 export default function GameTypeEditor({ round, onClose, onSaved }) {
   const { updateRound, players: allPlayers } = useGame();
   const players = allPlayers.filter(p => p !== '-');
+  const getSuitLabel = useSuitLabel();
 
   // Interner State – vorbelegt mit den aktuellen Werten der Runde
   const [player, setPlayer]         = useState(round?.player ?? players[0] ?? '');
@@ -215,14 +217,15 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
         <label style={labelStyle}>Spieltyp</label>
         <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '0.375rem', marginBottom: '0.75rem' }}>
           {[
-            { key: 'club',    icon: '♣', label: 'Kreuz',  color: null },
-            { key: 'spade',   icon: '♠', label: 'Pik',    color: null },
-            { key: 'heart',   icon: '♥', label: 'Herz',   color: '#e53935' },
-            { key: 'diamond', icon: '♦', label: 'Karo',   color: '#e53935' },
-            { key: 'grand',   icon: null, label: 'Grand',  matIcon: 'stars' },
-            { key: 'null',    icon: null, label: 'Null',   matIcon: 'block' },
-          ].map(({ key, icon, label, matIcon }) => {
+            { key: 'club',    icon: '♣', color: null },
+            { key: 'spade',   icon: '♠', color: null },
+            { key: 'heart',   icon: '♥', color: '#e53935' },
+            { key: 'diamond', icon: '♦', color: '#e53935' },
+            { key: 'grand',   icon: null, matIcon: 'stars' },
+            { key: 'null',    icon: null, matIcon: 'block' },
+          ].map(({ key, icon, matIcon }) => {
             const isActive = gameType === key;
+            const label = getSuitLabel(key);
             return (
               <button
                 key={key}

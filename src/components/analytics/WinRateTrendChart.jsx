@@ -7,25 +7,30 @@ import { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../../lib/skatScoring';
 import { SUIT_COLORS } from '../../lib/tokens';
+import { useSuitLabel } from '../../hooks/useSuitLabel';
 
 const GAME_TYPES = ['grand', 'club', 'spade', 'heart', 'diamond', 'null'];
 const WINDOW = 10;
 
-const TooltipContent = ({ active, payload, label }) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div style={{ background: 'var(--surface)', padding: '0.6rem 0.9rem', borderRadius: '0.5rem', boxShadow: '0 8px 24px var(--shadow-color)', fontSize: '0.8rem' }}>
-      <p style={{ fontWeight: 700, marginBottom: '0.25rem' }}>{label}</p>
-      {payload.map((p, i) => p.value !== null && (
-        <p key={i} style={{ color: p.color }}>
-          {SUIT_SYMBOLS[p.dataKey]} {SUIT_LABELS[p.dataKey]}: <strong>{p.value}%</strong>
-        </p>
-      ))}
-    </div>
-  );
-};
+function makeTooltipContent(getSuitLabel) {
+  return function TooltipContent({ active, payload, label }) {
+    if (!active || !payload?.length) return null;
+    return (
+      <div style={{ background: 'var(--surface)', padding: '0.6rem 0.9rem', borderRadius: '0.5rem', boxShadow: '0 8px 24px var(--shadow-color)', fontSize: '0.8rem' }}>
+        <p style={{ fontWeight: 700, marginBottom: '0.25rem' }}>{label}</p>
+        {payload.map((p, i) => p.value !== null && (
+          <p key={i} style={{ color: p.color }}>
+            {SUIT_SYMBOLS[p.dataKey]} {getSuitLabel(p.dataKey)}: <strong>{p.value}%</strong>
+          </p>
+        ))}
+      </div>
+    );
+  };
+}
 
 export default function WinRateTrendChart({ rounds }) {
+  const getSuitLabel = useSuitLabel();
+  const TooltipContent = makeTooltipContent(getSuitLabel);
   const { data, activeTypes } = useMemo(() => {
     // Für jeden Spieltyp: nach jeder Runde gleitende Gewinnquote berechnen
     const typeRounds = {};
@@ -72,7 +77,7 @@ export default function WinRateTrendChart({ rounds }) {
         <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: 'var(--outline)' }} unit="%" />
         <Tooltip content={<TooltipContent />} />
         <Legend
-          formatter={(value) => `${SUIT_SYMBOLS[value] ?? ''} ${SUIT_LABELS[value] ?? value}`}
+          formatter={(value) => `${SUIT_SYMBOLS[value] ?? ''} ${getSuitLabel(value) ?? value}`}
           wrapperStyle={{ fontSize: '0.75rem' }}
         />
         {activeTypes.map(type => (

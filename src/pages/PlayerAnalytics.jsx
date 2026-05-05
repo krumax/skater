@@ -11,6 +11,7 @@ import PlayerRankingCard from '../components/analytics/PlayerRankingCard';
 import TrophyShowcase from '../components/analytics/TrophyShowcase';
 import { useTrophyData } from '../hooks/useTrophyData';
 import SuitIcon from '../components/SuitIcon';
+import { useSuitLabel } from '../hooks/useSuitLabel';
 
 // ── Stat-Kachel ───────────────────────────────────────────────────────────────
 function StatCard({ label, value, color, tooltip }) {
@@ -27,6 +28,7 @@ function StatCard({ label, value, color, tooltip }) {
 
 // ── Streak-Kachel mit Spieltyp-Icons ─────────────────────────────────────────
 function StreakCard({ label, streakRounds, color }) {
+  const getSuitLabel = useSuitLabel();
   const totalPoints = streakRounds.reduce((s, r) => s + r.gameValue, 0);
   const lastRound   = streakRounds.length > 0 ? streakRounds[streakRounds.length - 1] : null;
   const endDate     = lastRound?.timestamp
@@ -54,7 +56,7 @@ function StreakCard({ label, streakRounds, color }) {
       {streakRounds.length > 0 && (
         <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.5rem' }}>
           {streakRounds.map((r, i) => (
-            <span key={i} title={SUIT_LABELS[r.gameType] ?? r.gameType} style={{
+            <span key={i} title={getSuitLabel(r.gameType) ?? r.gameType} style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               width: '1.5rem', height: '1.5rem', borderRadius: '0.3rem',
             }}>
@@ -69,6 +71,7 @@ function StreakCard({ label, streakRounds, color }) {
 
 // ── Highlight-Kachel (Sieg / Niederlage) ─────────────────────────────────────
 function HighlightCard({ icon, gradient, textColor, title, round }) {
+  const getSuitLabel = useSuitLabel();
   const fmtDate = (ts) => ts
     ? new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
     : null;
@@ -84,7 +87,7 @@ function HighlightCard({ icon, gradient, textColor, title, round }) {
           <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: textColor, lineHeight: 1 }}>
             {round.gameValue > 0 ? '+' : ''}{round.gameValue}
             <span style={{ fontSize: '0.9rem', fontWeight: 600, marginLeft: '0.6rem', opacity: 0.8 }}>
-              <SuitIcon gameType={round.gameType} size="md" />{' '}{SUIT_LABELS[round.gameType]}
+              <SuitIcon gameType={round.gameType} size="md" />{' '}{getSuitLabel(round.gameType)}
             </span>
           </p>
         ) : (

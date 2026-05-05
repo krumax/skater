@@ -5,6 +5,7 @@
 import { useMemo } from 'react';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../../lib/skatScoring';
 import { SUIT_COLORS } from '../../lib/tokens';
+import { useSuitLabel } from '../../hooks/useSuitLabel';
 
 const GAME_TYPES = ['grand', 'club', 'spade', 'heart', 'diamond', 'null'];
 
@@ -31,6 +32,7 @@ function computeBoxStats(values) {
 }
 
 export default function GameValueBoxplot({ rounds }) {
+  const getSuitLabel = useSuitLabel();
   const stats = useMemo(() => {
     return GAME_TYPES.map(type => {
       const values = rounds
@@ -113,7 +115,7 @@ export default function GameValueBoxplot({ rounds }) {
         {stats.map(d => (
           <span key={d.type} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.7rem', color: 'var(--outline)' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: SUIT_COLORS[d.type], display: 'inline-block' }} />
-            {SUIT_LABELS[d.type]} Ø{Math.round(d.stats.med)}
+            {getSuitLabel(d.type)} Ø{Math.round(d.stats.med)}
           </span>
         ))}
       </div>

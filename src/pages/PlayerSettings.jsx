@@ -602,7 +602,7 @@ export default function PlayerSettings() {
                     <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                       {option.suits.map(suit => (
                         <div key={suit.type} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                          <SuitIcon gameType={suit.type} size="xl" forceIconset={option.key} />
+                          <SuitIcon gameType={suit.type} size="xl" forceIconset={option.key} color={isActive ? '#fff' : undefined} />
                           <span style={{ fontSize: '0.875rem', color: isActive ? 'rgba(255,255,255,0.85)' : 'var(--on-surface-variant)' }}>
                             {suit.label}
                           </span>
