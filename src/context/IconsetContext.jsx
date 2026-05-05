@@ -5,7 +5,7 @@ const IconsetContext = createContext(null);
 export function IconsetProvider({ children }) {
   const [iconset, setIconsetState] = useState(() => {
     try {
-      return localStorage.getItem('skatIconset') || 'french';
+      return localStorage.getItem('skatIconset') || 'altenburg';
     } catch {
       return 'french';
     }
