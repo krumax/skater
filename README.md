@@ -15,6 +15,7 @@ Alle Spieltypen (Kreuz, Pik, Herz, Karo, Grand, Null, Eingepasst) werden vollst�
 - Runden nachträglich bearbeiten oder löschen
 - Mehrere Sessions verwalten und wechseln
 - **Spiellisten**: Definierte Rundenblöcke (3–36 Runden) mit Fortschrittsanzeige, Sieger-Ermittlung und Abschluss-Funktion
+- **Kartensymbole**: Wahl zwischen Französischem Blatt (♣ ♠ ♥ ♦) und Altenburger Blatt (Eichel, Grün, Rot, Schellen) – Einstellung wird persistent gespeichert und gilt app-weit
 
 ### 📊 Statistiken
 - **Tischstatistik:** Punkteentwicklung über Zeit, Spieltypen-Verteilung, Gewinnrate-Heatmap, Führungswechsel, längste Serien

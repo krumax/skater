@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
+import { useIconset } from '../context/IconsetContext';
+import SuitIcon from '../components/SuitIcon';
 import * as syncService from '../lib/syncService';
 import { supabase } from '../lib/supabaseClient';
 // ── Role helpers ─────────────────────────────────────────────────────────────
@@ -337,6 +339,31 @@ export default function PlayerSettings() {
 
   const n = players.length;
 
+  const { iconset, setIconset } = useIconset();
+
+  const ICONSET_OPTIONS = [
+    {
+      key: 'french',
+      label: 'Französisches Blatt',
+      suits: [
+        { type: 'club', label: 'Kreuz' },
+        { type: 'spade', label: 'Pik' },
+        { type: 'heart', label: 'Herz' },
+        { type: 'diamond', label: 'Karo' },
+      ],
+    },
+    {
+      key: 'altenburg',
+      label: 'Altenburger Blatt',
+      suits: [
+        { type: 'club', label: 'Eichel' },
+        { type: 'spade', label: 'Grün' },
+        { type: 'heart', label: 'Rot' },
+        { type: 'diamond', label: 'Schellen' },
+      ],
+    },
+  ];
+
   return (
     <div>
       <header className="page-header settings-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -539,6 +566,53 @@ export default function PlayerSettings() {
             <p style={{ marginTop: '0.875rem', fontSize: '0.8125rem', color: 'var(--outline)' }}>
               {n <= 3 ? 'Mindestens 3 Spieler erforderlich.' : 'Maximal 4 Spieler erlaubt.'}
             </p>
+          </section>
+
+          {/* Iconset selector */}
+          <section className="form-section" style={{ marginTop: '2rem' }}>
+            <label className="section-label">Kartensymbole</label>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--outline)', marginBottom: '1rem' }}>
+              Wähle zwischen dem Französischen Blatt (♣ ♠ ♥ ♦) und dem Altenburger Blatt (Eichel, Grün, Rot, Schellen).
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {ICONSET_OPTIONS.map(option => {
+                const isActive = iconset === option.key;
+                return (
+                  <button
+                    key={option.key}
+                    onClick={() => setIconset(option.key)}
+                    style={{
+                      display: 'flex', flexDirection: 'column', gap: '0.75rem',
+                      padding: '1rem 1.25rem', borderRadius: '0.75rem',
+                      border: `2px solid ${isActive ? 'var(--primary)' : 'var(--outline-variant)'}`,
+                      backgroundColor: isActive ? 'var(--primary)' : 'var(--surface-low)',
+                      cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontWeight: 700, fontSize: '1rem', color: isActive ? '#fff' : 'var(--on-surface)' }}>
+                        {option.label}
+                      </span>
+                      {isActive && (
+                        <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.25rem' }}>
+                          check_circle
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                      {option.suits.map(suit => (
+                        <div key={suit.type} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          <SuitIcon gameType={suit.type} size="xl" forceIconset={option.key} />
+                          <span style={{ fontSize: '0.875rem', color: isActive ? 'rgba(255,255,255,0.85)' : 'var(--on-surface-variant)' }}>
+                            {suit.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </section>
         </div>
 

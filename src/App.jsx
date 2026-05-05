@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { GameProvider, useGame } from './context/GameContext';
+import { IconsetProvider } from './context/IconsetContext';
 import Sidebar from './components/Sidebar';
 import AuthGate from './components/AuthGate';
 import AchievementWatcher from './components/AchievementWatcher';
@@ -45,15 +46,17 @@ function AppShell() {
 
 function App() {
   return (
-    <AuthGate>
-      <GameProvider>
-        <BrowserRouter basename="/app">
-          <AppShell />
-          <AchievementWatcher />
-          <UpdatePrompt />
-        </BrowserRouter>
-      </GameProvider>
-    </AuthGate>
+    <IconsetProvider>
+      <AuthGate>
+        <GameProvider>
+          <BrowserRouter basename="/app">
+            <AppShell />
+            <AchievementWatcher />
+            <UpdatePrompt />
+          </BrowserRouter>
+        </GameProvider>
+      </AuthGate>
+    </IconsetProvider>
   );
 }
 

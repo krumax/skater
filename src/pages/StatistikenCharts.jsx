@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
-import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
+import { SUIT_LABELS } from '../lib/skatScoring';
+import SuitIcon from '../components/SuitIcon';
 import { PLAYER_COLORS } from '../lib/tokens';
 import { computeAchievementUnlocks } from '../lib/playerStats';
 import GameTypePieChart      from '../components/analytics/GameTypePieChart';
@@ -306,12 +307,7 @@ const StatistikenCharts = () => {
               <p className="stat-value" style={{ color: '#1b1c1c', fontSize: '1.75rem', lineHeight: 1 }}>
                 +{kpis.best.value}
                 <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
-                  {['grand', 'null', 'passed'].includes(kpis.best.type)
-                    ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', lineHeight: 1, verticalAlign: 'middle' }}>
-                        {kpis.best.type === 'grand' ? 'stars' : kpis.best.type === 'null' ? 'block' : 'skip_next'}
-                      </span>
-                    : SUIT_SYMBOLS[kpis.best.type]
-                  }{' '}{SUIT_LABELS[kpis.best.type]}
+                  <SuitIcon gameType={kpis.best.type} size="md" />{' '}{SUIT_LABELS[kpis.best.type]}
                 </span>
               </p>
             </div>
@@ -344,12 +340,7 @@ const StatistikenCharts = () => {
               <p className="stat-value" style={{ color: 'var(--on-secondary)', fontSize: '1.75rem', lineHeight: 1 }}>
                 {kpis.worst.value}
                 <span style={{ fontSize: '1rem', fontWeight: 600, marginLeft: '0.75rem', opacity: 0.8 }}>
-                  {['grand', 'null', 'passed'].includes(kpis.worst.type)
-                    ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', lineHeight: 1, verticalAlign: 'middle' }}>
-                        {kpis.worst.type === 'grand' ? 'stars' : kpis.worst.type === 'null' ? 'block' : 'skip_next'}
-                      </span>
-                    : SUIT_SYMBOLS[kpis.worst.type]
-                  }{' '}{SUIT_LABELS[kpis.worst.type]}
+                  <SuitIcon gameType={kpis.worst.type} size="md" />{' '}{SUIT_LABELS[kpis.worst.type]}
                 </span>
               </p>
             </div>

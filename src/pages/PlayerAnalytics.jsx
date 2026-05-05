@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { useSearchParams } from 'react-router-dom';
-import { SUIT_LABELS, SUIT_SYMBOLS } from '../lib/skatScoring';
-import { SUIT_COLORS, SUIT_TEXT_COLORS } from '../lib/tokens';
+import { SUIT_LABELS } from '../lib/skatScoring';
 import GameTypePieChart from '../components/analytics/GameTypePieChart';
 import AchievementCompletionCard from '../components/analytics/AchievementCompletionCard';
 import AchievementMatrix from '../components/analytics/AchievementMatrix';
@@ -11,6 +10,7 @@ import DefeatMatrix from '../components/analytics/DefeatMatrix';
 import PlayerRankingCard from '../components/analytics/PlayerRankingCard';
 import TrophyShowcase from '../components/analytics/TrophyShowcase';
 import { useTrophyData } from '../hooks/useTrophyData';
+import SuitIcon from '../components/SuitIcon';
 
 // ── Stat-Kachel ───────────────────────────────────────────────────────────────
 function StatCard({ label, value, color, tooltip }) {
@@ -53,25 +53,14 @@ function StreakCard({ label, streakRounds, color }) {
       <p className="stat-value" style={{ color }}>{streakRounds.length}x</p>
       {streakRounds.length > 0 && (
         <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-          {streakRounds.map((r, i) => {
-            const bg   = SUIT_COLORS[r.gameType]  ?? '#999';
-            const fg   = SUIT_TEXT_COLORS[r.gameType] ?? '#fff';
-            const matIcon = r.gameType === 'grand' ? 'stars' : r.gameType === 'null' ? 'block' : r.gameType === 'passed' ? 'skip_next' : null;
-            const sym  = matIcon ? null : (SUIT_SYMBOLS[r.gameType] ?? '?');
-            return (
-              <span key={i} title={SUIT_LABELS[r.gameType] ?? r.gameType} style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                width: '1.5rem', height: '1.5rem', borderRadius: '0.3rem',
-                backgroundColor: bg, color: fg,
-                fontSize: '0.8rem', fontWeight: 700, lineHeight: 1,
-              }}>
-                {matIcon
-                  ? <span className="material-symbols-outlined" style={{ fontSize: '0.8rem', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: fg }}>{matIcon}</span>
-                  : sym
-                }
-              </span>
-            );
-          })}
+          {streakRounds.map((r, i) => (
+            <span key={i} title={SUIT_LABELS[r.gameType] ?? r.gameType} style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              width: '1.5rem', height: '1.5rem', borderRadius: '0.3rem',
+            }}>
+              <SuitIcon gameType={r.gameType} size="sm" />
+            </span>
+          ))}
         </div>
       )}
     </div>
@@ -95,12 +84,7 @@ function HighlightCard({ icon, gradient, textColor, title, round }) {
           <p style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: textColor, lineHeight: 1 }}>
             {round.gameValue > 0 ? '+' : ''}{round.gameValue}
             <span style={{ fontSize: '0.9rem', fontWeight: 600, marginLeft: '0.6rem', opacity: 0.8 }}>
-              {['grand', 'null', 'passed'].includes(round.gameType)
-                ? <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', lineHeight: 1, verticalAlign: 'middle' }}>
-                    {round.gameType === 'grand' ? 'stars' : round.gameType === 'null' ? 'block' : 'skip_next'}
-                  </span>
-                : SUIT_SYMBOLS[round.gameType]
-              }{' '}{SUIT_LABELS[round.gameType]}
+              <SuitIcon gameType={round.gameType} size="md" />{' '}{SUIT_LABELS[round.gameType]}
             </span>
           </p>
         ) : (

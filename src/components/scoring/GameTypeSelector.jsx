@@ -1,6 +1,7 @@
 /**
  * GameTypeSelector - Spielart-Grid (Kreuz/Pik/Herz/Karo/Grand/Null/Passen).
  */
+import SuitIcon from '../SuitIcon';
 
 const SUIT_OPTIONS = [
   { key: 'club',    icon: '♣',  label: 'Kreuz',  color: '#1b1c1c' },
@@ -29,10 +30,7 @@ export default function GameTypeSelector({ gameType, onSelect }) {
                 className="game-type-card"
                 style={isActive ? { backgroundColor: suit.color, color: '#fff', boxShadow: `0 8px 24px ${suit.color}66` } : {}}
               >
-                {suit.icon
-                  ? <span className="game-suit-icon">{suit.icon}</span>
-                  : <span className="material-symbols-outlined game-suit-icon" style={{ fontSize: '1.75rem' }}>{suit.matIcon}</span>
-                }
+                <SuitIcon gameType={suit.key} size="lg" className="game-suit-icon" />
                 <span className="game-type-label">{suit.label}</span>
               </button>
             );
