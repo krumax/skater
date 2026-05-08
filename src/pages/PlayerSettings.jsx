@@ -6,7 +6,7 @@ import SuitIcon from '../components/SuitIcon';
 import * as syncService from '../lib/syncService';
 import { supabase } from '../lib/supabaseClient';
 // ── Role helpers ─────────────────────────────────────────────────────────────
-const ROLE_LABELS  = ['Geben', 'Hören', 'Sagen', 'Aussetzt'];
+const ROLE_LABELS  = ['Geben', 'Hören', 'Sagen', 'Aussetzen'];
 const ROLE_ICONS   = ['style', 'hearing', 'record_voice_over', 'pause_circle'];
 const ROLE_COLORS  = ['var(--primary)', 'var(--tertiary)', '#e67e22', 'var(--outline)'];
 
