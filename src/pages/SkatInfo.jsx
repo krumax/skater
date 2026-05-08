@@ -67,6 +67,69 @@ export default function SkatInfo() {
         <p className="page-subtitle">Nachschlagewerk - Reiztabelle und Spielwerte auf einen Blick.</p>
       </header>
 
+      {/* ── So funktioniert Skatastrophe ── */}
+      <section style={{ marginBottom: '3rem' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Erste Schritte</span>
+          <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>So funktioniert Skatastrophe</h3>
+        </div>
+        <div style={{ backgroundColor: 'var(--surface)', borderRadius: '0.75rem', padding: '1.5rem 1.75rem', border: '1px solid rgba(192,200,195,0.3)', lineHeight: 1.75, color: 'var(--on-surface-variant)', fontSize: '0.9375rem' }}>
+          <p style={{ marginBottom: '1rem' }}>
+            Skatastrophe ersetzt den Zettel am Tisch. Ihr spielt Skat ganz normal offline – die App nimmt euch nur das lästige Rechnen und Aufschreiben ab.
+          </p>
+
+          {/* Schritt 1 */}
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', alignItems: 'flex-start' }}>
+            <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: 'color-mix(in srgb, var(--primary) 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '0.1rem' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--primary)' }}>1</span>
+            </div>
+            <div>
+              <p style={{ fontWeight: 700, color: 'var(--on-surface)', marginBottom: '0.25rem' }}>Tisch einrichten</p>
+              <p style={{ margin: 0 }}>
+                Unter <strong style={{ color: 'var(--on-surface)' }}>Einstellungen</strong> legst du den Tisch an: Namen der 3 oder 4 Spieler eingeben, den ersten <em>Geber</em> bestimmen und die Sitzreihenfolge festlegen. Die Reihenfolge entscheidet, wer nach wem gibt – und damit, wer in welcher Runde <em>Hören</em> und <em>Sagen</em> übernimmt.
+              </p>
+            </div>
+          </div>
+
+          {/* Schritt 2 */}
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', alignItems: 'flex-start' }}>
+            <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: 'color-mix(in srgb, var(--tertiary) 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '0.1rem' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--tertiary)' }}>2</span>
+            </div>
+            <div>
+              <p style={{ fontWeight: 700, color: 'var(--on-surface)', marginBottom: '0.25rem' }}>Spielwerte nach jeder Runde eintragen</p>
+              <p style={{ margin: 0 }}>
+                Nach jedem gespielten Einzelspiel trägst du das Ergebnis ein in <strong style={{ color: 'var(--on-surface)' }}>Aktuelle Runde</strong> ein:
+              </p>
+              <ol style={{ paddingLeft: '1.25rem', marginTop: '0.5rem', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                <li>Den <strong style={{ color: 'var(--on-surface)' }}>Alleinspieler</strong> auswählen (wer hat das Spiel angesagt?).</li>
+                <li><strong style={{ color: 'var(--on-surface)' }}>Spielart</strong> wählen – Farbe (Kreuz/Pik/Herz/Karo), Grand oder Null.</li>
+                <li><strong style={{ color: 'var(--on-surface)' }}>Modifikatoren</strong> setzen – Hand, Schneider, Schwarz, Ouvert falls gespielt.</li>
+                <li><strong style={{ color: 'var(--on-surface)' }}>Spitzen</strong> eingeben (mit oder ohne, Anzahl) – der Reizwert wird automatisch berechnet.</li>
+                <li><strong style={{ color: 'var(--on-surface)' }}>Augenzahl</strong> des Alleinspielers eintragen – daraus ergibt sich Gewinn oder Verlust.</li>
+                <li>Auf <strong style={{ color: 'var(--on-surface)' }}>Runde speichern</strong> tippen – Punkte werden sofort verbucht, der Geber rückt automatisch weiter.</li>
+              </ol>
+              <p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+                Wurde <strong style={{ color: 'var(--on-surface)' }}>eingepasst</strong> (niemand hat gereizt)? Spielart <em>Eingepasst</em> wählen und speichern – keine Punkte, Geber wechselt trotzdem.
+              </p>
+            </div>
+          </div>
+
+          {/* Schritt 3 */}
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+            <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: 'color-mix(in srgb, #52B788 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '0.1rem' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#52B788' }}>3</span>
+            </div>
+            <div>
+              <p style={{ fontWeight: 700, color: 'var(--on-surface)', marginBottom: '0.25rem' }}>Statistiken & Achievements</p>
+              <p style={{ margin: 0 }}>
+                Alle Spielwerte werden automatisch nach dem <strong style={{ color: 'var(--on-surface)' }}>Seeger-Fabian-System</strong> berechnet und in der Skat-Liste sowie den Statistiken angezeigt. Achievements schalten sich durch besondere Leistungen frei – wer zuerst alle sammelt, gewinnt den Stammtisch-Ruhm.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Was ist Skat? ── */}
       <section style={{ marginBottom: '3rem' }}>
         <div style={{ marginBottom: '1.5rem' }}>

@@ -97,17 +97,38 @@ const GameScoringEntry = () => {
               Lege zuerst einen Tisch mit 3–4 Spielern an. Danach kannst du hier Runden erfassen und Punkte tracken.
             </p>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', maxWidth: '280px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', maxWidth: '320px' }}>
             {[
-              { step: '1', label: 'Tisch & Spieler anlegen', icon: 'group_add', color: 'var(--primary)' },
-              { step: '2', label: 'Runden hier erfassen', icon: 'edit_note', color: 'var(--tertiary)' },
-              { step: '3', label: 'Statistiken & Achievements', icon: 'bar_chart', color: '#52B788' },
-            ].map(({ step, label, icon, color }) => (
-              <div key={step} style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.75rem 1rem', backgroundColor: 'var(--surface)', borderRadius: '0.75rem', textAlign: 'left' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {
+                step: '1',
+                label: 'Tisch & Spieler anlegen',
+                desc: 'Namen eingeben, Geber festlegen und Sitzreihenfolge bestimmen.',
+                icon: 'group_add',
+                color: 'var(--primary)',
+              },
+              {
+                step: '2',
+                label: 'Spielwerte nach jeder Runde eintragen',
+                desc: 'Ihr spielt offline Karten – nach jedem Spiel trägst du Spielart, Spitzen und Ergebnis ein. So wie früher mit Stift und Zettel.',
+                icon: 'edit_note',
+                color: 'var(--tertiary)',
+              },
+              {
+                step: '3',
+                label: 'Statistiken & Achievements',
+                desc: 'Punkte, Siegquoten und Errungenschaften werden automatisch berechnet.',
+                icon: 'bar_chart',
+                color: '#52B788',
+              },
+            ].map(({ step, label, desc, icon, color }) => (
+              <div key={step} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem', padding: '0.875rem 1rem', backgroundColor: 'var(--surface)', borderRadius: '0.75rem', textAlign: 'left' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '0.1rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color }}>{icon}</span>
                 </div>
-                <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{label}</span>
+                <div>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 700, display: 'block', marginBottom: '0.2rem' }}>{label}</span>
+                  <span style={{ fontSize: '0.775rem', color: 'var(--outline)', lineHeight: 1.5 }}>{desc}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -126,6 +147,41 @@ const GameScoringEntry = () => {
         <h1 className="page-title">Aktuelle Runde</h1>
         <p className="page-subtitle">Runde {currentRound} - Ergebnis dieser Runde erfassen.</p>
       </header>
+
+      {/* Ablauf-Erklärung */}
+      <details style={{ marginBottom: '1.25rem' }}>
+        <summary style={{
+          cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700,
+          textTransform: 'uppercase', letterSpacing: '0.1em',
+          color: 'var(--outline)', userSelect: 'none',
+          display: 'flex', alignItems: 'center', gap: '0.35rem', listStyle: 'none',
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>help_outline</span>
+          Wie funktioniert die Eingabe?
+        </summary>
+        <div style={{
+          marginTop: '0.75rem', padding: '1rem 1.25rem',
+          backgroundColor: 'var(--surface-low)', borderRadius: '0.75rem',
+          border: '1px solid var(--outline-variant)',
+          fontSize: '0.8375rem', color: 'var(--on-surface-variant)', lineHeight: 1.65,
+        }}>
+          <p style={{ marginBottom: '0.75rem' }}>
+            Ihr spielt Skat ganz normal am Tisch – die App übernimmt das, was früher Stift und Zettel erledigt haben.
+            Nach jedem gespielten Einzelspiel trägst du das Ergebnis hier ein:
+          </p>
+          <ol style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <li><strong>Alleinspieler wählen</strong> – wer hat das Spiel angesagt und gespielt?</li>
+            <li><strong>Spielart wählen</strong> – Farbe (Kreuz/Pik/Herz/Karo), Grand oder Null.</li>
+            <li><strong>Modifikatoren setzen</strong> – Hand, Schneider, Schwarz, Ouvert falls zutreffend.</li>
+            <li><strong>Spitzen & Reizwert</strong> – Anzahl der Spitzen (mit/ohne) eingeben; der Spielwert wird automatisch berechnet.</li>
+            <li><strong>Augenzahl eintragen</strong> – wie viele Augen hat der Alleinspieler gesammelt? Daraus ergibt sich Gewinn oder Verlust.</li>
+            <li><strong>Runde speichern</strong> – Punkte werden sofort verbucht und der Geber rückt weiter.</li>
+          </ol>
+          <p style={{ marginTop: '0.75rem', marginBottom: 0 }}>
+            Wurde eingepasst (niemand hat gereizt)? Dann einfach <em>Eingepasst</em> als Spielart wählen und speichern – keine Punkte, Geber wechselt trotzdem.
+          </p>
+        </div>
+      </details>
 
       {/* Spiellisten UI */}
       {(activeSpiellisten.length > 0 || activeSpiellisteId !== null) && (
