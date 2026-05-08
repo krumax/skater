@@ -197,7 +197,7 @@ const SkatScoreList = () => {
                 <th style={{ ...thStyle, textAlign: 'right', width: '3.5rem' }}>Pkt.</th>
                 <th className="score-col-divider" style={thDivider}></th>
                 {players.map(p => (
-                  <th key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...thStyle, textAlign: 'center', width: `${scoreColWidth}rem`, overflow: 'hidden' }}>
+                  <th key={`std-${p}`} className="score-col-std" style={{ ...thStyle, textAlign: 'center', width: `${scoreColWidth}rem`, overflow: 'hidden' }}>
                     <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--outline)' }}>STD</span>
                     <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p}>
                       {p.length > 8 ? p.slice(0, 8) + '…' : p}

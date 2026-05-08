@@ -845,16 +845,28 @@ button {
     display: none !important;
   }
 
-  /* STD-Scores auf Mobile sichtbar lassen (überschreibt score-col-std hide) */
-  .score-col-std-mobile {
+  /* Auf Mobile: table-layout auto damit der Browser die Breiten selbst verteilt */
+  .mobile-table {
+    table-layout: auto !important;
+  }
+
+  /* STD-Scores auf Mobile sichtbar lassen, Σ ausgeblendet */
+  .score-col-std {
     display: table-cell !important;
+  }
+
+  /* Feste Breiten aufheben damit alles in den Viewport passt */
+  .mobile-table th,
+  .mobile-table td {
+    width: auto !important;
+    min-width: 0 !important;
   }
 
   /* Kompakteres Padding in der Mobile-Tabelle */
   .mobile-table td,
   .mobile-table th {
-    padding: 0.3rem 0.25rem;
-    font-size: 0.72rem;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.8rem;
     white-space: normal;
   }
 
@@ -862,6 +874,7 @@ button {
   .mobile-table {
     min-width: unset !important;
     width: 100%;
+    table-layout: fixed;
   }
 
   /* Tappable row hint on mobile */
