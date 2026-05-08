@@ -148,40 +148,47 @@ const GameScoringEntry = () => {
         <p className="page-subtitle">Runde {currentRound} - Ergebnis dieser Runde erfassen.</p>
       </header>
 
-      {/* Ablauf-Erklärung */}
-      <details style={{ marginBottom: '1.25rem' }}>
-        <summary style={{
-          cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700,
-          textTransform: 'uppercase', letterSpacing: '0.1em',
-          color: 'var(--outline)', userSelect: 'none',
-          display: 'flex', alignItems: 'center', gap: '0.35rem', listStyle: 'none',
+      {/* Ablauf-Schritte */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '0.5rem',
+        marginBottom: '1.25rem', flexWrap: 'wrap',
+      }}>
+        {[
+          { n: '1', label: 'Alleinspieler wählen' },
+          { n: '2', label: 'Spielwert konfigurieren' },
+          { n: '3', label: 'Ergebnis speichern' },
+        ].flatMap(({ n, label }, i, arr) => {
+          const chip = (
+            <div key={n} style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              padding: '0.35rem 0.75rem 0.35rem 0.4rem',
+              backgroundColor: 'var(--surface-low)', borderRadius: '2rem',
+              border: '1px solid var(--outline-variant)',
+            }}>
+              <span style={{
+                width: '1.25rem', height: '1.25rem', borderRadius: '50%',
+                backgroundColor: 'var(--primary)', color: '#fff',
+                fontSize: '0.65rem', fontWeight: 800,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>{n}</span>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--on-surface)', whiteSpace: 'nowrap' }}>{label}</span>
+            </div>
+          );
+          if (i < arr.length - 1) {
+            return [chip, <span key={`arrow-${n}`} className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: 'var(--outline)', flexShrink: 0 }}>arrow_forward</span>];
+          }
+          return [chip];
+        })}
+        <Link to="/info" style={{
+          marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.25rem',
+          fontSize: '0.75rem', fontWeight: 600, color: 'var(--outline)',
+          textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
         }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>help_outline</span>
-          Wie funktioniert die Eingabe?
-        </summary>
-        <div style={{
-          marginTop: '0.75rem', padding: '1rem 1.25rem',
-          backgroundColor: 'var(--surface-low)', borderRadius: '0.75rem',
-          border: '1px solid var(--outline-variant)',
-          fontSize: '0.8375rem', color: 'var(--on-surface-variant)', lineHeight: 1.65,
-        }}>
-          <p style={{ marginBottom: '0.75rem' }}>
-            Ihr spielt Skat ganz normal am Tisch – die App übernimmt das, was früher Stift und Zettel erledigt haben.
-            Nach jedem gespielten Einzelspiel trägst du das Ergebnis hier ein:
-          </p>
-          <ol style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            <li><strong>Alleinspieler wählen</strong> – wer hat das Spiel angesagt und gespielt?</li>
-            <li><strong>Spielart wählen</strong> – Farbe (Kreuz/Pik/Herz/Karo), Grand oder Null.</li>
-            <li><strong>Modifikatoren setzen</strong> – Hand, Schneider, Schwarz, Ouvert falls zutreffend.</li>
-            <li><strong>Spitzen & Reizwert</strong> – Anzahl der Spitzen (mit/ohne) eingeben; der Spielwert wird automatisch berechnet.</li>
-            <li><strong>Augenzahl eintragen</strong> – wie viele Augen hat der Alleinspieler gesammelt? Daraus ergibt sich Gewinn oder Verlust.</li>
-            <li><strong>Runde speichern</strong> – Punkte werden sofort verbucht und der Geber rückt weiter.</li>
-          </ol>
-          <p style={{ marginTop: '0.75rem', marginBottom: 0 }}>
-            Wurde eingepasst (niemand hat gereizt)? Dann einfach <em>Eingepasst</em> als Spielart wählen und speichern – keine Punkte, Geber wechselt trotzdem.
-          </p>
-        </div>
-      </details>
+          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>menu_book</span>
+          Regelwerk
+        </Link>
+      </div>
 
       {/* Spiellisten UI */}
       {(activeSpiellisten.length > 0 || activeSpiellisteId !== null) && (
