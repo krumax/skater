@@ -815,7 +815,7 @@ button {
 /* ── SkatScoreList: Mobile-Tabelle - nur Kern-Spalten ── */
 @media (min-width: 769px) {
   .mobile-table {
-    min-width: 900px;
+    min-width: 780px;
   }
 }
 

@@ -1,5 +1,14 @@
-import React from 'react';
-import { SUIT_COLORS } from '../lib/tokens';
+import SuitIcon from '../components/SuitIcon';
+
+// Plain icon colors - consistent with rest of app
+const PLAIN_ICON_COLORS = {
+  grand:   '#0b7a52',
+  club:    '#1b1c1c',
+  spade:   '#414944',
+  heart:   '#b52619',
+  diamond: '#b08a00',
+  null:    '#4a7c6f',
+};
 
 // ── Reiztabelle-Daten ──
 // Spalten: Gewinnstufen 1–5, Hand(6), Schneider(7), Schn.anges.(8), Schwarz(9), Schw.anges.(10), Ouvert(11)
@@ -220,10 +229,10 @@ export default function SkatInfo() {
                     {/* Spielart-Label */}
                     <td style={{ ...cellBase, textAlign: 'left', paddingLeft: '1rem', borderRight: '1px solid rgba(192,200,195,0.3)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '0.3rem', backgroundColor: SUIT_COLORS[row.key], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div style={{ width: '1.5rem', height: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           {row.matIcon
-                            ? <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: row.textColor }}>{row.matIcon}</span>
-                            : <span style={{ fontSize: '0.9rem', fontWeight: 700, color: row.textColor, lineHeight: 1 }}>{row.suit}</span>
+                            ? <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: PLAIN_ICON_COLORS[row.key] }}>{row.matIcon}</span>
+                            : <SuitIcon gameType={row.key} size="sm" color={PLAIN_ICON_COLORS[row.key]} />
                           }
                         </div>
                         <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{row.name}</span>
@@ -261,8 +270,8 @@ export default function SkatInfo() {
                   >
                     <td style={{ ...cellBase, textAlign: 'left', paddingLeft: '1rem', borderRight: '1px solid rgba(192,200,195,0.3)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '0.3rem', backgroundColor: SUIT_COLORS.null, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: '#fff' }}>block</span>
+                        <div style={{ width: '1.5rem', height: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: PLAIN_ICON_COLORS.null }}>block</span>
                         </div>
                         <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{row.name}</span>
                       </div>

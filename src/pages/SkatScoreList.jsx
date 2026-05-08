@@ -189,7 +189,7 @@ const SkatScoreList = () => {
                 <th className="col-round-nr" style={thStyle}>#</th>
                 <th style={thStyle}>Spieler</th>
                 <th className="col-type" style={thStyle}>Typ</th>
-                <th className="col-ansage" style={{ ...thStyle, textAlign: 'right' }}>Ansage</th>
+                <th className="col-ansage" style={{ ...thStyle, textAlign: 'right' }}>Ans.</th>
                 <th className="col-modifier" style={{ ...thStyle, textAlign: 'left', paddingLeft: '0.25rem', color: 'var(--outline)', fontSize: '0.6rem' }}>Mod.</th>
                 <th style={{ ...thStyle, textAlign: 'right' }}>Pkt.</th>
                 <th className="score-col-divider" style={thDivider}></th>
@@ -202,7 +202,7 @@ const SkatScoreList = () => {
                 <th className="score-col-divider" style={thDivider}></th>
                 {players.map(p => (
                   <th key={`sf-${p}`} className="score-col-sf" style={{ ...thStyle, textAlign: 'right' }}>
-                    <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--tertiary)' }}>S-F</span>
+                    <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--primary)' }}>Σ</span>
                     {p}
                   </th>
                 ))}
@@ -217,11 +217,12 @@ const SkatScoreList = () => {
                     <RoundRow key={r._dbId ?? `old-${idx}`} r={r} idx={idx} players={players}
                       std={runningStd[idx]} sf={runningSF[idx]}
                       sfPrev={idx > 0 ? runningSF[idx - 1] : null}
+                      stdPrev={idx > 0 ? runningStd[idx - 1] : null}
                       onEdit={setEditingRound} onDelete={deleteRound} />
                   ))}
                   {/* Toggle row */}
                   <tr style={{ backgroundColor: 'var(--surface-high)' }}>
-                    <td colSpan={6 + players.length * 2 + 2}
+                    <td colSpan={9 + players.length * 2}
                       style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>
                       <button
                         onClick={() => setExpanded(e => !e)}
@@ -245,6 +246,7 @@ const SkatScoreList = () => {
                   <RoundRow key={r._dbId ?? `recent-${i}`} r={r} idx={idx} players={players}
                     std={runningStd[idx]} sf={runningSF[idx]}
                     sfPrev={idx > 0 ? runningSF[idx - 1] : null}
+                    stdPrev={idx > 0 ? runningStd[idx - 1] : null}
                     onEdit={setEditingRound} onDelete={deleteRound} />
                 );
               })}
@@ -451,7 +453,7 @@ function RankingRow({ rank, name, score }) {
   );
 }
 
-const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => {
+const RoundRow = ({ r, idx, players, std, sf, sfPrev, stdPrev, onEdit, onDelete }) => {
   const [showActions, setShowActions] = React.useState(false);
 
   const handleRowClick = (e) => {
@@ -475,7 +477,7 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => {
         <td className="col-round-nr" style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
         <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
         <td className="col-type" style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
-          <SuitBadge gameType={r.gameType} size="md" />
+          <SuitBadge gameType={r.gameType} size="xl" variant="plain" />
         </td>
         <td className="col-ansage" style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif", paddingRight: '0.25rem' }}>
           {(() => {
@@ -524,20 +526,27 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, onEdit, onDelete }) => {
           {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
         </td>
         <td style={tdDivider} className="score-col-divider"></td>
-        {players.map(p => (
-          <td key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: r.player === p ? 1 : 0.4, color: (std[p] ?? 0) >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
-            {std[p] ?? 0}
-          </td>
-        ))}
+        {players.map(p => {
+          const curr     = std[p] ?? 0;
+          const prev     = stdPrev?.[p] ?? 0;
+          const delta    = curr - prev;
+          const changed  = delta !== 0;
+          const color    = delta < 0 ? 'var(--secondary)' : 'var(--on-surface)';
+          return (
+            <td key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: changed ? 1 : 0.4, color }}>
+              {curr}
+            </td>
+          );
+        })}
         <td style={tdDivider} className="score-col-divider"></td>
         {players.map(p => {
-          const prev = sfPrev?.[p] ?? 0;
-          const curr = sf[p] ?? 0;
-          const delta = curr - prev;
-          const color = delta < 0 ? 'var(--secondary)' : 'var(--on-surface)';
+          const total   = (std[p] ?? 0) + (sf[p] ?? 0);
+          const sfDelta = (sf[p] ?? 0) - (sfPrev?.[p] ?? 0);
+          const changed = sfDelta !== 0;
+          const color   = sfDelta < 0 ? 'var(--secondary)' : 'var(--on-surface)';
           return (
-            <td key={`sf-${p}`} className="score-col-sf" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: delta !== 0 ? 1 : 0.4, color }}>
-              {curr}
+            <td key={`sf-${p}`} className="score-col-sf" style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, opacity: changed ? 1 : 0.4, color }}>
+              {total}
             </td>
           );
         })}
@@ -659,7 +668,7 @@ function RoundActionSheet({ r, onEdit, onDelete, onClose }) {
   );
 }
 
-const thStyle = {  padding: '0.75rem 1rem',
+const thStyle = {  padding: '0.75rem 0.625rem',
   textTransform: 'uppercase',
   fontSize: '0.7rem',
   color: 'var(--outline)',
@@ -672,7 +681,7 @@ const thDivider = {
   padding: 0,
   backgroundColor: 'var(--outline-variant)',
 };
-const tdStyle = { padding: '0.75rem 1rem', whiteSpace: 'nowrap' };
+const tdStyle = { padding: '0.75rem 0.625rem', whiteSpace: 'nowrap' };
 const tdDivider = { width: '1px', padding: 0, backgroundColor: 'var(--surface-high)' };
 
 export default SkatScoreList;

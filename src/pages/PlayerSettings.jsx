@@ -572,7 +572,7 @@ export default function PlayerSettings() {
           <section className="form-section" style={{ marginTop: '2rem' }}>
             <label className="section-label">Kartensymbole</label>
             <p style={{ fontSize: '0.8125rem', color: 'var(--outline)', marginBottom: '1rem' }}>
-              Wähle zwischen dem Französischen Blatt (♣ ♠ ♥ ♦) und dem Altenburger Blatt (Eichel, Grün, Rot, Schellen).
+              Wähle zwischen dem Französischen Blatt (Kreuz, Pik, Herz, Karo) und dem Altenburger Blatt (Eichel, Grün, Rot, Schellen).
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {ICONSET_OPTIONS.map(option => {

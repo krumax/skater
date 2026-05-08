@@ -4,11 +4,20 @@
  */
 import { useMemo } from 'react';
 import { SUIT_LABELS, SUIT_SYMBOLS } from '../../lib/skatScoring';
-import { SUIT_COLORS } from '../../lib/tokens';
 import SuitIcon from '../SuitIcon';
 import { useSuitLabel } from '../../hooks/useSuitLabel';
 
 const GAME_TYPES = ['grand', 'club', 'spade', 'heart', 'diamond', 'null'];
+
+// Plain icon colors - consistent with SuitBadge plain variant
+const PLAIN_ICON_COLORS = {
+  grand:   '#0b7a52',
+  club:    '#1b1c1c',
+  spade:   '#414944',
+  heart:   '#b52619',
+  diamond: '#b08a00',
+  null:    '#4a7c6f',
+};
 
 function lerp(a, b, t) {
   return Math.round(a + (b - a) * t);
@@ -71,11 +80,10 @@ export default function GameTypeHeatmap({ rounds, players }) {
               <th key={type} style={{ width: `${cellW}px`, textAlign: 'center', paddingBottom: '0.5rem' }}>
                 <div style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  width: '1.5rem', height: '1.5rem', borderRadius: '0.3rem',
-                  backgroundColor: SUIT_COLORS[type],
-                  color: type === 'diamond' ? '#1b1c1c' : '#fff',
+                  width: '1.5rem', height: '1.5rem',
+                  color: PLAIN_ICON_COLORS[type],
                 }}>
-                  <SuitIcon gameType={type} size="sm" />
+                  <SuitIcon gameType={type} size="sm" color={PLAIN_ICON_COLORS[type]} />
                 </div>
                 <div style={{ fontSize: '0.6rem', color: 'var(--outline)', marginTop: '0.2rem' }}>{getSuitLabel(type)}</div>
               </th>

@@ -2,6 +2,16 @@ import React from 'react';
 import SuitIcon from '../SuitIcon';
 import { useSuitLabel } from '../../hooks/useSuitLabel';
 
+// Plain icon colors for matrix row labels (no background box)
+const PLAIN_ICON_COLORS = {
+  grand:   '#0b7a52',
+  club:    '#1b1c1c',
+  spade:   '#414944',
+  heart:   '#b52619',
+  diamond: '#b08a00',
+  null:    '#4a7c6f',
+};
+
 /**
  * Wiederverwendbare Zelle für Achievement- und Defense-Matrix.
  * Zeigt entweder einen freigeschalteten Wert oder ein leeres Schloss.
@@ -71,16 +81,17 @@ export function ColHeader({ col }) {
 /** Zeilen-Label-Zelle für Farb-/Trumpf-Spieltypen */
 export function RowLabel({ row }) {
   const getSuitLabel = useSuitLabel();
+  const iconColor = PLAIN_ICON_COLORS[row.type] ?? 'var(--outline)';
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
       <div style={{
-        width: '1.75rem', height: '1.75rem', borderRadius: '0.375rem',
-        backgroundColor: row.color, display: 'flex', alignItems: 'center',
+        width: '1.75rem', height: '1.75rem',
+        display: 'flex', alignItems: 'center',
         justifyContent: 'center', flexShrink: 0,
       }}>
         {row.matIcon
-          ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: row.textColor }}>{row.matIcon}</span>
-          : <SuitIcon gameType={row.type} size="md" />
+          ? <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: iconColor }}>{row.matIcon}</span>
+          : <SuitIcon gameType={row.type} size="md" color={iconColor} />
         }
       </div>
       <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem', whiteSpace: 'normal', wordBreak: 'break-word' }}>
@@ -94,8 +105,8 @@ export function RowLabel({ row }) {
 export function NullRowLabel({ name }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-      <div style={{ width: '1.75rem', height: '1.75rem', borderRadius: '0.375rem', backgroundColor: '#717974', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#fff' }}>block</span>
+      <div style={{ width: '1.75rem', height: '1.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: PLAIN_ICON_COLORS.null }}>block</span>
       </div>
       <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem', whiteSpace: 'normal', wordBreak: 'break-word' }}>
         {name}
