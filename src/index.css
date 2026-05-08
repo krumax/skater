@@ -813,11 +813,6 @@ button {
    ───────────────────────────────────────────── */
 
 /* ── SkatScoreList: Mobile-Tabelle - nur Kern-Spalten ── */
-@media (min-width: 769px) {
-  .mobile-table {
-    min-width: 780px;
-  }
-}
 
 @media (max-width: 768px) {
   .score-col-std,

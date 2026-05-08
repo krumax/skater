@@ -36,6 +36,9 @@ const SkatScoreList = () => {
   const olderRounds = rounds.slice(0, splitAt);
   const recentRounds = rounds.slice(splitAt);
 
+  // Equal width for all player score columns: 3 players → 4rem, 4 players → 3.5rem
+  const scoreColWidth = players.length >= 4 ? 3.5 : 4;
+
   return (
     <div>
       <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -183,27 +186,31 @@ const SkatScoreList = () => {
         </div>
       ) : (
         <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
-          <table className="mobile-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table className="mobile-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', tableLayout: 'fixed' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--outline-variant)' }}>
-                <th className="col-round-nr" style={thStyle}>#</th>
-                <th style={thStyle}>Spieler</th>
-                <th className="col-type" style={thStyle}>Typ</th>
-                <th className="col-ansage" style={{ ...thStyle, textAlign: 'right' }}>Ans.</th>
-                <th className="col-modifier" style={{ ...thStyle, textAlign: 'left', paddingLeft: '0.25rem', color: 'var(--outline)', fontSize: '0.6rem' }}>Mod.</th>
-                <th style={{ ...thStyle, textAlign: 'right' }}>Pkt.</th>
+                <th className="col-round-nr" style={{ ...thStyle, width: '2.5rem' }}>#</th>
+                <th style={{ ...thStyle, width: '6rem' }}>Spieler</th>
+                <th className="col-type" style={{ ...thStyle, width: '2.5rem' }}>Typ</th>
+                <th className="col-ansage" style={{ ...thStyle, textAlign: 'right', width: '3rem' }}>Ans.</th>
+                <th className="col-modifier" style={{ ...thStyle, textAlign: 'left', paddingLeft: '0.25rem', color: 'var(--outline)', fontSize: '0.6rem', width: '3rem' }}>Mod.</th>
+                <th style={{ ...thStyle, textAlign: 'right', width: '3.5rem' }}>Pkt.</th>
                 <th className="score-col-divider" style={thDivider}></th>
                 {players.map(p => (
-                  <th key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...thStyle, textAlign: 'right' }}>
+                  <th key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...thStyle, textAlign: 'center', width: `${scoreColWidth}rem`, overflow: 'hidden' }}>
                     <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--outline)' }}>STD</span>
-                    {p}
+                    <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p}>
+                      {p.length > 8 ? p.slice(0, 8) + '…' : p}
+                    </span>
                   </th>
                 ))}
                 <th className="score-col-divider" style={thDivider}></th>
                 {players.map(p => (
-                  <th key={`sf-${p}`} className="score-col-sf" style={{ ...thStyle, textAlign: 'right' }}>
+                  <th key={`sf-${p}`} className="score-col-sf" style={{ ...thStyle, textAlign: 'center', width: `${scoreColWidth}rem`, overflow: 'hidden' }}>
                     <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--primary)' }}>Σ</span>
-                    {p}
+                    <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p}>
+                      {p.length > 8 ? p.slice(0, 8) + '…' : p}
+                    </span>
                   </th>
                 ))}
                 <th className="col-actions" style={{ ...thStyle, width: '2.5rem' }}></th>
@@ -533,7 +540,7 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, stdPrev, onEdit, onDelete 
           const changed  = delta !== 0;
           const color    = delta < 0 ? 'var(--secondary)' : 'var(--on-surface)';
           return (
-            <td key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...tdStyle, textAlign: 'right', fontWeight: 600, opacity: changed ? 1 : 0.4, color }}>
+            <td key={`std-${p}`} className="score-col-std score-col-std-mobile" style={{ ...tdStyle, textAlign: 'center', fontWeight: 600, opacity: changed ? 1 : 0.4, color }}>
               {curr}
             </td>
           );
@@ -545,12 +552,12 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, stdPrev, onEdit, onDelete 
           const changed = sfDelta !== 0;
           const color   = sfDelta < 0 ? 'var(--secondary)' : 'var(--on-surface)';
           return (
-            <td key={`sf-${p}`} className="score-col-sf" style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, opacity: changed ? 1 : 0.4, color }}>
+            <td key={`sf-${p}`} className="score-col-sf" style={{ ...tdStyle, textAlign: 'center', fontWeight: 700, opacity: changed ? 1 : 0.4, color }}>
               {total}
             </td>
           );
         })}
-        <td className="col-actions" style={{ ...tdStyle, textAlign: 'center', padding: '0.75rem 0.5rem', display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
+        <td className="col-actions" style={{ ...tdStyle, textAlign: 'center', padding: '0.4rem 0.25rem', display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
           <button
             aria-label={`Runde ${r.id} bearbeiten`}
             onClick={() => onEdit(r)}
@@ -668,7 +675,7 @@ function RoundActionSheet({ r, onEdit, onDelete, onClose }) {
   );
 }
 
-const thStyle = {  padding: '0.75rem 0.625rem',
+const thStyle = {  padding: '0.5rem 0.35rem',
   textTransform: 'uppercase',
   fontSize: '0.7rem',
   color: 'var(--outline)',
@@ -681,7 +688,7 @@ const thDivider = {
   padding: 0,
   backgroundColor: 'var(--outline-variant)',
 };
-const tdStyle = { padding: '0.75rem 0.625rem', whiteSpace: 'nowrap' };
+const tdStyle = { padding: '0.4rem 0.35rem', whiteSpace: 'nowrap' };
 const tdDivider = { width: '1px', padding: 0, backgroundColor: 'var(--surface-high)' };
 
 export default SkatScoreList;
