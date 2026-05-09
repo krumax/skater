@@ -675,7 +675,7 @@ function RoundActionSheet({ r, onEdit, onDelete, onClose }) {
   );
 }
 
-const thStyle = {  padding: '0.5rem 0.35rem',
+const thStyle = {  padding: '0.25rem 0.35rem',
   textTransform: 'uppercase',
   fontSize: '0.7rem',
   color: 'var(--outline)',
@@ -688,7 +688,7 @@ const thDivider = {
   padding: 0,
   backgroundColor: 'var(--outline-variant)',
 };
-const tdStyle = { padding: '0.4rem 0.35rem', whiteSpace: 'nowrap' };
+const tdStyle = { padding: '0 0.35rem', whiteSpace: 'nowrap' };
 const tdDivider = { width: '1px', padding: 0, backgroundColor: 'var(--surface-high)' };
 
 export default SkatScoreList;

@@ -5,6 +5,16 @@ import { SUIT_COLORS } from '../../lib/tokens';
 import SuitIcon from '../SuitIcon';
 import { useIconset } from '../../context/IconsetContext';
 
+const PLAIN_ICON_COLORS = {
+  grand:   '#0b7a52',
+  club:    '#1b1c1c',
+  spade:   '#414944',
+  heart:   '#b52619',
+  diamond: '#b08a00',
+  null:    '#4a7c6f',
+  passed:  '#9e9e9e',
+};
+
 const ALTENBURG_LABELS = {
   club:    'Eichel',
   spade:   'Grün',
@@ -105,7 +115,7 @@ export default function GameTypePieChart({ typeDistribution, rounds, player }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8125rem' }}>
                 <span style={{ width: '10px', height: '10px', borderRadius: '3px', background: s.color, flexShrink: 0 }} />
                 <span style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                  <SuitIcon gameType={s.name} size="sm" />
+                  <SuitIcon gameType={s.name} size="sm" color={PLAIN_ICON_COLORS[s.name]} />
                   {getSuitLabel(s.name)}
                 </span>
                 <span style={{ marginLeft: 'auto', fontWeight: 800, fontSize: '0.75rem' }}>{s.share}%</span>

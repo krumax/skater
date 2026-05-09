@@ -90,8 +90,8 @@ export function RowLabel({ row }) {
         justifyContent: 'center', flexShrink: 0,
       }}>
         {row.matIcon
-          ? <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: iconColor }}>{row.matIcon}</span>
-          : <SuitIcon gameType={row.type} size="md" color={iconColor} />
+          ? <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: iconColor }}>{row.matIcon}</span>
+          : <SuitIcon gameType={row.type} size="lg" color={iconColor} />
         }
       </div>
       <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem', whiteSpace: 'normal', wordBreak: 'break-word' }}>
@@ -106,7 +106,7 @@ export function NullRowLabel({ name }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
       <div style={{ width: '1.75rem', height: '1.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: PLAIN_ICON_COLORS.null }}>block</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: PLAIN_ICON_COLORS.null }}>block</span>
       </div>
       <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: 'var(--on-surface)', fontSize: '0.8125rem', whiteSpace: 'normal', wordBreak: 'break-word' }}>
         {name}

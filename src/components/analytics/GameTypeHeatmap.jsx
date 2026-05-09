@@ -80,12 +80,12 @@ export default function GameTypeHeatmap({ rounds, players }) {
               <th key={type} style={{ width: `${cellW}px`, textAlign: 'center', paddingBottom: '0.5rem' }}>
                 <div style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  width: '1.5rem', height: '1.5rem',
+                  width: '1.75rem', height: '1.75rem',
                   color: PLAIN_ICON_COLORS[type],
                 }}>
-                  <SuitIcon gameType={type} size="sm" color={PLAIN_ICON_COLORS[type]} />
+                  <SuitIcon gameType={type} size="md" color={PLAIN_ICON_COLORS[type]} />
                 </div>
-                <div style={{ fontSize: '0.6rem', color: 'var(--outline)', marginTop: '0.2rem' }}>{getSuitLabel(type)}</div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--on-surface-variant)', marginTop: '0.2rem' }}>{getSuitLabel(type)}</div>
               </th>
             ))}
           </tr>
