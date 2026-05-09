@@ -97,6 +97,10 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
   }, [state.rounds.length, state.seating.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const updateRound = useCallback(async (round, patch) => {
+    const dbId = round._dbId ?? round.id;
+    if (!dbId || dbId === 'undefined') {
+      return { error: { message: 'Runde hat keine gültige Datenbank-ID.' } };
+    }
     const snakePatch = {
       ...(patch.player              !== undefined && { player:               patch.player }),
       ...(patch.gameType            !== undefined && { game_type:            patch.gameType }),
@@ -113,7 +117,7 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
       ...(patch.mitOhne             !== undefined && { mit_ohne:             patch.mitOhne }),
       ...(patch.won                 !== undefined && { won:                  patch.won }),
     };
-    const { error } = await syncService.updateRound(round._dbId, snakePatch);
+    const { error } = await syncService.updateRound(dbId, snakePatch);
     if (error) return { error };
     dispatch({ type: 'UPDATE_ROUND', payload: { id: round.id, patch } });
     return { error: null };

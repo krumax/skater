@@ -114,20 +114,21 @@ export default function GameTypeEditor({ round, onClose, onSaved }) {
         schwarz,
         schwarzAnnounced,
         ouvert,
-        // eyeCount nur für Grundwert/Multiplikator-Berechnung - won überschreiben wir manuell
-        eyeCount: won ? 61 : 0,
+        // Für Null: eyeCount=0 bedeutet gewonnen, eyeCount=1 bedeutet verloren
+        // Für Farbspiele/Grand: eyeCount=61 gewonnen, eyeCount=0 verloren
+        eyeCount: isNullGame ? (won ? 0 : 1) : (won ? 61 : 0),
       });
-      // won aus State übernehmen, Spielwert entsprechend anpassen
-      const absValue = Math.abs(base.gameValue);
+      // Spielwert aus won-State ableiten
+      const absValue = Math.abs(base.baseValue * base.multiplier);
       return {
         ...base,
         won,
-        gameValue: won ? absValue : -2 * (base.baseValue * base.multiplier),
+        gameValue: won ? absValue : -2 * absValue,
       };
     } catch {
       return null;
     }
-  }, [gameType, spitzen, hand, schneider, schneiderAnnounced, schwarz, schwarzAnnounced, ouvert, hasSuiteGame, won]);
+  }, [gameType, spitzen, hand, schneider, schneiderAnnounced, schwarz, schwarzAnnounced, ouvert, hasSuiteGame, isNullGame, won]);
 
   const newGameValue = previewResult
     ? (isBock ? previewResult.gameValue * 2 : previewResult.gameValue)
