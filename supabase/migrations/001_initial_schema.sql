@@ -54,10 +54,36 @@ CREATE TABLE IF NOT EXISTS rounds (
   spielliste_id        uuid REFERENCES spiellisten(id) ON DELETE SET NULL -- 20260418
 );
 
+-- session_players (008: optionale Spieleridentität)
+CREATE TABLE IF NOT EXISTS session_players (
+  id           uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id   uuid        NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  slot_index   integer     NOT NULL CHECK (slot_index >= 0 AND slot_index <= 3),
+  display_name text        NOT NULL,
+  user_id      uuid        REFERENCES auth.users(id) ON DELETE SET NULL,
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (session_id, slot_index),
+  UNIQUE (session_id, user_id)
+);
+
+-- claim_tokens (008: Einladungslinks für Slot-Claiming)
+CREATE TABLE IF NOT EXISTS claim_tokens (
+  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id  uuid        NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  slot_index  integer     NOT NULL,
+  token       text        NOT NULL UNIQUE,
+  expires_at  timestamptz NOT NULL,
+  used        boolean     NOT NULL DEFAULT false,
+  created_by  uuid        REFERENCES auth.users(id),
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
 -- RLS aktivieren
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rounds ENABLE ROW LEVEL SECURITY;
 ALTER TABLE spiellisten ENABLE ROW LEVEL SECURITY;
+ALTER TABLE session_players ENABLE ROW LEVEL SECURITY;
+ALTER TABLE claim_tokens ENABLE ROW LEVEL SECURITY;
 
 -- Policies für anonymen Lese-/Schreibzugriff
 CREATE POLICY "Anon read/write sessions"
@@ -76,6 +102,65 @@ CREATE POLICY "Auth read/write spiellisten"
   ON spiellisten FOR ALL TO authenticated
   USING (true) WITH CHECK (true);
 
+-- Policies für session_players (008)
+CREATE POLICY "Auth read session_players"
+  ON session_players FOR SELECT TO authenticated
+  USING (true);
+
+CREATE POLICY "Auth insert own session_players"
+  ON session_players FOR INSERT TO authenticated
+  WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Auth creator insert session_players"
+  ON session_players FOR INSERT TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM session_players sp0
+      WHERE sp0.session_id = session_players.session_id
+        AND sp0.slot_index = 0
+        AND sp0.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Auth update own or creator session_players"
+  ON session_players FOR UPDATE TO authenticated
+  USING (
+    user_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM session_players sp0
+      WHERE sp0.session_id = session_players.session_id
+        AND sp0.slot_index = 0
+        AND sp0.user_id = auth.uid()
+    )
+  )
+  WITH CHECK (
+    user_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM session_players sp0
+      WHERE sp0.session_id = session_players.session_id
+        AND sp0.slot_index = 0
+        AND sp0.user_id = auth.uid()
+    )
+  );
+
+-- Policies für claim_tokens (008)
+CREATE POLICY "Auth read claim_tokens by token"
+  ON claim_tokens FOR SELECT TO authenticated
+  USING (true);
+
+CREATE POLICY "Auth insert claim_tokens"
+  ON claim_tokens FOR INSERT TO authenticated
+  WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "Auth update claim_tokens used"
+  ON claim_tokens FOR UPDATE TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
 -- Indizes
 CREATE INDEX IF NOT EXISTS idx_spiellisten_session_id ON spiellisten(session_id);
 CREATE INDEX IF NOT EXISTS idx_rounds_spielliste_id ON rounds(spielliste_id);
+CREATE INDEX IF NOT EXISTS idx_session_players_session_id ON session_players(session_id);
+CREATE INDEX IF NOT EXISTS idx_session_players_user_id    ON session_players(user_id);
+CREATE INDEX IF NOT EXISTS idx_claim_tokens_token         ON claim_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_claim_tokens_session_id    ON claim_tokens(session_id);

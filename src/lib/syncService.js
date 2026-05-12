@@ -89,6 +89,7 @@ async function getUserId() {
 
 /**
  * Creates a new session in Supabase.
+ * Also inserts a session_players row for slot_index = 0 (graceful degradation on failure).
  */
 export async function createSession(seating, tableName = '') {
   // Session creation requires internet
@@ -100,14 +101,42 @@ export async function createSession(seating, tableName = '') {
     .single();
 
   if (error && error.message?.includes('table_name')) {
-    return await supabase
+    const fallback = await supabase
       .from('sessions')
       .insert({ seating, geber_index: 0, current_round: 1, user_id })
       .select()
       .single();
+
+    if (!fallback.error && fallback.data) {
+      try {
+        await supabase.from('session_players').insert({
+          session_id:   fallback.data.id,
+          slot_index:   0,
+          display_name: seating[0],
+          user_id,
+        });
+      } catch (spError) {
+        console.error('session_players insert failed (non-fatal):', spError);
+      }
+    }
+
+    return fallback;
   }
 
-  return { data, error };
+  if (error) return { data: null, error };
+
+  try {
+    await supabase.from('session_players').insert({
+      session_id:   data.id,
+      slot_index:   0,
+      display_name: seating[0],
+      user_id,
+    });
+  } catch (spError) {
+    console.error('session_players insert failed (non-fatal):', spError);
+  }
+
+  return { data, error: null };
 }
 
 /**
@@ -463,6 +492,270 @@ export async function renamePlayerInRounds(sessionId, oldName, newName) {
   }
 
   return { error: null };
+}
+
+/**
+ * Pre-assigns a slot (index 1–3) to a known user_id (Req 2).
+ * Returns { error } where error is null on success.
+ */
+export async function preassignSlot(sessionId, slotIndex, userId) {
+  // Validate userId: must not be null, empty string, or whitespace
+  if (userId === null || userId === undefined || typeof userId !== 'string' || userId.trim() === '') {
+    return { error: { message: 'Ungültige user_id.' } };
+  }
+
+  // Check for an existing row with the same session_id and user_id
+  const { data: existing, error: queryError } = await supabase
+    .from('session_players')
+    .select('id')
+    .eq('session_id', sessionId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (queryError) return { error: queryError };
+
+  if (existing) {
+    return { error: { message: 'Diese user_id ist in dieser Session bereits vergeben.' } };
+  }
+
+  // Upsert the session_players row
+  const { error } = await supabase
+    .from('session_players')
+    .upsert(
+      { session_id: sessionId, slot_index: slotIndex, user_id: userId },
+      { onConflict: 'session_id,slot_index' }
+    );
+
+  return { error };
+}
+
+/**
+ * Generates a claim token for a slot (Req 3.1, 3.7).
+ * Only the session creator (slot 0 user_id) may call this.
+ * Returns { data: { inviteUrl, token }, error }.
+ */
+export async function generateClaimToken(sessionId, slotIndex) {
+  const callerId = await getUserId();
+  if (!callerId) {
+    return { data: null, error: { message: 'Nicht eingeloggt.' } };
+  }
+
+  // Verify the caller is the session creator (sessions.user_id)
+  const { data: sessionRow, error: sessionError } = await supabase
+    .from('sessions')
+    .select('user_id')
+    .eq('id', sessionId)
+    .maybeSingle();
+
+  if (sessionError) return { data: null, error: sessionError };
+
+  if (!sessionRow || sessionRow.user_id !== callerId) {
+    return { data: null, error: { message: 'Nur der Tischersteller kann Einladungslinks generieren.' } };
+  }
+
+  // Generate token and expiry
+  const token = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+
+  // Insert into claim_tokens
+  const { error: insertError } = await supabase
+    .from('claim_tokens')
+    .insert({
+      session_id:  sessionId,
+      slot_index:  slotIndex,
+      token,
+      expires_at:  expiresAt,
+      used:        false,
+      created_by:  callerId,
+    });
+
+  if (insertError) return { data: null, error: insertError };
+
+  // Build invite URL
+  const baseUrl = (typeof window !== 'undefined' && window.location?.origin)
+    ? window.location.origin
+    : 'https://skatastrophe.app';
+  const inviteUrl = `${baseUrl}/claim?token=${token}`;
+
+  return { data: { inviteUrl, token }, error: null };
+}
+
+/**
+ * Claims a slot using a token (Req 3.2–3.6).
+ * Returns { error } where error is null on success.
+ */
+export async function claimSlot(token, userId) {
+  // 1. Look up the token
+  const { data: tokenRow, error: tokenError } = await supabase
+    .from('claim_tokens')
+    .select('id, session_id, slot_index, expires_at, used')
+    .eq('token', token)
+    .maybeSingle();
+
+  if (tokenError) return { error: tokenError };
+
+  // Not found
+  if (!tokenRow) {
+    return { error: { message: 'Ungültiger Einladungslink.' } };
+  }
+
+  // Expired
+  if (new Date(tokenRow.expires_at) < new Date()) {
+    return { error: { message: 'Dieser Einladungslink ist abgelaufen.' } };
+  }
+
+  // Already used
+  if (tokenRow.used) {
+    return { error: { message: 'Dieser Einladungslink wurde bereits verwendet.' } };
+  }
+
+  const { session_id: sessionId, slot_index: slotIndex } = tokenRow;
+
+  // Slot already has a user_id
+  const { data: slotRow, error: slotError } = await supabase
+    .from('session_players')
+    .select('user_id')
+    .eq('session_id', sessionId)
+    .eq('slot_index', slotIndex)
+    .maybeSingle();
+
+  if (slotError) return { error: slotError };
+
+  if (slotRow?.user_id) {
+    return { error: { message: 'Dieser Slot ist bereits vergeben.' } };
+  }
+
+  // Caller is the session creator (slot 0)
+  const { data: creatorRow, error: creatorError } = await supabase
+    .from('session_players')
+    .select('user_id')
+    .eq('session_id', sessionId)
+    .eq('slot_index', 0)
+    .maybeSingle();
+
+  if (creatorError) return { error: creatorError };
+
+  if (creatorRow?.user_id && creatorRow.user_id === userId) {
+    return { error: { message: 'Du bist bereits der Tischersteller.' } };
+  }
+
+  // All checks passed — assign the user_id to the slot
+  const { error: updateSlotError } = await supabase
+    .from('session_players')
+    .update({ user_id: userId })
+    .eq('session_id', sessionId)
+    .eq('slot_index', slotIndex);
+
+  if (updateSlotError) return { error: updateSlotError };
+
+  // Mark the token as used
+  const { error: updateTokenError } = await supabase
+    .from('claim_tokens')
+    .update({ used: true })
+    .eq('id', tokenRow.id);
+
+  if (updateTokenError) return { error: updateTokenError };
+
+  return { error: null };
+}
+
+/**
+ * Updates display_name in session_players without touching user_id (Req 7.1, 7.2, 7.5).
+ * Called from the extended renamePlayer action in useSyncActions.
+ * Returns { error }.
+ */
+export async function updateSessionPlayerName(sessionId, oldName, newName) {
+  const { error } = await supabase
+    .from('session_players')
+    .update({ display_name: newName })
+    .eq('session_id', sessionId)
+    .eq('display_name', oldName);
+  return { error };
+}
+
+/**
+ * Loads all rounds for a user across all sessions (Req 4).
+ * Returns { data: CrossTableRound[], error }.
+ * Each round has additional sessionId and playerName fields.
+ */
+export async function loadMyRoundsAcrossSessions(userId) {
+  // Step 1: Find all session_players rows linked to this user
+  const { data: sessionPlayers, error: spError } = await supabase
+    .from('session_players')
+    .select('session_id, display_name')
+    .eq('user_id', userId);
+
+  if (spError) throw spError;
+
+  // Req 4.4: no linked sessions → return empty array
+  if (!sessionPlayers || sessionPlayers.length === 0) {
+    return { data: [], error: null };
+  }
+
+  // Build a map from session_id → display_name for quick lookup
+  const sessionPlayerMap = {};
+  for (const sp of sessionPlayers) {
+    sessionPlayerMap[sp.session_id] = sp.display_name;
+  }
+
+  const sessionIds = sessionPlayers.map(sp => sp.session_id);
+
+  // Step 1b: Load table_name for all linked sessions
+  const { data: sessionRows, error: sessError } = await supabase
+    .from('sessions')
+    .select('id, table_name')
+    .in('id', sessionIds);
+
+  if (sessError) throw sessError;
+
+  const sessionNameMap = {};
+  for (const s of (sessionRows || [])) {
+    sessionNameMap[s.id] = s.table_name ?? null;
+  }
+
+  // Step 2: Load all rounds for all linked sessions in one query
+  const { data: rawRounds, error: roundsError } = await supabase
+    .from('rounds')
+    .select('*')
+    .in('session_id', sessionIds)
+    .order('session_id', { ascending: true })
+    .order('round_number', { ascending: true });
+
+  // Req 4.5: re-throw on any error — no partial data
+  if (roundsError) throw roundsError;
+
+  // Step 3: Map each round to camelCase shape + sessionId + playerName
+  const rounds = (rawRounds || []).map(r => ({
+    id:                   r.round_number,
+    player:               r.player,
+    gameType:             r.game_type,
+    typeLabel:            r.type_label,
+    gameValue:            r.game_value,
+    baseValue:            r.base_value,
+    multiplier:           r.multiplier,
+    won:                  r.won,
+    eyeCount:             r.eye_count,
+    spitzen:              r.spitzen,
+    hand:                 r.hand,
+    schneider:            r.schneider,
+    schneiderAnnounced:   r.schneider_announced ?? false,
+    schwarz:              r.schwarz,
+    schwarzAnnounced:     r.schwarz_announced ?? false,
+    ouvert:               r.ouvert,
+    roles:                r.roles,
+    seegerScores:         r.seeger_scores ?? null,
+    timestamp:            r.timestamp,
+    isBock:               r.is_bock ?? false,
+    mitOhne:              r.mit_ohne ?? 'mit',
+    _dbId:                r.id,
+    spiellisteId:         r.spielliste_id ?? null,
+    // CrossTableRound additions
+    sessionId:            r.session_id,
+    playerName:           sessionPlayerMap[r.session_id] ?? null,
+    tableName:            sessionNameMap[r.session_id] ?? null,
+  }));
+
+  return { data: rounds, error: null };
 }
 
 /**

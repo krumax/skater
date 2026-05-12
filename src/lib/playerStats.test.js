@@ -4,6 +4,8 @@ import {
   computeSeegerTotals,
   computePlayerRank,
   computePlayerStats,
+  computeProfileStats,
+  computePerSessionStats,
 } from './playerStats';
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -255,5 +257,155 @@ describe('computeRunningTotals', () => {
     const rounds = [makeRound({ player: 'Alice', gameValue: 18, seegerScores: null })];
     const { runningStd } = computeRunningTotals(players, rounds);
     expect(runningStd[0].Carol).toBe(0);
+  });
+});
+
+// ── computeProfileStats ───────────────────────────────────────────────────────
+
+describe('computeProfileStats', () => {
+  // A cross-table round has both `player` (the declarer) and `playerName`
+  // (the user's display_name in that session). A "declarer round" is one
+  // where round.player === round.playerName.
+  function makeCrossRound(overrides) {
+    return {
+      player: 'Alice',
+      playerName: 'Alice',
+      gameType: 'spade',
+      gameValue: 18,
+      won: true,
+      timestamp: '2024-01-01T10:00:00Z',
+      ...overrides,
+    };
+  }
+
+  it('returns winRate = 0.0 (number) when there are no declarer rounds', () => {
+    // No rounds at all
+    const stats = computeProfileStats([]);
+    expect(stats.winRate).toBe(0.0);
+    expect(typeof stats.winRate).toBe('number');
+    expect(stats.totalDeclarerGames).toBe(0);
+    expect(stats.totalPoints).toBe(0);
+  });
+
+  it('returns winRate = 0.0 (number) when rounds exist but none are declarer rounds', () => {
+    // Rounds where the user was NOT the declarer (player !== playerName)
+    const rounds = [
+      makeCrossRound({ player: 'Bob', playerName: 'Alice' }),
+      makeCrossRound({ player: 'Carol', playerName: 'Alice' }),
+    ];
+    const stats = computeProfileStats(rounds);
+    expect(stats.winRate).toBe(0.0);
+    expect(typeof stats.winRate).toBe('number');
+    expect(stats.totalDeclarerGames).toBe(0);
+  });
+
+  it('returns correct values for a known input', () => {
+    // 4 declarer rounds: 3 wins, 1 loss; 1 non-declarer round (ignored)
+    const rounds = [
+      makeCrossRound({ player: 'Alice', playerName: 'Alice', won: true,  gameValue: 18 }),
+      makeCrossRound({ player: 'Alice', playerName: 'Alice', won: true,  gameValue: 36 }),
+      makeCrossRound({ player: 'Alice', playerName: 'Alice', won: false, gameValue: -24 }),
+      makeCrossRound({ player: 'Alice', playerName: 'Alice', won: true,  gameValue: 48 }),
+      makeCrossRound({ player: 'Bob',   playerName: 'Alice', won: true,  gameValue: 18 }), // not a declarer round
+    ];
+    const stats = computeProfileStats(rounds);
+
+    expect(stats.totalDeclarerGames).toBe(4);
+    expect(stats.totalPoints).toBe(18 + 36 + (-24) + 48); // 78
+    // winRate = (3 / 4) * 100 = 75.0
+    expect(stats.winRate).toBe(75.0);
+    expect(typeof stats.winRate).toBe('number');
+  });
+
+  it('includes typeDistribution for declarer rounds', () => {
+    const rounds = [
+      makeCrossRound({ player: 'Alice', playerName: 'Alice', gameType: 'spade',  won: true,  gameValue: 18 }),
+      makeCrossRound({ player: 'Alice', playerName: 'Alice', gameType: 'spade',  won: false, gameValue: -18 }),
+      makeCrossRound({ player: 'Alice', playerName: 'Alice', gameType: 'grand',  won: true,  gameValue: 24 }),
+    ];
+    const stats = computeProfileStats(rounds);
+    expect(stats.typeDistribution).toHaveLength(2);
+    const spadeEntry = stats.typeDistribution.find(e => e.type === 'spade');
+    expect(spadeEntry.count).toBe(2);
+  });
+
+  it('returns empty typeDistribution and pointsOverTime when no declarer rounds', () => {
+    const stats = computeProfileStats([]);
+    expect(stats.typeDistribution).toEqual([]);
+    expect(stats.pointsOverTime).toEqual([]);
+  });
+});
+
+// ── computePerSessionStats ────────────────────────────────────────────────────
+
+describe('computePerSessionStats', () => {
+  function makeCrossRound(overrides) {
+    return {
+      sessionId: 'session-1',
+      tableName: 'Tisch 1',
+      player: 'Alice',
+      playerName: 'Alice',
+      gameValue: 18,
+      won: true,
+      ...overrides,
+    };
+  }
+
+  it('returns an empty array for no rounds', () => {
+    expect(computePerSessionStats([])).toEqual([]);
+  });
+
+  it('groups rounds by sessionId correctly', () => {
+    const rounds = [
+      makeCrossRound({ sessionId: 'session-1', tableName: 'Tisch 1' }),
+      makeCrossRound({ sessionId: 'session-1', tableName: 'Tisch 1' }),
+      makeCrossRound({ sessionId: 'session-2', tableName: 'Tisch 2' }),
+    ];
+    const summaries = computePerSessionStats(rounds);
+    expect(summaries).toHaveLength(2);
+    const ids = summaries.map(s => s.sessionId);
+    expect(ids).toContain('session-1');
+    expect(ids).toContain('session-2');
+  });
+
+  it('counts only declarer rounds (player === playerName) in roundCount', () => {
+    const rounds = [
+      // session-1: 2 declarer rounds, 1 non-declarer round
+      makeCrossRound({ sessionId: 'session-1', player: 'Alice', playerName: 'Alice', won: true }),
+      makeCrossRound({ sessionId: 'session-1', player: 'Alice', playerName: 'Alice', won: false }),
+      makeCrossRound({ sessionId: 'session-1', player: 'Bob',   playerName: 'Alice', won: true }), // not declarer
+    ];
+    const summaries = computePerSessionStats(rounds);
+    expect(summaries).toHaveLength(1);
+    expect(summaries[0].roundCount).toBe(2);
+  });
+
+  it('computes winRate correctly per session', () => {
+    const rounds = [
+      makeCrossRound({ sessionId: 'session-1', player: 'Alice', playerName: 'Alice', won: true }),
+      makeCrossRound({ sessionId: 'session-1', player: 'Alice', playerName: 'Alice', won: false }),
+    ];
+    const summaries = computePerSessionStats(rounds);
+    // 1 win out of 2 declarer rounds = 50.0
+    expect(summaries[0].winRate).toBe(50.0);
+    expect(typeof summaries[0].winRate).toBe('number');
+  });
+
+  it('returns winRate = 0.0 when no declarer rounds in a session', () => {
+    const rounds = [
+      makeCrossRound({ sessionId: 'session-1', player: 'Bob', playerName: 'Alice' }),
+    ];
+    const summaries = computePerSessionStats(rounds);
+    expect(summaries[0].roundCount).toBe(0);
+    expect(summaries[0].winRate).toBe(0.0);
+  });
+
+  it('carries through tableName and displayName from the first round', () => {
+    const rounds = [
+      makeCrossRound({ sessionId: 'session-1', tableName: 'Stammtisch', playerName: 'Max' }),
+    ];
+    const summaries = computePerSessionStats(rounds);
+    expect(summaries[0].tableName).toBe('Stammtisch');
+    expect(summaries[0].displayName).toBe('Max');
   });
 });

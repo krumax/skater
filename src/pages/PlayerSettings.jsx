@@ -313,12 +313,67 @@ export default function PlayerSettings() {
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [currentUserEmail, setCurrentUserEmail] = useState('');
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  // ── Slot identity state ──
+  const [slotAssignments, setSlotAssignments] = useState([]); // session_players rows for current session
+  const [inviteLink, setInviteLink] = useState(null); // { slotIndex, url }
+  const [inviteCopied, setInviteCopied] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setCurrentUserEmail(session?.user?.email ?? '');
+      setCurrentUserId(session?.user?.id ?? null);
     });
   }, []);
+
+  // Load session_players for the current session
+  useEffect(() => {
+    if (!sessionId) return;
+    supabase
+      .from('session_players')
+      .select('*')
+      .eq('session_id', sessionId)
+      .then(({ data }) => {
+        setSlotAssignments(data ?? []);
+      });
+  }, [sessionId]);
+
+  const handleClaimSelf = async (slotIndex, displayName) => {
+    if (!currentUserId) return;
+    // Upsert session_players row with current user's id
+    const { error } = await supabase
+      .from('session_players')
+      .upsert(
+        { session_id: sessionId, slot_index: slotIndex, display_name: displayName, user_id: currentUserId },
+        { onConflict: 'session_id,slot_index' }
+      );
+    if (!error) {
+      // Refresh slot assignments
+      const { data } = await supabase.from('session_players').select('*').eq('session_id', sessionId);
+      setSlotAssignments(data ?? []);
+    }
+  };
+
+  const handleGenerateInvite = async (slotIndex) => {
+    const { data, error } = await syncService.generateClaimToken(sessionId, slotIndex);
+    if (error) {
+      alert(error.message ?? 'Fehler beim Generieren des Einladungslinks.');
+      return;
+    }
+    if (data) {
+      setInviteLink({ slotIndex, url: data.inviteUrl });
+      setInviteCopied(false);
+    }
+  };
+
+  const handleCopyInvite = () => {
+    if (inviteLink?.url) {
+      navigator.clipboard.writeText(inviteLink.url);
+      setInviteCopied(true);
+      setTimeout(() => setInviteCopied(false), 3000);
+    }
+  };
 
   const handleDeleteAccount = async () => {
     setDeletingAccount(true);
@@ -558,6 +613,49 @@ export default function PlayerSettings() {
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_downward</span>
                       </button>
+                      {/* ── Identity buttons ── */}
+                      {(() => {
+                        const slotRow = slotAssignments.find(s => s.slot_index === i);
+                        const isMyClaim = slotRow?.user_id === currentUserId;
+                        const isClaimedByOther = slotRow?.user_id && slotRow.user_id !== currentUserId;
+                        const mySlotElsewhere = slotAssignments.find(s => s.user_id === currentUserId);
+
+                        if (isMyClaim) {
+                          return (
+                            <span title="Das bist du" style={{ padding: '0.4rem', color: 'var(--primary)', display: 'flex', alignItems: 'center' }}>
+                              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>verified</span>
+                            </span>
+                          );
+                        }
+                        if (isClaimedByOther) {
+                          return (
+                            <span title="Verknüpft mit anderem Account" style={{ padding: '0.4rem', color: 'var(--outline)', display: 'flex', alignItems: 'center' }}>
+                              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>link</span>
+                            </span>
+                          );
+                        }
+                        // Not claimed — show "Das bin ich" (if I haven't claimed another slot) and "Einladen"
+                        return (
+                          <>
+                            {!mySlotElsewhere && (
+                              <button
+                                onClick={e => { e.stopPropagation(); handleClaimSelf(i, name); }}
+                                title="Das bin ich"
+                                style={{ padding: '0.4rem', borderRadius: '0.375rem', color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}
+                              >
+                                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>person_pin</span>
+                              </button>
+                            )}
+                            <button
+                              onClick={e => { e.stopPropagation(); handleGenerateInvite(i); }}
+                              title="Einladungslink generieren"
+                              style={{ padding: '0.4rem', borderRadius: '0.375rem', color: 'var(--tertiary, #6750a4)', background: 'none', border: 'none', cursor: 'pointer' }}
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>share</span>
+                            </button>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 );
@@ -567,6 +665,45 @@ export default function PlayerSettings() {
               {n <= 3 ? 'Mindestens 3 Spieler erforderlich.' : 'Maximal 4 Spieler erlaubt.'}
             </p>
           </section>
+
+          {/* ── Invite link banner ── */}
+          {inviteLink && (
+            <section className="form-section" style={{ marginTop: '1.5rem' }}>
+              <div className="card" style={{ backgroundColor: 'var(--surface-low)', padding: '1.25rem', borderRadius: '0.75rem', border: '1px solid var(--outline-variant)' }}>
+                <p style={{ fontWeight: 700, marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--on-surface)' }}>
+                  Einladungslink für Spieler {players[inviteLink.slotIndex] ?? `Slot ${inviteLink.slotIndex + 1}`}:
+                </p>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    readOnly
+                    value={inviteLink.url}
+                    style={{ flex: 1, padding: '0.6rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', backgroundColor: 'var(--surface)', fontFamily: 'monospace', fontSize: '0.8rem', color: 'var(--on-surface)' }}
+                    onClick={e => e.target.select()}
+                  />
+                  <button
+                    onClick={handleCopyInvite}
+                    className="btn-primary"
+                    style={{ padding: '0.6rem 1rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+                      {inviteCopied ? 'check' : 'content_copy'}
+                    </span>
+                    {inviteCopied ? 'Kopiert!' : 'Kopieren'}
+                  </button>
+                </div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)', marginTop: '0.5rem' }}>
+                  Der Link ist 72 Stunden gültig. Teile ihn mit dem Mitspieler.
+                </p>
+                <button
+                  onClick={() => setInviteLink(null)}
+                  style={{ marginTop: '0.5rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--on-surface-variant)', fontSize: '0.8rem', textDecoration: 'underline' }}
+                >
+                  Schließen
+                </button>
+              </div>
+            </section>
+          )}
 
           {/* Iconset selector */}
           <section className="form-section" style={{ marginTop: '2rem' }}>

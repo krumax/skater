@@ -181,6 +181,107 @@ export function computeRunningTotals(players, rounds) {
   return { runningStd, runningSF };
 }
 
+// ── Per-session stats (cross-table profile) ──────────────────────────────────
+
+/**
+ * Groups cross-table rounds by sessionId and computes per-session stats.
+ * Pure function — no side effects.
+ *
+ * @param {CrossTableRound[]} rounds - flat array from loadMyRoundsAcrossSessions
+ *   Each round has: sessionId, playerName (user's display_name in that session),
+ *   tableName, player (the declarer), won, gameValue
+ * @returns {SessionSummary[]}
+ */
+export function computePerSessionStats(rounds) {
+  // Group rounds by sessionId
+  const groups = {};
+  rounds.forEach(r => {
+    if (!groups[r.sessionId]) {
+      groups[r.sessionId] = [];
+    }
+    groups[r.sessionId].push(r);
+  });
+
+  return Object.entries(groups).map(([sessionId, sessionRounds]) => {
+    // Carry through tableName and displayName from the first round in the group
+    const first = sessionRounds[0];
+    const tableName = first.tableName ?? null;
+    const displayName = first.playerName ?? '';
+
+    // Declarer rounds: rounds where the user was the declarer
+    const declarerRounds = sessionRounds.filter(r => r.player === r.playerName);
+    const roundCount = declarerRounds.length;
+
+    const wins = declarerRounds.filter(r => r.won).length;
+    const winRate = roundCount > 0
+      ? parseFloat(((wins / roundCount) * 100).toFixed(1))
+      : 0.0;
+
+    return { sessionId, tableName, displayName, roundCount, winRate };
+  });
+}
+
+// ── Profile stats (cross-table) ──────────────────────────────────────────────
+
+/**
+ * Computes aggregated profile statistics from cross-table rounds.
+ * Pure function — no side effects.
+ *
+ * A "declarer round" is one where round.player === round.playerName,
+ * i.e. the user was the Alleinspieler in that round.
+ *
+ * @param {Array} rounds - flat array from loadMyRoundsAcrossSessions
+ *   Each round has: player, playerName, gameValue, won, gameType, timestamp
+ * @returns {ProfileStats}
+ */
+export function computeProfileStats(rounds) {
+  // Filter to declarer rounds only
+  const declarerRounds = rounds.filter(r => r.player === r.playerName);
+
+  const totalDeclarerGames = declarerRounds.length;
+  const totalPoints = declarerRounds.reduce((sum, r) => sum + r.gameValue, 0);
+  const wins = declarerRounds.filter(r => r.won).length;
+  const winRate = totalDeclarerGames > 0
+    ? parseFloat(((wins / totalDeclarerGames) * 100).toFixed(1))
+    : 0.0;
+
+  // typeDistribution — same shape as computePlayerStats
+  const typeCounts = {};
+  declarerRounds.forEach(r => {
+    const t = r.gameType || 'unknown';
+    typeCounts[t] = (typeCounts[t] || 0) + 1;
+  });
+  const typeDistribution = totalDeclarerGames > 0
+    ? Object.entries(typeCounts)
+        .map(([type, count]) => ({
+          type,
+          count,
+          pct: ((count / totalDeclarerGames) * 100).toFixed(0),
+        }))
+        .sort((a, b) => b.count - a.count)
+    : [];
+
+  // pointsOverTime — cumulative gameValue sorted by timestamp
+  const sorted = [...declarerRounds].sort((a, b) => {
+    const ta = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+    const tb = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+    return ta - tb;
+  });
+  let cumulative = 0;
+  const pointsOverTime = sorted.map(r => {
+    cumulative += r.gameValue;
+    return { timestamp: r.timestamp, cumulativePoints: cumulative };
+  });
+
+  return {
+    totalDeclarerGames,
+    totalPoints,
+    winRate,
+    typeDistribution,
+    pointsOverTime,
+  };
+}
+
 // ── Achievement first-unlock indices ─────────────────────────────────────────
 
 import { MATRIX_ROWS, NULL_ROWS, COL_SPECS } from './achievementConfig';

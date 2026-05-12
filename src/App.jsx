@@ -13,6 +13,8 @@ import PlayerSettings from './pages/PlayerSettings';
 import StatistikenCharts from './pages/StatistikenCharts';
 import SkatInfo from './pages/SkatInfo';
 import TrophyShowcasePage from './pages/TrophyShowcasePage';
+import MeinProfil from './pages/MeinProfil';
+import ClaimSlot from './pages/ClaimSlot';
 
 function AppShell() {
   const { sessionLoaded } = useGame();
@@ -37,6 +39,8 @@ function AppShell() {
             <Route path="/players" element={<PlayerSettings />} />
             <Route path="/info" element={<SkatInfo />} />
             <Route path="/vitrine" element={<TrophyShowcasePage />} />
+            <Route path="/mein-profil" element={<MeinProfil />} />
+            <Route path="/claim" element={<ClaimSlot />} />
           </Routes>
         )}
       </main>

@@ -8,10 +8,11 @@ import * as fc from 'fast-check';
 
 let _sessions = {};
 let _rounds = {};
+let _session_players = {};
 let _lastUpdatePatch = null;
 
 function makeBuilder(table) {
-  const store = table === 'sessions' ? _sessions : _rounds;
+  const store = table === 'sessions' ? _sessions : table === 'session_players' ? _session_players : _rounds;
   let _filters = {};
   let _insertData = null;
   let _updateData = null;
@@ -129,6 +130,7 @@ describe('Property 2: Runden-Persistenz-Round-Trip', () => {
   beforeEach(() => {
     _sessions = {};
     _rounds = {};
+    _session_players = {};
     _lastUpdatePatch = null;
   });
 
@@ -190,11 +192,12 @@ describe('Property 2: Runden-Persistenz-Round-Trip', () => {
 // ── Unit-Tests: updateRound ──────────────────────────────────────────────────
 describe('updateRound – Anforderungen 3.1, 4.1', () => {
   // is_bock and game_value were added in Task 2.2 (bockrunden feature)
-  const ALLOWED_FIELDS = ['game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schwarz', 'spitzen', 'is_bock', 'game_value'];
+  const ALLOWED_FIELDS = ['player', 'game_type', 'type_label', 'hand', 'ouvert', 'schneider', 'schneider_announced', 'schwarz', 'schwarz_announced', 'spitzen', 'is_bock', 'game_value', 'mit_ohne', 'won'];
 
   beforeEach(() => {
     _sessions = {};
     _rounds = {};
+    _session_players = {};
     _lastUpdatePatch = null;
   });
 
@@ -242,7 +245,7 @@ describe('updateRound – Anforderungen 3.1, 4.1', () => {
     });
 
     // Forbidden fields must not be present
-    expect(sentKeys).not.toContain('player');
+    // Note: 'player' IS in the allowed list since the "Spieler ändern" feature
     expect(sentKeys).not.toContain('base_value');
     expect(sentKeys).not.toContain('multiplier');
     expect(sentKeys).not.toContain('won');

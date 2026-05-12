@@ -200,6 +200,9 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
     // Update all rounds in DB that reference the old player name
     const { error: roundsError } = await syncService.renamePlayerInRounds(sessionId, oldName, newName);
     if (roundsError) console.error('renamePlayerInRounds fehlgeschlagen:', roundsError);
+    // Update display_name in session_players (does not touch user_id)
+    const { error: spError } = await syncService.updateSessionPlayerName(sessionId, oldName, newName);
+    if (spError) console.error('updateSessionPlayerName fehlgeschlagen:', spError);
   }, [state.seating]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const reorderSeating = useCallback(async (fromIndex, toIndex) => {
