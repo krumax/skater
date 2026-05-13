@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { calculateSeegerFabian } from './skatScoring';
+import { resolveTokenTarget, validateDisplayName, isNameAvailable } from './claimValidation';
 
 // --- OFFLINE QUEUE LOGIC ---
 const QUEUE_KEY = 'skat_offline_queue';
@@ -107,7 +108,7 @@ export async function createSession(seating, tableName = '') {
       .select()
       .single();
 
-    if (!fallback.error && fallback.data) {
+    if (!fallback.error && fallback.data && user_id) {
       try {
         await supabase.from('session_players').insert({
           session_id:   fallback.data.id,
@@ -125,15 +126,18 @@ export async function createSession(seating, tableName = '') {
 
   if (error) return { data: null, error };
 
-  try {
-    await supabase.from('session_players').insert({
-      session_id:   data.id,
-      slot_index:   0,
-      display_name: seating[0],
-      user_id,
-    });
-  } catch (spError) {
-    console.error('session_players insert failed (non-fatal):', spError);
+  // Auto-link creator: insert session_players row only for authenticated users (Req 2.2)
+  if (user_id) {
+    try {
+      await supabase.from('session_players').insert({
+        session_id:   data.id,
+        slot_index:   0,
+        display_name: seating[0],
+        user_id,
+      });
+    } catch (spError) {
+      console.error('session_players insert failed (non-fatal):', spError);
+    }
   }
 
   return { data, error: null };
@@ -294,6 +298,7 @@ export async function _doUpdateSession(sessionId, patch) {
 
 /**
  * Updates the seating array (Offline-safeguarded)
+ * NOTE: Intentionally does NOT modify session_players — identity links are name-based (Req 2.3, 2.5)
  */
 export async function updateSeating(sessionId, seating) {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
@@ -495,6 +500,90 @@ export async function renamePlayerInRounds(sessionId, oldName, newName) {
 }
 
 /**
+ * Renames a player in a session with full cascade (Req 7.1–7.5, 7.7).
+ * Only the session host may call this.
+ * Updates: session_players.display_name, sessions.seating, pending claim_tokens,
+ * rounds.player, and rounds.roles.
+ * Returns { error: null } on success, { error: { message: '...' } } on failure.
+ */
+export async function renamePlayerInSession(sessionId, oldName, newName) {
+  // 1. Get current user ID
+  const callerId = await getUserId();
+  if (!callerId) {
+    return { error: { message: 'Nicht eingeloggt.' } };
+  }
+
+  // 2. Fetch session (seating, user_id)
+  const { data: sessionRow, error: sessionError } = await supabase
+    .from('sessions')
+    .select('user_id, seating')
+    .eq('id', sessionId)
+    .maybeSingle();
+
+  if (sessionError) return { error: sessionError };
+  if (!sessionRow) return { error: { message: 'Session nicht gefunden.' } };
+
+  // 3. Verify caller is host (Req 7.7)
+  if (sessionRow.user_id !== callerId) {
+    return { error: { message: 'Nur der Tischersteller kann Spieler umbenennen.' } };
+  }
+
+  // 4. Validate newName with validateDisplayName (Req 7.5)
+  const validation = validateDisplayName(newName);
+  if (!validation.valid) {
+    return { error: { message: 'Ungültiger Spielername.' } };
+  }
+
+  // 5. Check isNameAvailable (Req 7.4)
+  const seating = sessionRow.seating || [];
+  if (!isNameAvailable(newName, seating, oldName)) {
+    return { error: { message: 'Dieser Name ist bereits vergeben.' } };
+  }
+
+  // 6. Update seating array: replace oldName with newName at same index (Req 7.2)
+  const oldIndex = seating.indexOf(oldName);
+  if (oldIndex === -1) {
+    return { error: { message: 'Spielername nicht in der Sitzordnung.' } };
+  }
+  const newSeating = [...seating];
+  newSeating[oldIndex] = newName;
+
+  // 7. Update sessions.seating
+  const { error: seatingError } = await supabase
+    .from('sessions')
+    .update({ seating: newSeating })
+    .eq('id', sessionId);
+
+  if (seatingError) return { error: seatingError };
+
+  // 8. Update session_players.display_name (Req 7.1)
+  const { error: spError } = await supabase
+    .from('session_players')
+    .update({ display_name: newName })
+    .eq('session_id', sessionId)
+    .eq('display_name', oldName);
+
+  if (spError) return { error: spError };
+
+  // 9. Cascade to pending claim_tokens (Req 7.3)
+  const { error: tokenError } = await supabase
+    .from('claim_tokens')
+    .update({ display_name: newName })
+    .eq('session_id', sessionId)
+    .eq('display_name', oldName)
+    .eq('used', false)
+    .gt('expires_at', new Date().toISOString());
+
+  if (tokenError) return { error: tokenError };
+
+  // 10–11. Update rounds.player and rounds.roles (Req 7.1)
+  const { error: roundsError } = await renamePlayerInRounds(sessionId, oldName, newName);
+  if (roundsError) return { error: roundsError };
+
+  return { error: null };
+}
+
+/**
  * Pre-assigns a slot (index 1–3) to a known user_id (Req 2).
  * Returns { error } where error is null on success.
  */
@@ -530,8 +619,9 @@ export async function preassignSlot(sessionId, slotIndex, userId) {
 }
 
 /**
- * Generates a claim token for a slot (Req 3.1, 3.7).
- * Only the session creator (slot 0 user_id) may call this.
+ * Generates a claim token for a player name at a given slot position (Req 1.1–1.6, 9.4).
+ * Resolves display_name from seating[slotIndex] and creates a token with display_name set
+ * and slot_index null. Only the session host (sessions.user_id) may call this.
  * Returns { data: { inviteUrl, token }, error }.
  */
 export async function generateClaimToken(sessionId, slotIndex) {
@@ -540,38 +630,68 @@ export async function generateClaimToken(sessionId, slotIndex) {
     return { data: null, error: { message: 'Nicht eingeloggt.' } };
   }
 
-  // Verify the caller is the session creator (sessions.user_id)
+  // Fetch session to get seating array and verify host
   const { data: sessionRow, error: sessionError } = await supabase
     .from('sessions')
-    .select('user_id')
+    .select('user_id, seating')
     .eq('id', sessionId)
     .maybeSingle();
 
   if (sessionError) return { data: null, error: sessionError };
 
-  if (!sessionRow || sessionRow.user_id !== callerId) {
+  // Session not found
+  if (!sessionRow) {
+    return { data: null, error: { message: 'Session nicht gefunden.' } };
+  }
+
+  // Verify the caller is the host (Req 1.5)
+  if (sessionRow.user_id !== callerId) {
     return { data: null, error: { message: 'Nur der Tischersteller kann Einladungslinks generieren.' } };
   }
 
-  // Generate token and expiry
+  // Resolve display_name from seating[slotIndex] (Req 1.1)
+  const seating = sessionRow.seating || [];
+  const displayName = seating[slotIndex];
+
+  // Validate name exists in seating (Req 1.3)
+  if (displayName === undefined || displayName === null) {
+    return { data: null, error: { message: 'Spielername nicht in der Sitzordnung.' } };
+  }
+
+  // Check if display_name is already claimed in session_players (Req 1.4)
+  const { data: existingPlayer, error: playerError } = await supabase
+    .from('session_players')
+    .select('user_id')
+    .eq('session_id', sessionId)
+    .eq('display_name', displayName)
+    .maybeSingle();
+
+  if (playerError) return { data: null, error: playerError };
+
+  if (existingPlayer?.user_id) {
+    return { data: null, error: { message: 'Dieser Spieler ist bereits verknüpft.' } };
+  }
+
+  // Generate token and expiry (72 hours)
   const token = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
 
-  // Insert into claim_tokens
+  // Insert into claim_tokens with display_name set and slot_index null (Req 9.4)
   const { error: insertError } = await supabase
     .from('claim_tokens')
     .insert({
-      session_id:  sessionId,
-      slot_index:  slotIndex,
+      session_id:    sessionId,
+      slot_index:    null,
+      display_name:  displayName,
       token,
-      expires_at:  expiresAt,
-      used:        false,
-      created_by:  callerId,
+      expires_at:    expiresAt,
+      used:          false,
+      created_by:    callerId,
     });
 
   if (insertError) return { data: null, error: insertError };
 
-  // Build invite URL
+  // Build invite URL (Req 1.2)
   const baseUrl = (typeof window !== 'undefined' && window.location?.origin)
     ? window.location.origin
     : 'https://skatastrophe.app';
@@ -581,97 +701,105 @@ export async function generateClaimToken(sessionId, slotIndex) {
 }
 
 /**
- * Claims a slot using a token (Req 3.2–3.6).
+ * Claims a slot using a token (Req 3.1–3.10).
+ * Resolves target display_name via resolveTokenTarget (handles both legacy and new tokens).
  * Returns { error } where error is null on success.
  */
 export async function claimSlot(token, userId) {
-  // 1. Look up the token
+  // 1. Fetch token row from claim_tokens
   const { data: tokenRow, error: tokenError } = await supabase
     .from('claim_tokens')
-    .select('id, session_id, slot_index, expires_at, used')
+    .select('id, session_id, slot_index, display_name, expires_at, used')
     .eq('token', token)
     .maybeSingle();
 
   if (tokenError) return { error: tokenError };
 
-  // Not found
+  // 2. Token not found
   if (!tokenRow) {
     return { error: { message: 'Ungültiger Einladungslink.' } };
   }
 
-  // Expired
-  if (new Date(tokenRow.expires_at) < new Date()) {
-    return { error: { message: 'Dieser Einladungslink ist abgelaufen.' } };
-  }
-
-  // Already used
+  // 3. Token already used
   if (tokenRow.used) {
     return { error: { message: 'Dieser Einladungslink wurde bereits verwendet.' } };
   }
 
-  const { session_id: sessionId, slot_index: slotIndex } = tokenRow;
-
-  // Slot already has a user_id
-  const { data: slotRow, error: slotError } = await supabase
-    .from('session_players')
-    .select('user_id')
-    .eq('session_id', sessionId)
-    .eq('slot_index', slotIndex)
-    .maybeSingle();
-
-  if (slotError) return { error: slotError };
-
-  if (slotRow?.user_id) {
-    return { error: { message: 'Dieser Slot ist bereits vergeben.' } };
+  // 4. Token expired
+  if (new Date(tokenRow.expires_at) < new Date()) {
+    return { error: { message: 'Dieser Einladungslink ist abgelaufen.' } };
   }
 
-  // Caller is the session creator (slot 0)
-  const { data: creatorRow, error: creatorError } = await supabase
-    .from('session_players')
-    .select('user_id')
-    .eq('session_id', sessionId)
-    .eq('slot_index', 0)
-    .maybeSingle();
+  const { session_id: sessionId } = tokenRow;
 
-  if (creatorError) return { error: creatorError };
-
-  if (creatorRow?.user_id && creatorRow.user_id === userId) {
-    return { error: { message: 'Du bist bereits der Tischersteller.' } };
-  }
-
-  // All checks passed — assign the user_id to the slot
-  // The session_players row may not exist yet (only slot 0 is created on session creation).
-  // We need the display_name from the session's seating array.
-  const { data: sessionForSeating, error: seatingError } = await supabase
+  // 5. Fetch session (seating) for the token's session_id
+  const { data: sessionRow, error: sessionError } = await supabase
     .from('sessions')
-    .select('seating')
+    .select('seating, user_id')
     .eq('id', sessionId)
     .maybeSingle();
 
-  if (seatingError) return { error: seatingError };
+  if (sessionError) return { error: sessionError };
+  if (!sessionRow) return { error: { message: 'Ungültiger Einladungslink.' } };
 
-  const displayName = sessionForSeating?.seating?.[slotIndex] ?? `Spieler ${slotIndex + 1}`;
+  const seating = sessionRow.seating || [];
 
-  let writeError;
-  if (slotRow) {
-    // Row exists but user_id is null — update it
-    const { error } = await supabase
-      .from('session_players')
-      .update({ user_id: userId })
-      .eq('session_id', sessionId)
-      .eq('slot_index', slotIndex);
-    writeError = error;
-  } else {
-    // Row doesn't exist — insert a new one
-    const { error } = await supabase
-      .from('session_players')
-      .insert({ session_id: sessionId, slot_index: slotIndex, user_id: userId, display_name: displayName });
-    writeError = error;
+  // 6. Resolve display_name using resolveTokenTarget (handles both legacy and new tokens)
+  const resolution = resolveTokenTarget(tokenRow, seating);
+  if (resolution.error) {
+    return { error: { message: resolution.error } };
+  }
+  const { displayName } = resolution;
+
+  // 7. Validate display_name still exists in seating
+  if (!seating.includes(displayName)) {
+    return { error: { message: 'Dieser Spielername existiert nicht mehr an diesem Tisch.' } };
   }
 
-  if (writeError) return { error: writeError };
+  // 8. Check if user is the host (sessions.user_id === userId)
+  if (sessionRow.user_id === userId) {
+    return { error: { message: 'Du bist bereits der Tischersteller.' } };
+  }
 
-  // Mark the token as used
+  // 9. Check if display_name is already linked to a different user
+  const { data: nameRow, error: nameError } = await supabase
+    .from('session_players')
+    .select('user_id')
+    .eq('session_id', sessionId)
+    .eq('display_name', displayName)
+    .maybeSingle();
+
+  if (nameError) return { error: nameError };
+
+  if (nameRow?.user_id && nameRow.user_id !== userId) {
+    return { error: { message: 'Dieser Spielername ist bereits vergeben.' } };
+  }
+
+  // 10. Check if userId is already linked to a different display_name in this session
+  const { data: userRow, error: userError } = await supabase
+    .from('session_players')
+    .select('display_name')
+    .eq('session_id', sessionId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (userError) return { error: userError };
+
+  if (userRow && userRow.display_name !== displayName) {
+    return { error: { message: 'Du bist bereits mit einem anderen Namen in dieser Session verknüpft.' } };
+  }
+
+  // 11. Upsert session_players row with resolved display_name and user_id
+  const { error: upsertError } = await supabase
+    .from('session_players')
+    .upsert(
+      { session_id: sessionId, display_name: displayName, user_id: userId },
+      { onConflict: 'session_id,display_name' }
+    );
+
+  if (upsertError) return { error: upsertError };
+
+  // 12. Mark token as used
   const { error: updateTokenError } = await supabase
     .from('claim_tokens')
     .update({ used: true })
@@ -679,6 +807,7 @@ export async function claimSlot(token, userId) {
 
   if (updateTokenError) return { error: updateTokenError };
 
+  // 13. Return success
   return { error: null };
 }
 
@@ -779,6 +908,176 @@ export async function loadMyRoundsAcrossSessions(userId) {
   }));
 
   return { data: rounds, error: null };
+}
+
+/**
+ * Deletes a player from a session by display_name (Req 2.6).
+ * Removes the name from the seating array and deletes the corresponding session_players row.
+ * Returns { error } where error is null on success.
+ */
+export async function deletePlayerFromSession(sessionId, displayName) {
+  // 1. Fetch current session to get seating array
+  const { data: session, error: fetchError } = await supabase
+    .from('sessions')
+    .select('seating')
+    .eq('id', sessionId)
+    .maybeSingle();
+
+  if (fetchError) return { error: fetchError };
+  if (!session) return { error: { message: 'Session nicht gefunden.' } };
+
+  const seating = session.seating;
+  if (!seating || !seating.includes(displayName)) {
+    return { error: { message: 'Spielername nicht in der Sitzordnung.' } };
+  }
+
+  // 2. Remove displayName from the seating array
+  const newSeating = seating.filter(name => name !== displayName);
+
+  // 3. Update sessions.seating with the new array
+  const { error: updateError } = await supabase
+    .from('sessions')
+    .update({ seating: newSeating })
+    .eq('id', sessionId);
+
+  if (updateError) return { error: updateError };
+
+  // 4. Delete corresponding session_players row
+  const { error: deleteError } = await supabase
+    .from('session_players')
+    .delete()
+    .eq('session_id', sessionId)
+    .eq('display_name', displayName);
+
+  if (deleteError) return { error: deleteError };
+
+  return { error: null };
+}
+
+/**
+ * Loads all sessions linked to a user via session_players (Req 6.1, 6.2).
+ * Returns { data: LinkedSessionSummary[], error } where each entry contains:
+ *   sessionId, tableName (null if not set), displayName, totalRounds, lastPlayedAt
+ * Ordered by most recent round descending.
+ *
+ * @typedef {{ sessionId: string, tableName: string|null, displayName: string, totalRounds: number, lastPlayedAt: string }} LinkedSessionSummary
+ * @param {string} userId
+ * @returns {Promise<{ data: LinkedSessionSummary[]|null, error: { message: string }|null }>}
+ */
+export async function loadLinkedSessions(userId) {
+  try {
+    // 1. Get all session_players rows for this user
+    const { data: sessionPlayers, error: spError } = await supabase
+      .from('session_players')
+      .select('session_id, display_name')
+      .eq('user_id', userId);
+
+    if (spError) return { data: null, error: { message: spError.message } };
+    if (!sessionPlayers || sessionPlayers.length === 0) {
+      return { data: [], error: null };
+    }
+
+    const sessionIds = sessionPlayers.map(sp => sp.session_id);
+
+    // Build map: session_id → display_name
+    const displayNameMap = {};
+    for (const sp of sessionPlayers) {
+      displayNameMap[sp.session_id] = sp.display_name;
+    }
+
+    // 2. Fetch sessions (table_name)
+    const { data: sessions, error: sessError } = await supabase
+      .from('sessions')
+      .select('id, table_name')
+      .in('id', sessionIds);
+
+    if (sessError) return { data: null, error: { message: sessError.message } };
+
+    const tableNameMap = {};
+    for (const s of (sessions || [])) {
+      tableNameMap[s.id] = s.table_name ?? null;
+    }
+
+    // 3. Fetch rounds for all linked sessions to compute totalRounds and lastPlayedAt per session
+    const { data: rounds, error: roundsError } = await supabase
+      .from('rounds')
+      .select('session_id, timestamp')
+      .in('session_id', sessionIds);
+
+    if (roundsError) return { data: null, error: { message: roundsError.message } };
+
+    // Aggregate: count rounds and find most recent timestamp per session
+    const roundStats = {};
+    for (const r of (rounds || [])) {
+      if (!roundStats[r.session_id]) {
+        roundStats[r.session_id] = { totalRounds: 0, lastPlayedAt: r.timestamp };
+      }
+      roundStats[r.session_id].totalRounds += 1;
+      if (r.timestamp > roundStats[r.session_id].lastPlayedAt) {
+        roundStats[r.session_id].lastPlayedAt = r.timestamp;
+      }
+    }
+
+    // 4. Build result list
+    const result = sessionIds.map(sessionId => ({
+      sessionId,
+      tableName: tableNameMap[sessionId] ?? null,
+      displayName: displayNameMap[sessionId],
+      totalRounds: roundStats[sessionId]?.totalRounds ?? 0,
+      lastPlayedAt: roundStats[sessionId]?.lastPlayedAt ?? null,
+    }));
+
+    // 5. Order by lastPlayedAt descending (most recent first), nulls last
+    result.sort((a, b) => {
+      if (!a.lastPlayedAt && !b.lastPlayedAt) return 0;
+      if (!a.lastPlayedAt) return 1;
+      if (!b.lastPlayedAt) return -1;
+      return b.lastPlayedAt.localeCompare(a.lastPlayedAt);
+    });
+
+    return { data: result, error: null };
+  } catch (err) {
+    return { data: null, error: { message: err.message || 'Unbekannter Fehler beim Laden der verknüpften Sessions.' } };
+  }
+}
+
+/**
+ * Loads full session data for a claimed player (Req 5.1, 5.2, 5.5, 5.6).
+ * Verifies the user has a session_players row for this session, then delegates
+ * to loadSession for the actual data fetch. Returns the session data with
+ * isReadOnly: true flag appended.
+ *
+ * @param {string} sessionId - The session to load
+ * @param {string} userId - The claimed player's user_id
+ * @returns {{ data: ClaimedSessionDetail|null, error: { message: string }|null }}
+ */
+export async function loadSessionForClaimedPlayer(sessionId, userId) {
+  // 1. Verify user has a session_players row for this session
+  const { data: playerRow, error: playerError } = await supabase
+    .from('session_players')
+    .select('id')
+    .eq('session_id', sessionId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (playerError) {
+    return { data: null, error: { message: 'Zugriff verweigert.' } };
+  }
+
+  if (!playerRow) {
+    return { data: null, error: { message: 'Zugriff verweigert.' } };
+  }
+
+  // 2. Call existing loadSession to fetch full session data
+  const { data: sessionData, error: loadError } = await loadSession(sessionId);
+
+  // 3. Handle RLS denial or any load error gracefully
+  if (loadError || !sessionData) {
+    return { data: null, error: { message: 'Zugriff verweigert.' } };
+  }
+
+  // 4. Return session data with isReadOnly flag
+  return { data: { ...sessionData, isReadOnly: true }, error: null };
 }
 
 /**

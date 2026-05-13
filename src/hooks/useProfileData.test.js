@@ -15,6 +15,8 @@ vi.mock('../lib/supabaseClient', () => ({
 // Mock syncService
 vi.mock('../lib/syncService', () => ({
   loadMyRoundsAcrossSessions: vi.fn(),
+  loadLinkedSessions: vi.fn(),
+  loadSessionForClaimedPlayer: vi.fn(),
 }));
 
 // Mock playerStats
@@ -48,6 +50,7 @@ describe('useProfileData', () => {
     syncService.loadMyRoundsAcrossSessions.mockImplementation(
       () => new Promise((resolve) => { resolveLoad = resolve; })
     );
+    syncService.loadLinkedSessions.mockResolvedValue({ data: [], error: null });
 
     const { result } = renderHook(() => useProfileData());
 
@@ -80,6 +83,7 @@ describe('useProfileData', () => {
     syncService.loadMyRoundsAcrossSessions.mockRejectedValue(
       new Error('Netzwerkfehler')
     );
+    syncService.loadLinkedSessions.mockResolvedValue({ data: [], error: null });
 
     const { result } = renderHook(() => useProfileData());
 
@@ -100,6 +104,7 @@ describe('useProfileData', () => {
       data: [],
       error: null,
     });
+    syncService.loadLinkedSessions.mockResolvedValue({ data: [], error: null });
 
     const { result } = renderHook(() => useProfileData());
 
@@ -134,5 +139,286 @@ describe('useProfileData', () => {
     expect(result.current.sessionSummaries).toEqual([]);
     expect(result.current.error).toBeNull();
     expect(syncService.loadMyRoundsAcrossSessions).not.toHaveBeenCalled();
+  });
+
+  // --- linkedSessions tests (Req 6.1, 6.5, 6.6) ---
+
+  describe('linkedSessions', () => {
+    it('loads linked sessions on mount for authenticated users', async () => {
+      supabase.auth.getSession.mockResolvedValue({
+        data: { session: { user: { id: 'user-123' } } },
+      });
+
+      const mockSessions = [
+        { sessionId: 's1', tableName: 'Tisch A', displayName: 'Max', totalRounds: 10, lastPlayedAt: '2024-01-01T12:00:00Z' },
+        { sessionId: 's2', tableName: null, displayName: 'Konrad', totalRounds: 5, lastPlayedAt: '2024-01-02T12:00:00Z' },
+      ];
+
+      syncService.loadMyRoundsAcrossSessions.mockResolvedValue({ data: [], error: null });
+      syncService.loadLinkedSessions.mockResolvedValue({ data: mockSessions, error: null });
+
+      const { result } = renderHook(() => useProfileData());
+
+      // Initially loading
+      expect(result.current.linkedSessionsLoading).toBe(true);
+
+      await waitFor(() => {
+        expect(result.current.linkedSessionsLoading).toBe(false);
+      });
+
+      expect(result.current.linkedSessions).toEqual(mockSessions);
+      expect(result.current.linkedSessionsError).toBeNull();
+      expect(syncService.loadLinkedSessions).toHaveBeenCalledWith('user-123');
+    });
+
+    it('sets linkedSessionsError when loadLinkedSessions returns an error', async () => {
+      supabase.auth.getSession.mockResolvedValue({
+        data: { session: { user: { id: 'user-123' } } },
+      });
+
+      syncService.loadMyRoundsAcrossSessions.mockResolvedValue({ data: [], error: null });
+      syncService.loadLinkedSessions.mockResolvedValue({
+        data: null,
+        error: { message: 'Datenbankfehler' },
+      });
+
+      const { result } = renderHook(() => useProfileData());
+
+      await waitFor(() => {
+        expect(result.current.linkedSessionsLoading).toBe(false);
+      });
+
+      expect(result.current.linkedSessionsError).toBe('Datenbankfehler');
+      expect(result.current.linkedSessions).toEqual([]);
+    });
+
+    it('sets linkedSessionsError when loadLinkedSessions throws', async () => {
+      supabase.auth.getSession.mockResolvedValue({
+        data: { session: { user: { id: 'user-123' } } },
+      });
+
+      syncService.loadMyRoundsAcrossSessions.mockResolvedValue({ data: [], error: null });
+      syncService.loadLinkedSessions.mockRejectedValue(new Error('Netzwerkfehler'));
+
+      const { result } = renderHook(() => useProfileData());
+
+      await waitFor(() => {
+        expect(result.current.linkedSessionsLoading).toBe(false);
+      });
+
+      expect(result.current.linkedSessionsError).toBe('Netzwerkfehler');
+      expect(result.current.linkedSessions).toEqual([]);
+    });
+
+    it('returns empty linkedSessions when not authenticated', async () => {
+      supabase.auth.getSession.mockResolvedValue({
+        data: { session: null },
+      });
+
+      const { result } = renderHook(() => useProfileData());
+
+      await waitFor(() => {
+        expect(result.current.linkedSessionsLoading).toBe(false);
+      });
+
+      expect(result.current.linkedSessions).toEqual([]);
+      expect(result.current.linkedSessionsError).toBeNull();
+      expect(syncService.loadLinkedSessions).not.toHaveBeenCalled();
+    });
+
+    it('refetchLinkedSessions triggers a new fetch', async () => {
+      supabase.auth.getSession.mockResolvedValue({
+        data: { session: { user: { id: 'user-123' } } },
+      });
+
+      syncService.loadMyRoundsAcrossSessions.mockResolvedValue({ data: [], error: null });
+      syncService.loadLinkedSessions.mockResolvedValue({ data: [], error: null });
+
+      const { result } = renderHook(() => useProfileData());
+
+      await waitFor(() => {
+        expect(result.current.linkedSessionsLoading).toBe(false);
+      });
+
+      expect(syncService.loadLinkedSessions).toHaveBeenCalledTimes(1);
+
+      // Trigger refetch
+      await act(async () => {
+        result.current.refetchLinkedSessions();
+      });
+
+      await waitFor(() => {
+        expect(syncService.loadLinkedSessions).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('handles empty data from loadLinkedSessions gracefully', async () => {
+      supabase.auth.getSession.mockResolvedValue({
+        data: { session: { user: { id: 'user-123' } } },
+      });
+
+      syncService.loadMyRoundsAcrossSessions.mockResolvedValue({ data: [], error: null });
+      syncService.loadLinkedSessions.mockResolvedValue({ data: [], error: null });
+
+      const { result } = renderHook(() => useProfileData());
+
+      await waitFor(() => {
+        expect(result.current.linkedSessionsLoading).toBe(false);
+      });
+
+      expect(result.current.linkedSessions).toEqual([]);
+      expect(result.current.linkedSessionsError).toBeNull();
+    });
+  });
+
+  describe('loadSessionDetail', () => {
+    beforeEach(() => {
+      supabase.auth.getSession.mockResolvedValue({
+        data: { session: { user: { id: 'user-123' } } },
+      });
+      syncService.loadMyRoundsAcrossSessions.mockResolvedValue({ data: [], error: null });
+      syncService.loadLinkedSessions.mockResolvedValue({ data: [], error: null });
+    });
+
+    it('loads session detail successfully', async () => {
+      const mockSessionData = {
+        session: { id: 'session-1', seating: ['A', 'B', 'C'] },
+        rounds: [],
+        spiellisten: [],
+        activeSpiellisteId: null,
+        isReadOnly: true,
+      };
+      syncService.loadSessionForClaimedPlayer.mockResolvedValue({
+        data: mockSessionData,
+        error: null,
+      });
+
+      const { result } = renderHook(() => useProfileData());
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      // Initially no session detail
+      expect(result.current.sessionDetail).toBeNull();
+      expect(result.current.sessionDetailLoading).toBe(false);
+      expect(result.current.sessionDetailError).toBeNull();
+
+      // Load session detail
+      await act(async () => {
+        await result.current.loadSessionDetail('session-1');
+      });
+
+      expect(result.current.sessionDetail).toEqual(mockSessionData);
+      expect(result.current.sessionDetailLoading).toBe(false);
+      expect(result.current.sessionDetailError).toBeNull();
+      expect(syncService.loadSessionForClaimedPlayer).toHaveBeenCalledWith('session-1', 'user-123');
+    });
+
+    it('sets error when access is denied', async () => {
+      syncService.loadSessionForClaimedPlayer.mockResolvedValue({
+        data: null,
+        error: { message: 'Zugriff verweigert.' },
+      });
+
+      const { result } = renderHook(() => useProfileData());
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      await act(async () => {
+        await result.current.loadSessionDetail('session-1');
+      });
+
+      expect(result.current.sessionDetail).toBeNull();
+      expect(result.current.sessionDetailError).toBe('Zugriff verweigert.');
+      expect(result.current.sessionDetailLoading).toBe(false);
+    });
+
+    it('sets error on network failure', async () => {
+      syncService.loadSessionForClaimedPlayer.mockRejectedValue(
+        new Error('Netzwerkfehler beim Laden der Session.')
+      );
+
+      const { result } = renderHook(() => useProfileData());
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      await act(async () => {
+        await result.current.loadSessionDetail('session-1');
+      });
+
+      expect(result.current.sessionDetail).toBeNull();
+      expect(result.current.sessionDetailError).toBe('Netzwerkfehler beim Laden der Session.');
+      expect(result.current.sessionDetailLoading).toBe(false);
+    });
+
+    it('sets error when user is not authenticated', async () => {
+      // Override getSession to return no user for the loadSessionDetail call
+      supabase.auth.getSession
+        .mockResolvedValueOnce({ data: { session: { user: { id: 'user-123' } } } }) // initial load
+        .mockResolvedValueOnce({ data: { session: null } }); // loadSessionDetail call
+
+      const { result } = renderHook(() => useProfileData());
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      await act(async () => {
+        await result.current.loadSessionDetail('session-1');
+      });
+
+      expect(result.current.sessionDetailError).toBe('Nicht eingeloggt.');
+      expect(result.current.sessionDetailLoading).toBe(false);
+    });
+  });
+
+  describe('clearSessionDetail', () => {
+    beforeEach(() => {
+      supabase.auth.getSession.mockResolvedValue({
+        data: { session: { user: { id: 'user-123' } } },
+      });
+      syncService.loadMyRoundsAcrossSessions.mockResolvedValue({ data: [], error: null });
+      syncService.loadLinkedSessions.mockResolvedValue({ data: [], error: null });
+    });
+
+    it('clears session detail and error state', async () => {
+      const mockSessionData = {
+        session: { id: 'session-1', seating: ['A', 'B', 'C'] },
+        rounds: [],
+        spiellisten: [],
+        activeSpiellisteId: null,
+        isReadOnly: true,
+      };
+      syncService.loadSessionForClaimedPlayer.mockResolvedValue({
+        data: mockSessionData,
+        error: null,
+      });
+
+      const { result } = renderHook(() => useProfileData());
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      // Load a session detail first
+      await act(async () => {
+        await result.current.loadSessionDetail('session-1');
+      });
+
+      expect(result.current.sessionDetail).toEqual(mockSessionData);
+
+      // Clear it
+      act(() => {
+        result.current.clearSessionDetail();
+      });
+
+      expect(result.current.sessionDetail).toBeNull();
+      expect(result.current.sessionDetailError).toBeNull();
+    });
   });
 });

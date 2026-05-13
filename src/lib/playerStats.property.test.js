@@ -26,8 +26,8 @@ const arbitraryDeclarerRound = fc.record({
   gameValue:  fc.integer({ min: -240, max: 240 }).filter(v => v !== 0),
   won:        fc.boolean(),
   gameType:   fc.constantFrom('club', 'spade', 'heart', 'diamond', 'grand', 'null'),
-  timestamp:  fc.date({ min: new Date('2020-01-01'), max: new Date('2030-01-01') })
-                .map(d => d.toISOString()),
+  timestamp:  fc.integer({ min: new Date('2020-01-01').getTime(), max: new Date('2030-01-01').getTime() })
+                .map(ts => new Date(ts).toISOString()),
 }).map(r => ({
   ...r,
   // Ensure player === playerName so this round is treated as a declarer round

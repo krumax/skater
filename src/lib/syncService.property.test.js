@@ -562,14 +562,14 @@ describeP(
 
     itP(
       'Validates: Requirement 3.1 — ' +
-      'the inserted claim_tokens row must have matching session_id and slot_index, ' +
-      'and expires_at must be within ±60 s of now + 72 h',
+      'the inserted claim_tokens row must have matching session_id and display_name, ' +
+      'slot_index must be null, and expires_at must be within ±60 s of now + 72 h',
       { timeout: 60000 },
       async () => {
         await fc.assert(
           fc.asyncProperty(
             fc.uuid(),                          // sessionId
-            fc.integer({ min: 0, max: 3 }),     // slotIndex
+            fc.integer({ min: 1, max: 3 }),     // slotIndex (non-creator slots only)
             fc.uuid(),                          // creatorUserId
             async (sessionId, slotIndex, creatorUserId) => {
               // Reset stores for each run
@@ -580,11 +580,13 @@ describeP(
               // Set the authenticated caller to the creator
               _mockUserId = creatorUserId;
 
+              const seating = ['Creator', 'Player2', 'Player3', 'Player4'];
+
               // Pre-populate the sessions table with the creator's user_id
               _sessions[sessionId] = {
                 id:        sessionId,
                 user_id:   creatorUserId,
-                seating:   ['Creator', 'Player2', 'Player3', 'Player4'],
+                seating:   seating,
               };
 
               // Pre-populate slot 0 with the creator's user_id so the auth check passes
@@ -611,9 +613,12 @@ describeP(
 
               const row = insertedRows[0];
 
-              // session_id and slot_index must match the arguments
+              // session_id must match the argument
               expectP(row.session_id).toBe(sessionId);
-              expectP(row.slot_index).toBe(slotIndex);
+              // slot_index must be null (refactored: uses display_name instead)
+              expectP(row.slot_index).toBeNull();
+              // display_name must match seating[slotIndex]
+              expectP(row.display_name).toBe(seating[slotIndex]);
 
               // expires_at must be within ±60 s of now + 72 h
               const expectedExpiry = before + 72 * 60 * 60 * 1000;
@@ -781,10 +786,12 @@ function makeExtendedBuilder(table) {
   const store =
     table === 'session_players' ? _sessionPlayers :
     table === 'claim_tokens'    ? _claimTokens    :
+    table === 'sessions'        ? _sessions       :
     {};
 
   let _filters = {};
   let _upsertData = null;
+  let _upsertOptions = null;
   let _insertData = null;
   let _updateData = null;
   let _isMaybeSingle = false;
@@ -803,8 +810,9 @@ function makeExtendedBuilder(table) {
       _isMaybeSingle = true;
       return builder;
     },
-    upsert(data) {
+    upsert(data, options) {
       _upsertData = data;
+      _upsertOptions = options;
       return builder;
     },
     insert(data) {
@@ -823,8 +831,11 @@ function makeExtendedBuilder(table) {
           store[id] = { id, ..._insertData };
           result = { data: null, error: null };
         } else if (_upsertData !== null) {
-          const existing = Object.values(store).find(
-            r => r.session_id === _upsertData.session_id && r.slot_index === _upsertData.slot_index
+          // UPSERT: determine conflict key from options
+          const conflictKey = _upsertOptions?.onConflict || 'session_id,slot_index';
+          const conflictFields = conflictKey.split(',').map(f => f.trim());
+          const existing = Object.values(store).find(r =>
+            conflictFields.every(f => r[f] === _upsertData[f])
           );
           if (existing) {
             store[existing.id] = { ...existing, ..._upsertData };
@@ -895,6 +906,7 @@ describeP(
     beforeEach(() => {
       _sessionPlayers = {};
       _claimTokens = {};
+      _sessions = {};
       _mockUserId = null;
       // Patch supabase.from to use the extended builder (supports UPDATE)
       _supabaseMock.from = (table) => makeExtendedBuilder(table);
@@ -922,9 +934,20 @@ describeP(
               // Reset stores for each run
               _sessionPlayers = {};
               _claimTokens = {};
+              _sessions = {};
 
               // The effective userId for the claim call
               const effectiveUserId = isCreator ? creatorUserId : callerUserId;
+
+              const seating = ['Creator', 'Player2', 'Player3', 'Player4'];
+              const targetDisplayName = seating[slotIndex];
+
+              // Pre-populate the sessions table
+              _sessions[sessionId] = {
+                id:        sessionId,
+                user_id:   creatorUserId,
+                seating:   seating,
+              };
 
               // Build the token row
               const tokenId = crypto.randomUUID();
@@ -935,21 +958,22 @@ describeP(
                 : new Date(now + 72 * 60 * 60 * 1000).toISOString(); // 72 h in the future
 
               _claimTokens[tokenId] = {
-                id:         tokenId,
-                session_id: sessionId,
-                slot_index: slotIndex,
-                token:      tokenValue,
-                expires_at: expiresAt,
-                used:       isUsed,
+                id:           tokenId,
+                session_id:   sessionId,
+                slot_index:   null,
+                display_name: targetDisplayName,
+                token:        tokenValue,
+                expires_at:   expiresAt,
+                used:         isUsed,
               };
 
-              // Build the target slot row (slot_index = slotIndex)
+              // Build the target session_players row (display_name = targetDisplayName)
               const targetSlotId = crypto.randomUUID();
               _sessionPlayers[targetSlotId] = {
                 id:           targetSlotId,
                 session_id:   sessionId,
                 slot_index:   slotIndex,
-                display_name: 'Player',
+                display_name: targetDisplayName,
                 user_id:      isSlotClaimed ? crypto.randomUUID() : null,
               };
 
@@ -971,9 +995,9 @@ describeP(
 
               if (shouldSucceed) {
                 expectP(result.error).toBeNull();
-                // The slot must now have the caller's user_id
+                // The session_players row must now have the caller's user_id
                 const updatedSlot = Object.values(_sessionPlayers).find(
-                  r => r.session_id === sessionId && r.slot_index === slotIndex
+                  r => r.session_id === sessionId && r.display_name === targetDisplayName
                 );
                 expectP(updatedSlot?.user_id).toBe(effectiveUserId);
                 // The token must be marked as used
@@ -1003,6 +1027,7 @@ describeP(
     beforeEach(() => {
       _sessionPlayers = {};
       _claimTokens = {};
+      _sessions = {};
       _mockUserId = null;
       // Patch supabase.from to use the extended builder (supports UPDATE)
       _supabaseMock.from = (table) => makeExtendedBuilder(table);
@@ -1026,17 +1051,29 @@ describeP(
               // Reset stores for each run
               _sessionPlayers = {};
               _claimTokens = {};
+              _sessions = {};
+
+              const seating = ['Creator', 'Player2', 'Player3', 'Player4'];
+              const targetDisplayName = seating[slotIndex];
+
+              // Pre-populate the sessions table
+              _sessions[sessionId] = {
+                id:        sessionId,
+                user_id:   creatorUserId,
+                seating:   seating,
+              };
 
               // Build a valid (unexpired, unused) token
               const tokenId = crypto.randomUUID();
               const tokenValue = crypto.randomUUID();
               _claimTokens[tokenId] = {
-                id:         tokenId,
-                session_id: sessionId,
-                slot_index: slotIndex,
-                token:      tokenValue,
-                expires_at: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
-                used:       false,
+                id:           tokenId,
+                session_id:   sessionId,
+                slot_index:   null,
+                display_name: targetDisplayName,
+                token:        tokenValue,
+                expires_at:   new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
+                used:         false,
               };
 
               // Build the target slot (unclaimed)
@@ -1045,7 +1082,7 @@ describeP(
                 id:           targetSlotId,
                 session_id:   sessionId,
                 slot_index:   slotIndex,
-                display_name: 'Player',
+                display_name: targetDisplayName,
                 user_id:      null,
               };
 
@@ -1744,6 +1781,1152 @@ describeP(
               for (const round of result.data) {
                 expectP(round.sessionId).toBe(linkedSessionId);
               }
+            }
+          ),
+          { numRuns: 100 }
+        );
+      }
+    );
+  }
+);
+
+
+// ── Property 3: Session creation auto-links creator ──────────────────────────
+// Feature: claim-table-refactor, Property 3: Session creation auto-links creator
+// Validates: Requirements 2.2
+//
+// Strategy:
+//   Call createSession(seating, tableName) with a mocked authenticated user.
+//   The mock captures all inserts to session_players. After the call, verify
+//   that a session_players row was inserted with:
+//     - session_id equal to the new session's ID
+//     - display_name equal to seating[0]
+//     - user_id equal to the creator's ID
+//     - slot_index equal to 0
+//
+//   We use a dedicated builder factory (makeCreateSessionBuilder) that handles
+//   the full .insert().select().single() chain for the sessions table and
+//   captures the session_players insert.
+
+// ── In-memory store for createSession tests ──────────────────────────────────
+let _csSessionPlayers = [];  // Captured session_players inserts
+let _csSessionId = null;     // The session ID returned by the sessions insert
+
+/**
+ * Builder factory for createSession tests.
+ * Handles:
+ *   - sessions: .insert(data).select().single() → returns { data: { id: _csSessionId, ...data }, error: null }
+ *   - session_players: .insert(data) → captures the insert payload into _csSessionPlayers
+ */
+function makeCreateSessionBuilder(table) {
+  let _insertData = null;
+  let _isSelect = false;
+  let _isSingle = false;
+
+  const builder = {
+    select() {
+      _isSelect = true;
+      return builder;
+    },
+    single() {
+      _isSingle = true;
+      return builder;
+    },
+    eq() {
+      return builder;
+    },
+    maybeSingle() {
+      return builder;
+    },
+    insert(data) {
+      _insertData = data;
+      return builder;
+    },
+    then(resolve) {
+      let result;
+      if (table === 'sessions' && _insertData !== null && _isSelect && _isSingle) {
+        // Simulate successful session creation — return the inserted row with an ID
+        result = {
+          data: { id: _csSessionId, ..._insertData },
+          error: null,
+        };
+      } else if (table === 'session_players' && _insertData !== null) {
+        // Capture the session_players insert payload
+        _csSessionPlayers.push({ ..._insertData });
+        result = { data: null, error: null };
+      } else {
+        result = { data: null, error: null };
+      }
+      return resolve(result);
+    },
+  };
+  return builder;
+}
+
+// Import createSession from the already-mocked syncService module
+const { createSession: _createSession } = await import('./syncService.js');
+
+// Arbitrary: seating array of 3–4 unique non-empty names
+const arbitrarySeating3or4 = fc
+  .array(
+    fc.string({ minLength: 1, maxLength: 20 }).map(s => s.trim()).filter(s => s.length > 0),
+    { minLength: 3, maxLength: 4 }
+  )
+  .filter(arr => new Set(arr).size === arr.length);
+
+describeP(
+  'Feature: claim-table-refactor, Property 3: Session creation auto-links creator',
+  () => {
+    beforeEach(() => {
+      _csSessionPlayers = [];
+      _csSessionId = null;
+      _mockUserId = null;
+      // Patch supabase.from to use the createSession builder
+      _supabaseMock.from = (table) => makeCreateSessionBuilder(table);
+    });
+
+    itP(
+      'Validates: Requirements 2.2 — ' +
+      'for any valid seating array of 3–4 names and any authenticated user, ' +
+      'createSession inserts a session_players row with session_id, display_name = seating[0], and user_id = creator',
+      { timeout: 60000 },
+      async () => {
+        await fc.assert(
+          fc.asyncProperty(
+            arbitrarySeating3or4,                           // seating array
+            fc.uuid(),                                     // creatorUserId
+            fc.uuid(),                                     // sessionId (simulated DB-generated)
+            fc.option(fc.string({ minLength: 1, maxLength: 20 }), { nil: '' }), // tableName
+            async (seating, creatorUserId, sessionId, tableName) => {
+              // Reset stores for each run
+              _csSessionPlayers = [];
+              _csSessionId = sessionId;
+              _mockUserId = creatorUserId;
+
+              // Call createSession
+              const result = await _createSession(seating, tableName);
+
+              // The session creation itself must succeed
+              expectP(result.error).toBeNull();
+              expectP(result.data).not.toBeNull();
+              expectP(result.data.id).toBe(sessionId);
+
+              // A session_players row must have been inserted
+              expectP(_csSessionPlayers).toHaveLength(1);
+
+              const spRow = _csSessionPlayers[0];
+
+              // session_id must equal the new session's ID
+              expectP(spRow.session_id).toBe(sessionId);
+
+              // display_name must equal seating[0]
+              expectP(spRow.display_name).toBe(seating[0]);
+
+              // user_id must equal the creator's ID
+              expectP(spRow.user_id).toBe(creatorUserId);
+
+              // slot_index must be 0
+              expectP(spRow.slot_index).toBe(0);
+            }
+          ),
+          { numRuns: 100 }
+        );
+      }
+    );
+  }
+);
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Feature: claim-table-refactor, Property 1: Token generation resolves display_name correctly
+// Feature: claim-table-refactor, Property 7: Successful claim creates correct link and marks token used
+// Validates: Requirements 1.1, 1.2, 3.1, 3.6, 9.4
+// ══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Strategy for Property 1:
+ *   For any valid session with a seating array of 3–4 names and any valid slot
+ *   index within bounds, calling generateClaimToken SHALL produce a token where:
+ *     - display_name === seating[slotIndex]
+ *     - slot_index is null
+ *     - expires_at is approximately 72 hours from now (±60s)
+ *     - used is false
+ *     - inviteUrl contains the token string
+ *
+ * Strategy for Property 7:
+ *   For any valid, unexpired, unused claim token with a display_name that exists
+ *   in the session's seating and is not yet linked to any user, and for any
+ *   authenticated user who is not the host and not already linked in that session,
+ *   calling claimSlot SHALL result in a session_players row with the correct
+ *   session_id, display_name, and user_id, AND the token's used field SHALL be true.
+ *
+ * Both tests use a dedicated builder (makeClaimRefactorBuilder) that supports
+ * display_name-based upsert and all query patterns used by the refactored functions.
+ */
+
+// ── Builder factory for claim-table-refactor tests ───────────────────────────
+
+/**
+ * Builder factory that supports all operations needed by the refactored
+ * generateClaimToken and claimSlot functions:
+ *   - sessions: SELECT (seating, user_id) by id
+ *   - session_players: SELECT by (session_id, display_name) or (session_id, user_id), UPSERT on (session_id, display_name)
+ *   - claim_tokens: SELECT by token, INSERT, UPDATE by id
+ */
+function makeClaimRefactorBuilder(table) {
+  const store =
+    table === 'session_players' ? _sessionPlayers :
+    table === 'claim_tokens'    ? _claimTokens    :
+    table === 'sessions'        ? _sessions       :
+    {};
+
+  let _filters = {};
+  let _upsertData = null;
+  let _upsertOptions = null;
+  let _insertData = null;
+  let _updateData = null;
+  let _isMaybeSingle = false;
+  let _isSelect = false;
+  let _selectedFields = null;
+
+  const builder = {
+    select(fields) {
+      _isSelect = true;
+      _selectedFields = fields ?? null;
+      return builder;
+    },
+    eq(field, value) {
+      _filters[field] = value;
+      return builder;
+    },
+    maybeSingle() {
+      _isMaybeSingle = true;
+      return builder;
+    },
+    upsert(data, options) {
+      _upsertData = data;
+      _upsertOptions = options ?? null;
+      return builder;
+    },
+    insert(data) {
+      _insertData = data;
+      return builder;
+    },
+    update(data) {
+      _updateData = data;
+      return builder;
+    },
+    order() {
+      return builder;
+    },
+    then(resolve) {
+      let result;
+      try {
+        if (_insertData !== null) {
+          const id = crypto.randomUUID();
+          store[id] = { id, ..._insertData };
+          result = { data: null, error: null };
+        } else if (_upsertData !== null) {
+          // UPSERT: resolve conflict key from options or default to (session_id, display_name)
+          const conflictKey = _upsertOptions?.onConflict || 'session_id,display_name';
+          const keys = conflictKey.split(',').map(k => k.trim());
+          const existing = Object.values(store).find(r =>
+            keys.every(k => r[k] === _upsertData[k])
+          );
+          if (existing) {
+            store[existing.id] = { ...existing, ..._upsertData };
+          } else {
+            const id = crypto.randomUUID();
+            store[id] = { id, ..._upsertData };
+          }
+          result = { data: null, error: null };
+        } else if (_updateData !== null) {
+          // UPDATE: apply patch to all rows matching _filters
+          let rows = Object.values(store);
+          for (const [k, v] of Object.entries(_filters)) {
+            rows = rows.filter(r => r[k] === v);
+          }
+          for (const row of rows) {
+            store[row.id] = { ...row, ..._updateData };
+          }
+          result = { data: null, error: null };
+        } else if (_isSelect && _isMaybeSingle) {
+          let rows = Object.values(store);
+          for (const [k, v] of Object.entries(_filters)) {
+            rows = rows.filter(r => r[k] === v);
+          }
+          if (rows.length > 0) {
+            // If specific fields were requested, project them
+            if (_selectedFields) {
+              const fields = _selectedFields.split(',').map(f => f.trim());
+              const projected = {};
+              for (const f of fields) {
+                projected[f] = rows[0][f];
+              }
+              result = { data: projected, error: null };
+            } else {
+              result = { data: rows[0], error: null };
+            }
+          } else {
+            result = { data: null, error: null };
+          }
+        } else {
+          result = { data: [], error: null };
+        }
+      } catch (e) {
+        result = { data: null, error: { message: e.message } };
+      }
+      return resolve(result);
+    },
+  };
+  return builder;
+}
+
+// ── Arbitraries for claim-table-refactor tests ───────────────────────────────
+
+// Non-empty display name (trimmed, realistic player names)
+const arbPlayerName = fc
+  .string({ minLength: 1, maxLength: 20 })
+  .map(s => s.trim())
+  .filter(s => s.length > 0);
+
+// Seating array of 3–4 unique player names
+const arbSeating = fc
+  .array(arbPlayerName, { minLength: 3, maxLength: 4 })
+  .filter(arr => new Set(arr).size === arr.length);
+
+// ── Property 1: Token generation resolves display_name correctly ─────────────
+// Validates: Requirements 1.1, 1.2, 9.4
+
+describeP(
+  'Feature: claim-table-refactor, Property 1: Token generation resolves display_name correctly',
+  () => {
+    beforeEach(() => {
+      _sessionPlayers = {};
+      _claimTokens = {};
+      _sessions = {};
+      _mockUserId = null;
+      _supabaseMock.from = (table) => makeClaimRefactorBuilder(table);
+    });
+
+    itP(
+      'Validates: Requirements 1.1, 1.2, 9.4 — ' +
+      'for any valid session with 3–4 names and any valid slot index, generateClaimToken ' +
+      'produces a token with display_name === seating[slotIndex], slot_index null, ' +
+      'expires_at ~72h, used false, and inviteUrl containing the token',
+      { timeout: 60000 },
+      async () => {
+        await fc.assert(
+          fc.asyncProperty(
+            fc.uuid(),                          // sessionId
+            arbSeating,                         // seating array (3–4 unique names)
+            fc.uuid(),                          // creatorUserId (host)
+            fc.integer({ min: 1, max: 3 }),     // slotIndex (non-host slot, 1-based)
+            async (sessionId, seating, creatorUserId, rawSlotIndex) => {
+              // Ensure slotIndex is within bounds of the seating array
+              const slotIndex = Math.min(rawSlotIndex, seating.length - 1);
+
+              // Reset stores
+              _sessionPlayers = {};
+              _claimTokens = {};
+              _sessions = {};
+
+              // Set the authenticated caller to the host
+              _mockUserId = creatorUserId;
+
+              // Pre-populate sessions table with the host's session
+              _sessions[sessionId] = {
+                id:       sessionId,
+                user_id:  creatorUserId,
+                seating:  seating,
+              };
+
+              // Pre-populate session_players: host is linked to seating[0]
+              // but the target slot (seating[slotIndex]) is NOT claimed (no user_id)
+              const hostSpId = crypto.randomUUID();
+              _sessionPlayers[hostSpId] = {
+                id:           hostSpId,
+                session_id:   sessionId,
+                slot_index:   0,
+                display_name: seating[0],
+                user_id:      creatorUserId,
+              };
+
+              // If slotIndex > 0, ensure no session_players row with user_id for that name
+              // (the function checks if display_name is already claimed)
+              // We don't add a row for the target — absence means unclaimed.
+
+              const before = Date.now();
+              const result = await generateClaimToken(sessionId, slotIndex);
+              const after = Date.now();
+
+              // Must succeed
+              expectP(result.error).toBeNull();
+              expectP(result.data).not.toBeNull();
+
+              // Verify the inserted claim_tokens row
+              const insertedRows = Object.values(_claimTokens);
+              expectP(insertedRows.length).toBeGreaterThanOrEqual(1);
+
+              const row = insertedRows[insertedRows.length - 1];
+
+              // display_name must equal seating[slotIndex] (Req 1.1)
+              expectP(row.display_name).toBe(seating[slotIndex]);
+
+              // slot_index must be null for new tokens (Req 9.4)
+              expectP(row.slot_index).toBeNull();
+
+              // used must be false
+              expectP(row.used).toBe(false);
+
+              // session_id must match
+              expectP(row.session_id).toBe(sessionId);
+
+              // expires_at must be approximately 72 hours from now (±60s)
+              const expectedExpiry = before + 72 * 60 * 60 * 1000;
+              const actualExpiry = new Date(row.expires_at).getTime();
+              const toleranceMs = 60 * 1000;
+              expectP(actualExpiry).toBeGreaterThanOrEqual(expectedExpiry - toleranceMs);
+              expectP(actualExpiry).toBeLessThanOrEqual(after + 72 * 60 * 60 * 1000 + toleranceMs);
+
+              // inviteUrl must contain the token string (Req 1.2)
+              expectP(result.data.inviteUrl).toContain(result.data.token);
+              expectP(result.data.token).toBe(row.token);
+            }
+          ),
+          { numRuns: 100 }
+        );
+      }
+    );
+  }
+);
+
+// ── Property 7: Successful claim creates correct link and marks token used ───
+// Validates: Requirements 3.1, 3.6
+
+describeP(
+  'Feature: claim-table-refactor, Property 7: Successful claim creates correct link and marks token used',
+  () => {
+    beforeEach(() => {
+      _sessionPlayers = {};
+      _claimTokens = {};
+      _sessions = {};
+      _mockUserId = null;
+      _supabaseMock.from = (table) => makeClaimRefactorBuilder(table);
+    });
+
+    itP(
+      'Validates: Requirements 3.1, 3.6 — ' +
+      'for any valid, unexpired, unused claim token with a display_name in seating ' +
+      'and not yet linked, and any non-host user not already linked, claimSlot ' +
+      'creates a session_players row with correct session_id, display_name, user_id ' +
+      'and marks the token used',
+      { timeout: 60000 },
+      async () => {
+        await fc.assert(
+          fc.asyncProperty(
+            fc.uuid(),                          // sessionId
+            arbSeating,                         // seating array (3–4 unique names)
+            fc.uuid(),                          // creatorUserId (host)
+            fc.uuid(),                          // claimerUserId (the player claiming)
+            async (sessionId, seating, creatorUserId, claimerUserId) => {
+              // Ensure claimer is not the host
+              fc.pre(claimerUserId !== creatorUserId);
+
+              // Pick a target name that is NOT seating[0] (host's name)
+              // Use index 1 (always exists since seating has 3–4 names)
+              const targetDisplayName = seating[1];
+
+              // Reset stores
+              _sessionPlayers = {};
+              _claimTokens = {};
+              _sessions = {};
+
+              // Pre-populate sessions table
+              _sessions[sessionId] = {
+                id:       sessionId,
+                user_id:  creatorUserId,
+                seating:  seating,
+              };
+
+              // Pre-populate session_players: only the host is linked
+              const hostSpId = crypto.randomUUID();
+              _sessionPlayers[hostSpId] = {
+                id:           hostSpId,
+                session_id:   sessionId,
+                slot_index:   0,
+                display_name: seating[0],
+                user_id:      creatorUserId,
+              };
+
+              // Build a valid, unexpired, unused claim token with display_name set
+              const tokenId = crypto.randomUUID();
+              const tokenValue = crypto.randomUUID();
+              _claimTokens[tokenId] = {
+                id:           tokenId,
+                session_id:   sessionId,
+                slot_index:   null,
+                display_name: targetDisplayName,
+                token:        tokenValue,
+                expires_at:   new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
+                used:         false,
+              };
+
+              // Call claimSlot
+              const result = await claimSlot(tokenValue, claimerUserId);
+
+              // Must succeed
+              expectP(result.error).toBeNull();
+
+              // Verify session_players: a row must exist with the correct link
+              const spRow = Object.values(_sessionPlayers).find(
+                r => r.session_id === sessionId && r.display_name === targetDisplayName
+              );
+              expectP(spRow).toBeDefined();
+              expectP(spRow.session_id).toBe(sessionId);
+              expectP(spRow.display_name).toBe(targetDisplayName);
+              expectP(spRow.user_id).toBe(claimerUserId);
+
+              // Verify token is marked as used (Req 3.6)
+              const updatedToken = Object.values(_claimTokens).find(
+                r => r.token === tokenValue
+              );
+              expectP(updatedToken).toBeDefined();
+              expectP(updatedToken.used).toBe(true);
+            }
+          ),
+          { numRuns: 100 }
+        );
+      }
+    );
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Feature: claim-table-refactor, Property 4: Seating reorder preserves session_players
+// Feature: claim-table-refactor, Property 5: Player deletion cascades to session_players
+// Feature: claim-table-refactor, Property 11: Rename preserves identity link and updates seating
+// Feature: claim-table-refactor, Property 12: Rename cascades to pending claim tokens
+// Validates: Requirements 2.3, 2.6, 7.1, 7.2, 7.3
+// ══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Strategy:
+ *   These tests exercise deletePlayerFromSession, renamePlayerInSession, and
+ *   updateSeating with a mocked Supabase client. We use a dedicated builder
+ *   factory (makeRenameDeleteBuilder) that supports:
+ *     - sessions: SELECT (seating, user_id), UPDATE (seating)
+ *     - session_players: SELECT, UPDATE, DELETE by filters
+ *     - claim_tokens: UPDATE with .eq() and .gt() filters
+ *     - rounds: UPDATE, SELECT with .not() filter (for renamePlayerInRounds)
+ *
+ *   For each property, we pre-populate the in-memory stores and verify the
+ *   expected state changes after the function call.
+ */
+
+// ── In-memory stores for rename/delete tests ─────────────────────────────────
+let _rdSessions = {};
+let _rdSessionPlayers = {};
+let _rdClaimTokens = {};
+let _rdRounds = {};
+
+/**
+ * Builder factory for rename/delete property tests.
+ * Supports all operations used by deletePlayerFromSession, renamePlayerInSession,
+ * updateSeating, and renamePlayerInRounds.
+ */
+function makeRenameDeleteBuilder(table) {
+  const store =
+    table === 'sessions'        ? _rdSessions :
+    table === 'session_players' ? _rdSessionPlayers :
+    table === 'claim_tokens'    ? _rdClaimTokens :
+    table === 'rounds'          ? _rdRounds :
+    {};
+
+  let _filters = {};
+  let _gtFilters = {};
+  let _notFilters = {};
+  let _updateData = null;
+  let _insertData = null;
+  let _isSelect = false;
+  let _isMaybeSingle = false;
+  let _isSingle = false;
+  let _isDelete = false;
+  let _selectedFields = null;
+
+  const builder = {
+    select(fields) {
+      _isSelect = true;
+      _selectedFields = fields ?? null;
+      return builder;
+    },
+    eq(field, value) {
+      _filters[field] = value;
+      return builder;
+    },
+    gt(field, value) {
+      _gtFilters[field] = value;
+      return builder;
+    },
+    not(field, operator, value) {
+      _notFilters[field] = { operator, value };
+      return builder;
+    },
+    maybeSingle() {
+      _isMaybeSingle = true;
+      return builder;
+    },
+    single() {
+      _isSingle = true;
+      return builder;
+    },
+    order() {
+      return builder;
+    },
+    update(data) {
+      _updateData = data;
+      return builder;
+    },
+    insert(data) {
+      _insertData = data;
+      return builder;
+    },
+    delete() {
+      _isDelete = true;
+      return builder;
+    },
+    then(resolve) {
+      let result;
+      try {
+        if (_isDelete) {
+          // DELETE: remove all rows matching _filters
+          let rows = Object.values(store);
+          for (const [k, v] of Object.entries(_filters)) {
+            rows = rows.filter(r => r[k] === v);
+          }
+          for (const row of rows) {
+            delete store[row.id];
+          }
+          result = { data: null, error: null };
+        } else if (_insertData !== null) {
+          const id = crypto.randomUUID();
+          store[id] = { id, ..._insertData };
+          result = { data: null, error: null };
+        } else if (_updateData !== null) {
+          // UPDATE: apply patch to all rows matching _filters and _gtFilters
+          let rows = Object.values(store);
+          for (const [k, v] of Object.entries(_filters)) {
+            rows = rows.filter(r => r[k] === v);
+          }
+          for (const [k, v] of Object.entries(_gtFilters)) {
+            rows = rows.filter(r => r[k] > v);
+          }
+          for (const [field, { operator, value }] of Object.entries(_notFilters)) {
+            if (operator === 'is') {
+              rows = rows.filter(r => r[field] !== value);
+            }
+          }
+          for (const row of rows) {
+            store[row.id] = { ...row, ..._updateData };
+          }
+          // If _isSelect and _isSingle, return the updated row
+          if (_isSelect && _isSingle) {
+            const updated = rows.length > 0 ? store[rows[0].id] : null;
+            result = { data: updated, error: null };
+          } else {
+            result = { data: null, error: null };
+          }
+        } else if (_isSelect && _isMaybeSingle) {
+          let rows = Object.values(store);
+          for (const [k, v] of Object.entries(_filters)) {
+            rows = rows.filter(r => r[k] === v);
+          }
+          if (rows.length > 0) {
+            if (_selectedFields) {
+              const fields = _selectedFields.split(',').map(f => f.trim());
+              const projected = {};
+              for (const f of fields) {
+                projected[f] = rows[0][f];
+              }
+              result = { data: projected, error: null };
+            } else {
+              result = { data: rows[0], error: null };
+            }
+          } else {
+            result = { data: null, error: null };
+          }
+        } else if (_isSelect && _isSingle) {
+          let rows = Object.values(store);
+          for (const [k, v] of Object.entries(_filters)) {
+            rows = rows.filter(r => r[k] === v);
+          }
+          result = rows.length > 0
+            ? { data: rows[0], error: null }
+            : { data: null, error: null };
+        } else if (_isSelect) {
+          // Array-returning SELECT
+          let rows = Object.values(store);
+          for (const [k, v] of Object.entries(_filters)) {
+            rows = rows.filter(r => r[k] === v);
+          }
+          for (const [field, { operator, value }] of Object.entries(_notFilters)) {
+            if (operator === 'is') {
+              rows = rows.filter(r => r[field] !== value);
+            }
+          }
+          result = { data: rows, error: null };
+        } else {
+          result = { data: [], error: null };
+        }
+      } catch (e) {
+        result = { data: null, error: { message: e.message } };
+      }
+      return resolve(result);
+    },
+  };
+  return builder;
+}
+
+// Import the functions under test (same module instance as earlier imports)
+const { deletePlayerFromSession: _deletePlayerFromSession, renamePlayerInSession: _renamePlayerInSession, updateSeating: _updateSeating } = await import('./syncService.js');
+
+// ── Arbitraries for rename/delete tests ──────────────────────────────────────
+
+// Non-empty display name (trimmed, realistic)
+const arbRdPlayerName = fc
+  .string({ minLength: 1, maxLength: 20 })
+  .map(s => s.trim())
+  .filter(s => s.length > 0);
+
+// Seating array of 3–4 unique player names
+const arbRdSeating = fc
+  .array(arbRdPlayerName, { minLength: 3, maxLength: 4 })
+  .filter(arr => new Set(arr).size === arr.length);
+
+// ── Property 4: Seating reorder preserves session_players ────────────────────
+// Validates: Requirements 2.3
+
+describeP(
+  'Feature: claim-table-refactor, Property 4: Seating reorder preserves session_players',
+  () => {
+    beforeEach(() => {
+      _rdSessions = {};
+      _rdSessionPlayers = {};
+      _rdClaimTokens = {};
+      _rdRounds = {};
+      _mockUserId = null;
+      _supabaseMock.from = (table) => makeRenameDeleteBuilder(table);
+    });
+
+    itP(
+      'Validates: Requirements 2.3 — ' +
+      'for any session with session_players rows and any permutation of the seating array, ' +
+      'updateSeating does NOT insert, update, or delete any session_players rows',
+      { timeout: 60000 },
+      async () => {
+        await fc.assert(
+          fc.asyncProperty(
+            fc.uuid(),                          // sessionId
+            arbRdSeating,                       // original seating (3–4 unique names)
+            fc.uuid(),                          // creatorUserId
+            async (sessionId, seating, creatorUserId) => {
+              // Reset stores
+              _rdSessions = {};
+              _rdSessionPlayers = {};
+
+              // Pre-populate sessions table
+              _rdSessions[sessionId] = {
+                id:       sessionId,
+                user_id:  creatorUserId,
+                seating:  seating,
+              };
+
+              // Pre-populate session_players: host linked to seating[0], optionally others
+              const hostSpId = crypto.randomUUID();
+              _rdSessionPlayers[hostSpId] = {
+                id:           hostSpId,
+                session_id:   sessionId,
+                slot_index:   0,
+                display_name: seating[0],
+                user_id:      creatorUserId,
+              };
+
+              // Add a second linked player if seating has 4 names
+              let secondSpId = null;
+              const secondUserId = crypto.randomUUID();
+              if (seating.length >= 4) {
+                secondSpId = crypto.randomUUID();
+                _rdSessionPlayers[secondSpId] = {
+                  id:           secondSpId,
+                  session_id:   sessionId,
+                  slot_index:   2,
+                  display_name: seating[2],
+                  user_id:      secondUserId,
+                };
+              }
+
+              // Snapshot session_players before the reorder
+              const spBefore = JSON.parse(JSON.stringify(Object.values(_rdSessionPlayers)));
+
+              // Generate a random permutation of the seating array
+              const shuffled = [...seating].sort(() => Math.random() - 0.5);
+
+              // Call updateSeating with the permuted array
+              const result = await _updateSeating(sessionId, shuffled);
+
+              // updateSeating must succeed
+              expectP(result.error).toBeNull();
+
+              // Snapshot session_players after the reorder
+              const spAfter = Object.values(_rdSessionPlayers);
+
+              // The set of session_players rows must be identical (same count)
+              expectP(spAfter).toHaveLength(spBefore.length);
+
+              // Each row's display_name and user_id must be unchanged
+              for (const before of spBefore) {
+                const after = spAfter.find(r => r.id === before.id);
+                expectP(after).toBeDefined();
+                expectP(after.display_name).toBe(before.display_name);
+                expectP(after.user_id).toBe(before.user_id);
+                expectP(after.session_id).toBe(before.session_id);
+              }
+            }
+          ),
+          { numRuns: 100 }
+        );
+      }
+    );
+  }
+);
+
+// ── Property 5: Player deletion cascades to session_players ──────────────────
+// Validates: Requirements 2.6
+
+describeP(
+  'Feature: claim-table-refactor, Property 5: Player deletion cascades to session_players',
+  () => {
+    beforeEach(() => {
+      _rdSessions = {};
+      _rdSessionPlayers = {};
+      _rdClaimTokens = {};
+      _rdRounds = {};
+      _mockUserId = null;
+      _supabaseMock.from = (table) => makeRenameDeleteBuilder(table);
+    });
+
+    itP(
+      'Validates: Requirements 2.6 — ' +
+      'for any session with a session_players row for a given display_name, ' +
+      'deletePlayerFromSession removes that name from seating and deletes the session_players row',
+      { timeout: 60000 },
+      async () => {
+        await fc.assert(
+          fc.asyncProperty(
+            fc.uuid(),                          // sessionId
+            arbRdSeating,                       // seating (3–4 unique names)
+            fc.uuid(),                          // userId linked to the target player
+            async (sessionId, seating, linkedUserId) => {
+              // Reset stores
+              _rdSessions = {};
+              _rdSessionPlayers = {};
+
+              // Pick a target player to delete (not the first one, to keep it interesting)
+              const targetIndex = seating.length > 3 ? 2 : 1;
+              const targetName = seating[targetIndex];
+
+              // Pre-populate sessions table
+              _rdSessions[sessionId] = {
+                id:       sessionId,
+                user_id:  crypto.randomUUID(),
+                seating:  [...seating],
+              };
+
+              // Pre-populate session_players: target player has a linked user_id
+              const targetSpId = crypto.randomUUID();
+              _rdSessionPlayers[targetSpId] = {
+                id:           targetSpId,
+                session_id:   sessionId,
+                slot_index:   targetIndex,
+                display_name: targetName,
+                user_id:      linkedUserId,
+              };
+
+              // Also add the host row
+              const hostSpId = crypto.randomUUID();
+              _rdSessionPlayers[hostSpId] = {
+                id:           hostSpId,
+                session_id:   sessionId,
+                slot_index:   0,
+                display_name: seating[0],
+                user_id:      crypto.randomUUID(),
+              };
+
+              // Call deletePlayerFromSession
+              const result = await _deletePlayerFromSession(sessionId, targetName);
+
+              // Must succeed
+              expectP(result.error).toBeNull();
+
+              // The session_players row for the target must be deleted
+              const remainingRows = Object.values(_rdSessionPlayers);
+              const targetRow = remainingRows.find(
+                r => r.session_id === sessionId && r.display_name === targetName
+              );
+              expectP(targetRow).toBeUndefined();
+
+              // The host row must still exist
+              const hostRow = remainingRows.find(r => r.id === hostSpId);
+              expectP(hostRow).toBeDefined();
+
+              // The seating array in sessions must no longer contain the target name
+              const updatedSession = Object.values(_rdSessions).find(s => s.id === sessionId);
+              expectP(updatedSession).toBeDefined();
+              expectP(updatedSession.seating).not.toContain(targetName);
+
+              // The seating array length must be one less than before
+              expectP(updatedSession.seating).toHaveLength(seating.length - 1);
+            }
+          ),
+          { numRuns: 100 }
+        );
+      }
+    );
+  }
+);
+
+// ── Property 11: Rename preserves identity link and updates seating ──────────
+// Validates: Requirements 7.1, 7.2
+
+describeP(
+  'Feature: claim-table-refactor, Property 11: Rename preserves identity link and updates seating',
+  () => {
+    beforeEach(() => {
+      _rdSessions = {};
+      _rdSessionPlayers = {};
+      _rdClaimTokens = {};
+      _rdRounds = {};
+      _mockUserId = null;
+      _supabaseMock.from = (table) => makeRenameDeleteBuilder(table);
+    });
+
+    itP(
+      'Validates: Requirements 7.1, 7.2 — ' +
+      'for any session where a player has a session_players row, renaming from oldName to newName ' +
+      'updates session_players.display_name to newName while preserving user_id, ' +
+      'and updates seating to contain newName at the same index where oldName was',
+      { timeout: 60000 },
+      async () => {
+        await fc.assert(
+          fc.asyncProperty(
+            fc.uuid(),                          // sessionId
+            arbRdSeating,                       // seating (3–4 unique names)
+            fc.uuid(),                          // creatorUserId (host)
+            fc.uuid(),                          // linkedUserId (user linked to target player)
+            arbRdPlayerName,                    // newName (the rename target)
+            async (sessionId, seating, creatorUserId, linkedUserId, newName) => {
+              // Ensure newName is not already in seating (no conflict)
+              fc.pre(!seating.includes(newName));
+              // Ensure newName passes validation (non-empty, ≤30 chars)
+              fc.pre(newName.trim().length > 0 && newName.length <= 30);
+
+              // Pick a target player to rename (not the host at index 0)
+              const targetIndex = 1;
+              const oldName = seating[targetIndex];
+
+              // Reset stores
+              _rdSessions = {};
+              _rdSessionPlayers = {};
+              _rdClaimTokens = {};
+              _rdRounds = {};
+
+              // Set the authenticated caller to the host
+              _mockUserId = creatorUserId;
+
+              // Pre-populate sessions table
+              _rdSessions[sessionId] = {
+                id:       sessionId,
+                user_id:  creatorUserId,
+                seating:  [...seating],
+              };
+
+              // Pre-populate session_players: target player has a linked user_id
+              const targetSpId = crypto.randomUUID();
+              _rdSessionPlayers[targetSpId] = {
+                id:           targetSpId,
+                session_id:   sessionId,
+                slot_index:   targetIndex,
+                display_name: oldName,
+                user_id:      linkedUserId,
+              };
+
+              // Also add the host row
+              const hostSpId = crypto.randomUUID();
+              _rdSessionPlayers[hostSpId] = {
+                id:           hostSpId,
+                session_id:   sessionId,
+                slot_index:   0,
+                display_name: seating[0],
+                user_id:      creatorUserId,
+              };
+
+              // Call renamePlayerInSession
+              const result = await _renamePlayerInSession(sessionId, oldName, newName);
+
+              // Must succeed
+              expectP(result.error).toBeNull();
+
+              // Verify session_players: display_name updated, user_id preserved
+              const updatedSpRow = Object.values(_rdSessionPlayers).find(
+                r => r.id === targetSpId
+              );
+              expectP(updatedSpRow).toBeDefined();
+              expectP(updatedSpRow.display_name).toBe(newName);
+              expectP(updatedSpRow.user_id).toBe(linkedUserId);
+
+              // Verify seating array: newName at the same index where oldName was
+              const updatedSession = Object.values(_rdSessions).find(s => s.id === sessionId);
+              expectP(updatedSession).toBeDefined();
+              expectP(updatedSession.seating[targetIndex]).toBe(newName);
+
+              // oldName must no longer be in seating
+              expectP(updatedSession.seating).not.toContain(oldName);
+            }
+          ),
+          { numRuns: 100 }
+        );
+      }
+    );
+  }
+);
+
+// ── Property 12: Rename cascades to pending claim tokens ─────────────────────
+// Validates: Requirements 7.3
+
+describeP(
+  'Feature: claim-table-refactor, Property 12: Rename cascades to pending claim tokens',
+  () => {
+    beforeEach(() => {
+      _rdSessions = {};
+      _rdSessionPlayers = {};
+      _rdClaimTokens = {};
+      _rdRounds = {};
+      _mockUserId = null;
+      _supabaseMock.from = (table) => makeRenameDeleteBuilder(table);
+    });
+
+    itP(
+      'Validates: Requirements 7.3 — ' +
+      'for any session where a pending (unused, unexpired) claim token exists for a display_name, ' +
+      'renaming that player updates the token\'s display_name to the new name',
+      { timeout: 60000 },
+      async () => {
+        await fc.assert(
+          fc.asyncProperty(
+            fc.uuid(),                          // sessionId
+            arbRdSeating,                       // seating (3–4 unique names)
+            fc.uuid(),                          // creatorUserId (host)
+            arbRdPlayerName,                    // newName (the rename target)
+            async (sessionId, seating, creatorUserId, newName) => {
+              // Ensure newName is not already in seating (no conflict)
+              fc.pre(!seating.includes(newName));
+              // Ensure newName passes validation (non-empty, ≤30 chars)
+              fc.pre(newName.trim().length > 0 && newName.length <= 30);
+
+              // Pick a target player to rename (not the host at index 0)
+              const targetIndex = 1;
+              const oldName = seating[targetIndex];
+
+              // Reset stores
+              _rdSessions = {};
+              _rdSessionPlayers = {};
+              _rdClaimTokens = {};
+              _rdRounds = {};
+
+              // Set the authenticated caller to the host
+              _mockUserId = creatorUserId;
+
+              // Pre-populate sessions table
+              _rdSessions[sessionId] = {
+                id:       sessionId,
+                user_id:  creatorUserId,
+                seating:  [...seating],
+              };
+
+              // Pre-populate session_players: target player (no user_id — unclaimed)
+              const targetSpId = crypto.randomUUID();
+              _rdSessionPlayers[targetSpId] = {
+                id:           targetSpId,
+                session_id:   sessionId,
+                slot_index:   targetIndex,
+                display_name: oldName,
+                user_id:      null,
+              };
+
+              // Also add the host row
+              const hostSpId = crypto.randomUUID();
+              _rdSessionPlayers[hostSpId] = {
+                id:           hostSpId,
+                session_id:   sessionId,
+                slot_index:   0,
+                display_name: seating[0],
+                user_id:      creatorUserId,
+              };
+
+              // Pre-populate a pending (unused, unexpired) claim token for oldName
+              const tokenId = crypto.randomUUID();
+              const tokenValue = crypto.randomUUID();
+              _rdClaimTokens[tokenId] = {
+                id:           tokenId,
+                session_id:   sessionId,
+                display_name: oldName,
+                token:        tokenValue,
+                expires_at:   new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(), // 48h in future
+                used:         false,
+              };
+
+              // Also add an expired token for the same name (should NOT be updated)
+              const expiredTokenId = crypto.randomUUID();
+              _rdClaimTokens[expiredTokenId] = {
+                id:           expiredTokenId,
+                session_id:   sessionId,
+                display_name: oldName,
+                token:        crypto.randomUUID(),
+                expires_at:   new Date(Date.now() - 1000).toISOString(), // expired
+                used:         false,
+              };
+
+              // Also add a used token for the same name (should NOT be updated)
+              const usedTokenId = crypto.randomUUID();
+              _rdClaimTokens[usedTokenId] = {
+                id:           usedTokenId,
+                session_id:   sessionId,
+                display_name: oldName,
+                token:        crypto.randomUUID(),
+                expires_at:   new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+                used:         true,
+              };
+
+              // Call renamePlayerInSession
+              const result = await _renamePlayerInSession(sessionId, oldName, newName);
+
+              // Must succeed
+              expectP(result.error).toBeNull();
+
+              // The pending (unused, unexpired) token must have display_name updated to newName
+              const updatedToken = _rdClaimTokens[tokenId];
+              expectP(updatedToken).toBeDefined();
+              expectP(updatedToken.display_name).toBe(newName);
+
+              // The expired token must NOT have been updated (still has oldName)
+              const expiredToken = _rdClaimTokens[expiredTokenId];
+              expectP(expiredToken).toBeDefined();
+              expectP(expiredToken.display_name).toBe(oldName);
+
+              // The used token must NOT have been updated (still has oldName)
+              const usedToken = _rdClaimTokens[usedTokenId];
+              expectP(usedToken).toBeDefined();
+              expectP(usedToken.display_name).toBe(oldName);
             }
           ),
           { numRuns: 100 }

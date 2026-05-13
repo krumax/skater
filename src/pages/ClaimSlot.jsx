@@ -27,7 +27,7 @@ export default function ClaimSlot() {
 
       if (!userId) {
         setStatus('error');
-        setMessage('Du musst eingeloggt sein, um einen Slot zu claimen.');
+        setMessage('Du musst eingeloggt sein, um deinen Platz zu verknüpfen.');
         return;
       }
 
@@ -35,7 +35,7 @@ export default function ClaimSlot() {
 
       if (error) {
         setStatus('error');
-        setMessage(error.message ?? 'Unbekannter Fehler beim Claimen.');
+        setMessage(error.message ?? 'Unbekannter Fehler beim Verknüpfen.');
       } else {
         setStatus('success');
         setMessage('Dein Platz wurde erfolgreich verknüpft! Deine Runden erscheinen jetzt in „Mein Profil".');
@@ -51,7 +51,7 @@ export default function ClaimSlot() {
         {status === 'loading' && (
           <>
             <span style={{ fontSize: '2rem', animation: 'spin 1s linear infinite', display: 'block', marginBottom: '1rem' }}>⟳</span>
-            <p>Slot wird verknüpft…</p>
+            <p>Platz wird verknüpft…</p>
           </>
         )}
 

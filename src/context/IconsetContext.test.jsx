@@ -26,19 +26,19 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// ── Test 1: Default initialization to 'french' when localStorage is empty ────
+// ── Test 1: Default initialization to 'altenburg' when localStorage is empty ──
 // Validates: Requirements 2.3
 
 describe('Default initialization (Requirement 2.3)', () => {
-  it("initializes to 'french' when localStorage is empty", () => {
+  it("initializes to 'altenburg' when localStorage is empty", () => {
     const { result } = renderHook(() => useIconset(), { wrapper });
-    expect(result.current.iconset).toBe('french');
+    expect(result.current.iconset).toBe('altenburg');
   });
 
-  it("initializes to 'french' when localStorage has no 'skatIconset' key", () => {
-    localStorage.setItem('someOtherKey', 'altenburg');
+  it("initializes to 'altenburg' when localStorage has no 'skatIconset' key", () => {
+    localStorage.setItem('someOtherKey', 'french');
     const { result } = renderHook(() => useIconset(), { wrapper });
-    expect(result.current.iconset).toBe('french');
+    expect(result.current.iconset).toBe('altenburg');
   });
 });
 
@@ -63,15 +63,15 @@ describe('Initialization from localStorage (Requirement 2.2)', () => {
 // Validates: Requirements 2.1
 
 describe('setIconset updates context state (Requirement 2.1)', () => {
-  it("updates iconset state to 'altenburg' when setIconset('altenburg') is called", () => {
+  it("updates iconset state to 'french' when setIconset('french') is called", () => {
     const { result } = renderHook(() => useIconset(), { wrapper });
-    expect(result.current.iconset).toBe('french');
+    expect(result.current.iconset).toBe('altenburg');
 
     act(() => {
-      result.current.setIconset('altenburg');
+      result.current.setIconset('french');
     });
 
-    expect(result.current.iconset).toBe('altenburg');
+    expect(result.current.iconset).toBe('french');
   });
 
   it("updates iconset state back to 'french' when setIconset('french') is called", () => {

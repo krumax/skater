@@ -37,6 +37,14 @@ vi.mock('../lib/supabaseClient', () => ({
     auth: {
       getSession: vi.fn(() => Promise.resolve({ data: { session: null } })),
     },
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          then: (resolve) => resolve({ data: [], error: null }),
+          maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
+        })),
+      })),
+    })),
   },
 }));
 
@@ -114,18 +122,18 @@ describe('Iconset options display (Requirement 1.1)', () => {
 // Validates: Requirement 1.3
 
 describe('Active option highlighting (Requirement 1.3)', () => {
-  it('highlights the French option by default (no localStorage value)', () => {
+  it('highlights the Altenburg option by default (no localStorage value)', () => {
     renderPlayerSettings();
-    const frenchBtn = screen.getByText('Französisches Blatt').closest('button');
+    const altenburgBtn = screen.getByText('Altenburger Blatt').closest('button');
     // Active option has a check_circle Material Icon inside it
-    const checkIcon = within(frenchBtn).queryByText('check_circle');
+    const checkIcon = within(altenburgBtn).queryByText('check_circle');
     expect(checkIcon).not.toBeNull();
   });
 
-  it('does not show check_circle on the inactive Altenburg option by default', () => {
+  it('does not show check_circle on the inactive French option by default', () => {
     renderPlayerSettings();
-    const altenburgBtn = screen.getByText('Altenburger Blatt').closest('button');
-    const checkIcon = within(altenburgBtn).queryByText('check_circle');
+    const frenchBtn = screen.getByText('Französisches Blatt').closest('button');
+    const checkIcon = within(frenchBtn).queryByText('check_circle');
     expect(checkIcon).toBeNull();
   });
 

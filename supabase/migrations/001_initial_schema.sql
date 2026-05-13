@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS rounds (
   spielliste_id        uuid REFERENCES spiellisten(id) ON DELETE SET NULL -- 20260418
 );
 
--- session_players (008: optionale Spieleridentität)
+-- session_players (008: optionale Spieleridentität, 013: UNIQUE display_name)
 CREATE TABLE IF NOT EXISTS session_players (
   id           uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id   uuid        NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
@@ -63,19 +63,25 @@ CREATE TABLE IF NOT EXISTS session_players (
   user_id      uuid        REFERENCES auth.users(id) ON DELETE SET NULL,
   created_at   timestamptz NOT NULL DEFAULT now(),
   UNIQUE (session_id, slot_index),
-  UNIQUE (session_id, user_id)
+  UNIQUE (session_id, user_id),
+  CONSTRAINT session_players_session_display_name_unique UNIQUE (session_id, display_name)  -- 013
 );
 
--- claim_tokens (008: Einladungslinks für Slot-Claiming)
+-- claim_tokens (008: Einladungslinks für Slot-Claiming, 012: display_name statt slot_index)
 CREATE TABLE IF NOT EXISTS claim_tokens (
-  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-  session_id  uuid        NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
-  slot_index  integer     NOT NULL,
-  token       text        NOT NULL UNIQUE,
-  expires_at  timestamptz NOT NULL,
-  used        boolean     NOT NULL DEFAULT false,
-  created_by  uuid        REFERENCES auth.users(id),
-  created_at  timestamptz NOT NULL DEFAULT now()
+  id           uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id   uuid        NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  slot_index   integer,                                       -- 012: nullable (legacy)
+  display_name text,                                          -- 012: Ziel-Spielername
+  token        text        NOT NULL UNIQUE,
+  expires_at   timestamptz NOT NULL,
+  used         boolean     NOT NULL DEFAULT false,
+  created_by   uuid        REFERENCES auth.users(id),
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT claim_tokens_has_target
+    CHECK (display_name IS NOT NULL OR slot_index IS NOT NULL),
+  CONSTRAINT claim_tokens_display_name_length
+    CHECK (display_name IS NULL OR char_length(display_name) <= 50)
 );
 
 -- RLS aktivieren
@@ -101,6 +107,17 @@ CREATE POLICY "Anon read/write spiellisten"
 CREATE POLICY "Auth read/write spiellisten"
   ON spiellisten FOR ALL TO authenticated
   USING (true) WITH CHECK (true);
+
+-- 014: Claimed players can read spiellisten for their linked sessions
+CREATE POLICY "Claimed players can read spiellisten"
+  ON spiellisten FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM session_players sp
+      WHERE sp.session_id = spiellisten.session_id
+        AND sp.user_id = auth.uid()
+    )
+  );
 
 -- Policies für session_players (008)
 CREATE POLICY "Auth read session_players"
@@ -162,5 +179,6 @@ CREATE INDEX IF NOT EXISTS idx_spiellisten_session_id ON spiellisten(session_id)
 CREATE INDEX IF NOT EXISTS idx_rounds_spielliste_id ON rounds(spielliste_id);
 CREATE INDEX IF NOT EXISTS idx_session_players_session_id ON session_players(session_id);
 CREATE INDEX IF NOT EXISTS idx_session_players_user_id    ON session_players(user_id);
+CREATE INDEX IF NOT EXISTS idx_session_players_display_name ON session_players(session_id, display_name);  -- 013
 CREATE INDEX IF NOT EXISTS idx_claim_tokens_token         ON claim_tokens(token);
 CREATE INDEX IF NOT EXISTS idx_claim_tokens_session_id    ON claim_tokens(session_id);

@@ -13,7 +13,15 @@ import GameTypeEditor, { GAME_TYPES } from './GameTypeEditor.jsx';
 vi.mock('../context/GameContext.jsx', () => ({
   useGame: () => ({
     updateRound: vi.fn().mockResolvedValue({ error: null }),
+    players: ['Alice', 'Bob', 'Charlie'],
   }),
+}));
+
+vi.mock('../hooks/useSuitLabel', () => ({
+  useSuitLabel: () => (gameType) => {
+    const labels = { null: 'Null', club: 'Kreuz', spade: 'Pik', heart: 'Herz', diamond: 'Karo', grand: 'Grand' };
+    return labels[gameType] ?? gameType;
+  },
 }));
 
 // ── Label-Mapping (muss mit SUIT_LABELS in skatScoring.js übereinstimmen) ─────
