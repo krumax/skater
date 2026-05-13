@@ -585,6 +585,8 @@ export async function generateClaimToken(sessionId, slotIndex) {
  * Returns { error } where error is null on success.
  */
 export async function claimSlot(token, userId) {
+  console.log('[claimSlot] START', { token, userId });
+
   // 1. Look up the token
   const { data: tokenRow, error: tokenError } = await supabase
     .from('claim_tokens')
@@ -592,20 +594,25 @@ export async function claimSlot(token, userId) {
     .eq('token', token)
     .maybeSingle();
 
-  if (tokenError) return { error: tokenError };
+  if (tokenError) { console.log('[claimSlot] tokenError', tokenError); return { error: tokenError }; }
 
   // Not found
   if (!tokenRow) {
+    console.log('[claimSlot] token not found');
     return { error: { message: 'Ungültiger Einladungslink.' } };
   }
 
+  console.log('[claimSlot] tokenRow', tokenRow);
+
   // Expired
   if (new Date(tokenRow.expires_at) < new Date()) {
+    console.log('[claimSlot] token expired');
     return { error: { message: 'Dieser Einladungslink ist abgelaufen.' } };
   }
 
   // Already used
   if (tokenRow.used) {
+    console.log('[claimSlot] token already used');
     return { error: { message: 'Dieser Einladungslink wurde bereits verwendet.' } };
   }
 
@@ -619,9 +626,12 @@ export async function claimSlot(token, userId) {
     .eq('slot_index', slotIndex)
     .maybeSingle();
 
-  if (slotError) return { error: slotError };
+  if (slotError) { console.log('[claimSlot] slotError', slotError); return { error: slotError }; }
+
+  console.log('[claimSlot] slotRow', slotRow);
 
   if (slotRow?.user_id) {
+    console.log('[claimSlot] slot already claimed by', slotRow.user_id);
     return { error: { message: 'Dieser Slot ist bereits vergeben.' } };
   }
 
@@ -633,9 +643,12 @@ export async function claimSlot(token, userId) {
     .eq('slot_index', 0)
     .maybeSingle();
 
-  if (creatorError) return { error: creatorError };
+  if (creatorError) { console.log('[claimSlot] creatorError', creatorError); return { error: creatorError }; }
+
+  console.log('[claimSlot] creatorRow', creatorRow);
 
   if (creatorRow?.user_id && creatorRow.user_id === userId) {
+    console.log('[claimSlot] caller is creator, rejecting');
     return { error: { message: 'Du bist bereits der Tischersteller.' } };
   }
 
@@ -648,9 +661,10 @@ export async function claimSlot(token, userId) {
     .eq('id', sessionId)
     .maybeSingle();
 
-  if (seatingError) return { error: seatingError };
+  if (seatingError) { console.log('[claimSlot] seatingError', seatingError); return { error: seatingError }; }
 
   const displayName = sessionForSeating?.seating?.[slotIndex] ?? `Spieler ${slotIndex + 1}`;
+  console.log('[claimSlot] will write slot', { sessionId, slotIndex, displayName, slotRowExists: !!slotRow });
 
   let writeError;
   if (slotRow) {
@@ -668,6 +682,8 @@ export async function claimSlot(token, userId) {
       .insert({ session_id: sessionId, slot_index: slotIndex, user_id: userId, display_name: displayName });
     writeError = error;
   }
+
+  console.log('[claimSlot] writeError', writeError);
 
   if (writeError) return { error: writeError };
 
@@ -702,6 +718,8 @@ export async function updateSessionPlayerName(sessionId, oldName, newName) {
  * Each round has additional sessionId and playerName fields.
  */
 export async function loadMyRoundsAcrossSessions(userId) {
+  console.log('[loadMyRounds] START', { userId });
+
   // Step 1: Find all session_players rows linked to this user
   const { data: sessionPlayers, error: spError } = await supabase
     .from('session_players')
@@ -709,6 +727,8 @@ export async function loadMyRoundsAcrossSessions(userId) {
     .eq('user_id', userId);
 
   if (spError) throw spError;
+
+  console.log('[loadMyRounds] sessionPlayers', sessionPlayers);
 
   // Req 4.4: no linked sessions → return empty array
   if (!sessionPlayers || sessionPlayers.length === 0) {
@@ -777,6 +797,12 @@ export async function loadMyRoundsAcrossSessions(userId) {
     playerName:           sessionPlayerMap[r.session_id] ?? null,
     tableName:            sessionNameMap[r.session_id] ?? null,
   }));
+
+  const declarerRounds = rounds.filter(r => r.player === r.playerName);
+  console.log('[loadMyRounds] total rounds:', rounds.length, '| declarer rounds (player === playerName):', declarerRounds.length);
+  if (rounds.length > 0) {
+    console.log('[loadMyRounds] sample round', { player: rounds[0].player, playerName: rounds[0].playerName, sessionId: rounds[0].sessionId });
+  }
 
   return { data: rounds, error: null };
 }
