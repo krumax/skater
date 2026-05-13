@@ -575,7 +575,7 @@ export async function generateClaimToken(sessionId, slotIndex) {
   const baseUrl = (typeof window !== 'undefined' && window.location?.origin)
     ? window.location.origin
     : 'https://skatastrophe.app';
-  const inviteUrl = `${baseUrl}/claim?token=${token}`;
+  const inviteUrl = `${baseUrl}/app/claim?token=${token}`;
 
   return { data: { inviteUrl, token }, error: null };
 }
