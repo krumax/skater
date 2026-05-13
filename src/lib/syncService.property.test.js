@@ -329,15 +329,20 @@ let _mockUserId = null;
 // In-memory claim_tokens store (used by generateClaimToken tests)
 let _claimTokens = {};
 
+// In-memory sessions store (used by generateClaimToken auth check)
+let _sessions = {};
+
 /**
  * Extended query builder that handles all tables used by the tested functions:
  *   - session_players (preassignSlot, generateClaimToken creator check)
  *   - claim_tokens    (generateClaimToken insert)
+ *   - sessions        (generateClaimToken auth check against sessions.user_id)
  */
 function makeSharedBuilder(table) {
   const store =
     table === 'session_players' ? _sessionPlayers :
     table === 'claim_tokens'    ? _claimTokens    :
+    table === 'sessions'        ? _sessions       :
     {};
 
   let _filters = {};
@@ -551,6 +556,7 @@ describeP(
     beforeEach(() => {
       _sessionPlayers = {};
       _claimTokens = {};
+      _sessions = {};
       _mockUserId = null;
     });
 
@@ -569,9 +575,17 @@ describeP(
               // Reset stores for each run
               _sessionPlayers = {};
               _claimTokens = {};
+              _sessions = {};
 
               // Set the authenticated caller to the creator
               _mockUserId = creatorUserId;
+
+              // Pre-populate the sessions table with the creator's user_id
+              _sessions[sessionId] = {
+                id:        sessionId,
+                user_id:   creatorUserId,
+                seating:   ['Creator', 'Player2', 'Player3', 'Player4'],
+              };
 
               // Pre-populate slot 0 with the creator's user_id so the auth check passes
               const slot0Id = crypto.randomUUID();
@@ -632,6 +646,7 @@ describeP(
     beforeEach(() => {
       _sessionPlayers = {};
       _claimTokens = {};
+      _sessions = {};
       _mockUserId = null;
     });
 
@@ -653,9 +668,17 @@ describeP(
               // Reset stores for each run
               _sessionPlayers = {};
               _claimTokens = {};
+              _sessions = {};
 
               // Set the authenticated caller to a non-creator user
               _mockUserId = callerUserId;
+
+              // Pre-populate the sessions table with the creator's user_id
+              _sessions[sessionId] = {
+                id:        sessionId,
+                user_id:   creatorUserId,
+                seating:   ['Creator', 'Player2', 'Player3', 'Player4'],
+              };
 
               // Pre-populate slot 0 with the creator's user_id
               const slot0Id = crypto.randomUUID();

@@ -640,13 +640,26 @@ export async function claimSlot(token, userId) {
   }
 
   // All checks passed — assign the user_id to the slot
-  const { error: updateSlotError } = await supabase
-    .from('session_players')
-    .update({ user_id: userId })
-    .eq('session_id', sessionId)
-    .eq('slot_index', slotIndex);
+  // The session_players row may not exist yet (only slot 0 is created on session creation).
+  // We need the display_name from the session's seating array.
+  const { data: sessionForSeating, error: seatingError } = await supabase
+    .from('sessions')
+    .select('seating')
+    .eq('id', sessionId)
+    .maybeSingle();
 
-  if (updateSlotError) return { error: updateSlotError };
+  if (seatingError) return { error: seatingError };
+
+  const displayName = sessionForSeating?.seating?.[slotIndex] ?? `Spieler ${slotIndex + 1}`;
+
+  const { error: upsertSlotError } = await supabase
+    .from('session_players')
+    .upsert(
+      { session_id: sessionId, slot_index: slotIndex, user_id: userId, display_name: displayName },
+      { onConflict: 'session_id,slot_index' }
+    );
+
+  if (upsertSlotError) return { error: upsertSlotError };
 
   // Mark the token as used
   const { error: updateTokenError } = await supabase
