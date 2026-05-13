@@ -652,14 +652,24 @@ export async function claimSlot(token, userId) {
 
   const displayName = sessionForSeating?.seating?.[slotIndex] ?? `Spieler ${slotIndex + 1}`;
 
-  const { error: upsertSlotError } = await supabase
-    .from('session_players')
-    .upsert(
-      { session_id: sessionId, slot_index: slotIndex, user_id: userId, display_name: displayName },
-      { onConflict: 'session_id,slot_index' }
-    );
+  let writeError;
+  if (slotRow) {
+    // Row exists but user_id is null — update it
+    const { error } = await supabase
+      .from('session_players')
+      .update({ user_id: userId })
+      .eq('session_id', sessionId)
+      .eq('slot_index', slotIndex);
+    writeError = error;
+  } else {
+    // Row doesn't exist — insert a new one
+    const { error } = await supabase
+      .from('session_players')
+      .insert({ session_id: sessionId, slot_index: slotIndex, user_id: userId, display_name: displayName });
+    writeError = error;
+  }
 
-  if (upsertSlotError) return { error: upsertSlotError };
+  if (writeError) return { error: writeError };
 
   // Mark the token as used
   const { error: updateTokenError } = await supabase
