@@ -208,6 +208,9 @@ export function computePerSessionStats(rounds) {
     const tableName = first.tableName ?? null;
     const displayName = first.playerName ?? '';
 
+    // Total rounds at this table (all players, excluding passed)
+    const totalRounds = sessionRounds.filter(r => r.gameType !== 'passed').length;
+
     // Declarer rounds: rounds where the user was the declarer
     const declarerRounds = sessionRounds.filter(r => r.player === r.playerName);
     const roundCount = declarerRounds.length;
@@ -217,7 +220,77 @@ export function computePerSessionStats(rounds) {
       ? parseFloat(((wins / roundCount) * 100).toFixed(1))
       : 0.0;
 
-    return { sessionId, tableName, displayName, roundCount, winRate };
+    // Declarer share: how often the user was Alleinspieler relative to total rounds
+    const declarerShare = totalRounds > 0
+      ? parseFloat(((roundCount / totalRounds) * 100).toFixed(1))
+      : 0.0;
+
+    // Compute per-player stats (raw points + seeger) for the ranking detail
+    // Collect all players from both declarer field and seegerScores keys
+    const playerSet = new Set();
+    sessionRounds.forEach(r => {
+      if (r.player && r.player !== '-') playerSet.add(r.player);
+      if (r.seegerScores) {
+        Object.keys(r.seegerScores).forEach(p => {
+          if (p && p !== '-') playerSet.add(p);
+        });
+      }
+      // Also collect from roles if available
+      if (r.roles) {
+        ['geber', 'hoeren', 'sagen'].forEach(role => {
+          const p = r.roles[role];
+          if (p && p !== '-') playerSet.add(p);
+        });
+      }
+    });
+    const allPlayers = [...playerSet];
+    const rawTotals = {};
+    const seegerTotals = {};
+    allPlayers.forEach(p => { rawTotals[p] = 0; seegerTotals[p] = 0; });
+
+    // Determine opponent bonus based on active player count (excluding '-')
+    const opponentBonus = allPlayers.length <= 3 ? 40 : 30;
+
+    sessionRounds.forEach(r => {
+      // Raw points: only for non-passed rounds, only for the declarer
+      if (r.gameType !== 'passed' && r.gameValue !== undefined && r.player && rawTotals[r.player] !== undefined) {
+        rawTotals[r.player] += r.gameValue;
+      }
+
+      // Seeger-Fabian: compute deterministically from round data
+      if (r.gameType === 'passed' || !r.player || r.player === '-' || r.gameValue === 0) {
+        // No Seeger points for passed rounds or zero-value rounds
+      } else if (r.won) {
+        // Declarer won: +50
+        if (seegerTotals[r.player] !== undefined) {
+          seegerTotals[r.player] += 50;
+        }
+      } else {
+        // Declarer lost: -50, opponents get bonus
+        if (seegerTotals[r.player] !== undefined) {
+          seegerTotals[r.player] -= 50;
+        }
+        allPlayers.forEach(p => {
+          if (p !== r.player) {
+            seegerTotals[p] += opponentBonus;
+          }
+        });
+      }
+    });
+
+    // Sort players by combined score (seeger + raw) descending
+    const sortedPlayers = allPlayers
+      .map(p => ({ name: p, seeger: seegerTotals[p], raw: rawTotals[p] }))
+      .sort((a, b) => {
+        const totalB = b.seeger + b.raw;
+        const totalA = a.seeger + a.raw;
+        if (totalB !== totalA) return totalB - totalA;
+        return b.raw - a.raw;
+      });
+
+    const leaderName = sortedPlayers.length > 0 ? sortedPlayers[0].name : null;
+
+    return { sessionId, tableName, displayName, totalRounds, roundCount, wins, winRate, declarerShare, leaderName, sortedPlayers };
   });
 }
 

@@ -11,6 +11,7 @@ import {
   computePlayerRank,
   computeRunningTotals,
 } from '../lib/playerStats';
+import { PLAYER_COLORS } from '../lib/tokens';
 
 // ── Linked Sessions Section ───────────────────────────────────────────────────
 function LinkedSessionsSection({ linkedSessions, loading, error, refetch, onSessionClick }) {
@@ -517,38 +518,110 @@ function StatCard({ label, value, color }) {
   );
 }
 
-// ── Collapsible session card ──────────────────────────────────────────────────
-function SessionCard({ summary }) {
+// ── Session card (Spiellisten-style, expandable) ─────────────────────────────
+function SessionCard({ summary, index }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="card" style={{ backgroundColor: 'var(--surface-low)' }}>
-      <button
-        onClick={() => setOpen(o => !o)}
-        style={{
-          all: 'unset', cursor: 'pointer', width: '100%',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}
-        aria-expanded={open}
-      >
-        <span style={{ fontWeight: 700 }}>
-          {summary.tableName || 'Unbenannter Tisch'}
-        </span>
-        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+    <div
+      className="card"
+      style={{
+        backgroundColor: 'var(--surface-low)',
+        cursor: 'pointer',
+        transition: 'border-color 0.15s',
+        border: open ? '2px solid var(--primary)' : '2px solid transparent',
+      }}
+      onClick={() => setOpen(o => !o)}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{
+          width: '2rem', height: '2rem', borderRadius: '50%',
+          backgroundColor: PLAYER_COLORS[index % PLAYER_COLORS.length] + '33',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          <span style={{ fontSize: '0.875rem', fontWeight: 800, color: PLAYER_COLORS[index % PLAYER_COLORS.length] }}>
+            {index + 1}
+          </span>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.15rem' }}>
+            <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--on-surface)' }}>
+              {summary.tableName || 'Unbenannter Tisch'}
+            </p>
+          </div>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--outline)' }}>
+            {summary.totalRounds} Runden
+            {' · '}Gewinnrate{' '}
+            <span style={{ fontWeight: 600, color: summary.winRate >= 50 ? 'var(--primary)' : 'var(--secondary)' }}>
+              {summary.winRate.toFixed(1)}%
+            </span>
+            {' '}
+            <span style={{ color: 'var(--on-surface-variant)' }}>
+              ({summary.wins}/{summary.roundCount})
+            </span>
+            {' · '}Alleinspieler{' '}
+            <span style={{ fontWeight: 600, color: 'var(--on-surface-variant)' }}>
+              {summary.declarerShare.toFixed(0)}%
+            </span>
+            {summary.leaderName && (
+              <span style={{ marginLeft: '0.5rem', color: 'var(--primary)', fontWeight: 600 }}>
+                🏆 {summary.leaderName}
+              </span>
+            )}
+          </p>
+        </div>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--outline)', flexShrink: 0, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>
           expand_more
         </span>
-      </button>
-      {open && (
-        <div style={{ marginTop: '0.75rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-          <div>
-            <p className="stat-label">Rundenanzahl</p>
-            <p style={{ fontWeight: 700 }}>{summary.roundCount}</p>
-          </div>
-          <div>
-            <p className="stat-label">Gewinnrate</p>
-            <p style={{ fontWeight: 700, color: summary.winRate >= 50 ? 'var(--primary)' : 'var(--secondary)' }}>
-              {summary.winRate.toFixed(1)}%
-            </p>
+      </div>
+
+      {/* Expanded: player ranking (Spiellisten-style) */}
+      {open && summary.sortedPlayers && summary.sortedPlayers.length > 0 && (
+        <div style={{ marginTop: '1rem', borderTop: '1px solid var(--outline-variant)', paddingTop: '0.75rem' }}
+             onClick={(e) => e.stopPropagation()}>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--outline)', marginBottom: '0.75rem' }}>
+            {summary.totalRounds} von {summary.totalRounds} Runden gespielt
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {summary.sortedPlayers.map((p, rank) => {
+              const isLeader = rank === 0;
+              const total = p.seeger + p.raw;
+              return (
+                <div
+                  key={p.name}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.75rem',
+                    padding: '0.625rem 0.875rem', borderRadius: '0.5rem',
+                    backgroundColor: isLeader ? 'rgba(208,166,0,0.12)' : 'var(--surface-high)',
+                    border: isLeader ? '1px solid rgba(208,166,0,0.4)' : '1px solid transparent',
+                  }}
+                >
+                  <span style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--outline)', width: '1.25rem', textAlign: 'center', flexShrink: 0 }}>
+                    {rank + 1}.
+                  </span>
+                  <span style={{ flex: 1, fontWeight: 600, fontSize: '0.9375rem' }}>
+                    {isLeader && '🏆 '}{p.name}
+                  </span>
+                  <div style={{ textAlign: 'right', minWidth: '60px' }}>
+                    <p style={{ fontSize: '0.9375rem', fontWeight: 700, fontFamily: "'Manrope', sans-serif", color: p.raw >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
+                      {p.raw >= 0 ? '+' : ''}{p.raw}
+                    </p>
+                    <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>
+                      Rohpunkte
+                    </p>
+                  </div>
+                  <div style={{ textAlign: 'right', minWidth: '60px' }}>
+                    <p style={{ fontSize: '0.9375rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: total >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
+                      {total >= 0 ? '+' : ''}{total}
+                    </p>
+                    <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>
+                      Gesamt
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -683,8 +756,8 @@ const MeinProfil = () => {
         <section style={{ marginBottom: '2rem' }}>
           <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Tischübersicht</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {sessionSummaries.map(s => (
-              <SessionCard key={s.sessionId} summary={s} />
+            {sessionSummaries.map((s, idx) => (
+              <SessionCard key={s.sessionId} summary={s} index={idx} />
             ))}
           </div>
         </section>
