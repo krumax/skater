@@ -306,9 +306,9 @@ function ReadOnlyRankingRow({ rank, name, score }) {
   );
 }
 
-// ── Read-Only Round History (Req 5.1, 5.3) ────────────────────────────────────
+// ── Read-Only Round History (Req 5.1, 5.3) — matches SkatScoreList styling ───
 function ReadOnlyRoundHistory({ rounds, players }) {
-  const VISIBLE_TAIL = 10;
+  const VISIBLE_TAIL = 6;
   const [expanded, setExpanded] = useState(false);
 
   const { runningStd, runningSF } = useMemo(
@@ -320,6 +320,10 @@ function ReadOnlyRoundHistory({ rounds, players }) {
   const olderRounds = rounds.slice(0, splitAt);
   const recentRounds = rounds.slice(splitAt);
   const scoreColWidth = players.length >= 4 ? 3.5 : 4;
+
+  // Shared styles matching SkatScoreList
+  const thStyle = { padding: '0.25rem 0.35rem', textTransform: 'uppercase', fontSize: '0.7rem', color: 'var(--outline)', letterSpacing: '0.08em', fontWeight: 700, whiteSpace: 'nowrap' };
+  const thDivider = { width: '1px', padding: 0, backgroundColor: 'var(--outline-variant)' };
 
   if (rounds.length === 0) {
     return (
@@ -337,22 +341,24 @@ function ReadOnlyRoundHistory({ rounds, players }) {
         <table className="mobile-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', tableLayout: 'fixed' }}>
           <thead>
             <tr style={{ borderBottom: '2px solid var(--outline-variant)' }}>
-              <th style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--on-surface-variant)', width: '2.5rem' }}>#</th>
-              <th style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--on-surface-variant)', width: '6rem' }}>Spieler</th>
-              <th style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--on-surface-variant)', width: '2.5rem' }}>Typ</th>
-              <th style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--on-surface-variant)', textAlign: 'right', width: '3.5rem' }}>Pkt.</th>
-              <th style={{ width: '1px', padding: 0, borderLeft: '2px solid var(--outline-variant)' }}></th>
+              <th className="col-round-nr" style={{ ...thStyle, width: '2.5rem' }}>#</th>
+              <th style={{ ...thStyle, width: '6rem' }}>Spieler</th>
+              <th className="col-type" style={{ ...thStyle, width: '2.5rem' }}>Typ</th>
+              <th className="col-ansage" style={{ ...thStyle, textAlign: 'right', width: '3rem' }}>Ans.</th>
+              <th className="col-modifier" style={{ ...thStyle, textAlign: 'left', paddingLeft: '0.25rem', color: 'var(--outline)', fontSize: '0.6rem', width: '3rem' }}>Mod.</th>
+              <th style={{ ...thStyle, textAlign: 'right', width: '3.5rem' }}>Pkt.</th>
+              <th className="score-col-divider" style={thDivider}></th>
               {players.map(p => (
-                <th key={`std-${p}`} style={{ padding: '0.5rem 0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--on-surface-variant)', textAlign: 'center', width: `${scoreColWidth}rem` }}>
+                <th key={`std-${p}`} className="score-col-std" style={{ ...thStyle, textAlign: 'center', width: `${scoreColWidth}rem`, overflow: 'hidden' }}>
                   <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--outline)' }}>STD</span>
                   <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p}>
                     {p.length > 8 ? p.slice(0, 8) + '…' : p}
                   </span>
                 </th>
               ))}
-              <th style={{ width: '1px', padding: 0, borderLeft: '2px solid var(--outline-variant)' }}></th>
+              <th className="score-col-divider" style={thDivider}></th>
               {players.map(p => (
-                <th key={`sf-${p}`} style={{ padding: '0.5rem 0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--on-surface-variant)', textAlign: 'center', width: `${scoreColWidth}rem` }}>
+                <th key={`sf-${p}`} className="score-col-sf" style={{ ...thStyle, textAlign: 'center', width: `${scoreColWidth}rem`, overflow: 'hidden' }}>
                   <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--primary)' }}>Σ</span>
                   <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p}>
                     {p.length > 8 ? p.slice(0, 8) + '…' : p}
@@ -367,10 +373,12 @@ function ReadOnlyRoundHistory({ rounds, players }) {
               <>
                 {expanded && olderRounds.map((r, idx) => (
                   <ReadOnlyRoundRow key={r._dbId ?? `old-${idx}`} r={r} idx={idx} players={players}
-                    std={runningStd[idx]} sf={runningSF[idx]} />
+                    std={runningStd[idx]} sf={runningSF[idx]}
+                    sfPrev={idx > 0 ? runningSF[idx - 1] : null}
+                    stdPrev={idx > 0 ? runningStd[idx - 1] : null} />
                 ))}
                 <tr style={{ backgroundColor: 'var(--surface-high)' }}>
-                  <td colSpan={5 + players.length * 2} style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>
+                  <td colSpan={8 + players.length * 2} style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>
                     <button
                       onClick={() => setExpanded(e => !e)}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--outline)', fontFamily: 'inherit', padding: '0.25rem 0.75rem' }}
@@ -391,7 +399,9 @@ function ReadOnlyRoundHistory({ rounds, players }) {
               const idx = splitAt + i;
               return (
                 <ReadOnlyRoundRow key={r._dbId ?? `recent-${i}`} r={r} idx={idx} players={players}
-                  std={runningStd[idx]} sf={runningSF[idx]} />
+                  std={runningStd[idx]} sf={runningSF[idx]}
+                  sfPrev={idx > 0 ? runningSF[idx - 1] : null}
+                  stdPrev={idx > 0 ? runningStd[idx - 1] : null} />
               );
             })}
           </tbody>
@@ -401,42 +411,98 @@ function ReadOnlyRoundHistory({ rounds, players }) {
   );
 }
 
-// ── Read-Only Round Row (no edit/delete actions) ──────────────────────────────
-function ReadOnlyRoundRow({ r, idx, players, std, sf }) {
-  const tdStyle = { padding: '0.5rem 0.75rem', fontSize: '0.8125rem', verticalAlign: 'middle' };
+// ── Read-Only Round Row — matches SkatScoreList RoundRow (no edit/delete) ─────
+function ReadOnlyRoundRow({ r, idx, players, std, sf, sfPrev, stdPrev }) {
+  const tdStyle = { padding: '0 0.35rem', whiteSpace: 'nowrap' };
+  const tdDivider = { width: '1px', padding: 0, backgroundColor: 'var(--surface-high)' };
 
   return (
     <tr style={{
       borderBottom: '1px solid var(--surface-high)',
       backgroundColor: idx % 2 === 0 ? 'var(--bg)' : 'var(--surface-low)',
     }}>
-      <td style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
+      <td className="col-round-nr" style={{ ...tdStyle, fontWeight: 800, color: 'var(--outline)' }}>{r.id}</td>
       <td style={{ ...tdStyle, fontWeight: 600, color: r.won ? 'var(--on-surface)' : 'var(--secondary)' }}>{r.player}</td>
-      <td style={tdStyle}>
+      <td className="col-type" style={{ ...tdStyle, color: r.won ? 'var(--on-surface-variant)' : 'var(--secondary)' }}>
         <SuitBadge gameType={r.gameType} size="xl" variant="plain" />
       </td>
+      {/* Ansage (Spitzen) */}
+      <td className="col-ansage" style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: 'var(--on-surface-variant)', fontFamily: "'Manrope', sans-serif", paddingRight: '0.25rem' }}>
+        {(() => {
+          const isNull = r.gameType === 'null';
+          const isPassed = r.gameType === 'passed';
+          if (isPassed) return <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>;
+          if (isNull) return <span style={{ color: 'var(--outline)', opacity: 0.6 }}>—</span>;
+          return r.spitzen != null
+            ? <span style={{ color: 'var(--on-surface)' }}>
+                {(r.mitOhne ?? 'mit') === 'ohne' ? '−' : '+'}{r.spitzen}
+              </span>
+            : <span style={{ color: 'var(--outline)', opacity: 0.4 }}>—</span>;
+        })()}
+      </td>
+      {/* Modifier badges */}
+      <td className="col-modifier" style={{ ...tdStyle, paddingLeft: '0.25rem', paddingRight: '0.5rem' }}>
+        {(() => {
+          const badges = [];
+          if (r.hand) badges.push('H');
+          if (r.schneider) badges.push('S');
+          if (r.schwarz) badges.push('Sz');
+          if (r.ouvert) badges.push('O');
+          if (badges.length === 0) return null;
+          return (
+            <span style={{ display: 'inline-flex', gap: '0.15rem', flexWrap: 'nowrap' }}>
+              {badges.map(b => (
+                <span key={b} style={{
+                  fontSize: '0.55rem', fontWeight: 800, letterSpacing: '0.02em',
+                  backgroundColor: 'var(--surface-high)', color: 'var(--on-surface-variant)',
+                  padding: '0.1rem 0.3rem', borderRadius: '0.25rem', lineHeight: 1.4,
+                  whiteSpace: 'nowrap',
+                }}>{b}</span>
+              ))}
+            </span>
+          );
+        })()}
+      </td>
+      {/* Punkte */}
       <td style={{ ...tdStyle, fontWeight: 800, textAlign: 'right', color: r.gameValue >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
-        {r.isBock && (
-          <span style={{
-            display: 'inline-block', fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.05em',
+        {r.isBock === true && (
+          <span className="badge-bock" style={{
+            display: 'inline-block', fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase',
             backgroundColor: 'var(--tertiary-container)', color: 'var(--on-tertiary-container, #fff)',
             padding: '0.1rem 0.35rem', borderRadius: '0.25rem', marginRight: '0.4rem', verticalAlign: 'middle',
           }}>Bock</span>
         )}
         {r.gameValue >= 0 ? '+' : ''}{r.gameValue}
       </td>
-      <td style={{ width: '1px', padding: 0, borderLeft: '2px solid var(--outline-variant)' }}></td>
-      {players.map(p => (
-        <td key={`std-${p}`} style={{ ...tdStyle, textAlign: 'center', fontFamily: "'Manrope', sans-serif", fontWeight: 600, color: (std?.[p] ?? 0) >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
-          {std?.[p] ?? 0}
-        </td>
-      ))}
-      <td style={{ width: '1px', padding: 0, borderLeft: '2px solid var(--outline-variant)' }}></td>
-      {players.map(p => (
-        <td key={`sf-${p}`} style={{ ...tdStyle, textAlign: 'center', fontFamily: "'Manrope', sans-serif", fontWeight: 600, color: (sf?.[p] ?? 0) >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
-          {sf?.[p] ?? 0}
-        </td>
-      ))}
+      {/* STD divider */}
+      <td style={tdDivider} className="score-col-divider"></td>
+      {/* STD running totals with highlight */}
+      {players.map(p => {
+        const curr = std?.[p] ?? 0;
+        const prev = stdPrev?.[p] ?? 0;
+        const delta = curr - prev;
+        const changed = delta !== 0;
+        const color = delta < 0 ? 'var(--secondary)' : 'var(--on-surface)';
+        return (
+          <td key={`std-${p}`} className="score-col-std" style={{ ...tdStyle, textAlign: 'center', fontWeight: 600, opacity: changed ? 1 : 0.4, color }}>
+            {curr}
+          </td>
+        );
+      })}
+      {/* SF divider */}
+      <td style={tdDivider} className="score-col-divider"></td>
+      {/* Σ combined totals (STD + SF) with highlight */}
+      {players.map(p => {
+        const total = (std?.[p] ?? 0) + (sf?.[p] ?? 0);
+        const sfDelta = (sf?.[p] ?? 0) - (sfPrev?.[p] ?? 0);
+        const changed = sfDelta !== 0;
+        const color = sfDelta < 0 ? 'var(--secondary)' : 'var(--on-surface)';
+        return (
+          <td key={`sf-${p}`} className="score-col-sf" style={{ ...tdStyle, textAlign: 'center', fontWeight: 700, opacity: changed ? 1 : 0.4, color }}>
+            {total}
+          </td>
+        );
+      })}
     </tr>
   );
 }
