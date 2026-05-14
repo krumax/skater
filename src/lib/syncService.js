@@ -790,10 +790,11 @@ export async function claimSlot(token, userId) {
   }
 
   // 11. Upsert session_players row with resolved display_name and user_id
+  const slotIndex = seating.indexOf(displayName);
   const { error: upsertError } = await supabase
     .from('session_players')
     .upsert(
-      { session_id: sessionId, display_name: displayName, user_id: userId },
+      { session_id: sessionId, display_name: displayName, user_id: userId, slot_index: slotIndex },
       { onConflict: 'session_id,display_name' }
     );
 
