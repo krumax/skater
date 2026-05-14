@@ -109,7 +109,7 @@ function PieChart({ slices, title, tooltip }) {
 }
 
 export default function ScoreDistributionChart() {
-  const { rounds, seating, getPlayerTotals, getSeegerTotals } = useGame();
+  const { rounds, seating, playerTotals, seegerTotals } = useGame();
 
   if (rounds.length === 0) {
     return <p className="score-dist-empty">Noch keine Runden gespielt.</p>;
@@ -120,8 +120,8 @@ export default function ScoreDistributionChart() {
     playerColors[name] = PLAYER_COLORS[i % PLAYER_COLORS.length];
   });
 
-  const standardScores = getPlayerTotals();
-  const seegerScores = getSeegerTotals();
+  const standardScores = playerTotals;
+  const seegerScores = seegerTotals;
   const combinedScores = {};
   seating.forEach((name) => {
     combinedScores[name] = (standardScores[name] ?? 0) + (seegerScores[name] ?? 0);

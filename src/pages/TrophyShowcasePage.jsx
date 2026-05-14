@@ -6,8 +6,7 @@ import AchievementMatrixPanel from '../components/analytics/AchievementMatrixPan
 import { useTrophyData } from '../hooks/useTrophyData';
 
 const TrophyShowcasePage = () => {
-  const { players: allPlayers, rounds } = useGame();
-  const players = allPlayers.filter(p => p !== '-');
+  const { players, rounds } = useGame();
   const [searchParams] = useSearchParams();
   const [selectedPlayer, setSelectedPlayer] = useState('');
   const [showLocked, setShowLocked] = useState(true);

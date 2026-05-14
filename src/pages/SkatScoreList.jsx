@@ -12,13 +12,11 @@ import { useSuitLabel } from '../hooks/useSuitLabel';
 
 const SkatScoreList = () => {
   const navigate = useNavigate();
-  const { rounds, players: allPlayers, getPlayerTotals, getSeegerTotals, getPlayerRank, deleteRound, sessionLoaded, spiellisten, closeSpielliste } = useGame();
-  const players = allPlayers.filter(p => p !== '-');
+  const { rounds, players, playerTotals, seegerTotals, playerRankStandard, playerRankSeeger, deleteRound, sessionLoaded, spiellisten, closeSpielliste } = useGame();
 
-  const standardTotals = getPlayerTotals();
-  const seegerTotals = getSeegerTotals();
-  const standardRank = getPlayerRank(false).filter(e => e.name !== '-');
-  const seegerRank = getPlayerRank(true).filter(e => e.name !== '-');
+  const standardTotals = playerTotals;
+  const standardRank = playerRankStandard.filter(e => e.name !== '-');
+  const seegerRank = playerRankSeeger.filter(e => e.name !== '-');
 
   const VISIBLE_TAIL = 6;
   const [expanded, setExpanded] = useState(false);

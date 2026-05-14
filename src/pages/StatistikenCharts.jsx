@@ -84,8 +84,7 @@ const ChartTooltip = ({ active, payload, label }) => {
 /* ──────────────────────────────────────────────── */
 
 const StatistikenCharts = () => {
-  const { rounds, players: allPlayers } = useGame();
-  const players = allPlayers.filter(p => p !== '-');
+  const { rounds, players } = useGame();
   const [xMode, setXMode] = useState('rounds'); // 'rounds' | 'time'
   const [timeGranularity, setTimeGranularity] = useState('week'); // 'day' | 'week' | 'month'
   const getSuitLabel = useSuitLabel();

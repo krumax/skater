@@ -47,8 +47,7 @@ export function buildTypeLabel(gameType, { hand = false, ouvert = false } = {}) 
  *   onSaved – wird nach erfolgreichem Speichern aufgerufen
  */
 export default function GameTypeEditor({ round, onClose, onSaved }) {
-  const { updateRound, players: allPlayers } = useGame();
-  const players = allPlayers.filter(p => p !== '-');
+  const { updateRound, players } = useGame();
   const getSuitLabel = useSuitLabel();
 
   // Interner State – vorbelegt mit den aktuellen Werten der Runde

@@ -4,8 +4,7 @@ import { computeListStats, computeListProgress } from '../lib/spiellistenUtils';
 import { PLAYER_COLORS } from '../lib/tokens';
 
 const SpiellistenPage = () => {
-  const { spiellisten, rounds, players: allPlayers, closeSpielliste } = useGame();
-  const players = allPlayers.filter(p => p !== '-');
+  const { spiellisten, rounds, players, closeSpielliste } = useGame();
   const [selectedId, setSelectedId] = useState(null);
 
   const selectedListe = spiellisten.find(l => l.id === selectedId) ?? null;

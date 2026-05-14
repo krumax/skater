@@ -104,7 +104,7 @@ describe('Property 2: Kein Bock bedeutet unveränderter Spielwert (Requirements 
 // ── Property 7 helpers ────────────────────────────────────────────────────────
 
 /**
- * Pure reimplementation of getPlayerTotals logic from GameContext.
+ * Pure reimplementation of playerTotals logic from GameContext.
  * Sums r.gameValue per player across all rounds.
  * (Bock rounds already have their gameValue doubled at save time.)
  */
@@ -144,7 +144,7 @@ const arbitraryRound = (seating) => fc.record({
 // ── Property 7 ────────────────────────────────────────────────────────────────
 
 describe('Property 7: Gesamtpunkte berücksichtigen Bock-Spielwert korrekt (Requirements 5.1, 5.2)', () => {
-  it('getPlayerTotals() liefert die Summe der gespeicherten game_value-Felder pro Spieler', { timeout: 30000 }, () => {
+  it('playerTotals liefert die Summe der gespeicherten game_value-Felder pro Spieler', { timeout: 30000 }, () => {
     fc.assert(
       fc.property(
         arbitrarySeating.chain(seating =>
@@ -154,7 +154,7 @@ describe('Property 7: Gesamtpunkte berücksichtigen Bock-Spielwert korrekt (Requ
           )
         ),
         ([seating, rounds]) => {
-          // Compute totals using the same logic as GameContext.getPlayerTotals
+          // Compute totals using the same logic as GameContext's playerTotals
           const totals = computePlayerTotals(seating, rounds);
 
           // Independently compute expected totals by summing stored gameValue fields

@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useCallback, useState } from 'react';
+import { createContext, useContext, useReducer, useMemo, useState } from 'react';
 import { gameReducer, initialState, getRoles } from '../lib/gameReducer';
 import {
   computePlayerTotals,
@@ -23,56 +23,87 @@ export function GameProvider({ children }) {
   // All async Supabase operations
   const actions = useSyncActions(state, dispatch, setSyncStatus, setSyncError);
 
-  const currentRoles = getRoles(state.seating, state.geberIndex);
+  // ── Layer 1: Pre-computed derived data ─────────────────────────────────────
 
-  // ── Derived data helpers ──────────────────────────────────────────────────
+  const players = useMemo(
+    () => state.seating.filter(p => p !== '-'),
+    [state.seating]
+  );
 
-  const getPlayerTotals = useCallback(() =>
-    computePlayerTotals(state.seating, state.rounds),
-  [state.seating, state.rounds]);
+  const currentRoles = useMemo(
+    () => getRoles(state.seating, state.geberIndex),
+    [state.seating, state.geberIndex]
+  );
 
-  const getSeegerTotals = useCallback(() =>
-    computeSeegerTotals(state.seating, state.rounds),
-  [state.seating, state.rounds]);
+  const playerTotals = useMemo(
+    () => computePlayerTotals(state.seating, state.rounds),
+    [state.seating, state.rounds]
+  );
 
-  const getPlayerRank = useCallback((useSeeger = false) =>
-    computePlayerRank(state.seating, state.rounds, useSeeger),
-  [state.seating, state.rounds]);
+  const seegerTotals = useMemo(
+    () => computeSeegerTotals(state.seating, state.rounds),
+    [state.seating, state.rounds]
+  );
 
-  const getPlayerStats = useCallback((playerName) =>
-    computePlayerStats(state.rounds, playerName),
-  [state.rounds]);
+  const playerRankStandard = useMemo(
+    () => computePlayerRank(state.seating, state.rounds, false),
+    [state.seating, state.rounds]
+  );
 
-  const getActiveSpiellistenForSession = useCallback(() =>
-    state.spiellisten.filter(l => l.status === 'aktiv'),
-  [state.spiellisten]);
+  const playerRankSeeger = useMemo(
+    () => computePlayerRank(state.seating, state.rounds, true),
+    [state.seating, state.rounds]
+  );
+
+  const getPlayerStats = useMemo(
+    () => (playerName) => computePlayerStats(state.rounds, playerName),
+    [state.rounds]
+  );
+
+  const getActiveSpiellistenForSession = useMemo(
+    () => () => state.spiellisten.filter(l => l.status === 'aktiv'),
+    [state.spiellisten]
+  );
+
+  // ── Layer 3: Memoized context value ───────────────────────────────────────
+
+  const contextValue = useMemo(() => ({
+    // State
+    seating: state.seating,
+    players,
+    rounds: state.rounds,
+    currentRound: state.currentRound,
+    sessionId: state.sessionId,
+    geberIndex: state.geberIndex,
+    tableName: state.tableName,
+    currentRoles,
+    spiellisten: state.spiellisten,
+    activeSpiellisteId: state.activeSpiellisteId,
+    // Sync
+    syncStatus,
+    syncError,
+    sessionLoaded,
+    // Actions (from useSyncActions)
+    ...actions,
+    // Derived (pre-computed, breaking API change)
+    playerTotals,
+    seegerTotals,
+    playerRankStandard,
+    playerRankSeeger,
+    getPlayerStats,
+    getActiveSpiellistenForSession,
+  }), [
+    state.seating, players, state.rounds, state.currentRound,
+    state.sessionId, state.geberIndex, state.tableName, currentRoles,
+    state.spiellisten, state.activeSpiellisteId,
+    syncStatus, syncError, sessionLoaded,
+    actions,
+    playerTotals, seegerTotals, playerRankStandard, playerRankSeeger,
+    getPlayerStats, getActiveSpiellistenForSession,
+  ]);
 
   return (
-    <GameContext.Provider value={{
-      // State
-      seating: state.seating,
-      players: state.seating, // backward compat alias
-      rounds: state.rounds,
-      currentRound: state.currentRound,
-      sessionId: state.sessionId,
-      geberIndex: state.geberIndex,
-      tableName: state.tableName,
-      currentRoles,
-      spiellisten: state.spiellisten,
-      activeSpiellisteId: state.activeSpiellisteId,
-      // Sync
-      syncStatus,
-      syncError,
-      sessionLoaded,
-      // Actions (from useSyncActions)
-      ...actions,
-      // Derived
-      getPlayerTotals,
-      getSeegerTotals,
-      getPlayerRank,
-      getPlayerStats,
-      getActiveSpiellistenForSession,
-    }}>
+    <GameContext.Provider value={contextValue}>
       {children}
     </GameContext.Provider>
   );

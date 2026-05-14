@@ -57,6 +57,7 @@ const AchievementWatcher = () => {
   const rankSnapshotRef = useRef(null);
   const prevRoundCountRef = useRef(rounds.length);
   const prevSessionIdRef = useRef(sessionId);
+  const rebuildingRef = useRef(false);
 
   useEffect(() => {
     // 1. If initializing OR session changed OR completely out of sync (bulk load)
@@ -65,17 +66,23 @@ const AchievementWatcher = () => {
       sessionId !== prevSessionIdRef.current ||
       rounds.length > prevRoundCountRef.current + 1
     ) {
-      const snap = {};
-      const rankSnap = {};
-      players.forEach(p => {
-        const { keys } = computeUnlockedKeys(rounds, p);
-        snap[p] = keys;
-        rankSnap[p] = computeRankSnapshot(rounds, p);
-      });
-      snapshotRef.current = snap;
-      rankSnapshotRef.current = rankSnap;
+      rebuildingRef.current = true;
       prevRoundCountRef.current = rounds.length;
       prevSessionIdRef.current = sessionId;
+
+      const scheduleRebuild = window.requestIdleCallback || ((cb) => setTimeout(cb, 0));
+      scheduleRebuild(() => {
+        const snap = {};
+        const rankSnap = {};
+        players.forEach(p => {
+          const { keys } = computeUnlockedKeys(rounds, p);
+          snap[p] = keys;
+          rankSnap[p] = computeRankSnapshot(rounds, p);
+        });
+        snapshotRef.current = snap;
+        rankSnapshotRef.current = rankSnap;
+        rebuildingRef.current = false;
+      });
       return;
     }
 
@@ -85,7 +92,13 @@ const AchievementWatcher = () => {
       return;
     }
 
-    // 3. Exactly ONE round was added. Safe to evaluate!
+    // 3. Guard: don't fire celebrations during rebuild
+    if (rebuildingRef.current) {
+      prevRoundCountRef.current = rounds.length;
+      return;
+    }
+
+    // 4. Exactly ONE round was added. Safe to evaluate!
     const latestRound = rounds[rounds.length - 1];
     if (!latestRound) return;
 

@@ -13,9 +13,8 @@ const SYNC_ICON = {
 };
 
 const Sidebar = () => {
-  const { currentRound, seating, syncStatus, refreshFromDB, tableName, getPlayerTotals } = useGame();
+  const { currentRound, seating, syncStatus, refreshFromDB, tableName, playerTotals } = useGame();
   const syncIcon = SYNC_ICON[syncStatus] ?? SYNC_ICON.idle;
-  const totals = getPlayerTotals();
 
   return (
     <>
@@ -51,7 +50,7 @@ const Sidebar = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
             {seating.filter(p => p !== '-').length > 0 ? (
               seating.filter(p => p !== '-').map(p => {
-                const score = totals[p] ?? 0;
+                const score = playerTotals[p] ?? 0;
                 return (
                   <Link key={p} to={`/analytics?player=${encodeURIComponent(p)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>

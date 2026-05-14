@@ -114,8 +114,7 @@ function HighlightCard({ icon, gradient, textColor, title, round }) {
 
 
 const PlayerAnalytics = () => {
-  const { players: allPlayers, rounds, getPlayerStats } = useGame();
-  const players = allPlayers.filter(p => p !== '-');
+  const { players, rounds, getPlayerStats } = useGame();
   const [searchParams] = useSearchParams();
   const [selectedPlayer, setSelectedPlayer] = useState('');
   const [matrixTab, setMatrixTab] = useState('angriff');

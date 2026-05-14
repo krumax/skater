@@ -11,7 +11,7 @@
  * @returns {object} action handlers
  */
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import * as syncService from '../lib/syncService';
 import { SESSION_STORAGE_KEY } from './useSessionInit';
 import { validateSpiellisteName, validateRoundCount, generateDefaultName, computeListWinner } from '../lib/spiellistenUtils';
@@ -306,10 +306,15 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
     syncOk();
   }, [state.rounds, state.seating]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return {
+  return useMemo(() => ({
     addRound, deleteRound, updateRound,
     resetSession, createNewTable, switchSession, refreshFromDB, clearSession,
     addPlayer, removePlayer, renamePlayer, reorderSeating, setGeberIndex, renameTable,
     createSpielliste, setActiveSpielliste, closeSpielliste,
-  };
+  }), [
+    addRound, deleteRound, updateRound,
+    resetSession, createNewTable, switchSession, refreshFromDB, clearSession,
+    addPlayer, removePlayer, renamePlayer, reorderSeating, setGeberIndex, renameTable,
+    createSpielliste, setActiveSpielliste, closeSpielliste,
+  ]);
 }

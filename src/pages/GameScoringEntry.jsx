@@ -15,7 +15,7 @@ import ListenFortschritt  from '../components/ListenFortschritt';
 import SpiellistenSelector from '../components/SpiellistenSelector';
 
 const GameScoringEntry = () => {
-  const { players, seating, addRound, currentRound, getPlayerRank, currentRoles, rounds, getPlayerTotals, getSeegerTotals, spiellisten, activeSpiellisteId, setActiveSpielliste, createSpielliste, closeSpielliste, getActiveSpiellistenForSession } = useGame();
+  const { players, seating, addRound, currentRound, playerRankStandard, currentRoles, rounds, playerTotals, seegerTotals, spiellisten, activeSpiellisteId, setActiveSpielliste, createSpielliste, closeSpielliste, getActiveSpiellistenForSession } = useGame();
 
   const form = useGameForm(currentRoles.activePlayers[0] || players[0]);
   const counter = useRoundCounter();
@@ -26,8 +26,7 @@ const GameScoringEntry = () => {
     ),
   [rounds, players]);
 
-  const stdTotals    = getPlayerTotals();
-  const seegerTotals = getSeegerTotals();
+  const stdTotals = playerTotals;
 
   const activeSpiellisten = getActiveSpiellistenForSession();
   const activeSpielliste = spiellisten.find(l => l.id === activeSpiellisteId) ?? null;
@@ -73,7 +72,7 @@ const GameScoringEntry = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [counter.bockRoundsLeft]);
 
-  const rankings = getPlayerRank();
+  const rankings = playerRankStandard;
   const activePlayers = currentRoles.activePlayers.filter(n => n !== '-');
 
   // Empty state: no table set up yet (fewer than 3 players in seating)
