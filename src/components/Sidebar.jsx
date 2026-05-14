@@ -200,10 +200,6 @@ const Sidebar = () => {
         <span className="material-symbols-outlined">group</span>
         Einst.
       </NavLink>
-      <NavLink to="/mein-profil" className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
-        <span className="material-symbols-outlined">person_pin</span>
-        Profil
-      </NavLink>
     </nav>
     </>
   );

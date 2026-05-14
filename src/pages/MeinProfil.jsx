@@ -1,10 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useProfileData } from '../hooks/useProfileData';
-import GameTypePieChart from '../components/analytics/GameTypePieChart';
+import ProfileGameMatrix from '../components/analytics/ProfileGameMatrix';
 import SuitBadge from '../components/SuitBadge';
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
-} from 'recharts';
 import {
   computePlayerTotals,
   computeSeegerTotals,
@@ -12,104 +9,6 @@ import {
   computeRunningTotals,
 } from '../lib/playerStats';
 import { PLAYER_COLORS } from '../lib/tokens';
-
-// ── Linked Sessions Section ───────────────────────────────────────────────────
-function LinkedSessionsSection({ linkedSessions, loading, error, refetch, onSessionClick }) {
-  // Error state with retry
-  if (error) {
-    return (
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Verknüpfte Tische</h2>
-        <div className="card" style={{ backgroundColor: 'var(--error-container, #fdecea)', padding: '1.5rem' }}>
-          <p style={{ color: 'var(--on-error-container, #d32f2f)', marginBottom: '1rem' }}>
-            Fehler beim Laden der verknüpften Tische.
-          </p>
-          <button
-            onClick={refetch}
-            className="chip active"
-            style={{ fontSize: '0.9rem', padding: '0.6rem 1.25rem' }}
-          >
-            Erneut versuchen
-          </button>
-        </div>
-      </section>
-    );
-  }
-
-  // Loading state
-  if (loading) {
-    return (
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Verknüpfte Tische</h2>
-        <div className="card" style={{ backgroundColor: 'var(--surface-low)', padding: '1.5rem', textAlign: 'center' }}>
-          <span style={{ fontSize: '1.5rem', animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span>
-        </div>
-      </section>
-    );
-  }
-
-  // Empty state — onboarding hint
-  if (!linkedSessions || linkedSessions.length === 0) {
-    return (
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Verknüpfte Tische</h2>
-        <div className="card" style={{ backgroundColor: 'var(--surface-low)', padding: '2rem', textAlign: 'center' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline)', marginBottom: '0.75rem', display: 'block' }}>
-            link_off
-          </span>
-          <p style={{ color: 'var(--on-surface-variant)', marginBottom: '0.5rem', fontWeight: 600 }}>
-            Noch keine Tische verknüpft.
-          </p>
-          <p style={{ color: 'var(--outline)', fontSize: '0.875rem', maxWidth: '28rem', margin: '0 auto' }}>
-            Bitte den Tischersteller um einen Einladungslink, um deinen Spielerslot zu claimen und den Tisch hier zu sehen.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
-  // Render session list
-  return (
-    <section style={{ marginBottom: '2rem' }}>
-      <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Verknüpfte Tische</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {linkedSessions.map(session => (
-          <div
-            key={session.sessionId}
-            className="card"
-            role="button"
-            tabIndex={0}
-            onClick={() => onSessionClick?.(session.sessionId)}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSessionClick?.(session.sessionId); } }}
-            style={{ backgroundColor: 'var(--surface-low)', padding: '1.25rem', cursor: 'pointer', transition: 'border-color 0.15s' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontWeight: 700, marginBottom: '0.25rem' }}>
-                  {session.tableName || 'Unbenannter Tisch'}
-                </p>
-                <p style={{ fontSize: '0.8125rem', color: 'var(--on-surface-variant)' }}>
-                  Spieler: {session.displayName}
-                </p>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontWeight: 700, fontSize: '1.125rem', color: 'var(--primary)' }}>
-                    {session.totalRounds}
-                  </p>
-                  <p className="stat-label">Runden</p>
-                </div>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--outline)' }}>
-                  chevron_right
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 // ── Read-Only Session Detail View (Req 5.1, 5.2, 5.3, 5.4, 5.6, 5.7) ────────
 function ReadOnlySessionDetail({ sessionDetail, loading, error, onBack }) {
@@ -519,7 +418,7 @@ function StatCard({ label, value, color }) {
 }
 
 // ── Session card (Spiellisten-style, expandable) ─────────────────────────────
-function SessionCard({ summary, index }) {
+function SessionCard({ summary, index, onSessionClick }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -623,14 +522,72 @@ function SessionCard({ summary, index }) {
               );
             })}
           </div>
+          {/* Link to full detail view */}
+          {onSessionClick && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onSessionClick(summary.sessionId); }}
+              style={{
+                all: 'unset', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem',
+                marginTop: '1rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--primary)',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>open_in_new</span>
+              Vollständige Ansicht
+            </button>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-// Sentinel player name used for GameTypePieChart filtering
-const PROFILE_PLAYER = '__profile__';
+// ── Linked-only session card (no full stats, clickable for detail) ────────────
+function LinkedSessionCard({ session, index, onClick }) {
+  return (
+    <div
+      className="card"
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
+      style={{
+        backgroundColor: 'var(--surface-low)',
+        cursor: 'pointer',
+        transition: 'border-color 0.15s',
+        border: '2px solid transparent',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{
+          width: '2rem', height: '2rem', borderRadius: '50%',
+          backgroundColor: PLAYER_COLORS[index % PLAYER_COLORS.length] + '33',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          <span style={{ fontSize: '0.875rem', fontWeight: 800, color: PLAYER_COLORS[index % PLAYER_COLORS.length] }}>
+            {index + 1}
+          </span>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.15rem' }}>
+            <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--on-surface)' }}>
+              {session.tableName || 'Unbenannter Tisch'}
+            </p>
+          </div>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--outline)' }}>
+            {session.totalRounds} Runden
+            {session.displayName && (
+              <span style={{ marginLeft: '0.5rem' }}>· Spieler: {session.displayName}</span>
+            )}
+          </p>
+        </div>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--outline)', flexShrink: 0 }}>
+          chevron_right
+        </span>
+      </div>
+    </div>
+  );
+}
 
 // ── Main page component ───────────────────────────────────────────────────────
 const MeinProfil = () => {
@@ -695,35 +652,49 @@ const MeinProfil = () => {
           <h1 className="page-title">Mein Profil</h1>
           <p className="page-subtitle">Deine tischübergreifende Statistik.</p>
         </header>
-        <LinkedSessionsSection
-          linkedSessions={linkedSessions}
-          loading={linkedSessionsLoading}
-          error={linkedSessionsError}
-          refetch={refetchLinkedSessions}
-          onSessionClick={loadSessionDetail}
-        />
-        <div className="card" style={{ backgroundColor: 'var(--surface-low)', padding: '2rem', textAlign: 'center' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline)', marginBottom: '1rem', display: 'block' }}>
-            person_add
-          </span>
-          <p style={{ color: 'var(--on-surface-variant)', marginBottom: '0.5rem', fontWeight: 600 }}>
-            Noch keine Runden vorhanden.
-          </p>
-          <p style={{ color: 'var(--outline)', fontSize: '0.875rem', maxWidth: '28rem', margin: '0 auto' }}>
-            Um deine Runden hier zu sehen, muss dein Spielerslot an einem Tisch mit deinem Account verknüpft sein.
-            Der Tischersteller kann dir einen Einladungslink senden, über den du deinen Slot claimen kannst.
-          </p>
-        </div>
+        <section style={{ marginBottom: '2rem' }}>
+          <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Tischübersicht</h2>
+          {linkedSessionsLoading ? (
+            <div className="card" style={{ backgroundColor: 'var(--surface-low)', padding: '1.5rem', textAlign: 'center' }}>
+              <span style={{ fontSize: '1.5rem', animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span>
+            </div>
+          ) : linkedSessionsError ? (
+            <div className="card" style={{ backgroundColor: 'var(--error-container, #fdecea)', padding: '1.5rem' }}>
+              <p style={{ color: 'var(--on-error-container, #d32f2f)', marginBottom: '1rem' }}>
+                Fehler beim Laden der Tische.
+              </p>
+              <button onClick={refetchLinkedSessions} className="chip active" style={{ fontSize: '0.9rem', padding: '0.6rem 1.25rem' }}>
+                Erneut versuchen
+              </button>
+            </div>
+          ) : (linkedSessions && linkedSessions.length > 0) ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {linkedSessions.map((ls, idx) => (
+                <LinkedSessionCard key={ls.sessionId} session={ls} index={idx} onClick={() => loadSessionDetail(ls.sessionId)} />
+              ))}
+            </div>
+          ) : (
+            <div className="card" style={{ backgroundColor: 'var(--surface-low)', padding: '2rem', textAlign: 'center' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline)', marginBottom: '0.75rem', display: 'block' }}>
+                link_off
+              </span>
+              <p style={{ color: 'var(--on-surface-variant)', marginBottom: '0.5rem', fontWeight: 600 }}>
+                Noch keine Tische verknüpft.
+              </p>
+              <p style={{ color: 'var(--outline)', fontSize: '0.875rem', maxWidth: '28rem', margin: '0 auto' }}>
+                Bitte den Tischersteller um einen Einladungslink, um deinen Spielerslot zu claimen und den Tisch hier zu sehen.
+              </p>
+            </div>
+          )}
+        </section>
       </div>
     );
   }
 
   // ── Data loaded — render full profile ──
-  // Build declarer rounds with a sentinel player name for GameTypePieChart compatibility.
-  // GameTypePieChart filters by `r.player === player` to compute per-type win rates.
+  // Build declarer rounds for the game matrix
   const declarerRounds = rounds
-    .filter(r => r.player === r.playerName)
-    .map(r => ({ ...r, player: PROFILE_PLAYER }));
+    .filter(r => r.player === r.playerName);
 
   return (
     <div>
@@ -735,90 +706,79 @@ const MeinProfil = () => {
       {/* ── KPI Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
         <StatCard
-          label="Gesamtrunden als Ansager"
-          value={stats.totalDeclarerGames}
-          color="var(--on-surface)"
-        />
-        <StatCard
-          label="Gesamtpunkte"
-          value={stats.totalPoints >= 0 ? `+${stats.totalPoints}` : `${stats.totalPoints}`}
-          color={stats.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)'}
-        />
-        <StatCard
-          label="Gewinnrate"
+          label="Siegquote"
           value={`${stats.winRate.toFixed(1)}%`}
           color={stats.winRate >= 50 ? 'var(--primary)' : 'var(--secondary)'}
         />
+        <StatCard
+          label="Alleinspieleranteil"
+          value={`${stats.declarerShare.toFixed(1)}%`}
+          color="var(--on-surface)"
+        />
+        <StatCard
+          label="Spiele insgesamt"
+          value={stats.totalRounds}
+          color="var(--on-surface)"
+        />
       </div>
 
-      {/* ── Per-session collapsible cards ── */}
-      {sessionSummaries.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Tischübersicht</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {sessionSummaries.map((s, idx) => (
-              <SessionCard key={s.sessionId} summary={s} index={idx} />
-            ))}
+      {/* ── Tischübersicht (merged: session summaries + linked sessions) ── */}
+      <section style={{ marginBottom: '2rem' }}>
+        <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Tischübersicht</h2>
+        {linkedSessionsLoading ? (
+          <div className="card" style={{ backgroundColor: 'var(--surface-low)', padding: '1.5rem', textAlign: 'center' }}>
+            <span style={{ fontSize: '1.5rem', animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span>
           </div>
-        </section>
-      )}
+        ) : linkedSessionsError ? (
+          <div className="card" style={{ backgroundColor: 'var(--error-container, #fdecea)', padding: '1.5rem' }}>
+            <p style={{ color: 'var(--on-error-container, #d32f2f)', marginBottom: '1rem' }}>
+              Fehler beim Laden der Tische.
+            </p>
+            <button
+              onClick={refetchLinkedSessions}
+              className="chip active"
+              style={{ fontSize: '0.9rem', padding: '0.6rem 1.25rem' }}
+            >
+              Erneut versuchen
+            </button>
+          </div>
+        ) : (() => {
+          // Merge: sessionSummaries (full stats) + linkedSessions that aren't already in summaries
+          const summaryIds = new Set(sessionSummaries.map(s => s.sessionId));
+          const linkedOnly = (linkedSessions || []).filter(ls => !summaryIds.has(ls.sessionId));
+          const hasContent = sessionSummaries.length > 0 || linkedOnly.length > 0;
 
-      {/* ── Linked sessions list ── */}
-      <LinkedSessionsSection
-        linkedSessions={linkedSessions}
-        loading={linkedSessionsLoading}
-        error={linkedSessionsError}
-        refetch={refetchLinkedSessions}
-        onSessionClick={loadSessionDetail}
-      />
+          if (!hasContent) {
+            return (
+              <div className="card" style={{ backgroundColor: 'var(--surface-low)', padding: '2rem', textAlign: 'center' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline)', marginBottom: '0.75rem', display: 'block' }}>
+                  link_off
+                </span>
+                <p style={{ color: 'var(--on-surface-variant)', marginBottom: '0.5rem', fontWeight: 600 }}>
+                  Noch keine Tische verknüpft.
+                </p>
+                <p style={{ color: 'var(--outline)', fontSize: '0.875rem', maxWidth: '28rem', margin: '0 auto' }}>
+                  Bitte den Tischersteller um einen Einladungslink, um deinen Spielerslot zu claimen und den Tisch hier zu sehen.
+                </p>
+              </div>
+            );
+          }
 
-      {/* ── Charts section ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2rem', alignItems: 'start', marginBottom: '2rem' }}>
-        {/* Points over time line chart */}
-        <div className="card" style={{ padding: '1.5rem', border: '1px solid var(--outline-variant)' }}>
-          <p className="stat-label" style={{ marginBottom: '0.75rem' }}>Punkteverlauf</p>
-          {stats.pointsOverTime.length > 0 ? (
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={stats.pointsOverTime}>
-                <XAxis
-                  dataKey="timestamp"
-                  tickFormatter={(ts) => ts ? new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : ''}
-                  tick={{ fontSize: 11 }}
-                />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip
-                  labelFormatter={(ts) => ts ? new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}
-                  formatter={(value) => [`${value} Punkte`, 'Kumulativ']}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="cumulativePoints"
-                  stroke="var(--primary)"
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <p style={{ color: 'var(--outline)' }}>Noch keine Daten.</p>
-          )}
-        </div>
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {sessionSummaries.map((s, idx) => (
+                <SessionCard key={s.sessionId} summary={s} index={idx} onSessionClick={loadSessionDetail} />
+              ))}
+              {linkedOnly.map((ls, idx) => (
+                <LinkedSessionCard key={ls.sessionId} session={ls} index={sessionSummaries.length + idx} onClick={() => loadSessionDetail(ls.sessionId)} />
+              ))}
+            </div>
+          );
+        })()}
+      </section>
 
-        {/* Pie chart */}
-        <div className="card" style={{ width: '380px', border: '1px solid var(--outline-variant)' }}>
-          <p className="stat-label" style={{ marginBottom: '0.75rem' }}>Spielart-Verteilung &amp; Gewinnraten</p>
-          {stats.typeDistribution.length > 0 ? (
-            <GameTypePieChart
-              typeDistribution={stats.typeDistribution}
-              rounds={declarerRounds}
-              player={PROFILE_PLAYER}
-            />
-          ) : (
-            <p style={{ color: 'var(--outline)' }}>Noch keine Daten.</p>
-          )}
-        </div>
-      </div>
+      {/* ── Game Matrix ── */}
+      <ProfileGameMatrix rounds={declarerRounds} />
     </div>
   );
 };

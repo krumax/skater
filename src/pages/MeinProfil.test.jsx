@@ -38,7 +38,7 @@ vi.mock('../lib/playerStats', () => ({
     runningStd: rounds.map(() => Object.fromEntries(players.map(p => [p, 10]))),
     runningSF: rounds.map(() => Object.fromEntries(players.map(p => [p, 5]))),
   }),
-  computeProfileStats: () => ({ totalDeclarerGames: 0, totalPoints: 0, winRate: 0, typeDistribution: [], pointsOverTime: [] }),
+  computeProfileStats: () => ({ totalRounds: 0, totalDeclarerGames: 0, totalPoints: 0, winRate: 0, declarerShare: 0, typeDistribution: [], pointsOverTime: [] }),
   computePerSessionStats: () => [],
 }));
 
@@ -74,9 +74,11 @@ describe('MeinProfil', () => {
   it('renders empty state with hint text when stats.totalDeclarerGames === 0', () => {
     useProfileData.mockReturnValue({
       stats: {
+        totalRounds: 0,
         totalDeclarerGames: 0,
         totalPoints: 0,
         winRate: 0,
+        declarerShare: 0,
         typeDistribution: [],
         pointsOverTime: [],
       },
@@ -94,7 +96,7 @@ describe('MeinProfil', () => {
     render(<MeinProfil />);
 
     expect(screen.getByText('Mein Profil')).toBeInTheDocument();
-    expect(screen.getByText('Noch keine Runden vorhanden.')).toBeInTheDocument();
+    expect(screen.getByText('Noch keine Tische verknüpft.')).toBeInTheDocument();
     expect(screen.getAllByText(/Einladungslink/).length).toBeGreaterThanOrEqual(1);
   });
 
@@ -123,9 +125,11 @@ describe('MeinProfil', () => {
   it('renders KPI cards when data is loaded', () => {
     useProfileData.mockReturnValue({
       stats: {
+        totalRounds: 80,
         totalDeclarerGames: 42,
         totalPoints: 350,
         winRate: 64.3,
+        declarerShare: 52.5,
         typeDistribution: [{ type: 'Grand', count: 5, pct: '11.9' }],
         pointsOverTime: [{ timestamp: '2024-01-01', cumulativePoints: 50 }],
       },
@@ -145,14 +149,14 @@ describe('MeinProfil', () => {
     render(<MeinProfil />);
 
     // KPI labels
-    expect(screen.getByText('Gesamtrunden als Ansager')).toBeInTheDocument();
-    expect(screen.getByText('Gesamtpunkte')).toBeInTheDocument();
-    expect(screen.getByText('Gewinnrate')).toBeInTheDocument();
+    expect(screen.getByText('Siegquote')).toBeInTheDocument();
+    expect(screen.getByText('Alleinspieleranteil')).toBeInTheDocument();
+    expect(screen.getByText('Spiele insgesamt')).toBeInTheDocument();
 
     // KPI values
-    expect(screen.getByText('42')).toBeInTheDocument();
-    expect(screen.getByText('+350')).toBeInTheDocument();
     expect(screen.getByText('64.3%')).toBeInTheDocument();
+    expect(screen.getByText('52.5%')).toBeInTheDocument();
+    expect(screen.getByText('80')).toBeInTheDocument();
   });
 
   // ── Linked Sessions Section Tests ──
@@ -160,9 +164,11 @@ describe('MeinProfil', () => {
   it('renders linked sessions list with table name, display_name, and total rounds', () => {
     useProfileData.mockReturnValue({
       stats: {
+        totalRounds: 30,
         totalDeclarerGames: 10,
         totalPoints: 100,
         winRate: 60,
+        declarerShare: 33.3,
         typeDistribution: [],
         pointsOverTime: [],
       },
@@ -184,21 +190,19 @@ describe('MeinProfil', () => {
 
     render(<MeinProfil />);
 
-    expect(screen.getByText('Verknüpfte Tische')).toBeInTheDocument();
+    expect(screen.getByText('Tischübersicht')).toBeInTheDocument();
     expect(screen.getByText('Stammtisch')).toBeInTheDocument();
-    expect(screen.getByText('Spieler: Konrad')).toBeInTheDocument();
-    expect(screen.getByText('25')).toBeInTheDocument();
     expect(screen.getByText('Freitagsrunde')).toBeInTheDocument();
-    expect(screen.getByText('Spieler: Konni')).toBeInTheDocument();
-    expect(screen.getByText('12')).toBeInTheDocument();
   });
 
   it('shows "Unbenannter Tisch" for sessions without a table name', () => {
     useProfileData.mockReturnValue({
       stats: {
+        totalRounds: 15,
         totalDeclarerGames: 5,
         totalPoints: 50,
         winRate: 60,
+        declarerShare: 33.3,
         typeDistribution: [],
         pointsOverTime: [],
       },
@@ -220,15 +224,16 @@ describe('MeinProfil', () => {
     render(<MeinProfil />);
 
     expect(screen.getByText('Unbenannter Tisch')).toBeInTheDocument();
-    expect(screen.getByText('Spieler: Max')).toBeInTheDocument();
   });
 
   it('shows onboarding hint when no sessions are linked', () => {
     useProfileData.mockReturnValue({
       stats: {
+        totalRounds: 15,
         totalDeclarerGames: 5,
         totalPoints: 50,
         winRate: 60,
+        declarerShare: 33.3,
         typeDistribution: [],
         pointsOverTime: [],
       },
@@ -247,7 +252,7 @@ describe('MeinProfil', () => {
 
     render(<MeinProfil />);
 
-    expect(screen.getByText('Verknüpfte Tische')).toBeInTheDocument();
+    expect(screen.getByText('Tischübersicht')).toBeInTheDocument();
     expect(screen.getByText('Noch keine Tische verknüpft.')).toBeInTheDocument();
     expect(screen.getByText(/Einladungslink/)).toBeInTheDocument();
   });
@@ -256,9 +261,11 @@ describe('MeinProfil', () => {
     const refetchFn = vi.fn();
     useProfileData.mockReturnValue({
       stats: {
+        totalRounds: 15,
         totalDeclarerGames: 5,
         totalPoints: 50,
         winRate: 60,
+        declarerShare: 33.3,
         typeDistribution: [],
         pointsOverTime: [],
       },
@@ -277,9 +284,8 @@ describe('MeinProfil', () => {
 
     render(<MeinProfil />);
 
-    expect(screen.getByText('Verknüpfte Tische')).toBeInTheDocument();
-    expect(screen.getByText('Fehler beim Laden der verknüpften Tische.')).toBeInTheDocument();
-    // The retry button for linked sessions
+    expect(screen.getByText('Tischübersicht')).toBeInTheDocument();
+    expect(screen.getByText('Fehler beim Laden der Tische.')).toBeInTheDocument();
     const retryButtons = screen.getAllByText('Erneut versuchen');
     expect(retryButtons.length).toBeGreaterThanOrEqual(1);
   });

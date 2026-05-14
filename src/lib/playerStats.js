@@ -308,6 +308,9 @@ export function computePerSessionStats(rounds) {
  * @returns {ProfileStats}
  */
 export function computeProfileStats(rounds) {
+  // Total rounds where the player was present (all rounds, excluding passed)
+  const totalRounds = rounds.filter(r => r.gameType !== 'passed').length;
+
   // Filter to declarer rounds only
   const declarerRounds = rounds.filter(r => r.player === r.playerName);
 
@@ -316,6 +319,11 @@ export function computeProfileStats(rounds) {
   const wins = declarerRounds.filter(r => r.won).length;
   const winRate = totalDeclarerGames > 0
     ? parseFloat(((wins / totalDeclarerGames) * 100).toFixed(1))
+    : 0.0;
+
+  // Declarer share: how often the user was Alleinspieler relative to total rounds
+  const declarerShare = totalRounds > 0
+    ? parseFloat(((totalDeclarerGames / totalRounds) * 100).toFixed(1))
     : 0.0;
 
   // typeDistribution — same shape as computePlayerStats
@@ -347,9 +355,11 @@ export function computeProfileStats(rounds) {
   });
 
   return {
+    totalRounds,
     totalDeclarerGames,
     totalPoints,
     winRate,
+    declarerShare,
     typeDistribution,
     pointsOverTime,
   };
