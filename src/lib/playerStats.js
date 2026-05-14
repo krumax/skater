@@ -208,8 +208,8 @@ export function computePerSessionStats(rounds) {
     const tableName = first.tableName ?? null;
     const displayName = first.playerName ?? '';
 
-    // Total rounds at this table (all players, excluding passed)
-    const totalRounds = sessionRounds.filter(r => r.gameType !== 'passed').length;
+    // Total rounds at this table (all rounds including passed)
+    const totalRounds = sessionRounds.length;
 
     // Declarer rounds: rounds where the user was the declarer
     const declarerRounds = sessionRounds.filter(r => r.player === r.playerName);
@@ -308,8 +308,8 @@ export function computePerSessionStats(rounds) {
  * @returns {ProfileStats}
  */
 export function computeProfileStats(rounds) {
-  // Total rounds where the player was present (all rounds, excluding passed)
-  const totalRounds = rounds.filter(r => r.gameType !== 'passed').length;
+  // Total rounds where the player was present (all rounds including passed)
+  const totalRounds = rounds.length;
 
   // Filter to declarer rounds only
   const declarerRounds = rounds.filter(r => r.player === r.playerName);

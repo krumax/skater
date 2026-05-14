@@ -29,6 +29,11 @@ vi.mock('../components/SuitBadge', () => ({
   default: ({ gameType }) => <span data-testid="suit-badge">{gameType}</span>,
 }));
 
+// Mock ProfileGameMatrix to avoid IconsetContext dependency
+vi.mock('../components/analytics/ProfileGameMatrix', () => ({
+  default: () => <div data-testid="profile-game-matrix">Matrix</div>,
+}));
+
 // Mock playerStats to provide deterministic results for ReadOnlySessionDetail
 vi.mock('../lib/playerStats', () => ({
   computePlayerTotals: (players) => Object.fromEntries(players.map(p => [p, 100])),
