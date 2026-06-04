@@ -298,10 +298,9 @@ export default function PlayerSettings() {
     setAllSessions(remaining);
     setDeleteSessionTarget(null);
     setDeletingSession(false);
-    // If we deleted the active session or the last session, clear all state and navigate
+    // If we deleted the active session or the last session, clear all state and stay on settings
     if (id === sessionId || remaining.length === 0) {
       clearSession();
-      navigate('/');
     }
   };
 
