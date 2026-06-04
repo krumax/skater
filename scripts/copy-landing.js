@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { pathToFileURL } from 'url';
 
 function copyLanding(srcDir, destDir) {
@@ -16,9 +17,26 @@ function copyWellKnown() {
   }
 }
 
+/**
+ * Copies hosting configuration files (_redirects, _headers, 404.html)
+ * from dist/app/ (where Vite puts them from public/) to dist/ root
+ * where Cloudflare Pages expects them.
+ */
+function copyHostingFiles() {
+  const files = ['_redirects', '_headers', '404.html'];
+  for (const file of files) {
+    const src = path.join('dist', 'app', file);
+    const dest = path.join('dist', file);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, dest);
+    }
+  }
+}
+
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   copyLanding('landing', 'dist/landing');
   copyWellKnown();
+  copyHostingFiles();
 }
 
 export { copyLanding };
