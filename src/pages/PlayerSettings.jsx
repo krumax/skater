@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabaseClient';
 const ROLE_LABELS  = ['Geben', 'Hören', 'Sagen', 'Aussetzen'];
 const ROLE_ICONS   = ['style', 'hearing', 'record_voice_over', 'pause_circle'];
 const ROLE_COLORS  = ['var(--primary)', 'var(--tertiary)', '#e67e22', 'var(--outline)'];
+const ROLE_BG_COLORS = ['#dce8e0', '#e8e6d8', '#fde8d4', '#e8e8e6']; // light tinted backgrounds for SVG pills
 
 function roleIndex(position, totalPlayers) {
   return totalPlayers === 4 ? [3, 0, 1, 2][position] : position;
@@ -17,38 +18,51 @@ function roleIndex(position, totalPlayers) {
 // ── Read-only round table SVG ────────────────────────────────────────────────
 function RoundTable({ seating }) {
   const n = seating.length;
-  const cx = 155, cy = 155, r = 105;
+  const cx = 190, cy = 190, r = 130;
   function pos(i) {
     const a = (2 * Math.PI * i) / n - Math.PI / 2;
     return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
   }
   return (
-    <svg viewBox="0 0 310 310" width="100%" style={{ display: 'block', margin: '0 auto', maxWidth: '310px' }}>
-      <circle cx={cx} cy={cy} r={62} fill="var(--surface-high)" stroke="var(--outline-variant)" strokeWidth="1.5" />
-      <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle"
-        fontSize="10" fill="var(--outline)" fontFamily="inherit" fontWeight="700" letterSpacing="0.1em">TISCH</text>
+    <svg viewBox="0 0 380 380" width="100%" style={{ display: 'block', margin: '0 auto', maxWidth: '380px' }}>
+      {/* Center table icon */}
+      <text x={cx} y={cy + 6} textAnchor="middle" dominantBaseline="middle"
+        fontSize="64" fill="var(--outline)" fontFamily="Material Symbols Outlined">
+        table_restaurant
+      </text>
       {seating.map((_, i) => {
         const p = pos(i), a = (2 * Math.PI * i) / n - Math.PI / 2;
-        return <line key={i} x1={cx + 64 * Math.cos(a)} y1={cy + 64 * Math.sin(a)} x2={p.x} y2={p.y}
+        return <line key={i} x1={cx + 40 * Math.cos(a)} y1={cy + 40 * Math.sin(a)} x2={p.x} y2={p.y}
           stroke="var(--outline-variant)" strokeWidth="1" strokeDasharray="3 3" />;
       })}
       {seating.map((name, i) => {
         const p = pos(i), ri = roleIndex(i, n), color = ROLE_COLORS[ri];
         return (
           <g key={name}>
-            <circle cx={p.x} cy={p.y} r={28} fill="var(--surface-low)" stroke={color} strokeWidth="2.5" />
-            <text x={p.x} y={p.y - 5} textAnchor="middle" dominantBaseline="middle"
-              fontSize="15" fontWeight="800" fill={color} fontFamily="inherit">
-              {name.charAt(0).toUpperCase()}
+            {/* Person icon */}
+            <text x={p.x} y={p.y - 6} textAnchor="middle" dominantBaseline="middle"
+              fontSize="36" fill={color} fontFamily="Material Symbols Outlined">
+              account_circle
             </text>
-            <text x={p.x} y={p.y + 11} textAnchor="middle" fontSize="9.5" fontWeight="600" fill={color} fontFamily="inherit">
-              {name.length > 8 ? name.slice(0, 7) + '…' : name}
+            {/* Player name */}
+            <text x={p.x} y={p.y + 20} textAnchor="middle" fontSize="16" fontWeight="700" fill={color} fontFamily="inherit">
+              {name.length > 9 ? name.slice(0, 8) + '…' : name}
             </text>
-            <rect x={p.x - 20} y={p.y + 30} width={40} height={14} rx={7} fill={color} opacity="0.85" />
-            <text x={p.x} y={p.y + 37.5} textAnchor="middle" dominantBaseline="middle"
-              fontSize="8" fontWeight="800" fill="white" fontFamily="inherit" letterSpacing="0.04em">
-              {ROLE_LABELS[ri].toUpperCase()}
-            </text>
+            {/* Role pill via foreignObject for proper HTML rendering */}
+            <foreignObject x={p.x - 55} y={p.y + 28} width="110" height="32">
+              <div xmlns="http://www.w3.org/1999/xhtml" style={{ display: 'flex', justifyContent: 'center' }}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                  fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.05em',
+                  padding: '0.25rem 0.75rem', borderRadius: '999px',
+                  color, backgroundColor: ROLE_BG_COLORS[ri],
+                  textTransform: 'uppercase', whiteSpace: 'nowrap',
+                }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>{ROLE_ICONS[ri]}</span>
+                  {ROLE_LABELS[ri]}
+                </span>
+              </div>
+            </foreignObject>
           </g>
         );
       })}
@@ -811,18 +825,10 @@ export default function PlayerSettings() {
         </div>
 
         {/* ── Right: read-only table ── */}
-        <div className="settings-table-preview" style={{ position: 'sticky', top: '2rem', width: '340px' }}>
+        <div className="settings-table-preview" style={{ position: 'sticky', top: '2rem', width: '380px' }}>
           <label className="section-label" style={{ display: 'block', marginBottom: '1rem' }}>Tischansicht</label>
           <div style={{ backgroundColor: 'var(--surface-low)', borderRadius: '1rem', padding: '1.5rem 1.25rem 1.25rem' }}>
             <RoundTable seating={players} />
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '1.25rem', justifyContent: 'center' }}>
-              {ROLE_LABELS.slice(0, n === 4 ? 4 : 3).map((label, ri) => (
-                <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', padding: '0.2rem 0.6rem', borderRadius: '999px', color: ROLE_COLORS[ri], backgroundColor: `color-mix(in srgb, ${ROLE_COLORS[ri]} 15%, transparent)`, textTransform: 'uppercase' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.8rem' }}>{ROLE_ICONS[ri]}</span>
-                  {label}
-                </span>
-              ))}
-            </div>
             <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--outline)', marginTop: '0.875rem', lineHeight: 1.5 }}>
               Nur zur Ansicht - Reihenfolge links ändern.
             </p>
