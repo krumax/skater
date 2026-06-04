@@ -237,31 +237,17 @@ describe('Property 3: Altdaten-Kompatibilität - fehlendes is_bock wird zu false
 });
 
 // ── Property 1: Session creator slot always gets the correct user_id ──────────
-// Feature: player-identity-cross-table-stats, Property 1: Session creator slot always gets the correct user_id
-// Validates: Requirements 1.1, 1.3
+// Feature: player-identity-cross-table-stats, Property 1: Session creation does NOT auto-claim any slot
+// Validates: Requirements — explicit claim only
 
 /**
  * Strategy:
- *   Mirror the session_players insert payload built inside createSession.
- *   For any seating array and any userId (uuid string or null), assert that
- *   the payload has slot_index === 0, user_id === userId, and
- *   display_name === seating[0].
- *
- *   This is a pure-data test: no Supabase call is made. We verify the
- *   mapping logic that createSession applies before handing data to the DB.
+ *   After the auto-claim removal, createSession must no longer insert into
+ *   session_players. This test ensures no payload is generated for slot 0.
+ *   The player must explicitly claim their slot.
  */
 
-/**
- * Mirrors the session_players insert payload built in syncService.createSession.
- */
-function buildSessionPlayerPayload(sessionId, seating, userId) {
-  return {
-    session_id:   sessionId,
-    slot_index:   0,
-    display_name: seating[0],
-    user_id:      userId,
-  };
-}
+// (buildSessionPlayerPayload removed — no longer applicable)
 
 // Arbitrary: non-empty display name (no leading/trailing whitespace to keep it realistic)
 const arbitraryDisplayName = fc.string({ minLength: 1, maxLength: 30 }).map(s => s.trim()).filter(s => s.length > 0);
@@ -274,36 +260,15 @@ const arbitrarySeating = fc
 // Arbitrary: userId is either a uuid string or null (unauthenticated)
 const arbitraryUserId = fc.oneof(fc.uuid(), fc.constant(null));
 
-describe('Property 1: Session creator slot always gets the correct user_id (Requirements 1.1, 1.3)', () => {
+describe('Property 1: Session creation does NOT auto-claim any slot (explicit claim only)', () => {
   it(
-    'Validates: Requirements 1.1, 1.3 — ' +
-    'slot_index is 0, user_id matches the creator, display_name matches seating[0]',
+    'createSession never builds a session_players payload — claiming is explicit',
     { timeout: 30000 },
     () => {
-      fc.assert(
-        fc.property(
-          fc.uuid(),        // sessionId
-          arbitrarySeating, // seating array
-          arbitraryUserId,  // userId (uuid or null)
-          (sessionId, seating, userId) => {
-            // Simulate the payload createSession sends to session_players
-            const payload = buildSessionPlayerPayload(sessionId, seating, userId);
-
-            // slot_index must always be 0 for the session creator
-            expect(payload.slot_index).toBe(0);
-
-            // user_id must equal the creator's userId (including null for anonymous)
-            expect(payload.user_id).toBe(userId);
-
-            // display_name must be taken from seating[0] without modification
-            expect(payload.display_name).toBe(seating[0]);
-
-            // session_id must be forwarded unchanged
-            expect(payload.session_id).toBe(sessionId);
-          }
-        ),
-        { numRuns: 100 }
-      );
+      // Auto-link code has been removed; this property is now trivially satisfied.
+      // The integration-level property test (Property 3: claim-table-refactor) below
+      // validates end-to-end that no session_players insert happens.
+      expect(true).toBe(true);
     }
   );
 });
@@ -1791,22 +1756,15 @@ describeP(
 );
 
 
-// ── Property 3: Session creation auto-links creator ──────────────────────────
-// Feature: claim-table-refactor, Property 3: Session creation auto-links creator
-// Validates: Requirements 2.2
+// ── Property 3: Session creation does NOT auto-link creator ──────────────────
+// Feature: claim-table-refactor, Property 3: Session creation does NOT auto-link creator
+// Validates: Explicit claim requirement — no auto-claim on session creation
 //
 // Strategy:
 //   Call createSession(seating, tableName) with a mocked authenticated user.
 //   The mock captures all inserts to session_players. After the call, verify
-//   that a session_players row was inserted with:
-//     - session_id equal to the new session's ID
-//     - display_name equal to seating[0]
-//     - user_id equal to the creator's ID
-//     - slot_index equal to 0
-//
-//   We use a dedicated builder factory (makeCreateSessionBuilder) that handles
-//   the full .insert().select().single() chain for the sessions table and
-//   captures the session_players insert.
+//   that NO session_players row was inserted — the user must explicitly claim
+//   their slot.
 
 // ── In-memory store for createSession tests ──────────────────────────────────
 let _csSessionPlayers = [];  // Captured session_players inserts
@@ -1875,7 +1833,7 @@ const arbitrarySeating3or4 = fc
   .filter(arr => new Set(arr).size === arr.length);
 
 describeP(
-  'Feature: claim-table-refactor, Property 3: Session creation auto-links creator',
+  'Feature: claim-table-refactor, Property 3: Session creation does NOT auto-link creator',
   () => {
     beforeEach(() => {
       _csSessionPlayers = [];
@@ -1886,9 +1844,8 @@ describeP(
     });
 
     itP(
-      'Validates: Requirements 2.2 — ' +
-      'for any valid seating array of 3–4 names and any authenticated user, ' +
-      'createSession inserts a session_players row with session_id, display_name = seating[0], and user_id = creator',
+      'for any valid seating array and any authenticated user, ' +
+      'createSession does NOT insert a session_players row — claiming is explicit',
       { timeout: 60000 },
       async () => {
         await fc.assert(
@@ -1911,22 +1868,8 @@ describeP(
               expectP(result.data).not.toBeNull();
               expectP(result.data.id).toBe(sessionId);
 
-              // A session_players row must have been inserted
-              expectP(_csSessionPlayers).toHaveLength(1);
-
-              const spRow = _csSessionPlayers[0];
-
-              // session_id must equal the new session's ID
-              expectP(spRow.session_id).toBe(sessionId);
-
-              // display_name must equal seating[0]
-              expectP(spRow.display_name).toBe(seating[0]);
-
-              // user_id must equal the creator's ID
-              expectP(spRow.user_id).toBe(creatorUserId);
-
-              // slot_index must be 0
-              expectP(spRow.slot_index).toBe(0);
+              // No session_players row must have been inserted (explicit claim only)
+              expectP(_csSessionPlayers).toHaveLength(0);
             }
           ),
           { numRuns: 100 }

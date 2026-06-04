@@ -90,7 +90,7 @@ async function getUserId() {
 
 /**
  * Creates a new session in Supabase.
- * Also inserts a session_players row for slot_index = 0 (graceful degradation on failure).
+ * No auto-claim: player must explicitly claim their slot via the claim mechanism.
  */
 export async function createSession(seating, tableName = '') {
   // Session creation requires internet
@@ -108,37 +108,10 @@ export async function createSession(seating, tableName = '') {
       .select()
       .single();
 
-    if (!fallback.error && fallback.data && user_id) {
-      try {
-        await supabase.from('session_players').insert({
-          session_id:   fallback.data.id,
-          slot_index:   0,
-          display_name: seating[0],
-          user_id,
-        });
-      } catch (spError) {
-        console.error('session_players insert failed (non-fatal):', spError);
-      }
-    }
-
     return fallback;
   }
 
   if (error) return { data: null, error };
-
-  // Auto-link creator: insert session_players row only for authenticated users (Req 2.2)
-  if (user_id) {
-    try {
-      await supabase.from('session_players').insert({
-        session_id:   data.id,
-        slot_index:   0,
-        display_name: seating[0],
-        user_id,
-      });
-    } catch (spError) {
-      console.error('session_players insert failed (non-fatal):', spError);
-    }
-  }
 
   return { data, error: null };
 }
