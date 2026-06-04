@@ -495,7 +495,9 @@ export default function PlayerSettings() {
           <div className="session-switcher" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.875rem' }}>
             {allSessions.map(s => {
               const isActive = s.id === sessionId;
-              const label = s.table_name || (Array.isArray(s.seating) ? s.seating.join(', ') : s.id.slice(0, 8));
+              const label = isActive && tableName
+                ? tableName
+                : (s.table_name || (Array.isArray(s.seating) ? s.seating.join(', ') : s.id.slice(0, 8)));
               const seats = Array.isArray(s.seating) ? s.seating : [];
               const date = new Date(s.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
               const roundCount = s.current_round - 1;
