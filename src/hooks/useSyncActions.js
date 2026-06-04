@@ -57,8 +57,13 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
       spiellisteId: activeId,
     };
 
-    const { error: insertError } = await syncService.insertRound(roundWithId, sessionId);
+    const { data: insertedRow, error: insertError } = await syncService.insertRound(roundWithId, sessionId);
     if (insertError) { syncFail('insertRound', insertError); return; }
+
+    // Write the DB-generated UUID back into local state so edits can reference it
+    if (insertedRow?.id) {
+      dispatch({ type: 'UPDATE_ROUND', payload: { id: roundWithId.id, patch: { _dbId: insertedRow.id } } });
+    }
 
     const { error: updateError } = await syncService.updateSession(sessionId, {
       geber_index:   (state.geberIndex + 1) % state.seating.length,
