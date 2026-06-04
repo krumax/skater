@@ -17,36 +17,36 @@ function roleIndex(position, totalPlayers) {
 // ── Read-only round table SVG ────────────────────────────────────────────────
 function RoundTable({ seating }) {
   const n = seating.length;
-  const cx = 130, cy = 130, r = 88;
+  const cx = 155, cy = 155, r = 105;
   function pos(i) {
     const a = (2 * Math.PI * i) / n - Math.PI / 2;
     return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
   }
   return (
-    <svg viewBox="0 0 260 260" width="260" height="260" style={{ display: 'block', margin: '0 auto' }}>
-      <circle cx={cx} cy={cy} r={52} fill="var(--surface-high)" stroke="var(--outline-variant)" strokeWidth="1.5" />
+    <svg viewBox="0 0 310 310" width="100%" style={{ display: 'block', margin: '0 auto', maxWidth: '310px' }}>
+      <circle cx={cx} cy={cy} r={62} fill="var(--surface-high)" stroke="var(--outline-variant)" strokeWidth="1.5" />
       <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle"
-        fontSize="9" fill="var(--outline)" fontFamily="inherit" fontWeight="700" letterSpacing="0.1em">TISCH</text>
+        fontSize="10" fill="var(--outline)" fontFamily="inherit" fontWeight="700" letterSpacing="0.1em">TISCH</text>
       {seating.map((_, i) => {
         const p = pos(i), a = (2 * Math.PI * i) / n - Math.PI / 2;
-        return <line key={i} x1={cx + 54 * Math.cos(a)} y1={cy + 54 * Math.sin(a)} x2={p.x} y2={p.y}
+        return <line key={i} x1={cx + 64 * Math.cos(a)} y1={cy + 64 * Math.sin(a)} x2={p.x} y2={p.y}
           stroke="var(--outline-variant)" strokeWidth="1" strokeDasharray="3 3" />;
       })}
       {seating.map((name, i) => {
         const p = pos(i), ri = roleIndex(i, n), color = ROLE_COLORS[ri];
         return (
           <g key={name}>
-            <circle cx={p.x} cy={p.y} r={24} fill="var(--surface-low)" stroke={color} strokeWidth="2" />
-            <text x={p.x} y={p.y - 4} textAnchor="middle" dominantBaseline="middle"
-              fontSize="13" fontWeight="800" fill={color} fontFamily="inherit">
+            <circle cx={p.x} cy={p.y} r={28} fill="var(--surface-low)" stroke={color} strokeWidth="2.5" />
+            <text x={p.x} y={p.y - 5} textAnchor="middle" dominantBaseline="middle"
+              fontSize="15" fontWeight="800" fill={color} fontFamily="inherit">
               {name.charAt(0).toUpperCase()}
             </text>
-            <text x={p.x} y={p.y + 9} textAnchor="middle" fontSize="8" fontWeight="600" fill={color} fontFamily="inherit">
-              {name.length > 7 ? name.slice(0, 6) + '…' : name}
+            <text x={p.x} y={p.y + 11} textAnchor="middle" fontSize="9.5" fontWeight="600" fill={color} fontFamily="inherit">
+              {name.length > 8 ? name.slice(0, 7) + '…' : name}
             </text>
-            <rect x={p.x - 16} y={p.y + 26} width={32} height={12} rx={6} fill={color} opacity="0.85" />
-            <text x={p.x} y={p.y + 32} textAnchor="middle" dominantBaseline="middle"
-              fontSize="7" fontWeight="800" fill="white" fontFamily="inherit" letterSpacing="0.04em">
+            <rect x={p.x - 20} y={p.y + 30} width={40} height={14} rx={7} fill={color} opacity="0.85" />
+            <text x={p.x} y={p.y + 37.5} textAnchor="middle" dominantBaseline="middle"
+              fontSize="8" fontWeight="800" fill="white" fontFamily="inherit" letterSpacing="0.04em">
               {ROLE_LABELS[ri].toUpperCase()}
             </text>
           </g>
@@ -354,6 +354,23 @@ export default function PlayerSettings() {
     }
   };
 
+  const [showUnclaimModal, setShowUnclaimModal] = useState(false);
+  const [unclaimingSlot, setUnclaimingSlot] = useState(false);
+  const [unclaimName, setUnclaimName] = useState('');
+
+  const handleUnclaimSelf = async () => {
+    if (!currentUserId || !sessionId) return;
+    setUnclaimingSlot(true);
+    const { error } = await syncService.unclaimSlot(sessionId, currentUserId);
+    if (!error) {
+      const { data } = await supabase.from('session_players').select('*').eq('session_id', sessionId);
+      setSlotAssignments(data ?? []);
+    }
+    setUnclaimingSlot(false);
+    setShowUnclaimModal(false);
+    setUnclaimName('');
+  };
+
   const handleGenerateInvite = async (slotIndex) => {
     const { data, error } = await syncService.generateClaimToken(sessionId, slotIndex);
     if (error) {
@@ -479,40 +496,51 @@ export default function PlayerSettings() {
       {!loadingSessions && allSessions.length > 0 && (
         <section style={{ marginBottom: '2.5rem' }}>
           <label className="section-label" style={{ display: 'block', marginBottom: '0.875rem' }}>Tische wechseln</label>
-          <div className="session-switcher" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div className="session-switcher" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.875rem' }}>
             {allSessions.map(s => {
               const isActive = s.id === sessionId;
               const label = s.table_name || (Array.isArray(s.seating) ? s.seating.join(', ') : s.id.slice(0, 8));
-              const players = Array.isArray(s.seating) ? s.seating.join(', ') : '';
+              const seats = Array.isArray(s.seating) ? s.seating : [];
               const date = new Date(s.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
+              const roundCount = s.current_round - 1;
               return (
-                <div key={s.id} style={{ position: 'relative', display: 'inline-flex' }}>
+                <div key={s.id} style={{ position: 'relative', display: 'flex' }}>
                   <button onClick={() => !isActive && switchSession(s.id)}
                     style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-                      padding: '0.875rem 2.75rem 0.875rem 1.25rem',
+                      display: 'flex', alignItems: 'flex-start', gap: '0.875rem',
+                      padding: '1rem 2.25rem 1rem 1rem',
                       borderRadius: '0.75rem', cursor: isActive ? 'default' : 'pointer',
                       border: `2px solid ${isActive ? 'var(--primary)' : 'var(--outline-variant)'}`,
-                      backgroundColor: isActive ? 'var(--primary-container)' : 'var(--surface-low)',
+                      backgroundColor: isActive ? 'color-mix(in srgb, var(--primary) 12%, var(--surface))' : 'var(--surface-low)',
                       color: 'var(--on-surface)', fontFamily: 'inherit', textAlign: 'left',
-                      minWidth: '160px', transition: 'all 0.15s',
+                      width: '100%', height: '100%', transition: 'all 0.15s',
+                      boxShadow: isActive ? '0 4px 16px rgba(0,0,0,0.12), inset 0 0 0 1px color-mix(in srgb, var(--primary) 20%, transparent)' : 'none',
                     }}>
-                    <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: isActive ? '#ffffff' : 'var(--on-surface)' }}>
-                      {label}
+                    {/* Table icon */}
+                    <span className="material-symbols-outlined" style={{
+                      fontSize: '2rem',
+                      color: isActive ? 'var(--primary)' : 'var(--outline)',
+                      flexShrink: 0, marginTop: '0.1rem',
+                    }}>
+                      table_restaurant
                     </span>
-                    {s.table_name && players && (
-                      <span style={{ fontSize: '0.7rem', color: isActive ? 'rgba(255,255,255,0.8)' : 'var(--on-surface-variant)', marginTop: '0.15rem', fontWeight: 500 }}>
-                        {players}
+                    {/* Info */}
+                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                      <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: isActive ? 'var(--primary)' : 'var(--on-surface)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {label}
                       </span>
-                    )}
-                    <span style={{ fontSize: '0.7rem', color: isActive ? 'rgba(255,255,255,0.75)' : 'var(--outline)', marginTop: '0.2rem' }}>
-                      {date} · {s.current_round - 1} Runden
-                    </span>
-                    {isActive && (
-                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.9)', marginTop: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                        Aktiv
+                      <span style={{ fontSize: '0.7rem', color: 'var(--outline)', marginTop: '0.2rem' }}>
+                        {seats.join(', ')}
                       </span>
-                    )}
+                      <span style={{ fontSize: '0.65rem', color: 'var(--outline)', marginTop: '0.15rem' }}>
+                        {date} · {roundCount} Runden
+                      </span>
+                      {isActive && (
+                        <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--primary)', marginTop: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                          Aktiv
+                        </span>
+                      )}
+                    </div>
                   </button>
                   <button
                       onClick={() => handleDeleteSession(s.id, label)}
@@ -520,11 +548,11 @@ export default function PlayerSettings() {
                       style={{
                         position: 'absolute', top: '0.5rem', right: '0.5rem',
                         background: 'none', border: 'none', cursor: 'pointer',
-                        color: isActive ? 'rgba(255,255,255,0.6)' : 'var(--outline)', padding: '0.2rem', borderRadius: '0.25rem',
-                        lineHeight: 1,
+                        color: 'var(--outline)', padding: '0.2rem', borderRadius: '0.25rem',
+                        lineHeight: 1, opacity: 0.5,
                       }}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>delete</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>delete</span>
                     </button>
                 </div>
               );
@@ -625,15 +653,19 @@ export default function PlayerSettings() {
                       {/* ── Identity buttons ── */}
                       {(() => {
                         const slotRow = slotAssignments.find(s => s.slot_index === i);
-                        const isMyClaim = slotRow?.user_id === currentUserId;
+                        const isMyClaim = currentUserId && slotRow?.user_id === currentUserId;
                         const isClaimedByOther = slotRow?.user_id && slotRow.user_id !== currentUserId;
-                        const mySlotElsewhere = slotAssignments.find(s => s.user_id === currentUserId);
+                        const mySlotElsewhere = slotAssignments.find(s => s.user_id && s.user_id === currentUserId);
 
                         if (isMyClaim) {
                           return (
-                            <span title="Das bist du" style={{ padding: '0.4rem', color: 'var(--primary)', display: 'flex', alignItems: 'center' }}>
+                            <button
+                              onClick={e => { e.stopPropagation(); setUnclaimName(name); setShowUnclaimModal(true); }}
+                              title="Verknüpfung lösen"
+                              style={{ padding: '0.4rem', borderRadius: '0.375rem', color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                            >
                               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>verified</span>
-                            </span>
+                            </button>
                           );
                         }
                         if (isClaimedByOther) {
@@ -763,9 +795,9 @@ export default function PlayerSettings() {
         </div>
 
         {/* ── Right: read-only table ── */}
-        <div className="settings-table-preview" style={{ position: 'sticky', top: '2rem', width: '280px' }}>
+        <div className="settings-table-preview" style={{ position: 'sticky', top: '2rem', width: '340px' }}>
           <label className="section-label" style={{ display: 'block', marginBottom: '1rem' }}>Tischansicht</label>
-          <div style={{ backgroundColor: 'var(--surface-low)', borderRadius: '1rem', padding: '1.25rem 1rem 1rem' }}>
+          <div style={{ backgroundColor: 'var(--surface-low)', borderRadius: '1rem', padding: '1.5rem 1.25rem 1.25rem' }}>
             <RoundTable seating={players} />
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '1.25rem', justifyContent: 'center' }}>
               {ROLE_LABELS.slice(0, n === 4 ? 4 : 3).map((label, ri) => (
@@ -819,6 +851,43 @@ export default function PlayerSettings() {
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>delete_forever</span>
                 {deletingSession ? 'Wird gelöscht…' : 'Endgültig löschen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Verknüpfung lösen Modal ── */}
+      {showUnclaimModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: 'var(--surface)', borderRadius: '1rem', padding: '2rem', width: '100%', maxWidth: '420px', boxShadow: '0 8px 32px rgba(0,0,0,0.35)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '0.75rem', backgroundColor: 'color-mix(in srgb, var(--primary) 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontSize: '1.25rem' }}>person_remove</span>
+              </div>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 800 }}>Verknüpfung lösen?</h2>
+            </div>
+            <p style={{ fontSize: '0.9rem', color: 'var(--on-surface)', marginBottom: '0.75rem', lineHeight: 1.6 }}>
+              Möchtest du deine Verknüpfung mit <strong>„{unclaimName}"</strong> wirklich lösen?
+            </p>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--outline)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+              Du kannst danach einen anderen Platz beanspruchen. Deine bisherigen Runden bleiben erhalten.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => { setShowUnclaimModal(false); setUnclaimName(''); }}
+                disabled={unclaimingSlot}
+                style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', background: 'none', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={handleUnclaimSelf}
+                disabled={unclaimingSlot}
+                style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', cursor: unclaimingSlot ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontSize: '1rem', fontWeight: 700, opacity: unclaimingSlot ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>link_off</span>
+                {unclaimingSlot ? 'Wird gelöst…' : 'Verknüpfung lösen'}
               </button>
             </div>
           </div>

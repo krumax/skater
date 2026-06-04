@@ -786,6 +786,20 @@ export async function claimSlot(token, userId) {
 }
 
 /**
+ * Removes the current user's claim from a session slot.
+ * Sets user_id to null on the session_players row for this user in the given session.
+ * Returns { error }.
+ */
+export async function unclaimSlot(sessionId, userId) {
+  const { error } = await supabase
+    .from('session_players')
+    .update({ user_id: null })
+    .eq('session_id', sessionId)
+    .eq('user_id', userId);
+  return { error };
+}
+
+/**
  * Updates display_name in session_players without touching user_id (Req 7.1, 7.2, 7.5).
  * Called from the extended renamePlayer action in useSyncActions.
  * Returns { error }.
