@@ -465,6 +465,16 @@ export default function PlayerSettings() {
         </button>
       </header>
 
+      {/* ── Hint: no active table ── */}
+      {players.length === 0 && !loadingSessions && allSessions.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 1.25rem', marginBottom: '1.5rem', borderRadius: '0.75rem', backgroundColor: 'var(--surface-high, #f5f5f0)', border: '1px solid var(--outline-variant)' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--primary)' }}>info</span>
+          <span style={{ fontSize: '0.9rem', color: 'var(--on-surface)' }}>
+            Kein Tisch aktiv. Wähle unten einen Tisch aus oder lege einen neuen an.
+          </span>
+        </div>
+      )}
+
       {/* ── Table switcher ── */}
       {!loadingSessions && allSessions.length > 0 && (
         <section style={{ marginBottom: '2.5rem' }}>

@@ -46,22 +46,8 @@ export function useSessionInit(dispatch, setSyncStatus, setSyncError, setSession
         }
       }
 
-      const { data: sessions, error: listError } = await syncService.listSessions();
-      if (listError || !sessions?.length) {
-        setSessionLoaded(true);
-        setSyncStatus('synced');
-        return;
-      }
-
-      const { data, error } = await syncService.loadSession(sessions[0].id);
-      if (error || !data) {
-        setSyncStatus('error');
-        setSyncError(error?.message ?? 'Fehler beim Laden der Session');
-        return;
-      }
-
-      localStorage.setItem(SESSION_STORAGE_KEY, sessions[0].id);
-      dispatch({ type: 'LOAD_SESSION', payload: data });
+      // No stored session — start without an active table.
+      // The user must explicitly select or create one from the settings page.
       setSessionLoaded(true);
       setSyncStatus('synced');
     }
