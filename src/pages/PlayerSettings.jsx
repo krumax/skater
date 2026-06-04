@@ -476,10 +476,6 @@ export default function PlayerSettings() {
             )}
           </div>
         </div>
-        <button className="btn-primary settings-new-table-btn" onClick={() => setShowWizard(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1.5rem', flexShrink: 0 }}>
-          <span className="material-symbols-outlined">add_circle</span>
-          Neuer Tisch
-        </button>
       </header>
 
       {/* ── Hint: no active table ── */}
@@ -493,7 +489,7 @@ export default function PlayerSettings() {
       )}
 
       {/* ── Table switcher ── */}
-      {!loadingSessions && allSessions.length > 0 && (
+      {!loadingSessions && (
         <section style={{ marginBottom: '2.5rem' }}>
           <label className="section-label" style={{ display: 'block', marginBottom: '0.875rem' }}>Tische wechseln</label>
           <div className="session-switcher" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.875rem' }}>
@@ -557,6 +553,24 @@ export default function PlayerSettings() {
                 </div>
               );
             })}
+            {/* ── New table tile ── */}
+            <div style={{ position: 'relative', display: 'flex' }}>
+              <button
+                onClick={() => setShowWizard(true)}
+                title="Neuer Tisch"
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '1rem',
+                  borderRadius: '0.75rem', cursor: 'pointer',
+                  border: '2px dashed var(--outline-variant)',
+                  backgroundColor: 'var(--surface-low)',
+                  color: 'var(--outline)', fontFamily: 'inherit',
+                  width: '100%', height: '100%', transition: 'all 0.15s',
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '2.5rem' }}>add</span>
+              </button>
+            </div>
           </div>
         </section>
       )}
