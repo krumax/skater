@@ -23,7 +23,7 @@ function copyWellKnown() {
  * where Cloudflare Pages expects them.
  */
 function copyHostingFiles() {
-  const files = ['_redirects', '_headers', '404.html'];
+  const files = ['_redirects', '_headers'];
   for (const file of files) {
     const src = path.join('dist', 'app', file);
     const dest = path.join('dist', file);
