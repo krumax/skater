@@ -203,10 +203,11 @@ export function computePerSessionStats(rounds) {
   });
 
   return Object.entries(groups).map(([sessionId, sessionRounds]) => {
-    // Carry through tableName and displayName from the first round in the group
+    // Carry through tableName, displayName, and createdBy from the first round in the group
     const first = sessionRounds[0];
     const tableName = first.tableName ?? null;
     const displayName = first.playerName ?? '';
+    const createdBy = first.createdBy ?? null;
 
     // Total rounds at this table (all rounds including passed)
     const totalRounds = sessionRounds.length;
@@ -290,7 +291,7 @@ export function computePerSessionStats(rounds) {
 
     const leaderName = sortedPlayers.length > 0 ? sortedPlayers[0].name : null;
 
-    return { sessionId, tableName, displayName, totalRounds, roundCount, wins, winRate, declarerShare, leaderName, sortedPlayers };
+    return { sessionId, tableName, displayName, createdBy, totalRounds, roundCount, wins, winRate, declarerShare, leaderName, sortedPlayers };
   });
 }
 

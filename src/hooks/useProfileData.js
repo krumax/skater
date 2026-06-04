@@ -39,6 +39,7 @@ export function useProfileData() {
   const [rounds, setRounds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
   // Incrementing this counter triggers a re-fetch
   const [reloadCount, setReloadCount] = useState(0);
 
@@ -124,8 +125,13 @@ export function useProfileData() {
           setLoading(false);
           setLinkedSessions([]);
           setLinkedSessionsLoading(false);
+          setCurrentUserId(null);
         }
         return;
+      }
+
+      if (!cancelled) {
+        setCurrentUserId(userId);
       }
 
       // Fetch profile rounds
@@ -192,6 +198,7 @@ export function useProfileData() {
     loading,
     error,
     reload,
+    currentUserId,
     linkedSessions,
     linkedSessionsLoading,
     linkedSessionsError,

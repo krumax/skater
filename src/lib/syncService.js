@@ -840,17 +840,19 @@ export async function loadMyRoundsAcrossSessions(userId) {
 
   const sessionIds = sessionPlayers.map(sp => sp.session_id);
 
-  // Step 1b: Load table_name for all linked sessions
+  // Step 1b: Load table_name and user_id for all linked sessions
   const { data: sessionRows, error: sessError } = await supabase
     .from('sessions')
-    .select('id, table_name')
+    .select('id, table_name, user_id')
     .in('id', sessionIds);
 
   if (sessError) throw sessError;
 
   const sessionNameMap = {};
+  const sessionCreatorMap = {};
   for (const s of (sessionRows || [])) {
     sessionNameMap[s.id] = s.table_name ?? null;
+    sessionCreatorMap[s.id] = s.user_id ?? null;
   }
 
   // Step 2: Load all rounds for all linked sessions in one query
@@ -893,6 +895,7 @@ export async function loadMyRoundsAcrossSessions(userId) {
     sessionId:            r.session_id,
     playerName:           sessionPlayerMap[r.session_id] ?? null,
     tableName:            sessionNameMap[r.session_id] ?? null,
+    createdBy:            sessionCreatorMap[r.session_id] ?? null,
   }));
 
   return { data: rounds, error: null };
@@ -973,17 +976,19 @@ export async function loadLinkedSessions(userId) {
       displayNameMap[sp.session_id] = sp.display_name;
     }
 
-    // 2. Fetch sessions (table_name)
+    // 2. Fetch sessions (table_name, user_id for ownership indicator)
     const { data: sessions, error: sessError } = await supabase
       .from('sessions')
-      .select('id, table_name')
+      .select('id, table_name, user_id')
       .in('id', sessionIds);
 
     if (sessError) return { data: null, error: { message: sessError.message } };
 
     const tableNameMap = {};
+    const creatorMap = {};
     for (const s of (sessions || [])) {
       tableNameMap[s.id] = s.table_name ?? null;
+      creatorMap[s.id] = s.user_id ?? null;
     }
 
     // 3. Fetch rounds for all linked sessions to compute totalRounds and lastPlayedAt per session
@@ -1013,6 +1018,7 @@ export async function loadLinkedSessions(userId) {
       displayName: displayNameMap[sessionId],
       totalRounds: roundStats[sessionId]?.totalRounds ?? 0,
       lastPlayedAt: roundStats[sessionId]?.lastPlayedAt ?? null,
+      createdBy: creatorMap[sessionId] ?? null,
     }));
 
     // 5. Order by lastPlayedAt descending (most recent first), nulls last

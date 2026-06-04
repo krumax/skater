@@ -8,7 +8,6 @@ import {
   computePlayerRank,
   computeRunningTotals,
 } from '../lib/playerStats';
-import { PLAYER_COLORS } from '../lib/tokens';
 
 // ── Read-Only Session Detail View (Req 5.1, 5.2, 5.3, 5.4, 5.6, 5.7) ────────
 function ReadOnlySessionDetail({ sessionDetail, loading, error, onBack }) {
@@ -418,7 +417,7 @@ function StatCard({ label, value, color }) {
 }
 
 // ── Session card (Spiellisten-style, expandable) ─────────────────────────────
-function SessionCard({ summary, index, onSessionClick }) {
+function SessionCard({ summary, index, onSessionClick, isOwnTable }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -429,17 +428,18 @@ function SessionCard({ summary, index, onSessionClick }) {
         cursor: 'pointer',
         transition: 'border-color 0.15s',
         border: open ? '2px solid var(--primary)' : '2px solid transparent',
+        borderLeft: isOwnTable ? '3px solid #d0a600' : '3px solid #0b3d2e',
       }}
       onClick={() => setOpen(o => !o)}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <div style={{
           width: '2rem', height: '2rem', borderRadius: '50%',
-          backgroundColor: PLAYER_COLORS[index % PLAYER_COLORS.length] + '33',
+          backgroundColor: isOwnTable ? '#d0a60022' : '#0b3d2e22',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexShrink: 0,
         }}>
-          <span style={{ fontSize: '0.875rem', fontWeight: 800, color: PLAYER_COLORS[index % PLAYER_COLORS.length] }}>
+          <span style={{ fontSize: '0.875rem', fontWeight: 800, color: isOwnTable ? '#d0a600' : '#0b3d2e' }}>
             {index + 1}
           </span>
         </div>
@@ -542,7 +542,7 @@ function SessionCard({ summary, index, onSessionClick }) {
 }
 
 // ── Linked-only session card (no full stats, clickable for detail) ────────────
-function LinkedSessionCard({ session, index, onClick }) {
+function LinkedSessionCard({ session, index, onClick, isOwnTable }) {
   return (
     <div
       className="card"
@@ -555,16 +555,17 @@ function LinkedSessionCard({ session, index, onClick }) {
         cursor: 'pointer',
         transition: 'border-color 0.15s',
         border: '2px solid transparent',
+        borderLeft: isOwnTable ? '3px solid #d0a600' : '3px solid #0b3d2e',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <div style={{
           width: '2rem', height: '2rem', borderRadius: '50%',
-          backgroundColor: PLAYER_COLORS[index % PLAYER_COLORS.length] + '33',
+          backgroundColor: isOwnTable ? '#d0a60022' : '#0b3d2e22',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexShrink: 0,
         }}>
-          <span style={{ fontSize: '0.875rem', fontWeight: 800, color: PLAYER_COLORS[index % PLAYER_COLORS.length] }}>
+          <span style={{ fontSize: '0.875rem', fontWeight: 800, color: isOwnTable ? '#d0a600' : '#0b3d2e' }}>
             {index + 1}
           </span>
         </div>
@@ -593,6 +594,7 @@ function LinkedSessionCard({ session, index, onClick }) {
 const MeinProfil = () => {
   const {
     stats, sessionSummaries, rounds, loading, error, reload,
+    currentUserId,
     linkedSessions, linkedSessionsLoading, linkedSessionsError, refetchLinkedSessions,
     sessionDetail, sessionDetailLoading, sessionDetailError, loadSessionDetail, clearSessionDetail,
   } = useProfileData();
@@ -653,7 +655,17 @@ const MeinProfil = () => {
           <p className="page-subtitle">Deine tischübergreifende Statistik.</p>
         </header>
         <section style={{ marginBottom: '2rem' }}>
-          <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Tischübersicht</h2>
+          <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>Tischübersicht</h2>
+          <p style={{ fontSize: '0.75rem', color: 'var(--outline)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+              <span style={{ display: 'inline-block', width: '3px', height: '0.75rem', backgroundColor: '#d0a600', borderRadius: '1px' }}></span>
+              Von dir erstellt
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+              <span style={{ display: 'inline-block', width: '3px', height: '0.75rem', backgroundColor: '#0b3d2e', borderRadius: '1px' }}></span>
+              Eingeladen
+            </span>
+          </p>
           {linkedSessionsLoading ? (
             <div className="card" style={{ backgroundColor: 'var(--surface-low)', padding: '1.5rem', textAlign: 'center' }}>
               <span style={{ fontSize: '1.5rem', animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span>
@@ -669,8 +681,12 @@ const MeinProfil = () => {
             </div>
           ) : (linkedSessions && linkedSessions.length > 0) ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {linkedSessions.map((ls, idx) => (
-                <LinkedSessionCard key={ls.sessionId} session={ls} index={idx} onClick={() => loadSessionDetail(ls.sessionId)} />
+              {[...linkedSessions].sort((a, b) => {
+                const aOwn = a.createdBy === currentUserId ? 0 : 1;
+                const bOwn = b.createdBy === currentUserId ? 0 : 1;
+                return aOwn - bOwn;
+              }).map((ls, idx) => (
+                <LinkedSessionCard key={ls.sessionId} session={ls} index={idx} onClick={() => loadSessionDetail(ls.sessionId)} isOwnTable={ls.createdBy === currentUserId} />
               ))}
             </div>
           ) : (
@@ -724,7 +740,17 @@ const MeinProfil = () => {
 
       {/* ── Tischübersicht (merged: session summaries + linked sessions) ── */}
       <section style={{ marginBottom: '2rem' }}>
-        <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Tischübersicht</h2>
+        <h2 className="headline" style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>Tischübersicht</h2>
+        <p style={{ fontSize: '0.75rem', color: 'var(--outline)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+            <span style={{ display: 'inline-block', width: '3px', height: '0.75rem', backgroundColor: '#d0a600', borderRadius: '1px' }}></span>
+            Von dir erstellt
+          </span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+            <span style={{ display: 'inline-block', width: '3px', height: '0.75rem', backgroundColor: '#0b3d2e', borderRadius: '1px' }}></span>
+            Eingeladen
+          </span>
+        </p>
         {linkedSessionsLoading ? (
           <div className="card" style={{ backgroundColor: 'var(--surface-low)', padding: '1.5rem', textAlign: 'center' }}>
             <span style={{ fontSize: '1.5rem', animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span>
@@ -766,12 +792,25 @@ const MeinProfil = () => {
 
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {sessionSummaries.map((s, idx) => (
-                <SessionCard key={s.sessionId} summary={s} index={idx} onSessionClick={loadSessionDetail} />
-              ))}
-              {linkedOnly.map((ls, idx) => (
-                <LinkedSessionCard key={ls.sessionId} session={ls} index={sessionSummaries.length + idx} onClick={() => loadSessionDetail(ls.sessionId)} />
-              ))}
+              {/* Own tables first, then invited — sorted within each group by original order */}
+              {(() => {
+                const ownSummaries = sessionSummaries.filter(s => s.createdBy === currentUserId);
+                const invitedSummaries = sessionSummaries.filter(s => s.createdBy !== currentUserId);
+                const ownLinked = linkedOnly.filter(ls => ls.createdBy === currentUserId);
+                const invitedLinked = linkedOnly.filter(ls => ls.createdBy !== currentUserId);
+
+                const ownAll = [...ownSummaries.map(s => ({ type: 'session', data: s })), ...ownLinked.map(ls => ({ type: 'linked', data: ls }))];
+                const invitedAll = [...invitedSummaries.map(s => ({ type: 'session', data: s })), ...invitedLinked.map(ls => ({ type: 'linked', data: ls }))];
+                const sorted = [...ownAll, ...invitedAll];
+
+                return sorted.map((item, idx) => {
+                  const isOwn = item.data.createdBy === currentUserId;
+                  if (item.type === 'session') {
+                    return <SessionCard key={item.data.sessionId} summary={item.data} index={idx} onSessionClick={loadSessionDetail} isOwnTable={isOwn} />;
+                  }
+                  return <LinkedSessionCard key={item.data.sessionId} session={item.data} index={idx} onClick={() => loadSessionDetail(item.data.sessionId)} isOwnTable={isOwn} />;
+                });
+              })()}
             </div>
           );
         })()}
