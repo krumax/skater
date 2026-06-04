@@ -201,6 +201,7 @@ button {
 .main-content {
   margin-left: 280px;
   flex: 1;
+  min-width: 0;
   padding: 2.5rem 2.5rem;
   max-width: 1200px;
 }

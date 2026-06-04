@@ -32,7 +32,7 @@ function PlayerCardSkeleton() {
   );
 }
 
-export default function PlayerSelector({ players, activePlayer, onSelect, playerLevels, stdTotals, seegerTotals, disabled }) {
+export default function PlayerSelector({ players, activePlayer, onSelect, playerLevels, stdTotals, seegerTotals, disabled, sittingOutPlayer }) {
   // Bester Spieler je Wertung
   const bestStd      = players.length > 0 ? Math.max(...players.map(p => stdTotals?.[p] ?? 0))      : 0;
   const bestCombined = players.length > 0 ? Math.max(...players.map(p => (stdTotals?.[p] ?? 0) + (seegerTotals?.[p] ?? 0))) : 0;
@@ -113,6 +113,20 @@ export default function PlayerSelector({ players, activePlayer, onSelect, player
               </button>
             );
           })
+        )}
+        {/* Aussetzender Spieler (bei 4er-Tisch) */}
+        {sittingOutPlayer && (
+          <div
+            className="player-card"
+            style={{ opacity: 0.4, pointerEvents: 'none', cursor: 'default' }}
+          >
+            <span className="player-card-identity">
+              <span style={{ fontWeight: 800, fontSize: '1.25rem', fontFamily: "'Manrope', sans-serif" }}>{sittingOutPlayer}</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--outline)' }}>
+                Setzt aus
+              </span>
+            </span>
+          </div>
         )}
       </div>
     </section>

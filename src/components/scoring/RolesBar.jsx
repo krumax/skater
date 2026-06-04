@@ -98,14 +98,15 @@ export default function RolesBar({ seating, step, totalDeals, completedRounds, b
 
       {/* Mobile Layout */}
       <div className="rolesbar-mobile" style={{ backgroundColor: 'var(--surface-low)', borderRadius: '0.75rem', overflow: 'hidden' }}>
-        {/* Spieler-Chips: horizontal scrollbar */}
-        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', padding: '0.75rem', scrollbarWidth: 'none' }}>
+        {/* Spieler-Chips: gleichmäßig aufteilen */}
+        <div style={{ display: 'flex', gap: '0.35rem', padding: '0.75rem' }}>
           {seating.length === 0 ? (
             [0, 1, 2].map(i => (
               <div key={i} style={{
-                flexShrink: 0,
+                flex: 1,
+                minWidth: 0,
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
-                padding: '0.4rem 0.875rem', borderRadius: '0.5rem', minWidth: '72px',
+                padding: '0.4rem 0.4rem', borderRadius: '0.5rem',
                 border: '1px solid var(--outline-variant)',
                 gap: '0.3rem',
               }}>
@@ -119,16 +120,17 @@ export default function RolesBar({ seating, step, totalDeals, completedRounds, b
               const roleLabel = ROLE_LABELS[i] ?? `Pos ${i + 1}`;
               return (
                 <div key={i} style={{
-                  flexShrink: 0,
+                  flex: 1,
+                  minWidth: 0,
                   display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  padding: '0.4rem 0.875rem', borderRadius: '0.5rem', minWidth: '72px',
+                  padding: '0.4rem 0.4rem', borderRadius: '0.5rem',
                   backgroundColor: isActive ? HIGHLIGHT_COLOR : 'transparent',
                   border: `1px solid ${isActive ? HIGHLIGHT_COLOR : 'var(--outline-variant)'}`,
                 }}>
                   <span style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: isActive ? 'rgba(255,255,255,0.7)' : 'var(--outline)' }}>
                     {roleLabel}
                   </span>
-                  <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: isActive ? '#fff' : 'var(--on-surface)', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: isActive ? '#fff' : 'var(--on-surface)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', display: 'block' }}>
                     {name}
                   </span>
                 </div>

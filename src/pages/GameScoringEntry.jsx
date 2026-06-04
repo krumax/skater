@@ -74,6 +74,8 @@ const GameScoringEntry = () => {
 
   const rankings = playerRankStandard;
   const activePlayers = currentRoles.activePlayers.filter(n => n !== '-');
+  // Bei 4er-Tisch: Geber setzt aus
+  const sittingOutPlayer = seating.length === 4 ? currentRoles.geber : null;
 
   // Empty state: no table set up yet (fewer than 3 players in seating)
   if (seating.length < 3) {
@@ -343,6 +345,7 @@ const GameScoringEntry = () => {
             stdTotals={stdTotals}
             seegerTotals={seegerTotals}
             disabled={form.gameType === 'passed'}
+            sittingOutPlayer={sittingOutPlayer}
           />
 
           <GameTypeSelector
