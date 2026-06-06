@@ -397,7 +397,7 @@ function SpiellistenTab({ spiellisten, rounds, players, closeSpielliste, deleteS
                         Abschließen
                       </button>
                     )}
-                    {liste.status === 'abgeschlossen' && confirmDeleteId !== liste.id && (
+                    {liste.status === 'abgeschlossen' && (
                       <button
                         onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(liste.id); }}
                         className="chip"
@@ -406,25 +406,6 @@ function SpiellistenTab({ spiellisten, rounds, players, closeSpielliste, deleteS
                         <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', verticalAlign: 'middle', marginRight: '0.25rem' }}>delete</span>
                         Löschen
                       </button>
-                    )}
-                    {liste.status === 'abgeschlossen' && confirmDeleteId === liste.id && (
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--secondary)', fontWeight: 600 }}>Wirklich löschen?</span>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); deleteSpielliste(liste.id); setConfirmDeleteId(null); setSelectedSpiellisteId(null); }}
-                          className="chip"
-                          style={{ color: '#fff', backgroundColor: 'var(--secondary)', borderColor: 'var(--secondary)', fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}
-                        >
-                          Ja
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
-                          className="chip"
-                          style={{ color: 'var(--outline)', borderColor: 'var(--outline)', fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}
-                        >
-                          Nein
-                        </button>
-                      </div>
                     )}
                   </div>
                 </div>
@@ -461,6 +442,45 @@ function SpiellistenTab({ spiellisten, rounds, players, closeSpielliste, deleteS
           </div>
         );
       })}
+
+      {/* Delete Serie Modal */}
+      {confirmDeleteId && (() => {
+        const targetListe = spiellisten.find(l => l.id === confirmDeleteId);
+        if (!targetListe) return null;
+        return (
+          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+            <div style={{ backgroundColor: 'var(--surface)', borderRadius: '1rem', padding: '2rem', width: '100%', maxWidth: '420px', boxShadow: '0 8px 32px rgba(0,0,0,0.35)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '0.75rem', backgroundColor: 'color-mix(in srgb, var(--secondary) 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--secondary)', fontSize: '1.25rem' }}>delete_forever</span>
+                </div>
+                <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--secondary)' }}>Serie löschen?</h2>
+              </div>
+              <p style={{ fontSize: '0.9rem', color: 'var(--on-surface)', marginBottom: '0.75rem', lineHeight: 1.6 }}>
+                <strong>"{targetListe.name}"</strong> wird unwiderruflich gelöscht.
+              </p>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--outline)', marginBottom: '1.5rem', lineHeight: 1.8 }}>
+                Alle Rundendaten dieser Serie werden unwiderruflich gelöscht.
+              </p>
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setConfirmDeleteId(null)}
+                  style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', background: 'none', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={() => { deleteSpielliste(confirmDeleteId); setConfirmDeleteId(null); setSelectedSpiellisteId(null); }}
+                  style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', backgroundColor: 'var(--secondary)', color: 'white', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>delete_forever</span>
+                  Endgültig löschen
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
