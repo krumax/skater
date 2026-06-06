@@ -311,15 +311,29 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
     syncOk();
   }, [state.rounds, state.seating]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const deleteSpielliste = useCallback(async (spiellisteId) => {
+    // Guard: only allow deleting abgeschlossene (completed) lists
+    const liste = state.spiellisten.find(l => l.id === spiellisteId);
+    if (!liste || liste.status !== 'abgeschlossen') return;
+
+    // Optimistic dispatch
+    dispatch({ type: 'DELETE_SPIELLISTE', payload: spiellisteId });
+    setSyncStatus('syncing');
+
+    const { error } = await syncService.deleteSpielliste(spiellisteId);
+    if (error) { syncFail('deleteSpielliste', error); return; }
+    syncOk();
+  }, [state.spiellisten]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return useMemo(() => ({
     addRound, deleteRound, updateRound,
     resetSession, createNewTable, switchSession, refreshFromDB, clearSession,
     addPlayer, removePlayer, renamePlayer, reorderSeating, setGeberIndex, renameTable,
-    createSpielliste, setActiveSpielliste, closeSpielliste,
+    createSpielliste, setActiveSpielliste, closeSpielliste, deleteSpielliste,
   }), [
     addRound, deleteRound, updateRound,
     resetSession, createNewTable, switchSession, refreshFromDB, clearSession,
     addPlayer, removePlayer, renamePlayer, reorderSeating, setGeberIndex, renameTable,
-    createSpielliste, setActiveSpielliste, closeSpielliste,
+    createSpielliste, setActiveSpielliste, closeSpielliste, deleteSpielliste,
   ]);
 }

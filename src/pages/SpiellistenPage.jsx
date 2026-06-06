@@ -4,8 +4,9 @@ import { computeListStats, computeListProgress } from '../lib/spiellistenUtils';
 import { PLAYER_COLORS } from '../lib/tokens';
 
 const SpiellistenPage = () => {
-  const { spiellisten, rounds, players, closeSpielliste } = useGame();
+  const { spiellisten, rounds, players, closeSpielliste, deleteSpielliste } = useGame();
   const [selectedId, setSelectedId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const selectedListe = spiellisten.find(l => l.id === selectedId) ?? null;
   const listRounds = selectedListe
@@ -16,6 +17,12 @@ const SpiellistenPage = () => {
 
   const handleClose = async (id) => {
     await closeSpielliste(id);
+  };
+
+  const handleDelete = async (id) => {
+    await deleteSpielliste(id);
+    setConfirmDeleteId(null);
+    setSelectedId(null);
   };
 
   const statusLabel = (status) => status === 'aktiv' ? 'Aktiv' : 'Abgeschlossen';
@@ -136,6 +143,37 @@ const SpiellistenPage = () => {
                     </span>
                     Abschließen
                   </button>
+                )}
+                {selectedListe.status === 'abgeschlossen' && confirmDeleteId !== selectedListe.id && (
+                  <button
+                    onClick={() => setConfirmDeleteId(selectedListe.id)}
+                    className="chip"
+                    style={{ color: 'var(--secondary)', borderColor: 'var(--secondary)', flexShrink: 0 }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.25rem' }}>
+                      delete
+                    </span>
+                    Löschen
+                  </button>
+                )}
+                {selectedListe.status === 'abgeschlossen' && confirmDeleteId === selectedListe.id && (
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--secondary)', fontWeight: 600 }}>Wirklich löschen?</span>
+                    <button
+                      onClick={() => handleDelete(selectedListe.id)}
+                      className="chip"
+                      style={{ color: '#fff', backgroundColor: 'var(--secondary)', borderColor: 'var(--secondary)' }}
+                    >
+                      Ja
+                    </button>
+                    <button
+                      onClick={() => setConfirmDeleteId(null)}
+                      className="chip"
+                      style={{ color: 'var(--outline)', borderColor: 'var(--outline)' }}
+                    >
+                      Nein
+                    </button>
+                  </div>
                 )}
               </div>
 
