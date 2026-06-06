@@ -239,6 +239,15 @@ export function gameReducer(state, action) {
       };
     }
 
+    case 'DELETE_SPIELLISTE': {
+      const deleteId = action.payload;
+      return {
+        ...state,
+        spiellisten: state.spiellisten.filter(l => l.id !== deleteId),
+        activeSpiellisteId: state.activeSpiellisteId === deleteId ? null : state.activeSpiellisteId,
+      };
+    }
+
     default:
       return state;
   }

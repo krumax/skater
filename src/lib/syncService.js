@@ -58,6 +58,9 @@ export async function processOfflineQueue() {
       } else if (item.action === 'closeSpielliste') {
         const { error } = await _doCloseSpielliste(item.payload.spiellisteId, item.payload.winner);
         err = error;
+      } else if (item.action === 'deleteSpielliste') {
+        const { error } = await _doDeleteSpielliste(item.payload.spiellisteId);
+        err = error;
       } else if (item.action === 'setActiveSpielliste') {
         const { error } = await _doSetActiveSpiellisteTimestamp(item.payload.spiellisteId);
         err = error;
@@ -412,6 +415,25 @@ export async function _doCloseSpielliste(spiellisteId, winner) {
     .select()
     .single();
   return { data, error };
+}
+
+/**
+ * Deletes a Spielliste (Offline-safeguarded)
+ */
+export async function deleteSpielliste(spiellisteId) {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    enqueueAction('deleteSpielliste', { spiellisteId });
+    return { error: null };
+  }
+  return await _doDeleteSpielliste(spiellisteId);
+}
+
+export async function _doDeleteSpielliste(spiellisteId) {
+  const { error } = await supabase
+    .from('spiellisten')
+    .delete()
+    .eq('id', spiellisteId);
+  return { error };
 }
 
 /**
