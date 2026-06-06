@@ -623,6 +623,11 @@ button {
     font-size: 1.75rem;
   }
 
+  /* ── Spiellisten Grid: 1 Spalte auf Mobile ── */
+  .spiellisten-grid {
+    grid-template-columns: 1fr !important;
+  }
+
 }
 
 /* ─────────────────────────────────────────────
