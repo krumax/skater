@@ -12,7 +12,7 @@ import { useSuitLabel } from '../hooks/useSuitLabel';
 
 const SkatScoreList = () => {
   const navigate = useNavigate();
-  const { rounds, players, playerTotals, seegerTotals, playerRankStandard, playerRankSeeger, deleteRound, sessionLoaded, spiellisten, closeSpielliste } = useGame();
+  const { rounds, players, playerTotals, seegerTotals, playerRankStandard, playerRankSeeger, deleteRound, sessionLoaded, spiellisten, closeSpielliste, deleteSpielliste } = useGame();
 
   const standardTotals = playerTotals;
   const standardRank = playerRankStandard.filter(e => e.name !== '-');
@@ -277,6 +277,7 @@ const SkatScoreList = () => {
           rounds={rounds}
           players={players}
           closeSpielliste={closeSpielliste}
+          deleteSpielliste={deleteSpielliste}
           selectedSpiellisteId={selectedSpiellisteId}
           setSelectedSpiellisteId={setSelectedSpiellisteId}
         />
@@ -286,7 +287,8 @@ const SkatScoreList = () => {
 };
 
 // ── SpiellistenTab ───────────────────────────────────────────────────────────
-function SpiellistenTab({ spiellisten, rounds, players, closeSpielliste, selectedSpiellisteId, setSelectedSpiellisteId }) {
+function SpiellistenTab({ spiellisten, rounds, players, closeSpielliste, deleteSpielliste, selectedSpiellisteId, setSelectedSpiellisteId }) {
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const statusLabel = (s) => s === 'aktiv' ? 'Aktiv' : 'Abgeschlossen';
   const statusColor = (s) => s === 'aktiv' ? 'var(--primary)' : 'var(--outline)';
 
@@ -394,6 +396,35 @@ function SpiellistenTab({ spiellisten, rounds, players, closeSpielliste, selecte
                         <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', verticalAlign: 'middle', marginRight: '0.25rem' }}>stop_circle</span>
                         Abschließen
                       </button>
+                    )}
+                    {liste.status === 'abgeschlossen' && confirmDeleteId !== liste.id && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(liste.id); }}
+                        className="chip"
+                        style={{ color: 'var(--secondary)', borderColor: 'var(--secondary)', flexShrink: 0, fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', verticalAlign: 'middle', marginRight: '0.25rem' }}>delete</span>
+                        Löschen
+                      </button>
+                    )}
+                    {liste.status === 'abgeschlossen' && confirmDeleteId === liste.id && (
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--secondary)', fontWeight: 600 }}>Wirklich löschen?</span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteSpielliste(liste.id); setConfirmDeleteId(null); setSelectedSpiellisteId(null); }}
+                          className="chip"
+                          style={{ color: '#fff', backgroundColor: 'var(--secondary)', borderColor: 'var(--secondary)', fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}
+                        >
+                          Ja
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
+                          className="chip"
+                          style={{ color: 'var(--outline)', borderColor: 'var(--outline)', fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}
+                        >
+                          Nein
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
