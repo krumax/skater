@@ -404,13 +404,13 @@ function SpiellistenTab({ spiellisten, rounds, players, closeSpielliste, deleteS
                           <p style={{ fontSize: '0.875rem', fontWeight: 700, fontFamily: "'Manrope', sans-serif", color: p.raw >= 0 ? 'var(--on-surface)' : 'var(--secondary)' }}>
                             {p.raw >= 0 ? '+' : ''}{p.raw}
                           </p>
-                          <p style={{ fontSize: '0.65rem', color: 'var(--outline)' }}>Rohpunkte</p>
+                          <p style={{ fontSize: '0.65rem', color: 'var(--outline)' }}>Standardwertung</p>
                         </div>
                         <div style={{ textAlign: 'right', minWidth: '60px' }}>
                           <p style={{ fontSize: '0.9375rem', fontWeight: 800, fontFamily: "'Manrope', sans-serif", color: (p.seeger + p.raw) >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
                             {(p.seeger + p.raw) >= 0 ? '+' : ''}{p.seeger + p.raw}
                           </p>
-                          <p style={{ fontSize: '0.65rem', color: 'var(--outline)' }}>Gesamt</p>
+                          <p style={{ fontSize: '0.65rem', color: 'var(--outline)' }}>Seeger-Fabian</p>
                         </div>
                       </div>
                     );
