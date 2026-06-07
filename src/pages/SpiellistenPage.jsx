@@ -220,7 +220,7 @@ const SpiellistenPage = () => {
                           {(p.seeger + p.raw) >= 0 ? '+' : ''}{p.seeger + p.raw}
                         </p>
                         <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>
-                          Gesamt
+                          Seeger-Fabian
                         </p>
                       </div>
                       <div style={{ textAlign: 'right', minWidth: '60px' }}>
@@ -228,7 +228,7 @@ const SpiellistenPage = () => {
                           {p.raw >= 0 ? '+' : ''}{p.raw}
                         </p>
                         <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>
-                          Rohpunkte
+                          Standardwertung
                         </p>
                       </div>
                     </div>
