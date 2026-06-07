@@ -12,9 +12,8 @@ import { useSuitLabel } from '../hooks/useSuitLabel';
 
 const SkatScoreList = () => {
   const navigate = useNavigate();
-  const { rounds, players, playerTotals, seegerTotals, playerRankStandard, playerRankSeeger, deleteRound, sessionLoaded, spiellisten, closeSpielliste, deleteSpielliste } = useGame();
+  const { rounds, players, playerTotals, playerRankStandard, playerRankSeeger, deleteRound, sessionLoaded, spiellisten, closeSpielliste, deleteSpielliste } = useGame();
 
-  const standardTotals = playerTotals;
   const standardRank = playerRankStandard.filter(e => e.name !== '-');
   const seegerRank = playerRankSeeger.filter(e => e.name !== '-');
 
@@ -108,8 +107,8 @@ const SkatScoreList = () => {
         </div>
       </div>
 
-      {/* ── Dreifache Wertungsübersicht ── */}
-      <div className="ranking-grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '3rem' }}>
+      {/* ── Wertungsübersicht ── */}
+      <div className="ranking-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '3rem' }}>
         {/* Standard */}
         <div className="card ranking-card ranking-card-compact" style={{ backgroundColor: 'var(--surface-low)' }}>
           <h3 className="headline" style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -133,26 +132,6 @@ const SkatScoreList = () => {
             {seegerRank.map((entry) => (
               <RankingRow key={entry.name} rank={entry.rank} name={entry.name} score={entry.score} />
             ))}
-          </div>
-        </div>
-
-        {/* Kombiniert */}
-        <div className="card ranking-card-compact" style={{ backgroundColor: 'var(--surface-low)' }}>
-          <h3 className="headline" style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>merge</span>
-            Kombiniert
-          </h3>
-          <div className="ranking-rows" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {(() => {
-              const combined = players
-                .filter(p => p !== '-')
-                .map(p => ({ name: p, score: (standardTotals[p] ?? 0) + (seegerTotals[p] ?? 0) }))
-                .sort((a, b) => b.score - a.score)
-                .map((entry, idx) => ({ ...entry, rank: idx + 1 }));
-              return combined.map((entry) => (
-                <RankingRow key={entry.name} rank={entry.rank} name={entry.name} score={entry.score} />
-              ));
-            })()}
           </div>
         </div>
       </div>
@@ -205,7 +184,7 @@ const SkatScoreList = () => {
                 <th className="score-col-divider" style={thDivider}></th>
                 {players.map(p => (
                   <th key={`sf-${p}`} className="score-col-sf" style={{ ...thStyle, textAlign: 'center', width: `${scoreColWidth}rem`, overflow: 'hidden' }}>
-                    <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--primary)' }}>Σ</span>
+                    <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--primary)' }}>S-F</span>
                     <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p}>
                       {p.length > 8 ? p.slice(0, 8) + '…' : p}
                     </span>
@@ -596,7 +575,7 @@ const RoundRow = ({ r, idx, players, std, sf, sfPrev, stdPrev, onEdit, onDelete 
         })}
         <td style={tdDivider} className="score-col-divider"></td>
         {players.map(p => {
-          const total   = (std[p] ?? 0) + (sf[p] ?? 0);
+          const total   = sf[p] ?? 0;
           const sfDelta = (sf[p] ?? 0) - (sfPrev?.[p] ?? 0);
           const changed = sfDelta !== 0;
           const color   = sfDelta < 0 ? 'var(--secondary)' : 'var(--on-surface)';

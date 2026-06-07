@@ -84,14 +84,13 @@ export default function AchievementCompletionCard({ rounds, player, allPlayers =
             );
           })()}
 
-          {/* Kennzahlen: Standard / Seeger-Fabian / Kombiniert */}
+          {/* Kennzahlen: Standard / Seeger-Fabian */}
           {pStats && pStats.totalGames > 0 && (
             <div style={{ borderTop: '1px solid var(--outline-variant)', paddingTop: '0.75rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 {[
                   { label: 'Standard',      value: pStats.totalPoints,                              color: pStats.totalPoints >= 0 ? 'var(--primary)' : 'var(--secondary)' },
-                  { label: 'Seeger-Fabian', value: pStats.seegerTotal,                              color: pStats.seegerTotal >= 0 ? 'var(--primary)' : 'var(--secondary)' },
-                  { label: 'Kombiniert',    value: pStats.totalPoints + pStats.seegerTotal,          color: (pStats.totalPoints + pStats.seegerTotal) >= 0 ? 'var(--primary)' : 'var(--secondary)' },
+                  { label: 'Seeger-Fabian', value: pStats.totalPoints + pStats.seegerTotal,          color: (pStats.totalPoints + pStats.seegerTotal) >= 0 ? 'var(--primary)' : 'var(--secondary)' },
                 ].map(({ label, value, color }) => (
                   <div key={label} style={{ textAlign: 'center' }}>
                     <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--outline)', display: 'block', marginBottom: '0.2rem' }}>{label}</span>
