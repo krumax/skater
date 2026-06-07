@@ -3,8 +3,6 @@ import { useProfileData } from '../hooks/useProfileData';
 import ProfileGameMatrix from '../components/analytics/ProfileGameMatrix';
 import SuitBadge from '../components/SuitBadge';
 import {
-  computePlayerTotals,
-  computeSeegerTotals,
   computePlayerRank,
   computeRunningTotals,
 } from '../lib/playerStats';
@@ -126,19 +124,11 @@ function ReadOnlySessionStats({ rounds }) {
 
 // ── Read-Only Rankings (Req 5.2) ──────────────────────────────────────────────
 function ReadOnlyRankings({ players, rounds }) {
-  const standardTotals = computePlayerTotals(players, rounds);
-  const seegerTotals = computeSeegerTotals(players, rounds);
   const standardRank = computePlayerRank(players, rounds, false);
   const seegerRank = computePlayerRank(players, rounds, true);
 
-  // Combined ranking
-  const combinedRank = players
-    .map(p => ({ name: p, score: (standardTotals[p] ?? 0) + (seegerTotals[p] ?? 0) }))
-    .sort((a, b) => b.score - a.score)
-    .map((entry, idx) => ({ ...entry, rank: idx + 1 }));
-
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
       {/* Standard */}
       <div className="card" style={{ backgroundColor: 'var(--surface-low)' }}>
         <h3 className="headline" style={{ fontSize: '1.125rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -160,19 +150,6 @@ function ReadOnlyRankings({ players, rounds }) {
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {seegerRank.map(entry => (
-            <ReadOnlyRankingRow key={entry.name} rank={entry.rank} name={entry.name} score={entry.score} />
-          ))}
-        </div>
-      </div>
-
-      {/* Combined */}
-      <div className="card" style={{ backgroundColor: 'var(--surface-low)' }}>
-        <h3 className="headline" style={{ fontSize: '1.125rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>merge</span>
-          Kombiniert
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {combinedRank.map(entry => (
             <ReadOnlyRankingRow key={entry.name} rank={entry.rank} name={entry.name} score={entry.score} />
           ))}
         </div>
@@ -258,7 +235,7 @@ function ReadOnlyRoundHistory({ rounds, players }) {
               <th className="score-col-divider" style={thDivider}></th>
               {players.map(p => (
                 <th key={`sf-${p}`} className="score-col-sf" style={{ ...thStyle, textAlign: 'center', width: `${scoreColWidth}rem`, overflow: 'hidden' }}>
-                  <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--primary)' }}>Σ</span>
+                  <span style={{ fontSize: '0.6rem', display: 'block', color: 'var(--primary)' }}>S-F</span>
                   <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p}>
                     {p.length > 8 ? p.slice(0, 8) + '…' : p}
                   </span>
@@ -392,7 +369,7 @@ function ReadOnlyRoundRow({ r, idx, players, std, sf, sfPrev, stdPrev }) {
       <td style={tdDivider} className="score-col-divider"></td>
       {/* Σ combined totals (STD + SF) with highlight */}
       {players.map(p => {
-        const total = (std?.[p] ?? 0) + (sf?.[p] ?? 0);
+        const total = sf?.[p] ?? 0;
         const sfDelta = (sf?.[p] ?? 0) - (sfPrev?.[p] ?? 0);
         const changed = sfDelta !== 0;
         const color = sfDelta < 0 ? 'var(--secondary)' : 'var(--on-surface)';

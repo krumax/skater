@@ -122,16 +122,11 @@ export default function ScoreDistributionChart() {
 
   const standardScores = playerTotals;
   const seegerScores = seegerTotals;
-  const combinedScores = {};
-  seating.forEach((name) => {
-    combinedScores[name] = (standardScores[name] ?? 0) + (seegerScores[name] ?? 0);
-  });
 
   return (
     <div className="score-distribution-chart">
-      <PieChart slices={computeShares(standardScores, playerColors)} title="Gesamtpunkte" />
-      <PieChart slices={computeShares(seegerScores, playerColors)} title="Seeger-Fabian" tooltip="Turnierwertung nach Seeger-Fabian: Alleinspieler gewinnt/verliert ±50 Punkte, jeder Gegner ±40 Punkte – unabhängig vom Spielwert." />
-      <PieChart slices={computeShares(combinedScores, playerColors)} title="Kombiniert" tooltip="Summe aus Standardpunkten und Seeger-Fabian-Punkten." />
+      <PieChart slices={computeShares(standardScores, playerColors)} title="Standardwertung" />
+      <PieChart slices={computeShares(seegerScores, playerColors)} title="Seeger-Fabian" tooltip="Turnierwertung nach Seeger-Fabian: Spielwert plus Alleinspieler ±50 Punkte, jeder Gegner +40 Punkte bei Niederlage des Alleinspielers." />
     </div>
   );
 }

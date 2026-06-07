@@ -1,6 +1,6 @@
 /**
  * PlayerSelector - Auswahl des Alleinspielers.
- * Zeigt Level, Gesamtscore und kombinierten Score je Spieler.
+ * Zeigt Level, Standard- und Seeger-Fabian-Score je Spieler.
  */
 
 function PlayerCardSkeleton() {
@@ -34,8 +34,8 @@ function PlayerCardSkeleton() {
 
 export default function PlayerSelector({ players, activePlayer, onSelect, playerLevels, stdTotals, seegerTotals, disabled, sittingOutPlayer }) {
   // Bester Spieler je Wertung
-  const bestStd      = players.length > 0 ? Math.max(...players.map(p => stdTotals?.[p] ?? 0))      : 0;
-  const bestCombined = players.length > 0 ? Math.max(...players.map(p => (stdTotals?.[p] ?? 0) + (seegerTotals?.[p] ?? 0))) : 0;
+  const bestStd    = players.length > 0 ? Math.max(...players.map(p => stdTotals?.[p] ?? 0))    : 0;
+  const bestSeeger = players.length > 0 ? Math.max(...players.map(p => seegerTotals?.[p] ?? 0)) : 0;
 
   return (
     <section className="form-section">
@@ -57,10 +57,9 @@ export default function PlayerSelector({ players, activePlayer, onSelect, player
             const isActive = activePlayer === name;
             const std      = stdTotals?.[name] ?? null;
             const seeger   = seegerTotals?.[name] ?? null;
-            const combined = std !== null && seeger !== null ? std + seeger : null;
 
-            const diffStd      = std      !== null ? std      - bestStd      : null;
-            const diffCombined = combined !== null ? combined - bestCombined : null;
+            const diffStd    = std    !== null ? std    - bestStd    : null;
+            const diffSeeger = seeger !== null ? seeger - bestSeeger : null;
 
             const scoreColor = (v) => {
               if (v === null) return isActive ? 'rgba(255,255,255,0.5)' : 'var(--outline)';
@@ -100,11 +99,11 @@ export default function PlayerSelector({ players, activePlayer, onSelect, player
                       </span>
                     </span>
                     <span style={{ display: 'flex', justifyContent: 'space-between', gap: '0.4rem', fontSize: '0.75rem' }}>
-                      <span style={{ opacity: 0.65, color: isActive ? '#fff' : 'var(--outline)' }}>Komb</span>
-                      <span style={{ fontWeight: 700, color: scoreColor(combined) }}>
-                        {fmt(combined)}
-                        {diffCombined !== null && diffCombined < 0 && (
-                          <span style={{ fontWeight: 500, opacity: 0.7, marginLeft: '0.2rem' }}>({fmt(diffCombined)})</span>
+                      <span style={{ opacity: 0.65, color: isActive ? '#fff' : 'var(--outline)' }}>S-F</span>
+                      <span style={{ fontWeight: 700, color: scoreColor(seeger) }}>
+                        {fmt(seeger)}
+                        {diffSeeger !== null && diffSeeger < 0 && (
+                          <span style={{ fontWeight: 500, opacity: 0.7, marginLeft: '0.2rem' }}>({fmt(diffSeeger)})</span>
                         )}
                       </span>
                     </span>

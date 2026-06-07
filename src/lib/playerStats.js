@@ -18,11 +18,18 @@ export function computePlayerTotals(seating, rounds) {
   return totals;
 }
 
-// ── Seeger-Fabian totals ─────────────────────────────────────────────────────
+// ── Seeger-Fabian totals (combined: standard game value + SF tournament bonus) ─
 
 export function computeSeegerTotals(seating, rounds) {
   const totals = {};
   seating.filter(p => p !== '-').forEach(p => { totals[p] = 0; });
+  // Standard points (game value for declarer)
+  rounds.forEach(r => {
+    if (r.player && r.player !== '-') {
+      totals[r.player] = (totals[r.player] || 0) + r.gameValue;
+    }
+  });
+  // Plus Seeger-Fabian tournament bonus (±50 declarer, ±40 opponents)
   rounds.forEach(r => {
     if (r.seegerScores) {
       seating.filter(p => p !== '-').forEach(p => {
@@ -146,12 +153,13 @@ export function computePlayerStats(rounds, playerName) {
 // ── Running totals ────────────────────────────────────────────────────────────
 
 /**
- * Computes cumulative standard and Seeger-Fabian scores after each round.
+ * Computes cumulative standard and Seeger-Fabian (combined) scores after each round.
  *
  * @param {string[]} players - Active player names (no "-")
  * @param {Array}    rounds  - All rounds in order
  * @returns {{ runningStd: object[], runningSF: object[] }}
- *   Each entry is a snapshot of all player totals after that round index.
+ *   runningStd: snapshot of standard game-value totals after that round index.
+ *   runningSF:  snapshot of combined (game-value + SF bonus) totals after that round index.
  */
 export function computeRunningTotals(players, rounds) {
   const runningStd = [];
@@ -166,8 +174,11 @@ export function computeRunningTotals(players, rounds) {
       if (sf[p]  === undefined) sf[p]  = 0;
     });
 
+    // Standard: only declarer gets game value
     std[r.player] = (std[r.player] || 0) + r.gameValue;
 
+    // Seeger-Fabian combined: game value for declarer + SF bonus for all
+    sf[r.player] = (sf[r.player] || 0) + r.gameValue;
     if (r.seegerScores) {
       players.forEach(p => {
         sf[p] = (sf[p] || 0) + (r.seegerScores[p] || 0);
