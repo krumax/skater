@@ -484,7 +484,7 @@ function SessionCard({ summary, index, onSessionClick, isOwnTable }) {
                       {p.raw >= 0 ? '+' : ''}{p.raw}
                     </p>
                     <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>
-                      Rohpunkte
+                      Standardwertung
                     </p>
                   </div>
                   <div style={{ textAlign: 'right', minWidth: '60px' }}>
@@ -492,7 +492,7 @@ function SessionCard({ summary, index, onSessionClick, isOwnTable }) {
                       {total >= 0 ? '+' : ''}{total}
                     </p>
                     <p style={{ fontSize: '0.7rem', color: 'var(--outline)' }}>
-                      Gesamt
+                      Seeger-Fabian
                     </p>
                   </div>
                 </div>
