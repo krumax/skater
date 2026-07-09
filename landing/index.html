@@ -438,6 +438,13 @@
     <p>© 2026 SKATASTROPHE · <a href="/app">App öffnen</a> · <a href="/landing/impressum">Impressum & Datenschutz</a></p>
   </footer>
 
+  <script>
+    // If we landed here with an auth token fragment, redirect to /app
+    // This happens when Supabase OAuth redirects to the wrong URL
+    if (window.location.hash && window.location.hash.includes('access_token')) {
+      window.location.replace('/app/' + window.location.hash);
+    }
+  </script>
   <script src="js/carousel.js"></script>
 </body>
 </html>

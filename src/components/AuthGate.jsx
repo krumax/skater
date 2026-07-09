@@ -107,8 +107,9 @@ export default function AuthGate({ children }) {
   const handleGoogle = async () => {
     setError('');
 
-    // Always redirect back to /app, not just the origin (which would land on the landing page)
-    const appUrl = `${window.location.origin}/app`;
+    // Always redirect back to /app/, not just the origin (which would land on the landing page)
+    // Trailing slash is required to match the Supabase Redirect URLs allow-list entry
+    const appUrl = `${window.location.origin}/app/`;
 
     // If GSI is available, try the FedCM/One-Tap prompt first
     if (window.google?.accounts?.id) {
