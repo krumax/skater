@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { argv } from 'process';
 import { pathToFileURL } from 'url';
 
 function copyLanding(srcDir, destDir) {
@@ -15,6 +16,19 @@ function copyWellKnown() {
   if (fs.existsSync(src)) {
     fs.cpSync(src, dest, { recursive: true });
   }
+}
+
+function copyPlayStoreBadge() {
+  const src = path.join('assets', 'google_play_store', 'googleplay-badge-01-getit.width-1440.png');
+  const destDir = path.join('dist', 'assets', 'google_play_store');
+  const dest = path.join(destDir, path.basename(src));
+
+  if (!fs.existsSync(src)) {
+    throw new Error(`Google-Play-Badge nicht gefunden: ${src}`);
+  }
+
+  fs.mkdirSync(destDir, { recursive: true });
+  fs.copyFileSync(src, dest);
 }
 
 /**
@@ -42,8 +56,9 @@ function copyHostingFiles() {
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (import.meta.url === pathToFileURL(argv[1]).href) {
   copyLanding('landing', 'dist/landing');
+  copyPlayStoreBadge();
   copyWellKnown();
   copyHostingFiles();
 }
