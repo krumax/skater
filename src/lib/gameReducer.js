@@ -6,11 +6,41 @@
 import { calculateSeegerFabian } from './skatScoring';
 import { computeListWinner } from './spiellistenUtils';
 
+function toNonNegativeInteger(value, fallback = 0) {
+  if (value === null || value === undefined || value === '') return fallback;
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? Math.max(0, Math.trunc(numeric)) : fallback;
+}
+
+function getRoundCounterFromState(state) {
+  const seatingSize = state.seating?.length || 3;
+  const source = state.roundCounter ?? {};
+  return {
+    deals: toNonNegativeInteger(source.deals, state.rounds?.length ?? 0),
+    step: toNonNegativeInteger(source.step, state.geberIndex ?? 0) % seatingSize,
+    bockRoundsLeft: toNonNegativeInteger(source.bockRoundsLeft, 0),
+  };
+}
+
+function getRoundCounterFromSession(session, rounds, seating) {
+  const seatingSize = seating.length || 3;
+  return {
+    deals: toNonNegativeInteger(session.round_counter_deals, rounds.length),
+    step: toNonNegativeInteger(session.round_counter_step, session.geber_index ?? 0) % seatingSize,
+    bockRoundsLeft: toNonNegativeInteger(session.bock_rounds_left, 0),
+  };
+}
+
 export const initialState = {
   seating: [],
   geberIndex: 0,
   rounds: [],
   currentRound: 1,
+  roundCounter: {
+    deals: 0,
+    step: 0,
+    bockRoundsLeft: 0,
+  },
   sessionId: Date.now(),
   tableName: '',
   spiellisten: [],
@@ -56,6 +86,13 @@ export function gameReducer(state, action) {
       });
 
       const newRounds = [...state.rounds, round];
+      const currentCounter = getRoundCounterFromState(state);
+      const seatingSize = state.seating.length || 3;
+      const nextRoundCounter = {
+        ...currentCounter,
+        deals: currentCounter.deals + 1,
+        step: (currentCounter.step + 1) % seatingSize,
+      };
       const now = new Date().toISOString();
 
       // Update lastTouchedAt of active list
@@ -92,13 +129,14 @@ export function gameReducer(state, action) {
         rounds: newRounds,
         currentRound: state.currentRound + 1,
         geberIndex: (state.geberIndex + 1) % state.seating.length,
+        roundCounter: nextRoundCounter,
         spiellisten: newSpiellisten,
         activeSpiellisteId: newActiveSpiellisteId,
       };
     }
 
     case 'LOAD_SESSION': {
-      const { session, rounds } = action.payload;
+      const { session, rounds = [] } = action.payload;
       const rawSeating = session.seating ?? [];
       const cleanSeating = rawSeating.filter(p => p !== '-');
       const seating = cleanSeating.length >= 1 ? cleanSeating : rawSeating;
@@ -108,6 +146,7 @@ export function gameReducer(state, action) {
         geberIndex: session.geber_index,
         currentRound: session.current_round,
         rounds,
+        roundCounter: getRoundCounterFromSession(session, rounds, seating),
         sessionId: session.id,
         tableName: session.table_name ?? '',
         spiellisten: action.payload.spiellisten ?? [],
@@ -120,14 +159,20 @@ export function gameReducer(state, action) {
         ...initialState,
         seating: state.seating,
         geberIndex: 0,
+        roundCounter: { deals: 0, step: 0, bockRoundsLeft: 0 },
         sessionId: Date.now(),
       };
 
     case 'CLEAR_SESSION':
-      return { ...initialState };
+      return { ...initialState, roundCounter: { deals: 0, step: 0, bockRoundsLeft: 0 } };
 
     case 'SET_SEATING':
-      return { ...state, seating: action.payload, geberIndex: 0 };
+      return {
+        ...state,
+        seating: action.payload,
+        geberIndex: 0,
+        roundCounter: { ...getRoundCounterFromState(state), step: 0 },
+      };
 
     case 'ADD_PLAYER': {
       if (state.seating.includes(action.payload)) return state;
@@ -142,6 +187,10 @@ export function gameReducer(state, action) {
         ...state,
         seating: newSeating,
         geberIndex: state.geberIndex % Math.max(newSeating.length, 1),
+        roundCounter: {
+          ...getRoundCounterFromState(state),
+          step: getRoundCounterFromState(state).step % Math.max(newSeating.length, 1),
+        },
       };
     }
 
@@ -173,11 +222,40 @@ export function gameReducer(state, action) {
       const newSeating = [...state.seating];
       const [moved] = newSeating.splice(fromIndex, 1);
       newSeating.splice(toIndex, 0, moved);
-      return { ...state, seating: newSeating, geberIndex: 0 };
+      return {
+        ...state,
+        seating: newSeating,
+        geberIndex: 0,
+        roundCounter: { ...getRoundCounterFromState(state), step: 0 },
+      };
     }
 
-    case 'SET_GEBER_INDEX':
-      return { ...state, geberIndex: action.payload % state.seating.length };
+    case 'SET_GEBER_INDEX': {
+      const seatingSize = state.seating.length || 1;
+      const geberIndex = action.payload % seatingSize;
+      return {
+        ...state,
+        geberIndex,
+        roundCounter: {
+          ...getRoundCounterFromState(state),
+          step: geberIndex % (state.seating.length || 3),
+        },
+      };
+    }
+
+    case 'SET_ROUND_COUNTER': {
+      const currentCounter = getRoundCounterFromState(state);
+      const requested = action.payload ?? {};
+      const seatingSize = state.seating.length || 3;
+      return {
+        ...state,
+        roundCounter: {
+          deals: toNonNegativeInteger(requested.deals, currentCounter.deals),
+          step: toNonNegativeInteger(requested.step, currentCounter.step) % seatingSize,
+          bockRoundsLeft: toNonNegativeInteger(requested.bockRoundsLeft, currentCounter.bockRoundsLeft),
+        },
+      };
+    }
 
     case 'UPDATE_ROUND': {
       const { id, patch } = action.payload;
@@ -189,11 +267,19 @@ export function gameReducer(state, action) {
 
     case 'DELETE_ROUND': {
       const newRounds = state.rounds.filter(r => r.id !== action.payload);
+      const currentCounter = getRoundCounterFromState(state);
+      const seatingSize = state.seating.length || 3;
+      const nextDeals = Math.max(0, currentCounter.deals - 1);
       return {
         ...state,
         rounds: newRounds,
         currentRound: newRounds.length + 1,
         geberIndex: newRounds.length % state.seating.length,
+        roundCounter: {
+          ...currentCounter,
+          deals: nextDeals,
+          step: nextDeals === 0 ? 0 : (currentCounter.step + seatingSize - 1) % seatingSize,
+        },
       };
     }
 

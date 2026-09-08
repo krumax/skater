@@ -100,14 +100,31 @@ export async function createSession(seating, tableName = '') {
   const user_id = await getUserId();
   const { data, error } = await supabase
     .from('sessions')
-    .insert({ seating, geber_index: 0, current_round: 1, table_name: tableName || null, user_id })
+    .insert({
+      seating,
+      geber_index: 0,
+      current_round: 1,
+      round_counter_deals: 0,
+      round_counter_step: 0,
+      bock_rounds_left: 0,
+      table_name: tableName || null,
+      user_id,
+    })
     .select()
     .single();
 
   if (error && error.message?.includes('table_name')) {
     const fallback = await supabase
       .from('sessions')
-      .insert({ seating, geber_index: 0, current_round: 1, user_id })
+      .insert({
+        seating,
+        geber_index: 0,
+        current_round: 1,
+        round_counter_deals: 0,
+        round_counter_step: 0,
+        bock_rounds_left: 0,
+        user_id,
+      })
       .select()
       .single();
 
@@ -270,6 +287,33 @@ export async function _doUpdateSession(sessionId, patch) {
     .select()
     .single();
   return { data, error };
+}
+
+function roundCounterPatch(counter) {
+  return {
+    round_counter_deals: Math.max(0, Math.trunc(Number(counter?.deals) || 0)),
+    round_counter_step: Math.max(0, Math.trunc(Number(counter?.step) || 0)),
+    bock_rounds_left: Math.max(0, Math.trunc(Number(counter?.bockRoundsLeft) || 0)),
+  };
+}
+
+/**
+ * Persists the session progress and table-local round counter in one update.
+ * The wrapper keeps the camelCase app state out of the DB mapping layer.
+ */
+export async function updateSessionRoundState(sessionId, { geberIndex, currentRound, counter } = {}) {
+  return updateSession(sessionId, {
+    ...(geberIndex !== undefined && { geber_index: Math.max(0, Math.trunc(Number(geberIndex) || 0)) }),
+    ...(currentRound !== undefined && { current_round: Math.max(1, Math.trunc(Number(currentRound) || 1)) }),
+    ...(counter && roundCounterPatch(counter)),
+  });
+}
+
+/**
+ * Persists the table-local round counter as one session update.
+ */
+export async function updateRoundCounter(sessionId, counter) {
+  return updateSessionRoundState(sessionId, { counter });
 }
 
 /**

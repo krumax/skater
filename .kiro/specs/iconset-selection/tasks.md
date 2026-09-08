@@ -189,6 +189,20 @@ Implementation follows the four phases from the design: Foundation → Component
 - [ ] 8. Final Checkpoint – All phases complete
   - Ensure all tests pass, ask the user if questions arise.
 
+## Task Dependency Graph
+
+```json
+{
+  "waves": [
+    { "id": 0, "tasks": ["1.1"] },
+    { "id": 1, "tasks": ["1.2", "1.3"] },
+    { "id": 2, "tasks": ["1.4", "1.5", "3.1", "3.2", "3.3"] },
+    { "id": 3, "tasks": ["3.4", "5.1", "5.2", "5.3", "5.4", "5.5"] },
+    { "id": 4, "tasks": ["7.1", "7.2", "7.3", "7.4", "7.5", "7.6", "7.7", "7.8"] }
+  ]
+}
+```
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for a faster MVP

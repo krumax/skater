@@ -75,6 +75,7 @@ export function GameProvider({ children }) {
     currentRound: state.currentRound,
     sessionId: state.sessionId,
     geberIndex: state.geberIndex,
+    roundCounter: state.roundCounter,
     tableName: state.tableName,
     currentRoles,
     spiellisten: state.spiellisten,
@@ -94,7 +95,7 @@ export function GameProvider({ children }) {
     getActiveSpiellistenForSession,
   }), [
     state.seating, players, state.rounds, state.currentRound,
-    state.sessionId, state.geberIndex, state.tableName, currentRoles,
+    state.sessionId, state.geberIndex, state.roundCounter, state.tableName, currentRoles,
     state.spiellisten, state.activeSpiellisteId,
     syncStatus, syncError, sessionLoaded,
     actions,

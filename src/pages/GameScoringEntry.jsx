@@ -15,10 +15,10 @@ import ListenFortschritt  from '../components/ListenFortschritt';
 import SpiellistenSelector from '../components/SpiellistenSelector';
 
 const GameScoringEntry = () => {
-  const { players, seating, addRound, currentRound, playerRankStandard, currentRoles, rounds, playerTotals, seegerTotals, spiellisten, activeSpiellisteId, setActiveSpielliste, createSpielliste, closeSpielliste, getActiveSpiellistenForSession } = useGame();
+  const { players, seating, addRound, resetRoundCounter, roundCounter, currentRound, playerRankStandard, currentRoles, rounds, playerTotals, seegerTotals, spiellisten, activeSpiellisteId, setActiveSpielliste, createSpielliste, closeSpielliste, getActiveSpiellistenForSession } = useGame();
 
   const form = useGameForm(currentRoles.activePlayers[0] || players[0]);
-  const counter = useRoundCounter();
+  const counter = useRoundCounter(roundCounter, seating.length, resetRoundCounter);
 
   const playerLevels = useMemo(() =>
     Object.fromEntries(
@@ -52,14 +52,22 @@ const GameScoringEntry = () => {
   const handleCommit = () => {
     const payload = form.buildRoundPayload();
     if (!payload) return;
+
+    const seatingSize = seating.length || 3;
     const wasActiveBock = counter.bockRoundsLeft > 0;
-    // Wenn Spaltarsch: Bockrunden starten (addiert zu laufenden)
-    if (form.isSpaltarsch) counter.triggerBock(seating.length);
-    addRound(payload);
+    const nextRoundCounter = {
+      deals: counter.totalDeals + 1,
+      step: (counter.step + 1) % seatingSize,
+      bockRoundsLeft: Math.max(
+        0,
+        counter.bockRoundsLeft
+          + (form.isSpaltarsch ? seatingSize : 0)
+          - (wasActiveBock ? 1 : 0)
+      ),
+    };
+
+    addRound(payload, nextRoundCounter);
     form.resetForm();
-    counter.increment(seating.length);
-    // Nach dem Speichern einen Bockrunden-Counter herunter (nur wenn Bockrunde aktiv war)
-    if (wasActiveBock) counter.decrementBock();
   };
 
   // Bock-Chip automatisch aktivieren/deaktivieren je nach laufenden Bockrunden

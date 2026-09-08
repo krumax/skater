@@ -16,6 +16,34 @@ import * as syncService from '../lib/syncService';
 import { SESSION_STORAGE_KEY } from './useSessionInit';
 import { validateSpiellisteName, validateRoundCount, generateDefaultName, computeListWinner } from '../lib/spiellistenUtils';
 
+function toNonNegativeInteger(value, fallback = 0) {
+  if (value === null || value === undefined || value === '') return fallback;
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? Math.max(0, Math.trunc(numeric)) : fallback;
+}
+
+function getRoundCounterState(state) {
+  const seatingSize = state.seating.length || 3;
+  const source = state.roundCounter ?? {};
+  return {
+    deals: toNonNegativeInteger(source.deals, state.rounds.length),
+    step: toNonNegativeInteger(source.step, state.geberIndex) % seatingSize,
+    bockRoundsLeft: toNonNegativeInteger(source.bockRoundsLeft, 0),
+  };
+}
+
+function getNextRoundCounter(state, bockRoundsLeft) {
+  const current = getRoundCounterState(state);
+  const seatingSize = state.seating.length || 3;
+  return {
+    deals: current.deals + 1,
+    step: (current.step + 1) % seatingSize,
+    bockRoundsLeft: bockRoundsLeft === undefined
+      ? current.bockRoundsLeft
+      : toNonNegativeInteger(bockRoundsLeft, current.bockRoundsLeft),
+  };
+}
+
 export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
@@ -33,7 +61,7 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
 
   // ── Round actions ──────────────────────────────────────────────────────────
 
-  const addRound = useCallback(async (roundData) => {
+  const addRound = useCallback(async (roundData, requestedCounter = null) => {
     // Capture spielliste state before dispatch (reducer will mutate it)
     const activeId = state.activeSpiellisteId;
     const activeListe = activeId ? state.spiellisten.find(l => l.id === activeId) : null;
@@ -41,9 +69,19 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
       ? state.rounds.filter(r => r.spiellisteId === activeId).length
       : 0;
 
+    const defaultNextCounter = getNextRoundCounter(state);
+    const nextRoundCounter = requestedCounter
+      ? {
+          deals: toNonNegativeInteger(requestedCounter.deals, defaultNextCounter.deals),
+          step: toNonNegativeInteger(requestedCounter.step, defaultNextCounter.step) % (state.seating.length || 3),
+          bockRoundsLeft: toNonNegativeInteger(requestedCounter.bockRoundsLeft, defaultNextCounter.bockRoundsLeft),
+        }
+      : defaultNextCounter;
+
     dispatch({ type: 'ADD_ROUND', payload: roundData });
+    dispatch({ type: 'SET_ROUND_COUNTER', payload: nextRoundCounter });
     const sessionId = getSessionId();
-    if (!sessionId) return;
+    if (!sessionId) return { error: null };
 
     setSyncStatus('syncing');
 
@@ -58,18 +96,22 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
     };
 
     const { data: insertedRow, error: insertError } = await syncService.insertRound(roundWithId, sessionId);
-    if (insertError) { syncFail('insertRound', insertError); return; }
+    if (insertError) {
+      syncFail('insertRound', insertError);
+      return { error: insertError };
+    }
 
     // Write the DB-generated UUID back into local state so edits can reference it
     if (insertedRow?.id) {
       dispatch({ type: 'UPDATE_ROUND', payload: { id: roundWithId.id, patch: { _dbId: insertedRow.id } } });
     }
 
-    const { error: updateError } = await syncService.updateSession(sessionId, {
-      geber_index:   (state.geberIndex + 1) % state.seating.length,
-      current_round: state.currentRound + 1,
+    const { error: updateError } = await syncService.updateSessionRoundState(sessionId, {
+      geberIndex:   (state.geberIndex + 1) % state.seating.length,
+      currentRound: state.currentRound + 1,
+      counter:      nextRoundCounter,
     });
-    if (updateError) console.error('updateSession fehlgeschlagen:', updateError);
+    if (updateError) syncFail('updateSessionRoundState', updateError);
 
     // Auto-close list in DB if round count reached
     if (activeListe && (listRoundsCountBefore + 1) >= activeListe.roundCount) {
@@ -80,26 +122,46 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
       if (closeError) console.error('closeSpielliste (auto) fehlgeschlagen:', closeError);
     }
 
-    syncOk();
-  }, [state.rounds, state.rounds.length, state.geberIndex, state.seating, state.seating.length, state.currentRound, state.activeSpiellisteId, state.spiellisten]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!updateError) syncOk();
+    return { error: updateError ?? null };
+  }, [state.rounds, state.geberIndex, state.seating, state.currentRound, state.activeSpiellisteId, state.spiellisten, state.roundCounter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const deleteRound = useCallback(async (round) => {
+    const currentCounter = getRoundCounterState(state);
+    const seatingSize = state.seating.length || 3;
+    const nextDeals = Math.max(0, currentCounter.deals - 1);
+    const nextRoundCounter = {
+      ...currentCounter,
+      deals: nextDeals,
+      step: nextDeals === 0 ? 0 : (currentCounter.step + seatingSize - 1) % seatingSize,
+    };
+
     dispatch({ type: 'DELETE_ROUND', payload: round.id });
+    dispatch({ type: 'SET_ROUND_COUNTER', payload: nextRoundCounter });
     const sessionId = getSessionId();
-    if (!sessionId) return;
+    if (!sessionId) return { error: null };
 
     setSyncStatus('syncing');
     const { error } = await syncService.deleteRound(round._dbId ?? round.id);
-    if (error) { syncFail('deleteRound', error); return; }
+    if (error) {
+      syncFail('deleteRound', error);
+      return { error };
+    }
 
     const newRoundCount = state.rounds.length - 1;
-    await syncService.updateSession(sessionId, {
-      current_round: newRoundCount + 1,
-      geber_index:   newRoundCount % state.seating.length,
+    const { error: updateError } = await syncService.updateSessionRoundState(sessionId, {
+      currentRound: newRoundCount + 1,
+      geberIndex:   newRoundCount % state.seating.length,
+      counter:      nextRoundCounter,
     });
+    if (updateError) {
+      syncFail('updateSessionRoundState', updateError);
+      return { error: updateError };
+    }
 
     syncOk();
-  }, [state.rounds.length, state.seating.length]); // eslint-disable-line react-hooks/exhaustive-deps
+    return { error: null };
+  }, [state.rounds.length, state.seating.length, state.roundCounter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const updateRound = useCallback(async (round, patch) => {
     const dbId = round._dbId ?? round.id;
@@ -127,6 +189,26 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
     dispatch({ type: 'UPDATE_ROUND', payload: { id: round.id, patch } });
     return { error: null };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const resetRoundCounter = useCallback(async () => {
+    const previousCounter = getRoundCounterState(state);
+    const nextCounter = { deals: 0, step: 0, bockRoundsLeft: 0 };
+    dispatch({ type: 'SET_ROUND_COUNTER', payload: nextCounter });
+
+    const sessionId = getSessionId();
+    if (!sessionId) return { error: null };
+
+    setSyncStatus('syncing');
+    const { error } = await syncService.updateRoundCounter(sessionId, nextCounter);
+    if (error) {
+      dispatch({ type: 'SET_ROUND_COUNTER', payload: previousCounter });
+      syncFail('updateRoundCounter', error);
+      return { error };
+    }
+
+    syncOk();
+    return { error: null };
+  }, [state.roundCounter, state.rounds.length, state.seating.length, state.geberIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Session actions ────────────────────────────────────────────────────────
 
@@ -193,7 +275,14 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
     const newSeating = state.seating.filter(p => p !== name);
     const { error } = await syncService.updateSeating(sessionId, newSeating);
     if (error) console.error('updateSeating (removePlayer) fehlgeschlagen:', error);
-  }, [state.seating]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const nextRoundCounter = {
+      ...getRoundCounterState(state),
+      step: getRoundCounterState(state).step % Math.max(newSeating.length, 1),
+    };
+    const { error: counterError } = await syncService.updateRoundCounter(sessionId, nextRoundCounter);
+    if (counterError) console.error('updateRoundCounter (removePlayer) fehlgeschlagen:', counterError);
+  }, [state.seating, state.roundCounter, state.rounds.length, state.geberIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const renamePlayer = useCallback(async (oldName, newName) => {
     dispatch({ type: 'RENAME_PLAYER', payload: { oldName, newName } });
@@ -213,23 +302,34 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
   const reorderSeating = useCallback(async (fromIndex, toIndex) => {
     const newSeating = [...state.seating];
     const [moved] = newSeating.splice(fromIndex, 1);
-    newSeating.splice(toIndex, 0, moved);
+    const nextRoundCounter = { ...getRoundCounterState(state), step: 0 };
     dispatch({ type: 'REORDER_SEATING', payload: { fromIndex, toIndex } });
+    dispatch({ type: 'SET_ROUND_COUNTER', payload: nextRoundCounter });
     const sessionId = getSessionId();
     if (!sessionId) return;
     const { error } = await syncService.updateSeating(sessionId, newSeating);
     if (error) console.error('updateSeating (reorderSeating) fehlgeschlagen:', error);
-    const { error: geberError } = await syncService.updateSession(sessionId, { geber_index: 0 });
-    if (geberError) console.error('updateSession (reorderSeating geber_index) fehlgeschlagen:', geberError);
-  }, [state.seating]); // eslint-disable-line react-hooks/exhaustive-deps
+    const { error: geberError } = await syncService.updateSessionRoundState(sessionId, {
+      geberIndex: 0,
+      counter: nextRoundCounter,
+    });
+    if (geberError) console.error('updateSessionRoundState (reorderSeating) fehlgeschlagen:', geberError);
+  }, [state.seating, state.roundCounter, state.rounds.length, state.geberIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setGeberIndex = useCallback(async (index) => {
-    dispatch({ type: 'SET_GEBER_INDEX', payload: index });
+    const seatingSize = state.seating.length || 1;
+    const nextIndex = index % seatingSize;
+    const nextRoundCounter = { ...getRoundCounterState(state), step: nextIndex % (state.seating.length || 3) };
+    dispatch({ type: 'SET_GEBER_INDEX', payload: nextIndex });
+    dispatch({ type: 'SET_ROUND_COUNTER', payload: nextRoundCounter });
     const sessionId = getSessionId();
     if (!sessionId) return;
-    const { error } = await syncService.updateSession(sessionId, { geber_index: index });
-    if (error) console.error('updateSession (setGeberIndex) fehlgeschlagen:', error);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    const { error } = await syncService.updateSessionRoundState(sessionId, {
+      geberIndex: nextIndex,
+      counter: nextRoundCounter,
+    });
+    if (error) console.error('updateSessionRoundState (setGeberIndex) fehlgeschlagen:', error);
+  }, [state.seating.length, state.roundCounter, state.rounds.length, state.geberIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const renameTable = useCallback(async (name) => {
     dispatch({ type: 'SET_TABLE_NAME', payload: name });
@@ -327,11 +427,13 @@ export function useSyncActions(state, dispatch, setSyncStatus, setSyncError) {
 
   return useMemo(() => ({
     addRound, deleteRound, updateRound,
+    resetRoundCounter,
     resetSession, createNewTable, switchSession, refreshFromDB, clearSession,
     addPlayer, removePlayer, renamePlayer, reorderSeating, setGeberIndex, renameTable,
     createSpielliste, setActiveSpielliste, closeSpielliste, deleteSpielliste,
   }), [
     addRound, deleteRound, updateRound,
+    resetRoundCounter,
     resetSession, createNewTable, switchSession, refreshFromDB, clearSession,
     addPlayer, removePlayer, renamePlayer, reorderSeating, setGeberIndex, renameTable,
     createSpielliste, setActiveSpielliste, closeSpielliste, deleteSpielliste,
