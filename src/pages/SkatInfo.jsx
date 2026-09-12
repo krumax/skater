@@ -117,7 +117,6 @@ export default function SkatInfo() {
                 <li><strong style={{ color: 'var(--on-surface)' }}>Spielart</strong> wählen – Farbe (Kreuz/Pik/Herz/Karo), Grand oder Null.</li>
                 <li><strong style={{ color: 'var(--on-surface)' }}>Modifikatoren</strong> setzen – Hand, Schneider, Schwarz, Ouvert falls gespielt.</li>
                 <li><strong style={{ color: 'var(--on-surface)' }}>Spitzen</strong> eingeben (mit oder ohne, Anzahl) – der Reizwert wird automatisch berechnet.</li>
-                <li><strong style={{ color: 'var(--on-surface)' }}>Augenzahl</strong> des Alleinspielers eintragen – daraus ergibt sich Gewinn oder Verlust.</li>
                 <li>Auf <strong style={{ color: 'var(--on-surface)' }}>Runde speichern</strong> tippen – Punkte werden sofort verbucht, der Geber rückt automatisch weiter.</li>
               </ol>
               <p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
