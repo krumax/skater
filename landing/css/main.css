@@ -85,6 +85,7 @@ section { padding: 5rem 2rem; }
 .variant-desktop .variant-desc { color: rgba(255,255,255,0.7); }
 .variant-features { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
 .variant-features li { font-size: 0.9rem; font-weight: 600; }
+.feature-new { display: inline-flex; align-items: center; margin-left: 0.35rem; padding: 0.15rem 0.45rem; border-radius: 999px; background: var(--gold); color: var(--text-dark); font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; line-height: 1; white-space: nowrap; vertical-align: middle; }
 .variant-mobile li.included { color: var(--green-dark); }
 .variant-mobile li.excluded { color: var(--text-muted); opacity: 0.55; text-decoration: line-through; }
 .variant-desktop li.included { color: rgba(255,255,255,0.9); }

@@ -189,7 +189,7 @@ const GameScoringEntry = () => {
           }
           return [chip];
         })}
-        <Link to="/info" style={{
+        <Link to="/info#reizen" style={{
           marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.25rem',
           fontSize: '0.75rem', fontWeight: 600, color: 'var(--outline)',
           textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,

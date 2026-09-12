@@ -18,7 +18,8 @@ function makeRound(overrides) {
     gameType: 'spade',
     gameValue: 18,
     won: true,
-    seegerScores: { Alice: 68, Bob: -40, Carol: -40 },
+    // seegerScores contains the pure tournament bonus, not gameValue + bonus.
+    seegerScores: { Alice: 50, Bob: 0, Carol: 0 },
     ...overrides,
   };
 }
@@ -53,21 +54,29 @@ describe('computePlayerTotals', () => {
 // ── computeSeegerTotals ───────────────────────────────────────────────────────
 
 describe('computeSeegerTotals', () => {
-  it('sums seegerScores across rounds', () => {
+  it('combines game values with Seeger-Fabian bonuses', () => {
     const rounds = [
-      makeRound({ seegerScores: { Alice: 68, Bob: -40, Carol: -40 } }),
-      makeRound({ seegerScores: { Alice: -86, Bob: 40, Carol: 40 } }),
+      makeRound({
+        player: 'Alice',
+        gameValue: 18,
+        won: true,
+        seegerScores: { Alice: 50, Bob: 0, Carol: 0 },
+      }),
+      makeRound({
+        player: 'Alice',
+        gameValue: -36,
+        won: false,
+        seegerScores: { Alice: -50, Bob: 40, Carol: 40 },
+      }),
     ];
     const totals = computeSeegerTotals(seating, rounds);
-    expect(totals.Alice).toBe(-18);
-    expect(totals.Bob).toBe(0);
-    expect(totals.Carol).toBe(0);
+    expect(totals).toEqual({ Alice: -18, Bob: 40, Carol: 40 });
   });
 
   it('handles rounds without seegerScores gracefully', () => {
     const rounds = [makeRound({ seegerScores: null })];
     const totals = computeSeegerTotals(seating, rounds);
-    expect(totals).toEqual({ Alice: 0, Bob: 0, Carol: 0 });
+    expect(totals).toEqual({ Alice: 18, Bob: 0, Carol: 0 });
   });
 });
 
@@ -191,13 +200,23 @@ describe('computePlayerStats', () => {
     expect(stats.longestWinStreak).toBe(1);
   });
 
-  it('accumulates seeger total from all rounds', () => {
+  it('accumulates the pure Seeger-Fabian bonus from all rounds', () => {
     const rounds = [
-      makeRound({ seegerScores: { Alice: 68, Bob: -40, Carol: -40 } }),
-      makeRound({ seegerScores: { Alice: -86, Bob: 40, Carol: 40 } }),
+      makeRound({
+        player: 'Alice',
+        gameValue: 18,
+        won: true,
+        seegerScores: { Alice: 50, Bob: 0, Carol: 0 },
+      }),
+      makeRound({
+        player: 'Alice',
+        gameValue: -36,
+        won: false,
+        seegerScores: { Alice: -50, Bob: 40, Carol: 40 },
+      }),
     ];
     const stats = computePlayerStats(rounds, 'Alice');
-    expect(stats.seegerTotal).toBe(-18);
+    expect(stats.seegerTotal).toBe(0);
   });
 });
 
@@ -226,14 +245,24 @@ describe('computeRunningTotals', () => {
     expect(runningStd[2]).toMatchObject({ Alice: 42, Bob: -36, Carol: 0 });
   });
 
-  it('accumulates Seeger-Fabian scores correctly', () => {
+  it('accumulates combined Seeger-Fabian scores correctly', () => {
     const rounds = [
-      makeRound({ player: 'Alice', gameValue: 18, seegerScores: { Alice: 68, Bob: -40, Carol: -40 } }),
-      makeRound({ player: 'Bob',   gameValue: -36, seegerScores: { Alice: 40, Bob: -86, Carol: 40 } }),
+      makeRound({
+        player: 'Alice',
+        gameValue: 18,
+        won: true,
+        seegerScores: { Alice: 50, Bob: 0, Carol: 0 },
+      }),
+      makeRound({
+        player: 'Bob',
+        gameValue: -36,
+        won: false,
+        seegerScores: { Alice: 40, Bob: -50, Carol: 40 },
+      }),
     ];
     const { runningSF } = computeRunningTotals(players, rounds);
-    expect(runningSF[0]).toMatchObject({ Alice: 68, Bob: -40, Carol: -40 });
-    expect(runningSF[1]).toMatchObject({ Alice: 108, Bob: -126, Carol: 0 });
+    expect(runningSF[0]).toEqual({ Alice: 68, Bob: 0, Carol: 0 });
+    expect(runningSF[1]).toEqual({ Alice: 108, Bob: -86, Carol: 40 });
   });
 
   it('each snapshot is independent (no shared references)', () => {
@@ -250,7 +279,7 @@ describe('computeRunningTotals', () => {
   it('handles rounds without seegerScores (null)', () => {
     const rounds = [makeRound({ player: 'Alice', gameValue: 18, seegerScores: null })];
     const { runningSF } = computeRunningTotals(players, rounds);
-    expect(runningSF[0]).toMatchObject({ Alice: 0, Bob: 0, Carol: 0 });
+    expect(runningSF[0]).toMatchObject({ Alice: 18, Bob: 0, Carol: 0 });
   });
 
   it('initializes all players to 0 even if they never played', () => {

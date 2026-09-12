@@ -20,6 +20,17 @@ export const SUIT_COLORS = {
   passed:  '#9e9e9e',
 };
 
+/** Suit icon colors shared by selectors, badges, and card displays */
+export const SUIT_ICON_COLORS = {
+  grand:   '#0b7a52',
+  club:    '#1b1c1c',
+  spade:   '#414944',
+  heart:   '#b52619',
+  diamond: '#b08a00',
+  null:    '#4a7c6f',
+  passed:  '#9e9e9e',
+};
+
 /** Foreground (text) color on top of SUIT_COLORS backgrounds */
 export const SUIT_TEXT_COLORS = {
   grand:   '#ffffff',

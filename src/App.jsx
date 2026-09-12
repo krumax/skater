@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { GameProvider, useGame } from './context/GameContext';
 import { IconsetProvider } from './context/IconsetContext';
 import Sidebar from './components/Sidebar';
@@ -15,6 +15,52 @@ import SkatInfo from './pages/SkatInfo';
 import TrophyShowcasePage from './pages/TrophyShowcasePage';
 import MeinProfil from './pages/MeinProfil';
 import ClaimSlot from './pages/ClaimSlot';
+
+function HashScrollRestoration() {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    if (!hash || hash === '#') return undefined;
+
+    let targetId;
+    try {
+      targetId = decodeURIComponent(hash.slice(1));
+    } catch {
+      targetId = hash.slice(1);
+    }
+    if (!targetId) return undefined;
+
+    let cancelled = false;
+    let observer = null;
+    let stopTimeout = null;
+
+    const scrollToTarget = () => {
+      const target = document.getElementById(targetId);
+      if (!target || cancelled) return false;
+
+      if (typeof target.scrollIntoView === 'function') {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      observer?.disconnect();
+      if (stopTimeout !== null) window.clearTimeout(stopTimeout);
+      return true;
+    };
+
+    if (!scrollToTarget()) {
+      observer = new MutationObserver(scrollToTarget);
+      observer.observe(document.body, { childList: true, subtree: true });
+      stopTimeout = window.setTimeout(() => observer?.disconnect(), 10000);
+    }
+
+    return () => {
+      cancelled = true;
+      observer?.disconnect();
+      if (stopTimeout !== null) window.clearTimeout(stopTimeout);
+    };
+  }, [pathname, hash]);
+
+  return null;
+}
 
 function AppShell() {
   const { sessionLoaded } = useGame();
@@ -54,6 +100,7 @@ function App() {
       <AuthGate>
         <GameProvider>
           <BrowserRouter basename="/app">
+            <HashScrollRestoration />
             <AppShell />
             <AchievementWatcher />
             <UpdatePrompt />

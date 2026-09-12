@@ -105,12 +105,12 @@ Implementation follows the four phases from the design: Foundation → Component
     - Remove the `SUIT_SYMBOLS` import from `'../lib/skatScoring'` if it is no longer used after the replacements
     - _Requirements: 3.5_
 
-  - [~] 5.4 Update `src/components/analytics/GameTypeHeatmap.jsx` to use `<SuitIcon>`
+  - [ ] 5.4 Update `src/components/analytics/GameTypeHeatmap.jsx` to use `<SuitIcon>`
     - In the `<thead>` column headers: replace the `{type === 'grand' || type === 'null' ? <span className="material-symbols-outlined">...</span> : SUIT_SYMBOLS[type]}` expression with `<SuitIcon gameType={type} size="sm" />`
     - Remove the `SUIT_SYMBOLS` import from `'../../lib/skatScoring'` if it is no longer used
     - _Requirements: 3.6_
 
-  - [~] 5.5 Write integration tests for cross-component iconset switching
+  - [ ] 5.5 Write integration tests for cross-component iconset switching
     - Mount the full app tree (with `IconsetProvider`, `GameProvider`, `MemoryRouter`) in a test
     - Render `PlayerSettings` and simulate clicking „Altenburger Blatt"
     - Verify `localStorage.getItem('skatIconset')` equals `'altenburg'`
@@ -122,7 +122,7 @@ Implementation follows the four phases from the design: Foundation → Component
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Phase 4: Property-Based Tests
-  - [~] 7.1 Write property test – Property 1: Iconset persistence round-trip (`src/context/IconsetContext.property.test.jsx`)
+  - [ ] 7.1 Write property test – Property 1: Iconset persistence round-trip (`src/context/IconsetContext.property.test.jsx`)
     - **Property 1: Iconset persistence round-trip**
     - For any valid iconset value in `{'french', 'altenburg'}`, when `setIconset(value)` is called, `localStorage.getItem('skatIconset')` SHALL equal `value`
     - Use `fc.constantFrom('french', 'altenburg')` as the arbitrary
@@ -130,7 +130,7 @@ Implementation follows the four phases from the design: Foundation → Component
     - Minimum 100 iterations
     - **Validates: Requirements 2.1**
 
-  - [~] 7.2 Write property test – Property 2: Iconset initialization from localStorage (`src/context/IconsetContext.property.test.jsx`)
+  - [ ] 7.2 Write property test – Property 2: Iconset initialization from localStorage (`src/context/IconsetContext.property.test.jsx`)
     - **Property 2: Iconset initialization from localStorage**
     - For any valid iconset value stored in `localStorage` under key `'skatIconset'`, when `IconsetProvider` mounts, the context SHALL initialize with `iconset` equal to that stored value
     - Use `fc.constantFrom('french', 'altenburg')` as the arbitrary
@@ -138,7 +138,7 @@ Implementation follows the four phases from the design: Foundation → Component
     - Minimum 100 iterations
     - **Validates: Requirements 2.2**
 
-  - [~] 7.3 Write property test – Property 3: SuitIcon renders correct representation for suit types (`src/components/SuitIcon.property.test.jsx`)
+  - [ ] 7.3 Write property test – Property 3: SuitIcon renders correct representation for suit types (`src/components/SuitIcon.property.test.jsx`)
     - **Property 3: SuitIcon renders correct representation for suit types**
     - For any suit type in `{club, spade, heart, diamond}` and any iconset in `{'french', 'altenburg'}`, `SuitIcon` SHALL render an `<img>` when `iconset === 'altenburg'` (no error) and a Unicode symbol when `iconset === 'french'` or on image error
     - Use `fc.constantFrom('club', 'spade', 'heart', 'diamond')` and `fc.constantFrom('french', 'altenburg')` as arbitraries
@@ -146,7 +146,7 @@ Implementation follows the four phases from the design: Foundation → Component
     - Minimum 100 iterations
     - **Validates: Requirements 3.1, 3.2, 5.5**
 
-  - [~] 7.4 Write property test – Property 4: SuitIcon always renders Material Icons for special types (`src/components/SuitIcon.property.test.jsx`)
+  - [ ] 7.4 Write property test – Property 4: SuitIcon always renders Material Icons for special types (`src/components/SuitIcon.property.test.jsx`)
     - **Property 4: SuitIcon always renders Material Icons for special types**
     - For any iconset in `{'french', 'altenburg'}` and any special game type in `{grand, null, passed}`, `SuitIcon` SHALL render a `<span>` with class `material-symbols-outlined`, never an `<img>`
     - Use `fc.constantFrom('grand', 'null', 'passed')` and `fc.constantFrom('french', 'altenburg')` as arbitraries
@@ -154,7 +154,7 @@ Implementation follows the four phases from the design: Foundation → Component
     - Minimum 100 iterations
     - **Validates: Requirements 3.7**
 
-  - [~] 7.5 Write property test – Property 5: Altenburg icon mapping correctness (`src/components/SuitIcon.property.test.jsx`)
+  - [ ] 7.5 Write property test – Property 5: Altenburg icon mapping correctness (`src/components/SuitIcon.property.test.jsx`)
     - **Property 5: Altenburg icon mapping correctness**
     - For any suit key in `{club, spade, heart, diamond}`, the `ALTENBURG_ICONS` mapping SHALL return a path string containing `'icon_altenburg_einfach'` and the corresponding German suit filename segment (`eichel`, `gruen`, `rot`, `schellen`)
     - Use `fc.constantFrom('club', 'spade', 'heart', 'diamond')` as the arbitrary
@@ -162,7 +162,7 @@ Implementation follows the four phases from the design: Foundation → Component
     - Minimum 100 iterations
     - **Validates: Requirements 4.1, 4.2**
 
-  - [~] 7.6 Write property test – Property 6: Altenburg icons have accessibility attributes (`src/components/SuitIcon.property.test.jsx`)
+  - [ ] 7.6 Write property test – Property 6: Altenburg icons have accessibility attributes (`src/components/SuitIcon.property.test.jsx`)
     - **Property 6: Altenburg icons have accessibility attributes**
     - For any suit type in `{club, spade, heart, diamond}`, when `iconset === 'altenburg'` and `SuitIcon` renders an `<img>`, that element SHALL have a non-empty `alt` attribute containing the German suit name
     - Use `fc.constantFrom('club', 'spade', 'heart', 'diamond')` as the arbitrary
@@ -170,7 +170,7 @@ Implementation follows the four phases from the design: Foundation → Component
     - Minimum 100 iterations
     - **Validates: Requirements 4.3**
 
-  - [~] 7.7 Write property test – Property 7: Iconset preview completeness (`src/pages/PlayerSettings.property.test.jsx`)
+  - [ ] 7.7 Write property test – Property 7: Iconset preview completeness (`src/pages/PlayerSettings.property.test.jsx`)
     - **Property 7: Iconset preview completeness**
     - For any iconset option rendered in the `PlayerSettings` UI, the preview SHALL display exactly 4 suit symbols corresponding to `{club, spade, heart, diamond}`
     - Use `fc.constantFrom('french', 'altenburg')` as the arbitrary for the active iconset
@@ -178,7 +178,7 @@ Implementation follows the four phases from the design: Foundation → Component
     - Minimum 100 iterations
     - **Validates: Requirements 1.4**
 
-  - [~] 7.8 Write property test – Property 8: Context reactivity (`src/context/IconsetContext.property.test.jsx`)
+  - [ ] 7.8 Write property test – Property 8: Context reactivity (`src/context/IconsetContext.property.test.jsx`)
     - **Property 8: Context reactivity**
     - For any valid iconset value, when `setIconset(value)` is called within a mounted `IconsetProvider`, all components consuming `useIconset()` SHALL re-render and reflect the new iconset value without requiring a page reload
     - Use `fc.constantFrom('french', 'altenburg')` as the arbitrary

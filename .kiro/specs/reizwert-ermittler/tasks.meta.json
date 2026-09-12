@@ -1,0 +1,436 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 `src/lib/reizwertTrainer.js` anlegen": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907871989
+      },
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907879924
+      },
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788908238091
+      }
+    ],
+    "1.2 Trumpfreihenfolgen und Spitzenberechnung implementieren": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907872135
+      },
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907882670
+      },
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788908340301
+      }
+    ],
+    "1.3 Kandidaten- und Maximalwertberechnung implementieren": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907872237
+      },
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788908345805
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129690606
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129696034
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129944788
+      }
+    ],
+    "1.4 Puzzle-Erzeugung und Antwortprüfung implementieren": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907872329
+      },
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788908348580
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129690675
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129699292
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129947195
+      }
+    ],
+    "1.5 Unit-Tests für `reizwertTrainer.js` schreiben": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907872387
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129690724
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129953975
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789130059661
+      }
+    ],
+    "1.6 Property-Based-Tests für die pure Logik schreiben": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907872455
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129690773
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129956065
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789138003147
+      }
+    ],
+    "2. Checkpoint – Pure Logik validieren": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907872536
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129690822
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789132835874
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789133782011
+      }
+    ],
+    "3.1 `src/components/rules/PlayingCard.jsx` anlegen": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907872606
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129690867
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129958379
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789130062531
+      }
+    ],
+    "3.2 `src/components/rules/ReizwertErmittler.jsx` anlegen": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907872671
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129690907
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789132838056
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789133627033
+      }
+    ],
+    "3.3 Temporäre Session-Anzeige implementieren": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907872740
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129690953
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789132840241
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789133721447
+      }
+    ],
+    "3.4 Trainerkomponenten testen": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907872806
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129691004
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789133892433
+      }
+    ],
+    "4.1 Statische Sektion „Reizen verstehen“ in `src/pages/SkatInfo.jsx` ergänzen": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907872911
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129691069
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789133894843
+      }
+    ],
+    "4.2 `ReizwertErmittler` in `SkatInfo.jsx` zwischen Reizen-Erklärung und Reiztabelle rendern": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907873009
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129691119
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789133900293
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137173355
+      }
+    ],
+    "4.3 Link aus `src/pages/GameScoringEntry.jsx` aktualisieren": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907873069
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129691167
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789133897123
+      }
+    ],
+    "4.4 Regelwerk-Integrations- und Reihenfolge-Tests ergänzen": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907873138
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129691206
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137177285
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137305593
+      }
+    ],
+    "5.1 Relevante CSS-Klassen in `src/index.css` ergänzen oder bestehende Tokens verwenden": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907873217
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129691250
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137179890
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137308890
+      }
+    ],
+    "5.2 Mobile Layout implementieren": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907873300
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129691302
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137311456
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137441357
+      }
+    ],
+    "5.3 Accessibility-Abnahme umsetzen": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907873378
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129691342
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137445691
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137705519
+      }
+    ],
+    "6. Finaler Checkpoint – Feature validieren": [
+      {
+        "executionId": "c6e93421-c10f-48c0-90c9-b99a00e8de53",
+        "chatSessionId": "sess_7aea0504-8bee-457d-96e1-cc13b6e4a023",
+        "timestamp": 1788907873455
+      },
+      {
+        "executionId": "7c04c3ff-6b39-4da5-a51d-dcac42d7d52c",
+        "chatSessionId": "sess_41c74ae4-2495-429c-aafc-7a6df7382323",
+        "timestamp": 1789129691388
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137711418
+      },
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137901532
+      }
+    ],
+    "3. Phase 2: Karten- und Trainerkomponenten": [
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789133892512
+      }
+    ],
+    "4. Phase 3: Regelwerk-Integration": [
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137305702
+      }
+    ],
+    "5. Phase 4: Styling, Responsive und Accessibility": [
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789137705798
+      }
+    ],
+    "1. Phase 1: Pure Trainerlogik und Datenmodelle": [
+      {
+        "executionId": "26bfda62-fb5d-4a31-b0de-3a6ef4b0e5d6",
+        "chatSessionId": "sess_cc740a37-d98c-4910-bb71-3469268faaa8",
+        "timestamp": 1789138003197
+      }
+    ]
+  }
+}

@@ -1,4 +1,6 @@
 import SuitIcon from '../components/SuitIcon';
+import ReizwertTrainer from '../components/rules/ReizwertTrainer';
+import reizenImage from '../../assets/bilder/reizen.webp';
 
 // Plain icon colors - consistent with rest of app
 const PLAIN_ICON_COLORS = {
@@ -160,6 +162,69 @@ export default function SkatInfo() {
           </p>
         </div>
       </section>
+
+      {/* ── Reizen verstehen ── */}
+      <section id="reizen" style={{ marginBottom: '3rem' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Reizen</span>
+          <h3 className="headline" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Reizen verstehen</h3>
+        </div>
+        <div style={{ backgroundColor: 'var(--surface)', borderRadius: '0.75rem', padding: '1.5rem 1.75rem', border: '1px solid rgba(192,200,195,0.3)', lineHeight: 1.75, color: 'var(--on-surface-variant)', fontSize: '0.9375rem' }}>
+          <p style={{ marginBottom: '1rem' }}>
+            Beim <strong style={{ color: 'var(--on-surface)' }}>Reizen</strong> wird ausgehandelt, wie hoch der Wert eines möglichen Spiels mindestens sein muss. Der <strong style={{ color: 'var(--on-surface)' }}>Reizwert</strong> ist dabei die Zahl, die während des Reizens aufgerufen und gehalten wird. Er beschreibt also die Mindesthöhe, die der spätere Spielwert erreichen muss.
+          </p>
+          <p style={{ marginBottom: '1rem' }}>
+            Der <strong style={{ color: 'var(--on-surface)' }}>Spielwert</strong> wird erst nach der Wahl von Spielart und Spielstufen bestimmt: Grundwert × Gewinnstufe, zum Beispiel mit Spitzen sowie Hand, Schneider oder Schwarz. Reizwert und Spielwert hängen zusammen, sind aber nicht dasselbe – die Reiztabelle zeigt die möglichen Spielwerte.
+          </p>
+          <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: 'var(--on-surface)' }}>
+            Der Ablauf beim Reizen:
+          </p>
+          <ol style={{ margin: 0, paddingLeft: '1.5rem', display: 'grid', gap: '0.6rem' }}>
+            <li>
+              <strong style={{ color: 'var(--on-surface)' }}>Reizwert nennen:</strong>{' '}
+              Der Sager nennt einen Reizwert, den der Hörer annehmen oder ablehnen kann.
+            </li>
+            <li>
+              <strong style={{ color: 'var(--on-surface)' }}>Mitgehen oder aussteigen:</strong>{' '}
+              Mit <strong style={{ color: 'var(--on-surface)' }}>Ja</strong> nimmt der Hörer den aktuellen Wert an. Mit <strong style={{ color: 'var(--on-surface)' }}>Weg</strong> steigt ein Spieler aus; der nächste Spieler in der Reihenfolge darf anschließend weiter reizen. Wer ausgestiegen ist, kann in dieser Runde nicht mehr Alleinspieler werden.
+            </li>
+            <li>
+              <strong style={{ color: 'var(--on-surface)' }}>Höher reizen:</strong>{' '}
+              Nach einem Ja nennt der Sager den nächsten höheren Reizwert. Das wiederholt sich, bis ein Spieler Weg sagt.
+            </li>
+            <li>
+              <strong style={{ color: 'var(--on-surface)' }}>Alleinspieler bestimmen:</strong>{' '}
+              Der Spieler mit dem höchsten angenommenen Reizwert bleibt übrig, wird Alleinspieler und sagt anschließend Spielart und Spielstufen an. Das Spiel muss mindestens den erreichten Reizwert erfüllen.
+            </li>
+          </ol>
+          <figure style={{ margin: '1.5rem 0 0' }}>
+            <img
+              src={reizenImage}
+              alt="Infografik zum Skat-Reizen: Reizwerte werden aufgerufen, der höchste Reizwert bestimmt den Alleinspieler und das Spiel muss diesen Wert mindestens erreichen."
+              width="1280"
+              height="853"
+              loading="lazy"
+              decoding="async"
+              style={{
+                display: 'block',
+                width: '100%',
+                height: 'auto',
+                border: '1px solid rgba(192,200,195,0.3)',
+                borderRadius: '0.75rem',
+                backgroundColor: 'var(--surface-low)',
+              }}
+            />
+            <figcaption style={{ marginTop: '0.5rem', color: 'var(--on-surface-variant)', fontSize: '0.8125rem' }}>
+              Infografik zum Ablauf und zu typischen Reizwerten beim Skat.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="reizen-uebung" style={{ marginBottom: '3rem' }}>
+        <ReizwertTrainer />
+      </section>
+
       <section style={{ marginBottom: '3rem' }}>
         <div style={{ marginBottom: '1.5rem' }}>
           <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Offizielle Werte</span>

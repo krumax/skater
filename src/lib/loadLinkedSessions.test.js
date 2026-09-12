@@ -133,6 +133,7 @@ describe('loadLinkedSessions', () => {
       displayName: 'Konrad',
       totalRounds: 3,
       lastPlayedAt: '2024-01-15T11:00:00Z',
+      createdBy: null,
     });
   });
 
