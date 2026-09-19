@@ -45,8 +45,11 @@ const SkatScoreList = () => {
       </header>
 
       {/* ── Tab Navigation ── */}
-      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '2rem', borderBottom: '2px solid var(--outline-variant)', paddingBottom: '0', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div className="score-list-tabs" role="tablist" aria-label="Skatliste-Ansichten" style={{ display: 'flex', gap: '0.25rem', marginBottom: '2rem', borderBottom: '2px solid var(--outline-variant)', paddingBottom: '0', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         <button
+          className="score-list-tab"
+          role="tab"
+          aria-selected={activeTab === 'liste'}
           onClick={() => setActiveTab('liste')}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
@@ -58,9 +61,13 @@ const SkatScoreList = () => {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>table_rows</span>
-          Skatliste
+          <span className="score-list-tab-label-full">Skatliste</span>
+          <span className="score-list-tab-label-mobile">Skatliste</span>
         </button>
         <button
+          className="score-list-tab"
+          role="tab"
+          aria-selected={activeTab === 'spiellisten'}
           onClick={() => setActiveTab('spiellisten')}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
@@ -72,7 +79,8 @@ const SkatScoreList = () => {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>format_list_numbered</span>
-          Spielserien
+          <span className="score-list-tab-label-full">Spielserien</span>
+          <span className="score-list-tab-label-mobile">Serien</span>
           {spiellisten.length > 0 && (
             <span style={{
               fontSize: '0.7rem', fontWeight: 800, minWidth: '1.25rem', height: '1.25rem',
@@ -83,6 +91,9 @@ const SkatScoreList = () => {
           )}
         </button>
         <button
+          className="score-list-tab"
+          role="tab"
+          aria-selected={activeTab === 'geteilte-tische'}
           onClick={() => setActiveTab('geteilte-tische')}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
@@ -94,7 +105,8 @@ const SkatScoreList = () => {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>table_bar</span>
-          Geteilte Tische
+          <span className="score-list-tab-label-full">Geteilte Tische</span>
+          <span className="score-list-tab-label-mobile">Geteilt</span>
         </button>
       </div>
 
