@@ -8,13 +8,13 @@ import {
 } from '../lib/playerStats';
 
 // ── Read-Only Session Detail View (Req 5.1, 5.2, 5.3, 5.4, 5.6, 5.7) ────────
-function ReadOnlySessionDetail({ sessionDetail, loading, error, onBack }) {
+export function ReadOnlySessionDetail({ sessionDetail, loading, error, onBack, heading = 'Mein Profil' }) {
   // Loading state
   if (loading) {
     return (
       <div>
         <header className="page-header">
-          <h1 className="page-title">Mein Profil</h1>
+          <h1 className="page-title">{heading}</h1>
         </header>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '40vh' }}>
           <span style={{ fontSize: '2rem', animation: 'spin 1s linear infinite' }}>⟳</span>
@@ -28,7 +28,7 @@ function ReadOnlySessionDetail({ sessionDetail, loading, error, onBack }) {
     return (
       <div>
         <header className="page-header">
-          <h1 className="page-title">Mein Profil</h1>
+          <h1 className="page-title">{heading}</h1>
         </header>
         <div className="card" style={{ backgroundColor: 'var(--error-container, #fdecea)', padding: '1.5rem' }}>
           <p style={{ color: 'var(--on-error-container, #d32f2f)', marginBottom: '1rem' }}>
@@ -394,7 +394,7 @@ function StatCard({ label, value, color }) {
 }
 
 // ── Session card (Spiellisten-style, expandable) ─────────────────────────────
-function SessionCard({ summary, index, onSessionClick, isOwnTable }) {
+export function SessionCard({ summary, index, onSessionClick, isOwnTable }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -519,7 +519,7 @@ function SessionCard({ summary, index, onSessionClick, isOwnTable }) {
 }
 
 // ── Linked-only session card (no full stats, clickable for detail) ────────────
-function LinkedSessionCard({ session, index, onClick, isOwnTable }) {
+export function LinkedSessionCard({ session, index, onClick, isOwnTable }) {
   return (
     <div
       className="card"
