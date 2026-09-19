@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { SUIT_LABELS } from '../lib/skatScoring';
 import GameTypeEditor from '../components/GameTypeEditor';
@@ -9,10 +8,10 @@ import { computeRunningTotals } from '../lib/playerStats';
 import { PLAYER_COLORS } from '../lib/tokens';
 import { computeListStats, computeListProgress } from '../lib/spiellistenUtils';
 import { useSuitLabel } from '../hooks/useSuitLabel';
+import SharedTablesTab from '../components/SharedTablesTab';
 
 const SkatScoreList = () => {
-  const navigate = useNavigate();
-  const { rounds, players, playerTotals, playerRankStandard, playerRankSeeger, deleteRound, sessionLoaded, spiellisten, closeSpielliste, deleteSpielliste } = useGame();
+  const { rounds, players, playerRankStandard, playerRankSeeger, deleteRound, spiellisten, closeSpielliste, deleteSpielliste } = useGame();
 
   const standardRank = playerRankStandard.filter(e => e.name !== '-');
   const seegerRank = playerRankSeeger.filter(e => e.name !== '-');
@@ -20,7 +19,7 @@ const SkatScoreList = () => {
   const VISIBLE_TAIL = 6;
   const [expanded, setExpanded] = useState(false);
   const [editingRound, setEditingRound] = useState(null);
-  const [activeTab, setActiveTab] = useState('liste'); // 'liste' | 'spiellisten'
+  const [activeTab, setActiveTab] = useState('liste'); // 'liste' | 'spiellisten' | 'geteilte-tische'
   const [selectedSpiellisteId, setSelectedSpiellisteId] = useState(null);
 
   // Running totals per round - memoized, pure function
@@ -46,7 +45,7 @@ const SkatScoreList = () => {
       </header>
 
       {/* ── Tab Navigation ── */}
-      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '2rem', borderBottom: '2px solid var(--outline-variant)', paddingBottom: '0' }}>
+      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '2rem', borderBottom: '2px solid var(--outline-variant)', paddingBottom: '0', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         <button
           onClick={() => setActiveTab('liste')}
           style={{
@@ -55,7 +54,7 @@ const SkatScoreList = () => {
             fontFamily: 'inherit', color: activeTab === 'liste' ? 'var(--primary)' : 'var(--outline)',
             borderBottom: activeTab === 'liste' ? '2px solid var(--primary)' : '2px solid transparent',
             marginBottom: '-2px', transition: 'color 0.15s',
-            display: 'flex', alignItems: 'center', gap: '0.4rem',
+            display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap', flexShrink: 0,
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>table_rows</span>
@@ -69,7 +68,7 @@ const SkatScoreList = () => {
             fontFamily: 'inherit', color: activeTab === 'spiellisten' ? 'var(--primary)' : 'var(--outline)',
             borderBottom: activeTab === 'spiellisten' ? '2px solid var(--primary)' : '2px solid transparent',
             marginBottom: '-2px', transition: 'color 0.15s',
-            display: 'flex', alignItems: 'center', gap: '0.4rem',
+            display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap', flexShrink: 0,
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>format_list_numbered</span>
@@ -82,6 +81,20 @@ const SkatScoreList = () => {
               padding: '0 0.3rem',
             }}>{spiellisten.length}</span>
           )}
+        </button>
+        <button
+          onClick={() => setActiveTab('geteilte-tische')}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: '0.625rem 1.25rem', fontWeight: 700, fontSize: '0.9375rem',
+            fontFamily: 'inherit', color: activeTab === 'geteilte-tische' ? 'var(--primary)' : 'var(--outline)',
+            borderBottom: activeTab === 'geteilte-tische' ? '2px solid var(--primary)' : '2px solid transparent',
+            marginBottom: '-2px', transition: 'color 0.15s',
+            display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap', flexShrink: 0,
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>table_bar</span>
+          Geteilte Tische
         </button>
       </div>
 
@@ -261,6 +274,8 @@ const SkatScoreList = () => {
           setSelectedSpiellisteId={setSelectedSpiellisteId}
         />
       )}
+
+      {activeTab === 'geteilte-tische' && <SharedTablesTab />}
     </div>
   );
 };
